@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client';
 
-// Auth Mutations
+// Auth Mutations - JWT with Refresh Token authentication
 export const LOGIN = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
-      token
+      accessToken
+      refreshToken
       user {
         id
         email
@@ -20,7 +21,8 @@ export const LOGIN = gql`
 export const REGISTER = gql`
   mutation Register($input: RegisterInput!) {
     register(input: $input) {
-      token
+      accessToken
+      refreshToken
       user {
         id
         email
@@ -29,6 +31,15 @@ export const REGISTER = gql`
         lastName
         role
       }
+    }
+  }
+`;
+
+export const REFRESH_TOKEN = gql`
+  mutation RefreshToken($input: RefreshTokenInput!) {
+    refreshToken(input: $input) {
+      accessToken
+      refreshToken
     }
   }
 `;

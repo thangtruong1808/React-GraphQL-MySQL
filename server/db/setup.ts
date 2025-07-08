@@ -1,275 +1,54 @@
-import { query } from "./db";
+import sequelize from './db';
+import { testConnection } from './db';
+
+// Import all models to register them with Sequelize
+import User from './models/user';
+import Project from './models/project';
+import ProjectMember from './models/projectMember';
+import Task from './models/task';
+import Comment from './models/comment';
 
 /**
- * Creates all necessary tables in the database
+ * Database Setup
+ * Initializes database tables and syncs models with all relationships
  */
-export async function setupDatabase() {
+export const setupDatabase = async (): Promise<void> => {
   try {
-    // Create Users table
-    await query(`
-    CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,                        
-    uuid CHAR(36) NOT NULL UNIQUE,                  
-    first_name VARCHAR(100) NOT NULL,                         
-    last_name VARCHAR(100) NOT NULL,                          
-    email VARCHAR(254) NOT NULL UNIQUE COLLATE utf8mb4_general_ci, 
-    password VARCHAR(255) NOT NULL,                           
-    role ENUM('ADMIN', 'MANAGER', 'DEVELOPER') DEFAULT 'DEVELOPER', 
-    is_deleted BOOLEAN DEFAULT FALSE,                         
-    version INT DEFAULT 1,                          
-    created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-    updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    CREATE INDEX idx_users_is_deleted ON users(is_deleted);
-    `);
+    // Test database connection
+    await testConnection();
 
-    // Create projects table
-    await query(`
-    CREATE TABLE projects (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      uuid CHAR(36) NOT NULL UNIQUE,                            
-      name VARCHAR(150) NOT NULL,                               
-      description TEXT NOT NULL,                                
-      status ENUM('PLANNING', 'IN_PROGRESS', 'COMPLETED') DEFAULT 'PLANNING', 
-      owner_id INT NULL,                                        
-      is_deleted BOOLEAN DEFAULT FALSE,                         
-      version INT DEFAULT 1,                                    
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      CONSTRAINT fk_projects_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL,
-      FULLTEXT idx_projects_name_description (name, description)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-     CREATE INDEX idx_projects_owner_id ON projects(owner_id);
-     CREATE INDEX idx_projects_is_deleted ON projects(is_deleted);
-    `);
-
-    // Create project_members table
-    await query(`
-    CREATE TABLE project_members (
-      project_id INT NOT NULL,                                  
-      user_id INT NOT NULL,                                     
-      is_deleted BOOLEAN DEFAULT FALSE,                         
-      role ENUM('VIEWER', 'EDITOR', 'OWNER') DEFAULT 'VIEWER', 
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      PRIMARY KEY (project_id, user_id),
-      CONSTRAINT fk_project_members_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-      CONSTRAINT fk_project_members_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    CREATE INDEX idx_project_members_user_id ON project_members(user_id);
-    CREATE INDEX idx_project_members_is_deleted ON project_members(is_deleted);
-    `);
-
-    // Create permissions table
-    await query(`
-    CREATE TABLE permissions (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      user_id INT NOT NULL,
-      resource_type ENUM('PROJECT', 'TASK', 'COMMENT') NOT NULL,
-      resource_id INT NOT NULL,
-      permission ENUM('READ', 'WRITE', 'DELETE', 'ADMIN') NOT NULL,
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-      CONSTRAINT fk_permissions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      INDEX idx_permissions_user_resource (user_id, resource_type, resource_id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    `);
-
-    // Create tasks table
-    await query(`
-    CREATE TABLE tasks (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      uuid CHAR(36) NOT NULL UNIQUE,                            
-      title VARCHAR(150) NOT NULL,                              
-      description TEXT NOT NULL,                                
-      status ENUM('TODO', 'IN_PROGRESS', 'DONE') DEFAULT 'TODO', 
-      priority ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT 'MEDIUM', 
-      due_date DATE,                                            
-      project_id INT NOT NULL,                                  
-      assigned_to INT NULL,                                     
-      is_deleted BOOLEAN DEFAULT FALSE,                         
-      version INT DEFAULT 1,                                    
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      CONSTRAINT fk_tasks_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-      CONSTRAINT fk_tasks_assigned_to FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
-      FULLTEXT idx_tasks_title_description (title, description)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    CREATE INDEX idx_tasks_project_id ON tasks(project_id);
-    CREATE INDEX idx_tasks_assigned_to ON tasks(assigned_to);
-    CREATE INDEX idx_tasks_is_deleted ON tasks(is_deleted);
-    `);
-
-    // Create tags table
-    await query(`
-    CREATE TABLE tags (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      name VARCHAR(50) NOT NULL UNIQUE,                         
-      description TEXT NOT NULL,                                
-      title VARCHAR(255),                                       
-      type VARCHAR(255),                                        
-      category VARCHAR(255),                                    
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-      FULLTEXT idx_tags_name_description (name, description)    
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-    `);
-
-    // Create task_tags junction table
-    await query(`
-    CREATE TABLE task_tags (
-      task_id INT NOT NULL,                                     
-      tag_id INT NOT NULL,                                      
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      PRIMARY KEY (task_id, tag_id),
-      FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
-      FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    `);
-
-    // Create comments table
-    await query(`
-    CREATE TABLE comments (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      uuid CHAR(36) NOT NULL UNIQUE,                            
-      task_id INT NOT NULL,                                     
-      user_id INT NOT NULL,                                     
-      content TEXT NOT NULL,                                    
-      is_deleted BOOLEAN DEFAULT FALSE,                         
-      version INT DEFAULT 1,                                    
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      CONSTRAINT fk_comments_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
-      CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      FULLTEXT idx_comments_content (content)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    CREATE INDEX idx_comments_task_created_at ON comments(task_id, created_at);
-    CREATE INDEX idx_comments_task_id ON comments(task_id);
-    CREATE INDEX idx_comments_user_id ON comments(user_id);
-    CREATE INDEX idx_comments_is_deleted ON comments(is_deleted);
-    `);
-
-    // Create task_likes table
-    await query(`
-    CREATE TABLE task_likes (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      user_id INT NOT NULL,                                     
-      task_id INT NOT NULL,                                     
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      CONSTRAINT fk_task_likes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      CONSTRAINT fk_task_likes_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
-      UNIQUE (user_id, task_id)                                 
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    CREATE INDEX idx_task_likes_user_id ON task_likes(user_id);
-    `);
-
-    // Create comment_likes table
-    await query(`
-    CREATE TABLE comment_likes (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      user_id INT NOT NULL,                                     
-      comment_id INT NOT NULL,                                  
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      CONSTRAINT fk_comment_likes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      CONSTRAINT fk_comment_likes_comment FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
-      UNIQUE (user_id, comment_id)                              
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-    CREATE INDEX idx_comment_likes_user_id ON comment_likes(user_id);
-    `);
-
-    // Create project_likes table
-    await query(`
-    CREATE TABLE project_likes (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      user_id INT NOT NULL,                                     
-      project_id INT NOT NULL,                                  
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      CONSTRAINT fk_project_likes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      CONSTRAINT fk_project_likes_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-      UNIQUE (user_id, project_id)                              
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    CREATE INDEX idx_project_likes_user_id ON project_likes(user_id);
-    `);
-
-    // Create comment_mentions table
-    await query(`
-    CREATE TABLE comment_mentions (
-      comment_id INT NOT NULL,                                  
-      parent_comment_id INT NULL,                               
-      mentioned_user_id INT NOT NULL,                           
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      PRIMARY KEY (comment_id, mentioned_user_id),
-      CONSTRAINT fk_comment_mentions_parent FOREIGN KEY (parent_comment_id) REFERENCES comments(id),
-      CONSTRAINT fk_comment_mentions_comment FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
-      CONSTRAINT fk_comment_mentions_user FOREIGN KEY (mentioned_user_id) REFERENCES users(id) ON DELETE CASCADE
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    `);
-
-    // Create activity_logs table
-    await query(`
-    CREATE TABLE activity_logs (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      user_id INT NOT NULL,                                     
-      target_user_id INT,                                       
-      project_id INT,                                           
-      task_id INT,                                             
-      action VARCHAR(255) NULL,                                
-      type ENUM('TASK_CREATED','TASK_UPDATED','TASK_ASSIGNED','COMMENT_ADDED','PROJECT_CREATED','PROJECT_COMPLETED','USER_MENTIONED'), 
-      metadata JSON DEFAULT NULL,                              
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),    
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      CONSTRAINT fk_activity_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      CONSTRAINT fk_activity_logs_target_user FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE SET NULL,
-      CONSTRAINT fk_activity_logs_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-      CONSTRAINT fk_activity_logs_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-    CREATE INDEX idx_activity_logs_type ON activity_logs(type);
-    CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at);
-    CREATE INDEX idx_activity_logs_target_user_id ON activity_logs(target_user_id);
-    CREATE INDEX idx_activity_logs_user_created_at ON activity_logs(user_id, created_at);
-    `);
-
-    // Create notifications table
-    await query(`
-    CREATE TABLE notifications (
-      id INT PRIMARY KEY AUTO_INCREMENT,                        
-      user_id INT NOT NULL,                                     
-      message TEXT NOT NULL,                                    
-      is_read BOOLEAN DEFAULT FALSE,                            
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),     
-      updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-    CREATE INDEX idx_notifications_user_id_is_read ON notifications(user_id, is_read);
-    `);
-
-     // Create version_control table
-     await query(`
-    CREATE TABLE version_control (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      entity_type VARCHAR(100) NOT NULL,            -- e.g., 'tasks', 'projects', 'comments'
-      entity_id INT NOT NULL,                        -- ID of the record changed
-      version INT NOT NULL,                          -- version number
-      changed_by INT NOT NULL,                       -- user_id who made the change
-      change_summary TEXT,                           -- optional description or JSON diff
-      created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
-      CONSTRAINT fk_version_control_user FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-    CREATE INDEX idx_version_control_entity ON version_control(entity_type, entity_id);
-      `);
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error setting up database:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
+    // Import all models to register them
+    const models = {
+      User,
+      Project,
+      ProjectMember,
+      Task,
+      Comment,
     };
+
+    // Sync all models with database (create tables if they don't exist)
+    await sequelize.sync({ alter: true });
+
+    console.log('✅ Database tables synchronized successfully.');
+
+    // Create default admin user if no users exist
+    const userCount = await User.count();
+    if (userCount === 0) {
+      await User.create({
+        email: 'admin@example.com',
+        username: 'admin',
+        password: 'Admin123!',
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'ADMIN',
+      });
+      console.log('✅ Default admin user created.');
+    }
+
+  } catch (error) {
+    console.error('❌ Database setup failed:', error);
+    process.exit(1);
   }
-}
+};
+
+export default setupDatabase;

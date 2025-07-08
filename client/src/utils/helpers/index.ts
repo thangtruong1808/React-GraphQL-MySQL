@@ -83,10 +83,10 @@ export const pick = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
   return result;
 };
 
-export const omit = <T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
-  const result = { ...obj };
+export const omit = <T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
+  const result = { ...obj } as T;
   keys.forEach(key => {
-    delete result[key];
+    delete (result as Record<string, unknown>)[key as string];
   });
   return result;
 };
@@ -195,4 +195,85 @@ export const throttle = <T extends (...args: any[]) => any>(
       setTimeout(() => (inThrottle = false), limit);
     }
   };
+}; 
+
+/**
+ * Session Management Utilities
+ * Handles session storage, validation, and cleanup operations
+ */
+
+// Session storage keys
+const SESSION_KEYS = {
+  USER: 'user',
+  EXPIRY: 'sessionExpiry',
+} as const;
+
+// Session duration in milliseconds (1 hour)
+const SESSION_DURATION = 60 * 60 * 1000;
+
+/**
+ * Creates a new session with user data and expiry time
+ * @param user - User data to store in session
+ */
+export const createSession = (user: Record<string, unknown> | any): void => {
+  // Store user data in sessionStorage
+  sessionStorage.setItem(SESSION_KEYS.USER, JSON.stringify(user));
+  
+  // Set session expiry to 1 hour from now
+  const expiryTime = new Date().getTime() + SESSION_DURATION;
+  sessionStorage.setItem(SESSION_KEYS.EXPIRY, expiryTime.toString());
+};
+
+/**
+ * Validates if current session is still active
+ * @returns boolean indicating if session is valid
+ */
+export const isSessionValid = (): boolean => {
+  const expiryTime = sessionStorage.getItem(SESSION_KEYS.EXPIRY);
+  if (!expiryTime) return false;
+  
+  const currentTime = new Date().getTime();
+  const isExpired = currentTime > parseInt(expiryTime);
+  
+  // Clear expired session automatically
+  if (isExpired) {
+    clearSession();
+    return false;
+  }
+  
+  return true;
+};
+
+/**
+ * Retrieves user data from session if valid
+ * @returns User data or null if session is invalid
+ */
+export const getSessionUser = (): Record<string, unknown> | null => {
+  if (!isSessionValid()) return null;
+  
+  const userData = sessionStorage.getItem(SESSION_KEYS.USER);
+  return userData ? JSON.parse(userData) : null;
+};
+
+/**
+ * Clears all session data
+ */
+export const clearSession = (): void => {
+  sessionStorage.removeItem(SESSION_KEYS.USER);
+  sessionStorage.removeItem(SESSION_KEYS.EXPIRY);
+};
+
+/**
+ * Extends current session by resetting expiry time
+ * @returns boolean indicating if session was extended
+ */
+export const extendSession = (): boolean => {
+  if (!isSessionValid()) return false;
+  
+  const user = getSessionUser();
+  if (!user) return false;
+  
+  // Recreate session with new expiry time
+  createSession(user);
+  return true;
 }; 

@@ -1,71 +1,24 @@
 # React GraphQL MySQL App
 
-A modern full-stack application built with React, Apollo GraphQL, and MySQL following best practices for scalable development.
+A full-stack application with React frontend, GraphQL API, and MySQL database using JWT with Refresh Token authentication.
 
-## 🚀 Tech Stack
+## 🚀 Features
 
-### Frontend
-- **React 19** - Modern React with hooks and functional components
-- **TypeScript** - Type-safe development
-- **Apollo Client** - GraphQL client with caching and state management
-- **React Router** - Client-side routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Vite** - Fast build tool and development server
+- **JWT with Refresh Tokens**: Secure token-based authentication with automatic token refresh
+- **Token Rotation**: Enhanced security with automatic refresh token rotation
+- **GraphQL API**: Apollo Server with Express
+- **React Frontend**: Modern React with TypeScript
+- **MySQL Database**: Sequelize ORM with proper relationships
+- **Project Management**: Create and manage projects, tasks, and comments
+- **Role-based Access**: Admin and user roles with proper permissions
 
-### Backend
-- **Node.js** - JavaScript runtime
-- **Apollo Server** - GraphQL server
-- **TypeScript** - Type-safe backend development
-- **MySQL** - Relational database
-- **mysql2** - MySQL client for Node.js
-- **JWT** - Authentication and authorization
+## 📋 Prerequisites
 
-## 📁 Project Structure
-
-```
-react-graphql-mysql-app/
-├── client/                     # React frontend
-│   ├── src/
-│   │   ├── components/         # Reusable UI components
-│   │   │   ├── admin/          # Admin-specific components
-│   │   │   ├── dashboard/      # Dashboard components
-│   │   │   ├── common/         # Shared components
-│   │   │   ├── forms/          # Form components
-│   │   │   ├── layout/         # Layout components
-│   │   │   └── ui/             # Base UI components
-│   │   ├── pages/              # Page components
-│   │   │   ├── auth/           # Authentication pages
-│   │   │   ├── dashboard/      # Dashboard pages
-│   │   │   └── home/           # Home page
-│   │   ├── services/           # API and service layer
-│   │   │   ├── api/            # REST API services
-│   │   │   └── graphql/        # GraphQL queries and mutations
-│   │   ├── hooks/              # Custom React hooks
-│   │   │   ├── custom/         # General custom hooks
-│   │   │   └── graphql/        # GraphQL-specific hooks
-│   │   ├── utils/              # Utility functions
-│   │   │   ├── helpers/        # Helper functions
-│   │   │   └── validation/     # Form validation
-│   │   └── types/              # TypeScript type definitions
-│   │       ├── api/            # API types
-│   │       └── graphql/        # GraphQL types
-│   └── package.json
-├── server/                     # GraphQL backend
-│   ├── auth/                   # Authentication logic
-│   ├── db/                     # Database configuration and models
-│   ├── graphql/                # GraphQL schema and resolvers
-│   └── utils/                  # Backend utilities
-├── api/                        # API entry point
-├── types/                      # Shared TypeScript types
-└── package.json
-```
-
-## 🛠️ Setup Instructions
-
-### Prerequisites
-- Node.js (v18 or higher)
+- Node.js (v16 or higher)
 - MySQL (v8.0 or higher)
 - npm or yarn
+
+## 🛠️ Setup Instructions
 
 ### 1. Clone the Repository
 ```bash
@@ -79,16 +32,17 @@ cd react-graphql-mysql-app
 npm install
 
 # Install client dependencies
-cd client
-npm install
-
-# Install server dependencies (if separate)
-cd ../server
-npm install
+npm install --prefix client
 ```
 
-### 3. Environment Configuration
-Copy the example environment file and configure your database:
+### 3. Database Setup
+Create a MySQL database:
+```sql
+CREATE DATABASE graphql_app;
+```
+
+### 4. Environment Configuration
+Copy the environment example and configure your settings:
 ```bash
 cp env.example .env
 ```
@@ -97,31 +51,24 @@ Update the `.env` file with your database credentials:
 ```env
 # Database Configuration
 DB_HOST=localhost
-DB_USER=your_username
-DB_PASSWORD=your_password
-DB_NAME=graphql_app
 DB_PORT=3306
+DB_NAME=graphql_app
+DB_USER=root
+DB_PASSWORD=your_password_here
 
 # JWT Configuration
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRES_IN=24h
+JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_SECRET=your_super_secret_refresh_key_here_change_in_production
+JWT_REFRESH_EXPIRES_IN=7d
 
 # Server Configuration
 PORT=4000
 NODE_ENV=development
 
-# CORS Configuration
-CORS_ORIGIN=http://localhost:3000
+# Client Configuration
+VITE_API_URL=http://localhost:4000/graphql
 ```
-
-### 4. Database Setup
-Create a MySQL database and run the setup script:
-```sql
-CREATE DATABASE graphql_app;
-USE graphql_app;
-```
-
-The database tables will be created automatically when you start the server.
 
 ### 5. Start Development Servers
 ```bash
@@ -133,55 +80,50 @@ npm run dev:client  # Starts React dev server on http://localhost:3000
 npm run dev:server  # Starts GraphQL server on http://localhost:4000
 ```
 
-## 🎯 Features
+## 🎯 JWT with Refresh Tokens Authentication Flow
 
-### Authentication
-- User registration and login
-- JWT-based authentication
-- Protected routes
-- Role-based access control
+### Token Structure
+- **Access Token**: Short-lived (15 minutes) for API requests
+- **Refresh Token**: Long-lived (7 days) for token renewal
+- **Token Rotation**: New refresh token issued with each refresh
 
-### Project Management
-- Create and manage projects
-- Team collaboration
-- Project member roles
-- Project status tracking
+### Security Features
+- **Automatic Token Refresh**: Tokens refreshed before expiration
+- **Token Blacklisting**: Revoked tokens are blacklisted
+- **Secure Storage**: Tokens stored in localStorage with proper management
+- **Token Rotation**: Enhanced security with new refresh tokens on each refresh
 
-### Task Management
-- Create and assign tasks
-- Task status updates
-- Priority levels
-- Due date tracking
-- Comments and discussions
+### Authentication Flow
+1. **Login/Register**: User receives both access and refresh tokens
+2. **API Requests**: Access token automatically included in requests
+3. **Token Refresh**: Automatic refresh when token expires or is about to expire
+4. **Token Rotation**: New refresh token issued with each refresh
+5. **Logout**: Both tokens blacklisted and cleared from storage
 
-### Real-time Updates
-- GraphQL subscriptions
-- Live updates for comments
-- Real-time notifications
+### Default Admin User
+The system creates a default admin user on first run:
+- **Email**: admin@example.com
+- **Username**: admin
+- **Password**: Admin123!
+- **Role**: ADMIN
 
-## 🔧 Development
+## 📊 Database Schema
 
-### Code Style
-- TypeScript for type safety
-- ESLint for code linting
-- Prettier for code formatting
-- Consistent naming conventions
+### Core Tables
+- **users**: User accounts with authentication
+- **projects**: Project management
+- **project_members**: Many-to-many relationship between users and projects
+- **tasks**: Task management within projects
+- **comments**: Comments on tasks
 
-### Best Practices
-- Component composition
-- Custom hooks for logic reuse
-- Form validation
-- Error handling
-- Loading states
-- Responsive design
+### Relationships
+- Users can own multiple projects
+- Users can be members of multiple projects
+- Projects contain multiple tasks
+- Tasks can have multiple comments
+- Tasks can be assigned to users
 
-### Testing
-- Unit tests for utilities
-- Component testing
-- Integration tests
-- E2E testing (planned)
-
-## 📚 API Documentation
+## 🔧 API Endpoints
 
 ### GraphQL Endpoint
 - **URL**: `http://localhost:4000/graphql`
@@ -189,37 +131,63 @@ npm run dev:server  # Starts GraphQL server on http://localhost:4000
 
 ### Key Queries
 - `currentUser` - Get authenticated user
+- `users` - List users (admin only)
 - `projects` - List user's projects
 - `tasks` - List tasks with filters
-- `users` - List users (admin only)
 
 ### Key Mutations
-- `login` - User authentication
-- `register` - User registration
+- `login` - User authentication (returns access + refresh tokens)
+- `register` - User registration (returns access + refresh tokens)
+- `refreshToken` - Refresh access token using refresh token
+- `logout` - User logout (blacklists tokens)
 - `createProject` - Create new project
 - `createTask` - Create new task
 - `updateTaskStatus` - Update task status
 
+## 🛡️ Security Features
+
+- **JWT with Refresh Tokens**: Secure token-based auth with automatic refresh
+- **Token Rotation**: Enhanced security with new refresh tokens
+- **Token Blacklisting**: Revoked tokens are blacklisted
+- **Password Hashing**: bcrypt with salt rounds
+- **Input Validation**: Comprehensive validation on all inputs
+- **Role-based Access**: Admin and user permissions
+- **CORS Protection**: Configured for development and production
+- **Security Headers**: XSS protection and content type validation
+
 ## 🚀 Deployment
 
-### Frontend Deployment
+### Production Build
 ```bash
-cd client
+# Build the client
 npm run build
-```
 
-### Backend Deployment
-```bash
-cd server
-npm run build
+# Start production server
 npm start
 ```
 
-### Environment Variables for Production
-- Set `NODE_ENV=production`
+### Environment Variables
+Make sure to update all environment variables for production:
+- Use strong JWT secrets
 - Configure production database
-- Set secure JWT secret
-- Configure CORS origins
+- Set proper CORS origins
+- Enable production logging
+
+## 📝 Development Notes
+
+### Code Structure
+- **Frontend**: React with TypeScript, Apollo Client with automatic token refresh
+- **Backend**: Express with Apollo Server, Sequelize ORM
+- **Database**: MySQL with proper relationships
+- **Authentication**: JWT with refresh tokens and token rotation
+
+### Best Practices
+- Comprehensive error handling
+- Input validation on all endpoints
+- Proper TypeScript types
+- React best practices with hooks
+- Secure authentication flow with token rotation
+- Automatic token refresh and management
 
 ## 🤝 Contributing
 
@@ -231,18 +199,4 @@ npm start
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the GraphQL schema
-
-## 🔄 Updates
-
-Stay updated with the latest changes:
-- Follow the repository
-- Check the changelog
-- Review release notes
+This project is licensed under the ISC License.

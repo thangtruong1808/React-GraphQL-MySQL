@@ -11,9 +11,46 @@ export interface User {
 }
 
 export enum UserRole {
-  ADMIN = 'ADMIN',
   USER = 'USER',
+  ADMIN = 'ADMIN',
   MODERATOR = 'MODERATOR',
+}
+
+// Authentication types with refresh token support
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface RegisterInput {
+  email: string;
+  username: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface RefreshTokenInput {
+  refreshToken: string;
+}
+
+export interface UpdateUserInput {
+  email?: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: UserRole;
 }
 
 // Project types
@@ -44,10 +81,26 @@ export interface ProjectMember {
 }
 
 export enum ProjectMemberRole {
-  OWNER = 'OWNER',
-  ADMIN = 'ADMIN',
   MEMBER = 'MEMBER',
+  ADMIN = 'ADMIN',
   VIEWER = 'VIEWER',
+}
+
+export interface CreateProjectInput {
+  name: string;
+  description?: string;
+  status?: ProjectStatus;
+}
+
+export interface UpdateProjectInput {
+  name?: string;
+  description?: string;
+  status?: ProjectStatus;
+}
+
+export interface AddProjectMemberInput {
+  userId: string;
+  role: ProjectMemberRole;
 }
 
 // Task types
@@ -69,7 +122,8 @@ export enum TaskStatus {
   TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
   REVIEW = 'REVIEW',
-  DONE = 'DONE',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }
 
 export enum TaskPriority {
@@ -77,6 +131,25 @@ export enum TaskPriority {
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
   URGENT = 'URGENT',
+}
+
+export interface CreateTaskInput {
+  title: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  projectId: string;
+  assigneeId?: string;
+  dueDate?: string;
+}
+
+export interface UpdateTaskInput {
+  title?: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assigneeId?: string;
+  dueDate?: string;
 }
 
 // Comment types
@@ -89,23 +162,13 @@ export interface Comment {
   updatedAt: string;
 }
 
-// Auth types
-export interface AuthResponse {
-  token: string;
-  user: User;
+export interface CreateCommentInput {
+  content: string;
+  taskId: string;
 }
 
-export interface LoginInput {
-  email: string;
-  password: string;
-}
-
-export interface RegisterInput {
-  email: string;
-  username: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
+export interface UpdateCommentInput {
+  content: string;
 }
 
 // API Response types

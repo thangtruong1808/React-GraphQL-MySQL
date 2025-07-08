@@ -35,10 +35,6 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Tailwind CSS test - positioned below header with high z-index */}
-      <div className="fixed top-20 left-4 bg-red-500 text-white p-2 rounded z-50">
-        Tailwind Test
-      </div>
       <div className="max-w-md w-full space-y-8">
         {/* Page header with title and registration link */}
         <div>
