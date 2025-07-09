@@ -1,35 +1,48 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
+import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import sequelize from '../db';
-import Project from './project';
-import Task from './task';
-import Comment from './comment';
 
 /**
  * User Model
  * Handles user data with password hashing and validation
+ * Matches the database schema exactly from db-schema.txt
+ * Do NOT declare public fields to avoid shadowing Sequelize accessors.
  */
-export class User extends Model {
-  public id!: string;
-  public email!: string;
-  public username!: string;
-  public password!: string;
-  public firstName?: string;
-  public lastName?: string;
-  public role!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>;
+  declare uuid: string;
+  declare email: string;
+  declare password: string;
+  declare firstName: string;
+  declare lastName: string;
+  declare role: string;
+  declare isDeleted: boolean;
+  declare version: number;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 
-  // Instance method to compare password with hash
+  /**
+   * Compare a candidate password with the user's hashed password
+   * @param candidatePassword - The plain text password to check
+   * @returns True if the password matches, false otherwise
+   */
   public async comparePassword(candidatePassword: string): Promise<boolean> {
-    return bcrypt.compare(candidatePassword, this.password);
+    const hash = this.getDataValue('password');
+    if (!candidatePassword || !hash) {
+      return false;
+    }
+    return bcrypt.compare(candidatePassword, hash);
   }
 
-  // Instance method to hash password
+  /**
+   * Hash the user's password if it has changed
+   */
   public async hashPassword(): Promise<void> {
     if (this.changed('password')) {
+      const plain = this.getDataValue('password');
       const saltRounds = 12;
-      this.password = await bcrypt.hash(this.password, saltRounds);
+      const hashed = await bcrypt.hash(plain, saltRounds);
+      this.setDataValue('password', hashed);
     }
   }
 }
@@ -38,12 +51,17 @@ export class User extends Model {
 User.init(
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
+    uuid: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      unique: true,
+    },
     email: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(254),
       allowNull: false,
       unique: true,
       validate: {
@@ -55,26 +73,8 @@ User.init(
         },
       },
     },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        len: {
-          args: [3, 20],
-          msg: 'Username must be between 3 and 20 characters',
-        },
-        is: {
-          args: /^[a-zA-Z0-9_]+$/,
-          msg: 'Username can only contain letters, numbers, and underscores',
-        },
-        notEmpty: {
-          msg: 'Username is required',
-        },
-      },
-    },
     password: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false,
       validate: {
         len: {
@@ -87,40 +87,71 @@ User.init(
       },
     },
     firstName: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      field: 'first_name',
       validate: {
         len: {
-          args: [0, 50],
-          msg: 'First name must be less than 50 characters',
+          args: [1, 100],
+          msg: 'First name must be between 1 and 100 characters',
+        },
+        notEmpty: {
+          msg: 'First name is required',
         },
       },
     },
     lastName: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      field: 'last_name',
       validate: {
         len: {
-          args: [0, 50],
-          msg: 'Last name must be less than 50 characters',
+          args: [1, 100],
+          msg: 'Last name must be between 1 and 100 characters',
+        },
+        notEmpty: {
+          msg: 'Last name is required',
         },
       },
     },
     role: {
-      type: DataTypes.ENUM('USER', 'ADMIN', 'MODERATOR'),
-      defaultValue: 'USER',
+      type: DataTypes.ENUM('ADMIN', 'MANAGER', 'DEVELOPER'),
+      defaultValue: 'DEVELOPER',
       validate: {
         isIn: {
-          args: [['USER', 'ADMIN', 'MODERATOR']],
+          args: [['ADMIN', 'MANAGER', 'DEVELOPER']],
           msg: 'Invalid role',
         },
       },
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'is_deleted',
+    },
+    version: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'created_at',
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: 'updated_at',
+      defaultValue: DataTypes.NOW,
     },
   },
   {
     sequelize,
     tableName: 'users',
     timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
     hooks: {
       // Hash password before saving
       beforeSave: async (user: User) => {
@@ -132,11 +163,5 @@ User.init(
     },
   }
 );
-
-// Define associations
-User.hasMany(Project, { as: 'ownedProjects', foreignKey: 'ownerId' });
-User.belongsToMany(Project, { as: 'memberProjects', through: 'project_members', foreignKey: 'userId' });
-User.hasMany(Task, { as: 'assignedTasks', foreignKey: 'assigneeId' });
-User.hasMany(Comment, { as: 'comments', foreignKey: 'authorId' });
 
 export default User;

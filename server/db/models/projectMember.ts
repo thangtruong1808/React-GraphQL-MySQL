@@ -1,7 +1,5 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '../db';
-import User from './user';
-import Project from './project';
 
 /**
  * ProjectMember Model
@@ -17,8 +15,8 @@ export class ProjectMember extends Model {
   public readonly updatedAt!: Date;
 
   // Associations
-  public readonly user?: User;
-  public readonly project?: Project;
+  public readonly user?: any;
+  public readonly project?: any;
 }
 
 // Initialize ProjectMember model
@@ -72,9 +70,5 @@ ProjectMember.init(
     ],
   }
 );
-
-// Define associations
-ProjectMember.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-ProjectMember.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
 
 export default ProjectMember;

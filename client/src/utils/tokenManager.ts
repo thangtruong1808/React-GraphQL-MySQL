@@ -173,4 +173,31 @@ class TokenManager {
   }
 }
 
+// Export individual functions for useAuth hook
+export const saveTokens = (accessToken: string, refreshToken: string): void => {
+  TokenManager.storeTokens(accessToken, refreshToken, null);
+};
+
+export const getTokens = (): { accessToken: string | null; refreshToken: string | null } => {
+  return {
+    accessToken: TokenManager.getAccessToken(),
+    refreshToken: TokenManager.getRefreshToken(),
+  };
+};
+
+export const clearTokens = (): void => {
+  TokenManager.clearTokens();
+};
+
+export const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    return payload.exp < currentTime;
+  } catch (error) {
+    console.error('Error checking token expiration:', error);
+    return true;
+  }
+};
+
 export default TokenManager; 

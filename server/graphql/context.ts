@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { User } from '../db/models/user';
+import { User } from '../db/index';
 import { verifyAccessToken, extractTokenFromHeader } from '../auth/jwt';
 
 /**

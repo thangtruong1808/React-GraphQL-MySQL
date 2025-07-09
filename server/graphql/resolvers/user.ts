@@ -1,5 +1,5 @@
 import { GraphQLContext } from '../context';
-import User from '../../db/models/user';
+import { User } from '../../db/index';
 import { generateTokens, verifyRefreshToken, blacklistToken, extractTokenFromHeader } from '../../auth/jwt';
 import { Op } from 'sequelize';
 
@@ -18,9 +18,8 @@ const validatePassword = (password: string): boolean => {
   return password.length >= 8;
 };
 
-const validateUsername = (username: string): boolean => {
-  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-  return usernameRegex.test(username);
+const validateName = (name: string): boolean => {
+  return name.length >= 1 && name.length <= 50;
 };
 
 /**
@@ -124,15 +123,19 @@ export const userResolvers = {
      */
     register: async (_: any, { input }: { input: any }) => {
       try {
-        const { email, username, password, firstName, lastName } = input;
+        const { email, password, firstName, lastName } = input;
 
         // Validate input
         if (!validateEmail(email)) {
           throw new Error('Invalid email format');
         }
 
-        if (!validateUsername(username)) {
-          throw new Error('Username must be 3-20 characters and contain only letters, numbers, and underscores');
+        if (!validateName(firstName)) {
+          throw new Error('First name must be between 1 and 50 characters');
+        }
+
+        if (!validateName(lastName)) {
+          throw new Error('Last name must be between 1 and 50 characters');
         }
 
         if (!validatePassword(password)) {
@@ -141,26 +144,20 @@ export const userResolvers = {
 
         // Check if user already exists
         const existingUser = await User.findOne({
-          where: {
-            [Op.or]: [{ email }, { username }],
-          },
+          where: { email },
         });
 
         if (existingUser) {
-          if (existingUser.email === email) {
-            throw new Error('Email already registered');
-          }
-          throw new Error('Username already taken');
+          throw new Error('Email already registered');
         }
 
         // Create new user
         const user = await User.create({
           email,
-          username,
           password, // Will be hashed by model hook
           firstName,
           lastName,
-          role: 'USER',
+          role: 'DEVELOPER',
         });
 
         // Generate both access and refresh tokens
@@ -309,7 +306,7 @@ export const userResolvers = {
 
         // Check permissions (admin or self)
         const isAdmin = context.user.role === 'ADMIN';
-        const isSelf = context.user.id === id;
+        const isSelf = context.user.id.toString() === id;
 
         if (!isAdmin && !isSelf) {
           throw new Error('Access denied');
@@ -326,33 +323,28 @@ export const userResolvers = {
           throw new Error('Invalid email format');
         }
 
-        // Validate username if provided
-        if (input.username && !validateUsername(input.username)) {
-          throw new Error('Username must be 3-20 characters and contain only letters, numbers, and underscores');
+        // Validate names if provided
+        if (input.firstName && !validateName(input.firstName)) {
+          throw new Error('First name must be between 1 and 50 characters');
         }
 
-        // Check for email/username conflicts
-        if (input.email || input.username) {
-          const whereClause: any = {};
-          if (input.email) whereClause.email = input.email;
-          if (input.username) whereClause.username = input.username;
+        if (input.lastName && !validateName(input.lastName)) {
+          throw new Error('Last name must be between 1 and 50 characters');
+        }
 
+        // Check for email conflicts
+        if (input.email) {
           const existingUser = await User.findOne({
             where: {
               [Op.and]: [
-                whereClause,
+                { email: input.email },
                 { id: { [Op.ne]: id } },
               ],
             },
           });
 
           if (existingUser) {
-            if (input.email && existingUser.email === input.email) {
-              throw new Error('Email already registered');
-            }
-            if (input.username && existingUser.username === input.username) {
-              throw new Error('Username already taken');
-            }
+            throw new Error('Email already registered');
           }
         }
 
@@ -387,7 +379,7 @@ export const userResolvers = {
         }
 
         // Prevent admin from deleting themselves
-        if (context.user.id === id) {
+        if (context.user.id.toString() === id) {
           throw new Error('Cannot delete your own account');
         }
 

@@ -1,8 +1,5 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '../db';
-import User from './user';
-import Project from './project';
-import Comment from './comment';
 
 /**
  * Task Model
@@ -21,8 +18,8 @@ export class Task extends Model {
   public readonly updatedAt!: Date;
 
   // Associations
-  public readonly project?: Project;
-  public readonly assignee?: User;
+  public readonly project?: any;
+  public readonly assignee?: any;
   public readonly comments?: any[];
 }
 
@@ -126,10 +123,5 @@ Task.init(
     ],
   }
 );
-
-// Define associations
-Task.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
-Task.belongsTo(User, { foreignKey: 'assigneeId', as: 'assignee' });
-Task.hasMany(Comment, { as: 'comments', foreignKey: 'taskId' });
 
 export default Task;

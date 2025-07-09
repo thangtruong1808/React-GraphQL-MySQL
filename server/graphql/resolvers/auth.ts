@@ -1,0 +1,294 @@
+import { GraphQLError } from 'graphql';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { User, RefreshToken } from '../../db';
+import { GraphQLContext } from '../context';
+
+/**
+ * Authentication Resolvers
+ * Handles login, logout, and token refresh operations
+ */
+
+// JWT configuration
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key-change-in-production';
+const ACCESS_TOKEN_EXPIRY = '15m';
+const REFRESH_TOKEN_EXPIRY = '7d';
+
+/**
+ * Generate JWT access token
+ * @param userId - User ID to encode in token
+ * @returns JWT access token
+ */
+const generateAccessToken = (userId: number): string => {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+};
+
+/**
+ * Generate JWT refresh token
+ * @param userId - User ID to encode in token
+ * @returns JWT refresh token
+ */
+const generateRefreshToken = (userId: number): string => {
+  return jwt.sign({ userId }, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRY });
+};
+
+/**
+ * Hash refresh token for storage
+ * @param token - Raw refresh token
+ * @returns Hashed token
+ */
+const hashRefreshToken = async (token: string): Promise<string> => {
+  return bcrypt.hash(token, 12);
+};
+
+/**
+ * Verify refresh token hash
+ * @param token - Raw refresh token
+ * @param hash - Stored hash
+ * @returns Boolean indicating if token matches hash
+ */
+const verifyRefreshTokenHash = async (token: string, hash: string): Promise<boolean> => {
+  return bcrypt.compare(token, hash);
+};
+
+/**
+ * Authentication Resolvers
+ */
+export const authResolvers = {
+  Query: {
+    /**
+     * Get current authenticated user
+     * Requires valid JWT token in Authorization header
+     */
+    currentUser: async (_: any, __: any, context: GraphQLContext) => {
+      if (!context.user) {
+        throw new GraphQLError('Authentication required', {
+          extensions: { code: 'UNAUTHENTICATED' },
+        });
+      }
+
+      return context.user;
+    },
+  },
+
+  Mutation: {
+    /**
+     * User login with email and password
+     * Returns access token and refresh token
+     */
+    login: async (_: any, { input }: { input: { email: string; password: string } }) => {
+      try {
+        const { email, password } = input;
+
+        // Validate input
+        if (!email || !password) {
+          throw new GraphQLError('Email and password are required', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+
+        // Find user by email (case-insensitive)
+        const user = await User.findOne({
+          where: {
+            email: email.toLowerCase().trim(),
+            isDeleted: false,
+          },
+        });
+
+        if (!user) {
+          console.log('User not found for email:', email.toLowerCase().trim());
+          throw new GraphQLError('Invalid email or password', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+
+        console.log('User found:', {
+          id: user.id,
+          email: user.email,
+          hasPassword: !!user.password,
+          passwordLength: user.password?.length
+        });
+
+        // Verify password
+        if (!user.password) {
+          console.log('User has no password field');
+          throw new GraphQLError('Invalid email or password', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+        
+        // Verify password
+        const isValidPassword = await user.comparePassword(password);
+        
+        if (!isValidPassword) {
+          throw new GraphQLError('Invalid email or password', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+
+        // Generate tokens
+        const accessToken = generateAccessToken(user.id);
+        const refreshToken = generateRefreshToken(user.id);
+
+        // Hash refresh token for storage
+        const tokenHash = await hashRefreshToken(refreshToken);
+
+        // Store refresh token in database
+        await RefreshToken.create({
+          id: uuidv4(),
+          userId: user.id,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          isRevoked: false,
+        });
+
+        return {
+          accessToken,
+          refreshToken,
+          user: {
+            id: user.id.toString(),
+            uuid: user.uuid,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            isDeleted: user.isDeleted,
+            version: user.version,
+            createdAt: user.createdAt.toISOString(),
+            updatedAt: user.updatedAt.toISOString(),
+          },
+        };
+      } catch (error) {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
+        console.error('Login error:', error);
+        throw new GraphQLError('Login failed', {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
+      }
+    },
+
+    /**
+     * Refresh access token using refresh token
+     * Returns new access token and refresh token
+     */
+    refreshToken: async (_: any, { input }: { input: { refreshToken: string } }) => {
+      try {
+        const { refreshToken } = input;
+
+        if (!refreshToken) {
+          throw new GraphQLError('Refresh token is required', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+
+        // Verify refresh token
+        let decoded: any;
+        try {
+          decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+        } catch (error) {
+          throw new GraphQLError('Invalid refresh token', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+
+        // Find refresh token in database
+        const storedToken = await RefreshToken.findOne({
+          where: {
+            userId: decoded.userId,
+            isRevoked: false,
+            expiresAt: {
+              [require('sequelize').Op.gt]: new Date(),
+            },
+          },
+          include: [{ model: User, as: 'user' }],
+        });
+
+        if (!storedToken || !storedToken.user) {
+          throw new GraphQLError('Invalid refresh token', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+
+        // Verify token hash
+        const isValidHash = await verifyRefreshTokenHash(refreshToken, storedToken.tokenHash);
+        if (!isValidHash) {
+          throw new GraphQLError('Invalid refresh token', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+
+        // Generate new tokens
+        const newAccessToken = generateAccessToken(storedToken.user.id);
+        const newRefreshToken = generateRefreshToken(storedToken.user.id);
+
+        // Hash new refresh token
+        const newTokenHash = await hashRefreshToken(newRefreshToken);
+
+        // Revoke old token and store new one
+        await storedToken.update({ isRevoked: true });
+        await RefreshToken.create({
+          id: uuidv4(),
+          userId: storedToken.user.id,
+          tokenHash: newTokenHash,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          isRevoked: false,
+        });
+
+        return {
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+        };
+      } catch (error) {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
+        console.error('Token refresh error:', error);
+        throw new GraphQLError('Token refresh failed', {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
+      }
+    },
+
+    /**
+     * User logout - revokes refresh tokens
+     * Requires authentication
+     */
+    logout: async (_: any, __: any, context: GraphQLContext) => {
+      try {
+        if (!context.user) {
+          throw new GraphQLError('Authentication required', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+
+        // Revoke all refresh tokens for the user
+        await RefreshToken.update(
+          { isRevoked: true },
+          {
+            where: {
+              userId: context.user.id,
+              isRevoked: false,
+            },
+          }
+        );
+
+        return {
+          success: true,
+          message: 'Successfully logged out',
+        };
+      } catch (error) {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
+        console.error('Logout error:', error);
+        throw new GraphQLError('Logout failed', {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
+      }
+    },
+  },
+}; 

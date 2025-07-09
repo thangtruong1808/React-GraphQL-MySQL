@@ -1,12 +1,34 @@
 import { gql } from '@apollo/client';
 
+/**
+ * GraphQL Queries for Login Feature
+ * Defines queries for authentication operations
+ */
+
+// Query to get current authenticated user
+export const GET_CURRENT_USER = gql`
+  query GetCurrentUser {
+    currentUser {
+      id
+      uuid
+      email
+      firstName
+      lastName
+      role
+      isDeleted
+      version
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 // User Queries
 export const GET_USERS = gql`
   query GetUsers($limit: Int, $offset: Int) {
     users(limit: $limit, offset: $offset) {
       id
       email
-      username
       firstName
       lastName
       role
@@ -21,22 +43,6 @@ export const GET_USER_BY_ID = gql`
     user(id: $id) {
       id
       email
-      username
-      firstName
-      lastName
-      role
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const GET_CURRENT_USER = gql`
-  query GetCurrentUser {
-    currentUser {
-      id
-      email
-      username
       firstName
       lastName
       role
@@ -56,14 +62,16 @@ export const GET_PROJECTS = gql`
       status
       owner {
         id
-        username
+        firstName
+        lastName
         email
       }
       members {
         id
         user {
           id
-          username
+          firstName
+          lastName
           email
         }
         role
@@ -84,14 +92,16 @@ export const GET_PROJECT_BY_ID = gql`
       status
       owner {
         id
-        username
+        firstName
+        lastName
         email
       }
       members {
         id
         user {
           id
-          username
+          firstName
+          lastName
           email
         }
         role
@@ -105,7 +115,8 @@ export const GET_PROJECT_BY_ID = gql`
         priority
         assignee {
           id
-          username
+          firstName
+          lastName
         }
         dueDate
         createdAt
@@ -126,7 +137,8 @@ export const GET_USER_PROJECTS = gql`
       status
       owner {
         id
-        username
+        firstName
+        lastName
         email
       }
       createdAt
@@ -146,7 +158,8 @@ export const GET_TASKS = gql`
       priority
       assignee {
         id
-        username
+        firstName
+        lastName
         email
       }
       project {
@@ -170,7 +183,8 @@ export const GET_TASK_BY_ID = gql`
       priority
       assignee {
         id
-        username
+        firstName
+        lastName
         email
       }
       project {
@@ -183,7 +197,8 @@ export const GET_TASK_BY_ID = gql`
         content
         author {
           id
-          username
+          firstName
+          lastName
         }
         createdAt
         updatedAt
@@ -222,7 +237,8 @@ export const GET_TASK_COMMENTS = gql`
       content
       author {
         id
-        username
+        firstName
+        lastName
         email
       }
       createdAt

@@ -1,7 +1,5 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '../db';
-import User from './user';
-import Task from './task';
 
 /**
  * Project Model
@@ -17,7 +15,7 @@ export class Project extends Model {
   public readonly updatedAt!: Date;
 
   // Associations
-  public readonly owner?: User;
+  public readonly owner?: any;
   public readonly members?: any[];
   public readonly tasks?: any[];
 }
@@ -78,10 +76,5 @@ Project.init(
     timestamps: true,
   }
 );
-
-// Define associations
-Project.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
-Project.belongsToMany(User, { as: 'members', through: 'project_members', foreignKey: 'projectId' });
-Project.hasMany(Task, { as: 'tasks', foreignKey: 'projectId' });
 
 export default Project;

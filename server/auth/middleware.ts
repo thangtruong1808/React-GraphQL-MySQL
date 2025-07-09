@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from './jwt';
-import User from '../db/models/user';
+import { User } from '../db/index';
 
 /**
  * Authentication Middleware

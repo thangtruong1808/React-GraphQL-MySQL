@@ -1,7 +1,5 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelize from '../db';
-import User from './user';
-import Task from './task';
 
 /**
  * Comment Model
@@ -16,8 +14,8 @@ export class Comment extends Model {
   public readonly updatedAt!: Date;
 
   // Associations
-  public readonly task?: Task;
-  public readonly author?: User;
+  public readonly task?: any;
+  public readonly author?: any;
 }
 
 // Initialize Comment model
@@ -72,9 +70,5 @@ Comment.init(
     ],
   }
 );
-
-// Define associations
-Comment.belongsTo(Task, { foreignKey: 'taskId', as: 'task' });
-Comment.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
 
 export default Comment;

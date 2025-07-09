@@ -1,6 +1,11 @@
 import { gql } from '@apollo/client';
 
-// Auth Mutations - JWT with Refresh Token authentication
+/**
+ * GraphQL Mutations for Login Feature
+ * Defines mutations for authentication operations
+ */
+
+// Mutation for user login
 export const LOGIN = gql`
   mutation Login($input: LoginInput!) {
     login(input: $input) {
@@ -8,33 +13,21 @@ export const LOGIN = gql`
       refreshToken
       user {
         id
+        uuid
         email
-        username
         firstName
         lastName
         role
+        isDeleted
+        version
+        createdAt
+        updatedAt
       }
     }
   }
 `;
 
-export const REGISTER = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
-      accessToken
-      refreshToken
-      user {
-        id
-        email
-        username
-        firstName
-        lastName
-        role
-      }
-    }
-  }
-`;
-
+// Mutation for refreshing access token
 export const REFRESH_TOKEN = gql`
   mutation RefreshToken($input: RefreshTokenInput!) {
     refreshToken(input: $input) {
@@ -44,9 +37,13 @@ export const REFRESH_TOKEN = gql`
   }
 `;
 
+// Mutation for user logout
 export const LOGOUT = gql`
   mutation Logout {
-    logout
+    logout {
+      success
+      message
+    }
   }
 `;
 
@@ -56,7 +53,6 @@ export const UPDATE_USER = gql`
     updateUser(id: $id, input: $input) {
       id
       email
-      username
       firstName
       lastName
       role
@@ -81,7 +77,8 @@ export const CREATE_PROJECT = gql`
       status
       owner {
         id
-        username
+        firstName
+        lastName
         email
       }
       createdAt
@@ -114,7 +111,8 @@ export const ADD_PROJECT_MEMBER = gql`
       id
       user {
         id
-        username
+        firstName
+        lastName
         email
       }
       role
@@ -149,7 +147,8 @@ export const CREATE_TASK = gql`
       priority
       assignee {
         id
-        username
+        firstName
+        lastName
       }
       project {
         id
@@ -172,7 +171,8 @@ export const UPDATE_TASK = gql`
       priority
       assignee {
         id
-        username
+        firstName
+        lastName
       }
       dueDate
       updatedAt
@@ -192,7 +192,8 @@ export const ASSIGN_TASK = gql`
       id
       assignee {
         id
-        username
+        firstName
+        lastName
       }
     }
   }

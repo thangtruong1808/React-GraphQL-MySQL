@@ -1,179 +1,180 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { useNavigate } from 'react-router-dom';
-import { LOGIN, REGISTER, LOGOUT, REFRESH_TOKEN } from '../../services/graphql/mutations';
+import { useState, useEffect, useCallback } from 'react';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { GET_CURRENT_USER } from '../../services/graphql/queries';
-import { LoginInput, RegisterInput, AuthResponse, User, RefreshTokenInput } from '../../types/graphql';
-import TokenManager from '../../utils/tokenManager';
+import { LOGIN, LOGOUT, REFRESH_TOKEN } from '../../services/graphql/mutations';
+import { User, LoginInput, RefreshTokenInput } from '../../types/graphql';
+import { saveTokens, getTokens, clearTokens, isTokenExpired } from '../../utils/tokenManager';
 
 /**
  * Authentication Hook
- * Manages user authentication state and operations using JWT with refresh tokens
+ * Manages user authentication state, login, logout, and token refresh
  */
 export const useAuth = () => {
-  const navigate = useNavigate();
+  // State for authentication
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Login mutation - handles user authentication with JWT refresh tokens
-  const [login, { loading: loginLoading, error: loginError }] = useMutation(LOGIN, {
-    onCompleted: (data: { login: AuthResponse }) => {
-      // Store both access and refresh tokens using TokenManager
-      TokenManager.storeTokens(
-        data.login.accessToken,
-        data.login.refreshToken,
-        data.login.user
-      );
-      navigate('/dashboard');
-    },
-    onError: (error) => {
-      console.error('Login error:', error);
-    },
-  });
+  // GraphQL operations
+  const [getCurrentUser, { loading: currentUserLoading }] = useLazyQuery(GET_CURRENT_USER);
+  const [loginMutation, { loading: loginLoading }] = useMutation(LOGIN);
+  const [logoutMutation, { loading: logoutLoading }] = useMutation(LOGOUT);
+  const [refreshTokenMutation, { loading: refreshLoading }] = useMutation(REFRESH_TOKEN);
 
-  // Register mutation - handles user registration with JWT refresh tokens
-  const [register, { loading: registerLoading, error: registerError }] = useMutation(REGISTER, {
-    onCompleted: (data: { register: AuthResponse }) => {
-      // Store both access and refresh tokens using TokenManager
-      TokenManager.storeTokens(
-        data.register.accessToken,
-        data.register.refreshToken,
-        data.register.user
-      );
-      navigate('/dashboard');
-    },
-    onError: (error) => {
-      console.error('Register error:', error);
-    },
-  });
+  /**
+   * Initialize authentication state on app load
+   * Checks for existing tokens and validates them
+   */
+  const initializeAuth = useCallback(async () => {
+    try {
+      const tokens = getTokens();
+      
+      if (!tokens.accessToken || !tokens.refreshToken) {
+        setIsLoading(false);
+        return;
+      }
 
-  // Refresh token mutation - handles token refresh
-  const [refreshToken] = useMutation(REFRESH_TOKEN, {
-    onCompleted: (data: { refreshToken: { accessToken: string; refreshToken: string } }) => {
-      // Update tokens with new ones (token rotation)
-      TokenManager.updateTokens(data.refreshToken.accessToken, data.refreshToken.refreshToken);
-    },
-    onError: (error) => {
+      // Check if access token is expired
+      if (isTokenExpired(tokens.accessToken)) {
+        // Try to refresh the token
+        await refreshTokens(tokens.refreshToken);
+      } else {
+        // Access token is valid, get current user
+        await fetchCurrentUser();
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      clearTokens();
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * Fetch current user data from GraphQL
+   */
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const { data } = await getCurrentUser();
+      if (data?.currentUser) {
+        setUser(data.currentUser);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('Fetch current user error:', error);
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  }, [getCurrentUser]);
+
+  /**
+   * Refresh access token using refresh token
+   */
+  const refreshTokens = useCallback(async (refreshToken: string) => {
+    try {
+      const { data } = await refreshTokenMutation({
+        variables: { input: { refreshToken } },
+      });
+
+      if (data?.refreshToken) {
+        const { accessToken, refreshToken: newRefreshToken } = data.refreshToken;
+        saveTokens(accessToken, newRefreshToken);
+        await fetchCurrentUser();
+        return true;
+      }
+    } catch (error) {
       console.error('Token refresh error:', error);
-      // Clear tokens on refresh failure
-      TokenManager.clearTokens();
-      navigate('/login');
-    },
-  });
-
-  // Logout mutation - clears authentication data
-  const [logout] = useMutation(LOGOUT, {
-    onCompleted: () => {
-      // Clear all tokens and user data using TokenManager
-      TokenManager.clearTokens();
-      navigate('/login');
-    },
-    onError: (error) => {
-      console.error('Logout error:', error);
-      // Clear tokens even if server logout fails
-      TokenManager.clearTokens();
-      navigate('/login');
-    },
-  });
-
-  // Get current user query - skips if no access token is present
-  const { data: currentUserData, loading: currentUserLoading, error: currentUserError } = useQuery(GET_CURRENT_USER, {
-    skip: !TokenManager.isAuthenticated(),
-  });
-
-  /**
-   * Handle login form submission
-   * @param input - Login credentials (email and password)
-   */
-  const handleLogin = async (input: LoginInput) => {
-    try {
-      await login({ variables: { input } });
-    } catch (error) {
-      console.error('Login failed:', error);
+      clearTokens();
+      setUser(null);
+      setIsAuthenticated(false);
     }
-  };
+    return false;
+  }, [refreshTokenMutation, fetchCurrentUser]);
 
   /**
-   * Handle register form submission
-   * @param input - Registration data (email, username, password, etc.)
+   * Login user with email and password
    */
-  const handleRegister = async (input: RegisterInput) => {
+  const login = useCallback(async (input: LoginInput) => {
     try {
-      await register({ variables: { input } });
-    } catch (error) {
-      console.error('Register failed:', error);
+      const { data } = await loginMutation({
+        variables: { input },
+      });
+
+      if (data?.login) {
+        const { accessToken, refreshToken, user: userData } = data.login;
+        saveTokens(accessToken, refreshToken);
+        setUser(userData);
+        setIsAuthenticated(true);
+        return { success: true, user: userData };
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        error: error.graphQLErrors?.[0]?.message || 'Login failed',
+      };
     }
-  };
+  }, [loginMutation]);
 
   /**
-   * Handle manual token refresh
-   * @param refreshTokenValue - Refresh token to use
+   * Logout user and clear tokens
    */
-  const handleRefreshToken = async (refreshTokenValue: string) => {
+  const logout = useCallback(async () => {
     try {
-      const input: RefreshTokenInput = { refreshToken: refreshTokenValue };
-      await refreshToken({ variables: { input } });
+      // Call logout mutation to revoke tokens on server
+      await logoutMutation();
     } catch (error) {
-      console.error('Token refresh failed:', error);
-      // Clear tokens on refresh failure
-      TokenManager.clearTokens();
-      navigate('/login');
+      console.error('Logout mutation error:', error);
+    } finally {
+      // Clear tokens and user state regardless of server response
+      clearTokens();
+      setUser(null);
+      setIsAuthenticated(false);
     }
-  };
+  }, [logoutMutation]);
 
   /**
-   * Handle logout action
-   * Clears authentication data and redirects to login
+   * Check if user has specific role
    */
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
+  const hasRole = useCallback((role: string) => {
+    return user?.role === role;
+  }, [user]);
 
   /**
-   * Check if access token needs refresh
-   * @returns True if token should be refreshed
+   * Check if user is admin
    */
-  const shouldRefreshToken = (): boolean => {
-    return TokenManager.shouldRefreshToken();
-  };
+  const isAdmin = useCallback(() => {
+    return hasRole('ADMIN');
+  }, [hasRole]);
 
-  /**
-   * Get current authentication status
-   * @returns True if user is authenticated
-   */
-  const isAuthenticated = (): boolean => {
-    return TokenManager.isAuthenticated();
-  };
-
-  // Check authentication status based on TokenManager
-  const authStatus = isAuthenticated();
-  
-  // Get current user from query result or TokenManager fallback
-  const currentUser = currentUserData?.currentUser || TokenManager.getUser();
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
 
   return {
-    // Authentication state
-    isAuthenticated: authStatus,
-    currentUser,
-    currentUserLoading,
-    currentUserError,
-    
-    // Authentication actions
-    handleLogin,
-    handleRegister,
-    handleRefreshToken,
-    handleLogout,
-    
-    // Token management
-    shouldRefreshToken,
+    // State
+    user,
+    isAuthenticated,
+    isLoading: isLoading || currentUserLoading,
     
     // Loading states
     loginLoading,
-    registerLoading,
+    logoutLoading,
+    refreshLoading,
+    currentUserLoading,
     
-    // Error states
-    loginError,
-    registerError,
+    // Actions
+    login,
+    logout,
+    refreshTokens,
+    fetchCurrentUser,
+    
+    // Utilities
+    hasRole,
+    isAdmin,
   };
 }; 

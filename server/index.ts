@@ -2,10 +2,10 @@ import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { setupDatabase } from './db/setup';
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import { createContext } from './graphql/context';
+import { testConnection } from './db/db';
 
 // Load environment variables
 dotenv.config();
@@ -74,10 +74,9 @@ const server = new ApolloServer({
  */
 async function startServer() {
   try {
-    // Setup database and create tables
-    await setupDatabase();
-    console.log('✅ Database setup completed');
-
+    // Test database connection first
+    await testConnection();
+    
     // Start Apollo Server
     await server.start();
     

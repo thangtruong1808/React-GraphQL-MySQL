@@ -18,10 +18,12 @@ const DashboardPage = React.lazy(() => import('./pages/dashboard/DashboardPage')
  * Redirects to login if user is not authenticated
  */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, currentUserLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  console.log('ProtectedRoute - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
 
   // Show loading spinner while checking authentication status
-  if (currentUserLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -31,10 +33,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   // Redirect to login if user is not authenticated
   if (!isAuthenticated) {
+    console.log('ProtectedRoute - Redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   // Render protected content if user is authenticated
+  console.log('ProtectedRoute - Rendering protected content');
   return <>{children}</>;
 };
 

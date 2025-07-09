@@ -1,14 +1,17 @@
-import { userResolvers } from './user';
+import { authResolvers } from './auth';
 
 /**
- * GraphQL Resolvers
- * Combines all resolver functions
+ * GraphQL Resolvers Index
+ * Combines all resolvers for the application
+ * Focused on login functionality
  */
+
+// Merge all resolvers
 export const resolvers = {
   Query: {
-    ...userResolvers.Query,
+    ...authResolvers.Query,
   },
   Mutation: {
-    ...userResolvers.Mutation,
+    ...authResolvers.Mutation,
   },
 };

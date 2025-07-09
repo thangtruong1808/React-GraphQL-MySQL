@@ -36,6 +36,13 @@ export const testConnection = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
+    console.log('📊 Connected to database:', {
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || '3306',
+      database: process.env.DB_NAME || 'react_graphql_app',
+      username: process.env.DB_USER || 'root',
+      hasPassword: !!process.env.DB_PASSWORD
+    });
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error);
     process.exit(1);
