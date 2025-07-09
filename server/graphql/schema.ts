@@ -45,6 +45,14 @@ export const typeDefs = gql`
     password: String!
   }
 
+  # Register Input Type
+  input RegisterInput {
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+  }
+
   # Refresh Token Input Type
   input RefreshTokenInput {
     refreshToken: String!
@@ -64,6 +72,9 @@ export const typeDefs = gql`
 
   # Mutation Type
   type Mutation {
+    # User registration with refresh token
+    register(input: RegisterInput!): AuthResponse!
+    
     # User login with refresh token
     login(input: LoginInput!): AuthResponse!
     

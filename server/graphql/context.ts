@@ -58,7 +58,7 @@ export const createContext = async ({ req }: { req: Request }): Promise<GraphQLC
   } catch (error) {
     // Only log unexpected errors, not token expiration
     if (error instanceof Error && !error.message.includes('jwt expired')) {
-      console.error('Context creation error:', error);
+    console.error('Context creation error:', error);
     }
     return {
       user: undefined,

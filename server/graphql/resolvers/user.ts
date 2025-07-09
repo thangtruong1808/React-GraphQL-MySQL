@@ -39,9 +39,30 @@ export const userResolvers = {
           return null;
         }
         
-        // Return user without password
-        const { password, ...userWithoutPassword } = context.user.toJSON();
-        return userWithoutPassword;
+        // Return user without password and ensure dates are properly formatted
+        // Don't use toJSON() for dates as it might return timestamps
+        const createdAt = context.user.createdAt instanceof Date 
+          ? context.user.createdAt.toISOString() 
+          : new Date(context.user.createdAt).toISOString();
+        
+        const updatedAt = context.user.updatedAt instanceof Date 
+          ? context.user.updatedAt.toISOString() 
+          : new Date(context.user.updatedAt).toISOString();
+        
+        const result = {
+          id: context.user.id.toString(),
+          uuid: context.user.uuid,
+          email: context.user.email,
+          firstName: context.user.firstName,
+          lastName: context.user.lastName,
+          role: context.user.role,
+          isDeleted: context.user.isDeleted,
+          version: context.user.version,
+          createdAt,
+          updatedAt,
+        };
+        
+        return result;
       } catch (error) {
         console.error('Error fetching current user:', error);
         throw new Error('Failed to fetch current user');

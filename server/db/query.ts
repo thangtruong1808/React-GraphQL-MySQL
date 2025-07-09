@@ -11,7 +11,7 @@ export async function transaction<T>(
   callback: (client: TransactionClient) => Promise<T>
 ): Promise<T> {
   console.log("Starting transaction");
-  
+
   try {
     console.log("Beginning transaction");
     const result = await sequelize.transaction(callback);

@@ -80,6 +80,89 @@ export const authResolvers = {
 
   Mutation: {
     /**
+     * User registration with email, password, and name
+     * Returns access token and refresh token
+     */
+    register: async (_: any, { input }: { input: { email: string; password: string; firstName: string; lastName: string } }) => {
+      try {
+        const { email, password, firstName, lastName } = input;
+
+        // Validate input
+        if (!email || !password || !firstName || !lastName) {
+          throw new GraphQLError('All fields are required', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({
+          where: {
+            email: email.toLowerCase().trim(),
+          },
+        });
+
+        if (existingUser) {
+          throw new GraphQLError('Email already registered', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+
+        // Create new user
+        const user = await User.create({
+          uuid: uuidv4(),
+          email: email.toLowerCase().trim(),
+          password,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          role: 'DEVELOPER', // Default role
+          isDeleted: false,
+          version: 1,
+        });
+
+        // Generate tokens
+        const accessToken = generateAccessToken(user.id);
+        const refreshToken = generateRefreshToken(user.id);
+
+        // Hash refresh token for storage
+        const tokenHash = await hashRefreshToken(refreshToken);
+
+        // Store refresh token in database
+        await RefreshToken.create({
+          id: uuidv4(),
+          userId: user.id,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+          isRevoked: false,
+        });
+
+        return {
+          accessToken,
+          refreshToken,
+          user: {
+            id: user.id.toString(),
+            uuid: user.uuid,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            isDeleted: user.isDeleted,
+            version: user.version,
+            createdAt: user.createdAt.toISOString(),
+            updatedAt: user.updatedAt.toISOString(),
+          },
+        };
+      } catch (error) {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
+        console.error('Registration error:', error);
+        throw new GraphQLError('Registration failed', {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
+      }
+    },
+
+    /**
      * User login with email and password
      * Returns access token and refresh token
      */

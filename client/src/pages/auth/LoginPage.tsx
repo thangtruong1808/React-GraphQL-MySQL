@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/graphql/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { LoginInput } from '../../types/graphql';
 
 /**

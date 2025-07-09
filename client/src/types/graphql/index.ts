@@ -49,6 +49,14 @@ export interface LoginInput {
   password: string;
 }
 
+// Register Input Type
+export interface RegisterInput {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
 // Refresh Token Input Type
 export interface RefreshTokenInput {
   refreshToken: string;

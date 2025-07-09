@@ -1,15 +1,57 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useLazyQuery, useMutation, useApolloClient } from '@apollo/client';
-import { GET_CURRENT_USER } from '../../services/graphql/queries';
-import { LOGIN, LOGOUT, REFRESH_TOKEN } from '../../services/graphql/mutations';
-import { User, LoginInput, RefreshTokenInput } from '../../types/graphql';
-import { saveTokens, getTokens, clearTokens, isTokenExpired } from '../../utils/tokenManager';
+import { GET_CURRENT_USER } from '../services/graphql/queries';
+import { LOGIN, LOGOUT, REFRESH_TOKEN, REGISTER } from '../services/graphql/mutations';
+import { User, LoginInput, RegisterInput } from '../types/graphql';
+import { saveTokens, getTokens, clearTokens, isTokenExpired } from '../utils/tokenManager';
 
 /**
- * Authentication Hook
- * Manages user authentication state, login, logout, and token refresh
+ * Authentication Context Interface
+ * Defines the shape of the authentication context
  */
-export const useAuth = () => {
+interface AuthContextType {
+  // State
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+
+  // Loading states
+  loginLoading: boolean;
+  registerLoading: boolean;
+  logoutLoading: boolean;
+  refreshLoading: boolean;
+  currentUserLoading: boolean;
+
+  // Actions
+  login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
+  register: (input: RegisterInput) => Promise<{ success: boolean; user?: User; error?: string }>;
+  logout: () => Promise<void>;
+  refreshTokens: (refreshToken: string) => Promise<boolean>;
+  fetchCurrentUser: () => Promise<void>;
+
+  // Utilities
+  hasRole: (role: string) => boolean;
+  isAdmin: () => boolean;
+}
+
+/**
+ * AuthContext
+ * Provides shared authentication state across the application
+ */
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+/**
+ * AuthProvider Props
+ */
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+/**
+ * AuthProvider Component
+ * Wraps the application and provides authentication context
+ */
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // State for authentication
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,8 +63,29 @@ export const useAuth = () => {
   // GraphQL operations
   const [getCurrentUser, { loading: currentUserLoading }] = useLazyQuery(GET_CURRENT_USER);
   const [loginMutation, { loading: loginLoading }] = useMutation(LOGIN);
+  const [registerMutation, { loading: registerLoading }] = useMutation(REGISTER);
   const [logoutMutation, { loading: logoutLoading }] = useMutation(LOGOUT);
   const [refreshTokenMutation, { loading: refreshLoading }] = useMutation(REFRESH_TOKEN);
+
+  /**
+   * Fetch current user data from GraphQL
+   */
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const { data } = await getCurrentUser();
+      if (data?.currentUser) {
+        setUser(data.currentUser);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('Fetch current user error:', error);
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  }, [getCurrentUser]);
 
   /**
    * Initialize authentication state on app load
@@ -31,7 +94,7 @@ export const useAuth = () => {
   const initializeAuth = useCallback(async () => {
     try {
       const tokens = getTokens();
-      
+
       if (!tokens.accessToken || !tokens.refreshToken) {
         setIsLoading(false);
         return;
@@ -51,35 +114,7 @@ export const useAuth = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  /**
-   * Fetch current user data from GraphQL
-   */
-  const fetchCurrentUser = useCallback(async () => {
-    try {
-      const { data } = await getCurrentUser();
-      if (data?.currentUser) {
-        setUser(data.currentUser);
-        setIsAuthenticated(true);
-        
-        // Update Apollo cache with current user data
-        client.writeQuery({
-          query: GET_CURRENT_USER,
-          data: {
-            currentUser: data.currentUser,
-          },
-        });
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error('Fetch current user error:', error);
-      setUser(null);
-      setIsAuthenticated(false);
-    }
-  }, [getCurrentUser, client]);
+  }, [fetchCurrentUser]);
 
   /**
    * Refresh access token using refresh token
@@ -106,8 +141,8 @@ export const useAuth = () => {
   }, [refreshTokenMutation, fetchCurrentUser]);
 
   /**
-   * Login user with email and password
-   */
+ * Login user with email and password
+ */
   const login = useCallback(async (input: LoginInput) => {
     try {
       const { data } = await loginMutation({
@@ -119,9 +154,11 @@ export const useAuth = () => {
         saveTokens(accessToken, refreshToken);
         setUser(userData);
         setIsAuthenticated(true);
-        
+
         return { success: true, user: userData };
       }
+
+      return { success: false, error: 'Login failed' };
     } catch (error: any) {
       console.error('Login error:', error);
       return {
@@ -129,7 +166,35 @@ export const useAuth = () => {
         error: error.graphQLErrors?.[0]?.message || 'Login failed',
       };
     }
-  }, [loginMutation, client]);
+  }, [loginMutation]);
+
+  /**
+   * Register new user with email, password, and name
+   */
+  const register = useCallback(async (input: RegisterInput) => {
+    try {
+      const { data } = await registerMutation({
+        variables: { input },
+      });
+
+      if (data?.register) {
+        const { accessToken, refreshToken, user: userData } = data.register;
+        saveTokens(accessToken, refreshToken);
+        setUser(userData);
+        setIsAuthenticated(true);
+
+        return { success: true, user: userData };
+      }
+
+      return { success: false, error: 'Registration failed' };
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      return {
+        success: false,
+        error: error.graphQLErrors?.[0]?.message || 'Registration failed',
+      };
+    }
+  }, [registerMutation]);
 
   /**
    * Logout user and clear tokens
@@ -145,7 +210,7 @@ export const useAuth = () => {
       clearTokens();
       setUser(null);
       setIsAuthenticated(false);
-      
+
       // Clear Apollo cache
       client.clearStore();
     }
@@ -170,26 +235,46 @@ export const useAuth = () => {
     initializeAuth();
   }, [initializeAuth]);
 
-  return {
+  const value: AuthContextType = {
     // State
     user,
     isAuthenticated,
     isLoading: isLoading || currentUserLoading,
-    
+
     // Loading states
     loginLoading,
+    registerLoading,
     logoutLoading,
     refreshLoading,
     currentUserLoading,
-    
+
     // Actions
     login,
+    register,
     logout,
     refreshTokens,
     fetchCurrentUser,
-    
+
     // Utilities
     hasRole,
     isAdmin,
   };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+/**
+ * useAuth Hook
+ * Custom hook to access authentication context
+ */
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }; 

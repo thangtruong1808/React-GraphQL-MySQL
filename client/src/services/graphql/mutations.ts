@@ -47,6 +47,28 @@ export const LOGOUT = gql`
   }
 `;
 
+// Mutation for user registration
+export const REGISTER = gql`
+  mutation Register($input: RegisterInput!) {
+    register(input: $input) {
+      accessToken
+      refreshToken
+      user {
+        id
+        uuid
+        email
+        firstName
+        lastName
+        role
+        isDeleted
+        version
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
 // User Mutations
 export const UPDATE_USER = gql`
   mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {

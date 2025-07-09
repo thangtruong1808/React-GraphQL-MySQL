@@ -1,5 +1,6 @@
 import React from 'react';
-import { useAuth } from '../../hooks/graphql/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
+import { formatMemberSince } from '../../utils/helpers';
 
 /**
  * Dashboard Page Component
@@ -98,7 +99,7 @@ const DashboardPage: React.FC = () => {
                 Member Since
               </label>
               <p className="mt-1 text-sm text-gray-900">
-                {new Date(user.createdAt).toLocaleDateString()}
+                {formatMemberSince(user.createdAt)}
               </p>
             </div>
           </div>

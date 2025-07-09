@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/graphql/useAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import { useFormValidation } from '../../utils/validation';
 import { emailValidation, passwordValidation, usernameValidation } from '../../utils/validation';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 
 const RegisterPage: React.FC = () => {
-  const { handleRegister, registerLoading, registerError } = useAuth();
+  const { register, registerLoading } = useAuth();
 
   const { data, errors, handleChange, handleBlur, isValid } = useFormValidation(
     {
@@ -36,11 +36,20 @@ const RegisterPage: React.FC = () => {
     }
   );
 
+  const [error, setError] = useState<string>('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
-      const { confirmPassword, ...registerData } = data;
-      await handleRegister(registerData);
+      const { confirmPassword, username, ...registerData } = data;
+      const result = await register(registerData);
+
+      if (result?.success) {
+        // Registration successful, user will be automatically logged in
+        window.location.href = '/dashboard';
+      } else {
+        setError(result?.error || 'Registration failed');
+      }
     }
   };
 
@@ -63,9 +72,9 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {registerError && (
+          {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {registerError.message}
+              {error}
             </div>
           )}
 

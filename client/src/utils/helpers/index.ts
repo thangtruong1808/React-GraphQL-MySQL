@@ -8,6 +8,78 @@ export const formatDate = (date: string | Date): string => {
   });
 };
 
+/**
+ * Format member since date in English
+ * Displays date in a user-friendly format like "January 15, 2024"
+ * @param date - Date string, Date object, or timestamp number
+ * @returns Formatted date string in English
+ */
+export const formatMemberSince = (date: string | Date | number): string => {
+  if (!date) {
+    return 'Invalid Date';
+  }
+  
+  let d: Date;
+  
+  // Handle different date formats
+  if (typeof date === 'number') {
+    // Handle timestamp numbers - check if it's milliseconds or seconds
+    const timestamp = date.toString();
+    if (timestamp.length === 13) {
+      // 13 digits = milliseconds timestamp
+      d = new Date(date);
+    } else if (timestamp.length === 10) {
+      // 10 digits = seconds timestamp, convert to milliseconds
+      d = new Date(date * 1000);
+    } else {
+      // Try as milliseconds first, then as seconds
+      d = new Date(date);
+      if (isNaN(d.getTime())) {
+        d = new Date(date * 1000);
+      }
+    }
+  } else if (typeof date === 'string') {
+    // Handle string that might be a timestamp number
+    if (/^\d+$/.test(date)) {
+      // String contains only digits - treat as timestamp
+      const numDate = parseInt(date, 10);
+      const timestamp = date;
+      if (timestamp.length === 13) {
+        // 13 digits = milliseconds timestamp
+        d = new Date(numDate);
+      } else if (timestamp.length === 10) {
+        // 10 digits = seconds timestamp, convert to milliseconds
+        d = new Date(numDate * 1000);
+      } else {
+        // Try as milliseconds first, then as seconds
+        d = new Date(numDate);
+        if (isNaN(d.getTime())) {
+          d = new Date(numDate * 1000);
+        }
+      }
+    } else {
+      // Handle ISO strings or other date strings
+      d = new Date(date);
+    }
+  } else if (date instanceof Date) {
+    // Handle Date objects
+    d = date;
+  } else {
+    return 'Invalid Date';
+  }
+  
+  // Check if the date is valid
+  if (isNaN(d.getTime())) {
+    return 'Invalid Date';
+  }
+  
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 export const formatDateTime = (date: string | Date): string => {
   const d = new Date(date);
   return d.toLocaleString('en-US', {
