@@ -8,13 +8,36 @@ dotenv.config();
  * Database Configuration
  * Sets up Sequelize connection to MySQL database
  */
+// Validate required database environment variables
+const DB_HOST = process.env.DB_HOST;
+const DB_PORT = process.env.DB_PORT;
+const DB_NAME = process.env.DB_NAME;
+const DB_USER = process.env.DB_USER;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+
+if (!DB_HOST) {
+  throw new Error('DB_HOST environment variable is required');
+}
+if (!DB_PORT) {
+  throw new Error('DB_PORT environment variable is required');
+}
+if (!DB_NAME) {
+  throw new Error('DB_NAME environment variable is required');
+}
+if (!DB_USER) {
+  throw new Error('DB_USER environment variable is required');
+}
+if (!DB_PASSWORD) {
+  throw new Error('DB_PASSWORD environment variable is required');
+}
+
 const sequelize = new Sequelize({
   dialect: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  database: process.env.DB_NAME || 'react_graphql_app',
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  host: DB_HOST,
+  port: parseInt(DB_PORT),
+  database: DB_NAME,
+  username: DB_USER,
+  password: DB_PASSWORD,
   
   // Connection pool settings
   pool: {
@@ -24,8 +47,13 @@ const sequelize = new Sequelize({
     idle: 10000, // Maximum time connection can be idle
   },
   
-  // Logging configuration
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  // Logging configuration - only log errors in development
+  logging: process.env.NODE_ENV === 'development' ? (msg: string) => {
+    // Only log errors, not successful queries
+    if (msg.includes('ERROR') || msg.includes('error')) {
+      console.log(msg);
+    }
+  } : false,
   
   // Timezone configuration
   timezone: '+00:00',
@@ -36,13 +64,6 @@ export const testConnection = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
-    console.log('📊 Connected to database:', {
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || '3306',
-      database: process.env.DB_NAME || 'react_graphql_app',
-      username: process.env.DB_USER || 'root',
-      hasPassword: !!process.env.DB_PASSWORD
-    });
   } catch (error) {
     console.error('❌ Unable to connect to the database:', error);
     process.exit(1);

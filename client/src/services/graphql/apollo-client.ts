@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
-import { getTokens, clearTokens } from '../../utils/tokenManager';
+import { getTokens, clearTokens, isTokenExpired } from '../../utils/tokenManager';
 
 /**
  * Apollo Client Configuration
@@ -18,11 +18,13 @@ const authLink = setContext((_, { headers }) => {
   // Get tokens from storage
   const tokens = getTokens();
   
-  // Return headers with authorization if token exists
+  // Only add authorization header if token exists and is not expired
+  const shouldAddToken = tokens.accessToken && !isTokenExpired(tokens.accessToken);
+  
   return {
     headers: {
       ...headers,
-      authorization: tokens.accessToken ? `Bearer ${tokens.accessToken}` : '',
+      authorization: shouldAddToken ? `Bearer ${tokens.accessToken}` : '',
     },
   };
 });
@@ -60,6 +62,9 @@ const client = new ApolloClient({
           currentUser: {
             read(existing) {
               return existing;
+            },
+            merge(existing, incoming) {
+              return incoming;
             },
           },
         },

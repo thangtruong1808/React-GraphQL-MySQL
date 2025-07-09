@@ -42,12 +42,13 @@ CREATE DATABASE graphql_app;
 ```
 
 ### 4. Environment Configuration
-Copy the environment example and configure your settings:
+Run the setup script to create your `.env` file:
 ```bash
-cp env.example .env
+npm run setup
 ```
 
-Update the `.env` file with your database credentials:
+Or manually create a `.env` file in the root directory with your configuration:
+
 ```env
 # Database Configuration
 DB_HOST=localhost
@@ -57,17 +58,24 @@ DB_USER=root
 DB_PASSWORD=your_password_here
 
 # JWT Configuration
-JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=your_super_secret_refresh_key_here_change_in_production
-JWT_REFRESH_EXPIRES_IN=7d
+JWT_SECRET=115728f7e7db8aa5ccbabd9be147790e9e6b7b5845b5cbdd136c46f4004cd125fc2de405132fdd43fa9fef8986f8c80549dca243c96d9cbabd5b6d91fb48b04a
 
 # Server Configuration
 PORT=4000
+SERVER_HOST=localhost
 NODE_ENV=development
 
 # Client Configuration
 VITE_API_URL=http://localhost:4000/graphql
+
+# Session Configuration
+SESSION_SECRET=your-super-secret-session-key-change-this-in-production
+
+# CORS Configuration
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+
+# Logging
+LOG_LEVEL=info
 ```
 
 ### 5. Start Development Servers
@@ -83,13 +91,14 @@ npm run dev:server  # Starts GraphQL server on http://localhost:4000
 ## 🎯 JWT with Refresh Tokens Authentication Flow
 
 ### Token Structure
-- **Access Token**: Short-lived (15 minutes) for API requests
-- **Refresh Token**: Long-lived (7 days) for token renewal
+- **Access Token**: Short-lived (15 minutes) for API requests using JWT_SECRET
+- **Refresh Token**: Long-lived (1 day) stored in database with token_hash for security
 - **Token Rotation**: New refresh token issued with each refresh
 
 ### Security Features
 - **Automatic Token Refresh**: Tokens refreshed before expiration
-- **Token Blacklisting**: Revoked tokens are blacklisted
+- **Database-backed Refresh Tokens**: Refresh tokens stored with hash in database
+- **Token Revocation**: Refresh tokens can be revoked via database updates
 - **Secure Storage**: Tokens stored in localStorage with proper management
 - **Token Rotation**: Enhanced security with new refresh tokens on each refresh
 

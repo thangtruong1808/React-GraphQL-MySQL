@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation, useApolloClient } from '@apollo/client';
 import { GET_CURRENT_USER } from '../../services/graphql/queries';
 import { LOGIN, LOGOUT, REFRESH_TOKEN } from '../../services/graphql/mutations';
 import { User, LoginInput, RefreshTokenInput } from '../../types/graphql';
@@ -14,6 +14,9 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Apollo client for cache operations
+  const client = useApolloClient();
 
   // GraphQL operations
   const [getCurrentUser, { loading: currentUserLoading }] = useLazyQuery(GET_CURRENT_USER);
@@ -59,6 +62,14 @@ export const useAuth = () => {
       if (data?.currentUser) {
         setUser(data.currentUser);
         setIsAuthenticated(true);
+        
+        // Update Apollo cache with current user data
+        client.writeQuery({
+          query: GET_CURRENT_USER,
+          data: {
+            currentUser: data.currentUser,
+          },
+        });
       } else {
         setUser(null);
         setIsAuthenticated(false);
@@ -68,7 +79,7 @@ export const useAuth = () => {
       setUser(null);
       setIsAuthenticated(false);
     }
-  }, [getCurrentUser]);
+  }, [getCurrentUser, client]);
 
   /**
    * Refresh access token using refresh token
@@ -108,6 +119,7 @@ export const useAuth = () => {
         saveTokens(accessToken, refreshToken);
         setUser(userData);
         setIsAuthenticated(true);
+        
         return { success: true, user: userData };
       }
     } catch (error: any) {
@@ -117,7 +129,7 @@ export const useAuth = () => {
         error: error.graphQLErrors?.[0]?.message || 'Login failed',
       };
     }
-  }, [loginMutation]);
+  }, [loginMutation, client]);
 
   /**
    * Logout user and clear tokens
@@ -133,8 +145,11 @@ export const useAuth = () => {
       clearTokens();
       setUser(null);
       setIsAuthenticated(false);
+      
+      // Clear Apollo cache
+      client.clearStore();
     }
-  }, [logoutMutation]);
+  }, [logoutMutation, client]);
 
   /**
    * Check if user has specific role

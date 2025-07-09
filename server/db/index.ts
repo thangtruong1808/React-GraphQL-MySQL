@@ -1,4 +1,4 @@
-import sequelize from './db';
+import sequelize, { testConnection } from './db';
 
 // Import models for login functionality
 import User from './models/user';
@@ -16,8 +16,8 @@ export {
   RefreshToken,
 };
 
-// Export sequelize instance
-export { sequelize };
+// Export sequelize instance and database functions
+export { sequelize, testConnection };
 
 /**
  * Setup Model Associations

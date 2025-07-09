@@ -10,11 +10,15 @@ import { GraphQLContext } from '../context';
  * Handles login, logout, and token refresh operations
  */
 
-// JWT configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key-change-in-production';
+// JWT configuration - required environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
 const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY = '7d';
+const REFRESH_TOKEN_EXPIRY = '1d'; // 1 day expiry
+
+// Validate required environment variables
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 /**
  * Generate JWT access token
@@ -26,12 +30,13 @@ const generateAccessToken = (userId: number): string => {
 };
 
 /**
- * Generate JWT refresh token
- * @param userId - User ID to encode in token
- * @returns JWT refresh token
+ * Generate refresh token (random string, not JWT)
+ * @param userId - User ID for the token
+ * @returns Random refresh token string
  */
 const generateRefreshToken = (userId: number): string => {
-  return jwt.sign({ userId }, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRY });
+  // Generate a random token instead of JWT for better security
+  return require('crypto').randomBytes(64).toString('hex');
 };
 
 /**
@@ -98,22 +103,13 @@ export const authResolvers = {
         });
 
         if (!user) {
-          console.log('User not found for email:', email.toLowerCase().trim());
           throw new GraphQLError('Invalid email or password', {
             extensions: { code: 'UNAUTHENTICATED' },
           });
         }
 
-        console.log('User found:', {
-          id: user.id,
-          email: user.email,
-          hasPassword: !!user.password,
-          passwordLength: user.password?.length
-        });
-
         // Verify password
         if (!user.password) {
-          console.log('User has no password field');
           throw new GraphQLError('Invalid email or password', {
             extensions: { code: 'UNAUTHENTICATED' },
           });
@@ -185,20 +181,13 @@ export const authResolvers = {
           });
         }
 
-        // Verify refresh token
-        let decoded: any;
-        try {
-          decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
-        } catch (error) {
-          throw new GraphQLError('Invalid refresh token', {
-            extensions: { code: 'UNAUTHENTICATED' },
-          });
-        }
+        // Hash the provided refresh token to find it in database
+        const tokenHash = await hashRefreshToken(refreshToken);
 
-        // Find refresh token in database
+        // Find refresh token in database by hash
         const storedToken = await RefreshToken.findOne({
           where: {
-            userId: decoded.userId,
+            tokenHash,
             isRevoked: false,
             expiresAt: {
               [require('sequelize').Op.gt]: new Date(),

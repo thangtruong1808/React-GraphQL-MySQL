@@ -96,11 +96,9 @@ const LoginPage: React.FC = () => {
       if (result?.success) {
         console.log('Login successful, user data:', result.user);
         setSuccess('Login successful! Redirecting...');
-        // Redirect to dashboard after successful login
-        setTimeout(() => {
-          console.log('Navigating to dashboard...');
-          navigate('/dashboard');
-        }, 1000);
+        // Redirect to dashboard immediately after successful login
+        console.log('Navigating to dashboard...');
+        navigate('/dashboard');
       } else {
         console.log('Login failed:', result?.error);
         setError(result?.error || 'Login failed. Please try again.');
@@ -111,17 +109,7 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  /**
-   * Handle demo login for testing
-   * Pre-fills form with demo credentials
-   */
-  const handleDemoLogin = () => {
-    setFormData({
-      email: 'demo@example.com',
-      password: 'demo123456',
-    });
-    setError('');
-  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -228,17 +216,7 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Demo Login Button */}
-          <div>
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              disabled={loginLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Try Demo Login
-            </button>
-          </div>
+
 
           {/* Forgot Password Link */}
           <div className="text-center">

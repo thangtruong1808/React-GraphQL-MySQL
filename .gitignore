@@ -11,6 +11,12 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Setup scripts (contain sensitive data)
+setup-env.js
+
+# Utility scripts (development tools)
+server/scripts/generate-hash.ts
+
 # Build outputs
 dist/
 build/

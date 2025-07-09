@@ -16,7 +16,7 @@ dotenv.config();
  */
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000; // PORT can have fallback for deployment flexibility
 
 // Security headers
 app.use((req, res, next) => {
@@ -26,11 +26,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS configuration
+// CORS configuration from environment variables
+if (!process.env.CORS_ORIGINS) {
+  throw new Error('CORS_ORIGINS environment variable is required');
+}
+
+const corsOrigins = process.env.CORS_ORIGINS.split(',').map(origin => origin.trim());
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
-    : ['http://localhost:3000', 'http://localhost:5173'],
+  origin: corsOrigins,
   credentials: true,
 }));
 
@@ -52,7 +56,7 @@ app.get('/health', (req, res) => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => createContext({ req }),
+  context: ({ req }: { req: any }) => createContext({ req }),
   formatError: (error) => {
     // Log errors in development
     if (process.env.NODE_ENV === 'development') {
@@ -82,21 +86,21 @@ async function startServer() {
     
     // Apply Apollo middleware to Express
     server.applyMiddleware({ 
-      app, 
+      app: app as any, 
       path: '/graphql',
       cors: {
-        origin: process.env.NODE_ENV === 'production' 
-          ? ['https://yourdomain.com'] 
-          : ['http://localhost:3000', 'http://localhost:5173'],
+        origin: corsOrigins,
         credentials: true,
       },
     });
 
     // Start Express server
+    const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
+    
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📊 GraphQL endpoint: http://localhost:${PORT}${server.graphqlPath}`);
-      console.log(`🔍 GraphQL Playground: http://localhost:${PORT}${server.graphqlPath}`);
+      console.log(`🚀 Server running on http://${SERVER_HOST}:${PORT}`);
+      console.log(`📊 GraphQL endpoint: http://${SERVER_HOST}:${PORT}${server.graphqlPath}`);
+      console.log(`🔍 GraphQL Playground: http://${SERVER_HOST}:${PORT}${server.graphqlPath}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 

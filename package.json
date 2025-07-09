@@ -17,6 +17,7 @@
     "uuid": "^11.1.0"
   },
   "scripts": {
+    "setup": "node setup-env.js",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "npm run dev --prefix client",
     "dev:server": "tsx watch server/index.ts",

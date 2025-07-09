@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { typeDefs } from '../server/graphql/schema';
 import { resolvers } from '../server/graphql/resolvers';
 import { createContext } from '../server/graphql/context';
-import { setupDatabase } from '../server/db/setup';
+import { setupAssociations, testConnection } from '../server/db';
 
 // Load environment variables
 dotenv.config();
@@ -17,17 +17,22 @@ dotenv.config();
 async function startServer() {
   try {
     // Initialize database
-    await setupDatabase();
+    await testConnection();
+    setupAssociations();
     console.log('✅ Database initialized successfully');
 
     // Create Express app
     const app = express();
 
-    // Configure CORS
+    // Configure CORS from environment variables
+    if (!process.env.CORS_ORIGINS) {
+      throw new Error('CORS_ORIGINS environment variable is required');
+    }
+    
+    const corsOrigins = process.env.CORS_ORIGINS.split(',').map(origin => origin.trim());
+
     app.use(cors({
-      origin: process.env.NODE_ENV === 'production' 
-        ? ['https://yourdomain.com'] 
-        : ['http://localhost:3000', 'http://localhost:5173'],
+      origin: corsOrigins,
       credentials: true,
     }));
 
@@ -62,17 +67,19 @@ async function startServer() {
 
     // Apply middleware
     server.applyMiddleware({ 
-      app, 
+      app: app as any, 
       path: '/graphql',
       cors: false, // CORS is handled by Express
     });
 
     // Start server
-    const PORT = process.env.PORT || 4000;
+    const PORT = process.env.PORT || 4000; // PORT can have fallback for deployment flexibility
+    const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
+    
     app.listen(PORT, () => {
-      console.log(`🚀 GraphQL Server running at http://localhost:${PORT}/graphql`);
-      console.log(`📊 Apollo Studio available at http://localhost:${PORT}/graphql`);
-      console.log(`🏥 Health check available at http://localhost:${PORT}/health`);
+      console.log(`🚀 GraphQL Server running at http://${SERVER_HOST}:${PORT}/graphql`);
+      console.log(`📊 Apollo Studio available at http://${SERVER_HOST}:${PORT}/graphql`);
+      console.log(`🏥 Health check available at http://${SERVER_HOST}:${PORT}/health`);
     });
 
   } catch (error) {
