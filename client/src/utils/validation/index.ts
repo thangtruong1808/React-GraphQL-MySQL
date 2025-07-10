@@ -1,4 +1,5 @@
 import React from 'react';
+import { VALIDATION_CONFIG, ERROR_MESSAGES } from '../../constants';
 
 // Form validation utilities
 export interface ValidationRule {
@@ -19,7 +20,7 @@ export const validateField = (value: any, rules: ValidationRule): ValidationResu
 
   // Required validation
   if (rules.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
-    errors.push('This field is required');
+    errors.push(ERROR_MESSAGES.FIELD_REQUIRED);
   }
 
   // Skip other validations if value is empty and not required
@@ -75,14 +76,15 @@ export const isFormValid = (validationResults: Record<string, ValidationResult>)
   return Object.values(validationResults).every(result => result.isValid);
 };
 
-// Common validation schemas
+// Common validation schemas using centralized constants
 export const emailValidation: ValidationRule = {
   required: true,
-  pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  pattern: VALIDATION_CONFIG.EMAIL_REGEX,
+  maxLength: VALIDATION_CONFIG.EMAIL_MAX_LENGTH,
   custom: (value) => {
-    if (!value) return 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Please enter a valid email address';
+    if (!value) return ERROR_MESSAGES.EMAIL_REQUIRED;
+    if (!VALIDATION_CONFIG.EMAIL_REGEX.test(value)) {
+      return ERROR_MESSAGES.EMAIL_INVALID;
     }
     return true;
   },
@@ -90,10 +92,13 @@ export const emailValidation: ValidationRule = {
 
 export const passwordValidation: ValidationRule = {
   required: true,
-  minLength: 8,
+  minLength: VALIDATION_CONFIG.PASSWORD_MIN_LENGTH,
+  pattern: VALIDATION_CONFIG.PASSWORD_REGEX,
   custom: (value) => {
-    if (!value) return 'Password is required';
-    if (value.length < 8) return 'Password must be at least 8 characters long';
+    if (!value) return ERROR_MESSAGES.PASSWORD_REQUIRED;
+    if (value.length < VALIDATION_CONFIG.PASSWORD_MIN_LENGTH) {
+      return `Password must be at least ${VALIDATION_CONFIG.PASSWORD_MIN_LENGTH} characters long`;
+    }
     if (!/(?=.*[a-z])/.test(value)) return 'Password must contain at least one lowercase letter';
     if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain at least one uppercase letter';
     if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
@@ -103,15 +108,67 @@ export const passwordValidation: ValidationRule = {
 
 export const usernameValidation: ValidationRule = {
   required: true,
-  minLength: 3,
-  maxLength: 20,
-  pattern: /^[a-zA-Z0-9_]+$/,
+  minLength: VALIDATION_CONFIG.USERNAME_MIN_LENGTH,
+  maxLength: VALIDATION_CONFIG.USERNAME_MAX_LENGTH,
+  pattern: VALIDATION_CONFIG.USERNAME_REGEX,
   custom: (value) => {
     if (!value) return 'Username is required';
-    if (value.length < 3) return 'Username must be at least 3 characters long';
-    if (value.length > 20) return 'Username must be less than 20 characters';
-    if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+    if (value.length < VALIDATION_CONFIG.USERNAME_MIN_LENGTH) {
+      return `Username must be at least ${VALIDATION_CONFIG.USERNAME_MIN_LENGTH} characters long`;
+    }
+    if (value.length > VALIDATION_CONFIG.USERNAME_MAX_LENGTH) {
+      return `Username must be less than ${VALIDATION_CONFIG.USERNAME_MAX_LENGTH} characters`;
+    }
+    if (!VALIDATION_CONFIG.USERNAME_REGEX.test(value)) {
       return 'Username can only contain letters, numbers, and underscores';
+    }
+    return true;
+  },
+};
+
+export const nameValidation: ValidationRule = {
+  required: true,
+  minLength: VALIDATION_CONFIG.NAME_MIN_LENGTH,
+  maxLength: VALIDATION_CONFIG.NAME_MAX_LENGTH,
+  custom: (value) => {
+    if (!value) return ERROR_MESSAGES.NAME_REQUIRED;
+    if (value.length < VALIDATION_CONFIG.NAME_MIN_LENGTH) {
+      return ERROR_MESSAGES.NAME_TOO_SHORT;
+    }
+    if (value.length > VALIDATION_CONFIG.NAME_MAX_LENGTH) {
+      return ERROR_MESSAGES.NAME_TOO_LONG;
+    }
+    return true;
+  },
+};
+
+export const titleValidation: ValidationRule = {
+  required: true,
+  minLength: VALIDATION_CONFIG.TITLE_MIN_LENGTH,
+  maxLength: VALIDATION_CONFIG.TITLE_MAX_LENGTH,
+  custom: (value) => {
+    if (!value) return 'Title is required';
+    if (value.length < VALIDATION_CONFIG.TITLE_MIN_LENGTH) {
+      return `Title must be at least ${VALIDATION_CONFIG.TITLE_MIN_LENGTH} characters`;
+    }
+    if (value.length > VALIDATION_CONFIG.TITLE_MAX_LENGTH) {
+      return `Title must be less than ${VALIDATION_CONFIG.TITLE_MAX_LENGTH} characters`;
+    }
+    return true;
+  },
+};
+
+export const descriptionValidation: ValidationRule = {
+  required: true,
+  minLength: VALIDATION_CONFIG.DESCRIPTION_MIN_LENGTH,
+  maxLength: VALIDATION_CONFIG.DESCRIPTION_MAX_LENGTH,
+  custom: (value) => {
+    if (!value) return 'Description is required';
+    if (value.length < VALIDATION_CONFIG.DESCRIPTION_MIN_LENGTH) {
+      return `Description must be at least ${VALIDATION_CONFIG.DESCRIPTION_MIN_LENGTH} characters`;
+    }
+    if (value.length > VALIDATION_CONFIG.DESCRIPTION_MAX_LENGTH) {
+      return `Description must be less than ${VALIDATION_CONFIG.DESCRIPTION_MAX_LENGTH} characters`;
     }
     return true;
   },

@@ -96,35 +96,35 @@ const NavBar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-lg border-b border-gray-200">
+    <nav className="bg-white shadow-sm border-b border-gray-100">
       <div className="w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         {/* Main NavBar Row */}
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
             <Logo />
           </div>
 
           {/* Desktop Navigation Links - Single Row (1440px and above) */}
-          <div className="hidden 2xl:flex items-center space-x-8">
+          <div className="hidden 2xl:flex items-center space-x-6">
             {navItems.map((item) => {
               const isActive = isActiveItem(item.path);
               return (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`group flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out whitespace-nowrap transform hover:scale-105 ${isActive
-                    ? 'text-green-600 bg-green-50 shadow-md font-semibold'
-                    : 'text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 hover:shadow-md'
+                  className={`group flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap ${isActive
+                    ? 'text-emerald-700 bg-emerald-50'
+                    : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50'
                     }`}
                   title={item.description}
                 >
                   <NavIcon
                     icon={item.icon || 'default'}
-                    className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-green-600' : 'group-hover:rotate-12'
+                    className={`w-5 h-5 transition-colors duration-200 ${isActive ? 'text-emerald-700' : 'text-gray-500 group-hover:text-emerald-600'
                       }`}
                   />
-                  <span className={`text-sm transition-all duration-300 ${isActive ? 'font-semibold' : 'group-hover:font-semibold'
+                  <span className={`text-sm transition-all duration-200 ${isActive ? 'font-medium' : 'font-normal'
                     }`}>
                     {item.label}
                   </span>
@@ -134,7 +134,7 @@ const NavBar: React.FC = () => {
           </div>
 
           {/* Desktop User Menu */}
-          <div className="hidden lg:flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
             {isAuthenticated ? (
               <div ref={dropdownRef}>
                 <UserDropdown
@@ -147,17 +147,17 @@ const NavBar: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="text-gray-500 hover:text-yellow-600 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out hover:bg-yellow-50 hover:shadow-md transform hover:scale-105"
+                  className="text-emerald-700 hover:text-emerald-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-emerald-50 border border-emerald-500 hover:border-emerald-300"
                 >
                   Login
                 </Link>
 
                 <Link
                   to="/register"
-                  className="bg-gradient-to-r from-green-600 to-yellow-500 hover:from-green-700 hover:to-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out hover:shadow-lg transform hover:scale-105 hover:shadow-yellow-200"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                 >
                   Register
                 </Link>
@@ -172,26 +172,26 @@ const NavBar: React.FC = () => {
         </div>
 
         {/* Second Row Navigation - Two Rows (815px to 1440px) */}
-        <div className="hidden lg:flex 2xl:hidden border-t border-gray-100">
-          <div className="flex items-center justify-center space-x-4 py-3 w-full">
+        <div className="hidden lg:flex 2xl:hidden border-t border-emerald-100">
+          <div className="flex items-center justify-center space-x-4 py-2 w-full">
             {navItems.map((item) => {
               const isActive = isActiveItem(item.path);
               return (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`group flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ease-in-out whitespace-nowrap transform hover:scale-105 ${isActive
-                      ? 'text-green-600 bg-green-50 shadow-md font-semibold'
-                      : 'text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 hover:shadow-md'
+                  className={`group flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap ${isActive
+                    ? 'text-emerald-700 bg-emerald-50'
+                    : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50'
                     }`}
                   title={item.description}
                 >
                   <NavIcon
                     icon={item.icon || 'default'}
-                    className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-green-600' : 'group-hover:rotate-12'
+                    className={`w-5 h-5 transition-colors duration-200 ${isActive ? 'text-emerald-700' : 'text-gray-500 group-hover:text-emerald-600'
                       }`}
                   />
-                  <span className={`text-sm transition-all duration-300 ${isActive ? 'font-semibold' : 'group-hover:font-semibold'
+                  <span className={`text-sm transition-all duration-200 ${isActive ? 'font-medium' : 'font-normal'
                     }`}>
                     {item.label}
                   </span>

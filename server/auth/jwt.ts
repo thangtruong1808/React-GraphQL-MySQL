@@ -1,4 +1,5 @@
 import jwt, { TokenExpiredError } from 'jsonwebtoken';
+import { JWT_CONFIG, ERROR_MESSAGES } from '../constants';
 
 /**
  * JWT Utility Functions
@@ -10,12 +11,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Validate required environment variables
 if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
+  throw new Error(ERROR_MESSAGES.JWT_SECRET_MISSING);
 }
-
-// Token expiration times
-const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutes
-const REFRESH_TOKEN_EXPIRY = '1d'; // 1 days
 
 /**
  * Verify JWT access token
@@ -59,7 +56,7 @@ export const generateAccessToken = (user: { id: number }): string => {
   return jwt.sign(
     { userId: user.id },
     JWT_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRY }
+    { expiresIn: JWT_CONFIG.ACCESS_TOKEN_EXPIRY }
   );
 };
 

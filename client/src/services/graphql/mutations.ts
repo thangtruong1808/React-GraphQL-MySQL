@@ -27,16 +27,6 @@ export const LOGIN = gql`
   }
 `;
 
-// Mutation for refreshing access token
-export const REFRESH_TOKEN = gql`
-  mutation RefreshToken($input: RefreshTokenInput!) {
-    refreshToken(input: $input) {
-      accessToken
-      refreshToken
-    }
-  }
-`;
-
 // Mutation for user logout
 export const LOGOUT = gql`
   mutation Logout {

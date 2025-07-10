@@ -54,7 +54,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   };
 
   return (
-    <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+    <div className="md:hidden bg-white border-t border-gray-100 shadow-sm">
       <div className="px-4 py-2 space-y-1">
         {/* Mobile Navigation Links */}
         {mobileNavItems.map((item) => {
@@ -64,15 +64,15 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               key={item.id}
               to={item.path}
               onClick={onClose}
-              className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-md transition-colors duration-200 ${isActive
-                  ? 'text-green-600 bg-green-50 font-semibold'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+              className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-lg transition-colors duration-200 ${isActive
+                ? 'text-emerald-700 bg-emerald-50'
+                : 'text-gray-700 hover:text-emerald-700 hover:bg-emerald-50'
                 }`}
               title={item.description}
             >
               <NavIcon
                 icon={item.icon || 'default'}
-                className={`w-5 h-5 ${isActive ? 'text-green-600' : ''}`}
+                className={`w-5 h-5 ${isActive ? 'text-emerald-700' : 'text-gray-500'}`}
               />
               <span>{item.label}</span>
             </Link>
@@ -81,18 +81,18 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 
         {/* Mobile User Section */}
         {isAuthenticated ? (
-          <div className="border-t border-gray-200 pt-4 pb-3">
+          <div className="border-t border-gray-100 pt-4 pb-3">
             <div className="flex items-center px-3 py-2">
               {/* User Avatar */}
-              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-yellow-500 rounded-full flex items-center justify-center mr-3">
-                <span className="text-sm font-semibold text-white">
+              <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center mr-3">
+                <span className="text-sm font-medium text-white">
                   {getUserInitials()}
                 </span>
               </div>
 
               {/* User Info */}
               <div className="flex-1">
-                <div className="text-base font-medium text-gray-800">
+                <div className="text-base font-medium text-gray-900">
                   {user?.firstName} {user?.lastName}
                 </div>
                 <div className="text-sm text-gray-500">
@@ -106,7 +106,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               <Link
                 to="/dashboard"
                 onClick={onClose}
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
               >
                 Dashboard
               </Link>
@@ -114,7 +114,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               <Link
                 to="/profile"
                 onClick={onClose}
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
               >
                 Profile Settings
               </Link>
@@ -122,7 +122,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               <button
                 onClick={onLogout}
                 disabled={logoutLoading}
-                className="w-full text-left px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 rounded-md transition-colors duration-200"
+                className="w-full text-left px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 rounded-lg transition-colors duration-200"
               >
                 {logoutLoading ? (
                   <div className="flex items-center">
@@ -136,11 +136,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             </div>
           </div>
         ) : (
-          <div className="border-t border-gray-200 pt-4 pb-3 space-y-2">
+          <div className="border-t border-gray-100 pt-4 pb-3 space-y-2">
             <Link
               to="/login"
               onClick={onClose}
-              className="block w-full text-center px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-200"
+              className="block w-full text-center px-3 py-2 text-base font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors duration-200"
             >
               Login
             </Link>
@@ -148,7 +148,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             <Link
               to="/register"
               onClick={onClose}
-              className="block w-full text-center px-3 py-2 text-base font-medium bg-gradient-to-r from-green-600 to-yellow-500 hover:from-green-700 hover:to-yellow-600 text-white rounded-md transition-colors duration-200"
+              className="block w-full text-center px-3 py-2 text-base font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200"
             >
               Register
             </Link>

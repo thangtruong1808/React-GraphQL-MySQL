@@ -1,4 +1,5 @@
 import { User } from '../types/graphql';
+import { ROUTES, USER_ROLES } from './index';
 
 /**
  * Navigation Configuration
@@ -17,12 +18,13 @@ export interface NavItem {
 
 /**
  * Core navigation items based on database schema
+ * Uses centralized route constants for consistency
  */
 export const NAV_ITEMS: NavItem[] = [
   {
     id: 'home',
     label: 'Home',
-    path: '/',
+    path: ROUTES.HOME,
     icon: 'home',
     requiresAuth: false,
     description: 'Landing page'
@@ -30,7 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    path: '/dashboard',
+    path: ROUTES.DASHBOARD,
     icon: 'dashboard',
     requiresAuth: true,
     description: 'User overview and quick actions'
@@ -38,7 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'projects',
     label: 'Projects',
-    path: '/projects',
+    path: ROUTES.PROJECTS,
     icon: 'folder',
     requiresAuth: true,
     description: 'Manage projects and teams'
@@ -46,7 +48,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'tasks',
     label: 'Tasks',
-    path: '/tasks',
+    path: ROUTES.TASKS,
     icon: 'checklist',
     requiresAuth: true,
     description: 'View and manage tasks'
@@ -54,16 +56,16 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'team',
     label: 'Team',
-    path: '/team',
+    path: ROUTES.TEAM,
     icon: 'users',
-    roles: ['ADMIN', 'MANAGER'],
+    roles: [USER_ROLES.ADMIN, USER_ROLES.MANAGER],
     requiresAuth: true,
     description: 'User management and roles'
   },
   {
     id: 'reports',
     label: 'Reports',
-    path: '/reports',
+    path: ROUTES.REPORTS,
     icon: 'chart',
     requiresAuth: true,
     description: 'Analytics and insights'
@@ -71,7 +73,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'activity',
     label: 'Activity',
-    path: '/activity',
+    path: ROUTES.ACTIVITY,
     icon: 'activity',
     requiresAuth: true,
     description: 'Activity logs and history'
@@ -79,7 +81,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'notifications',
     label: 'Notifications',
-    path: '/notifications',
+    path: ROUTES.NOTIFICATIONS,
     icon: 'bell',
     requiresAuth: true,
     description: 'User notifications'
@@ -87,9 +89,9 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'admin',
     label: 'Admin Panel',
-    path: '/admin',
+    path: ROUTES.ADMIN,
     icon: 'settings',
-    roles: ['ADMIN'],
+    roles: [USER_ROLES.ADMIN],
     requiresAuth: true,
     description: 'System administration'
   }

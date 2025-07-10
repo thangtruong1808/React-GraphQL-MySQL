@@ -1,3 +1,5 @@
+import { VALIDATION_CONFIG, AUTH_CONFIG } from '../../constants';
+
 // Date formatting utilities
 export const formatDate = (date: string | Date): string => {
   const d = new Date(date);
@@ -145,7 +147,7 @@ export const sortBy = <T>(array: T[], key: keyof T, direction: 'asc' | 'desc' = 
 };
 
 // Object utilities
-export const pick = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
+export const pick = <T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
   const result = {} as Pick<T, K>;
   keys.forEach(key => {
     if (key in obj) {
@@ -163,16 +165,13 @@ export const omit = <T extends Record<string, unknown>, K extends keyof T>(obj: 
   return result;
 };
 
-// Validation utilities
+// Validation utilities using centralized constants
 export const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  return VALIDATION_CONFIG.EMAIL_REGEX.test(email);
 };
 
 export const isValidPassword = (password: string): boolean => {
-  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
-  return passwordRegex.test(password);
+  return VALIDATION_CONFIG.PASSWORD_REGEX.test(password);
 };
 
 // Storage utilities
@@ -274,26 +273,17 @@ export const throttle = <T extends (...args: any[]) => any>(
  * Handles session storage, validation, and cleanup operations
  */
 
-// Session storage keys
-const SESSION_KEYS = {
-  USER: 'user',
-  EXPIRY: 'sessionExpiry',
-} as const;
-
-// Session duration in milliseconds (1 hour)
-const SESSION_DURATION = 60 * 60 * 1000;
-
 /**
  * Creates a new session with user data and expiry time
  * @param user - User data to store in session
  */
 export const createSession = (user: Record<string, unknown> | any): void => {
   // Store user data in sessionStorage
-  sessionStorage.setItem(SESSION_KEYS.USER, JSON.stringify(user));
+  sessionStorage.setItem(AUTH_CONFIG.SESSION_KEYS.USER, JSON.stringify(user));
   
-  // Set session expiry to 1 hour from now
-  const expiryTime = new Date().getTime() + SESSION_DURATION;
-  sessionStorage.setItem(SESSION_KEYS.EXPIRY, expiryTime.toString());
+  // Set session expiry using centralized config
+  const expiryTime = new Date().getTime() + AUTH_CONFIG.SESSION_DURATION;
+  sessionStorage.setItem(AUTH_CONFIG.SESSION_KEYS.EXPIRY, expiryTime.toString());
 };
 
 /**
@@ -301,7 +291,7 @@ export const createSession = (user: Record<string, unknown> | any): void => {
  * @returns boolean indicating if session is valid
  */
 export const isSessionValid = (): boolean => {
-  const expiryTime = sessionStorage.getItem(SESSION_KEYS.EXPIRY);
+  const expiryTime = sessionStorage.getItem(AUTH_CONFIG.SESSION_KEYS.EXPIRY);
   if (!expiryTime) return false;
   
   const currentTime = new Date().getTime();
@@ -323,7 +313,7 @@ export const isSessionValid = (): boolean => {
 export const getSessionUser = (): Record<string, unknown> | null => {
   if (!isSessionValid()) return null;
   
-  const userData = sessionStorage.getItem(SESSION_KEYS.USER);
+  const userData = sessionStorage.getItem(AUTH_CONFIG.SESSION_KEYS.USER);
   return userData ? JSON.parse(userData) : null;
 };
 
@@ -331,8 +321,8 @@ export const getSessionUser = (): Record<string, unknown> | null => {
  * Clears all session data
  */
 export const clearSession = (): void => {
-  sessionStorage.removeItem(SESSION_KEYS.USER);
-  sessionStorage.removeItem(SESSION_KEYS.EXPIRY);
+  sessionStorage.removeItem(AUTH_CONFIG.SESSION_KEYS.USER);
+  sessionStorage.removeItem(AUTH_CONFIG.SESSION_KEYS.EXPIRY);
 };
 
 /**

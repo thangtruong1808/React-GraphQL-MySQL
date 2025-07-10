@@ -17,7 +17,7 @@ export class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCrea
   declare createdAt: CreationOptional<Date>;
 
   // Associations
-  declare user?: User;
+  declare refreshTokenUser?: User;
 }
 
 // Initialize RefreshToken model
@@ -79,6 +79,6 @@ RefreshToken.init(
 );
 
 // Define associations
-RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'refreshTokenUser' });
 
 export default RefreshToken; 

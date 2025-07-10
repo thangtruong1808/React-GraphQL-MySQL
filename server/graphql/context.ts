@@ -1,69 +1,17 @@
-import { Request } from 'express';
-import { User } from '../db/index';
-import { verifyAccessToken, extractTokenFromHeader } from '../auth/jwt';
+import { Request, Response } from 'express';
+import User from '../db/models/user';
 
-/**
- * GraphQL Context Interface
- * Defines the context object passed to all GraphQL resolvers
- */
 export interface GraphQLContext {
-  user?: User;
-  isAuthenticated: boolean;
-  req?: Request; // Include request object for token access
+  req: Request;
+  res: Response;
+  user?: typeof User.prototype;
 }
 
-/**
- * Create GraphQL Context
- * Extracts user from JWT token and creates context object
- * Note: Token expiration errors are expected and handled gracefully
- */
-export const createContext = async ({ req }: { req: Request }): Promise<GraphQLContext> => {
-  try {
-    // Extract token from Authorization header
-    const token = extractTokenFromHeader(req.headers.authorization);
-
-    if (!token) {
-      return {
-        user: undefined,
-        isAuthenticated: false,
-        req,
-      };
-    }
-
-    // Verify access token
-    const decoded = verifyAccessToken(token);
-    if (!decoded) {
-      return {
-        user: undefined,
-        isAuthenticated: false,
-        req,
-      };
-    }
-
-    // Find user in database
-    const user = await User.findByPk(decoded.userId);
-    if (!user) {
-      return {
-        user: undefined,
-        isAuthenticated: false,
-        req,
-      };
-    }
-
-    return {
-      user,
-      isAuthenticated: true,
-      req,
-    };
-  } catch (error) {
-    // Only log unexpected errors, not token expiration
-    if (error instanceof Error && !error.message.includes('jwt expired')) {
-    console.error('Context creation error:', error);
-    }
-    return {
-      user: undefined,
-      isAuthenticated: false,
-      req,
-    };
-  }
-};
+export function createContext({ req, res }: { req: Request; res: Response }): GraphQLContext {
+  // Attach user to context if available (handled by auth middleware)
+  return {
+    req,
+    res,
+    user: (req as any).user || undefined,
+  };
+}

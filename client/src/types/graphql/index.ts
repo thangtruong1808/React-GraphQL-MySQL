@@ -31,12 +31,6 @@ export interface AuthResponse {
   user: User;
 }
 
-// Token Refresh Response Type
-export interface RefreshTokenResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
 // Logout Response Type
 export interface LogoutResponse {
   success: boolean;
@@ -57,11 +51,6 @@ export interface RegisterInput {
   lastName: string;
 }
 
-// Refresh Token Input Type
-export interface RefreshTokenInput {
-  refreshToken: string;
-}
-
 // GraphQL Query Response Types
 export interface CurrentUserQuery {
   currentUser: User | null;
@@ -70,10 +59,6 @@ export interface CurrentUserQuery {
 // GraphQL Mutation Response Types
 export interface LoginMutation {
   login: AuthResponse;
-}
-
-export interface RefreshTokenMutation {
-  refreshToken: RefreshTokenResponse;
 }
 
 export interface LogoutMutation {
