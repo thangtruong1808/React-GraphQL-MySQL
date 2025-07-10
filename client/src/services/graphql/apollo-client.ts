@@ -1,10 +1,12 @@
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { from } from '@apollo/client/link/core';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { 
   getTokens, 
   clearTokens, 
-  isTokenExpired
+  isTokenExpired,
+  isAuthenticated
 } from '../../utils/tokenManager';
 import { API_CONFIG, ROUTES, ERROR_MESSAGES } from '../../constants';
 
@@ -23,17 +25,26 @@ const httpLink = createHttpLink({
   credentials: 'include', // Include cookies in requests
 });
 
-// Enhanced auth link with better token validation
+// Enhanced auth link with better token validation and debugging
 const authLink = setContext((_, { headers }) => {
   try {
     // Get access token from memory
     const tokens = getTokens();
+    
+    // Debug: Log token retrieval
+    console.log('🔍 Auth link - Token check:', {
+      hasAccessToken: !!tokens.accessToken,
+      accessTokenLength: tokens.accessToken?.length,
+      isAuthenticated: isAuthenticated(),
+    });
     
     // Only add authorization header if token exists and is not expired
     const shouldAddToken = tokens.accessToken && !isTokenExpired(tokens.accessToken);
     
     if (shouldAddToken) {
       console.log('🔐 Adding authorization header to request');
+    } else {
+      console.log('❌ No valid access token found for request');
     }
     
     return {
@@ -49,21 +60,35 @@ const authLink = setContext((_, { headers }) => {
   }
 });
 
-// Enhanced error link with simplified authentication handling
-const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+// Enhanced error link with comprehensive authentication handling
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
       console.error(
         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
       );
       
-      // Handle authentication errors
+      // Handle authentication errors (including force logout)
       if (extensions?.code === 'UNAUTHENTICATED') {
-        console.log('🔐 Authentication error detected');
+        console.log('🔐 Authentication error detected - user may have been force logged out');
         
         // Clear client-side tokens and redirect to login
         clearTokens();
+        
+        // Show a more specific message for force logout
+        if (message.includes('logged out by an administrator') || message.includes('force') || message.includes('revoked')) {
+          alert('You have been logged out by an administrator. Please log in again.');
+        }
+        
         window.location.href = ROUTES.LOGIN;
+      }
+
+      // Handle too many sessions error
+      if (extensions?.code === 'TOO_MANY_SESSIONS') {
+        console.log('🔐 Too many sessions error detected - showing error message');
+        
+        // Show error message to user (don't clear tokens, just show error)
+        alert(message || 'Maximum active sessions reached. Please log out from another device to continue.');
       }
     });
   }
@@ -73,37 +98,25 @@ const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     
     // Handle network errors that might be related to authentication
     if (networkError.message.includes('401') || networkError.message.includes('Unauthorized')) {
-      console.log('🔐 Network authentication error detected');
+      console.log('🔐 Network authentication error detected - user may have been force logged out');
       clearTokens();
       window.location.href = ROUTES.LOGIN;
     }
   }
 });
 
-// Create Apollo Client instance with enhanced configuration
+// Create Apollo Client with enhanced error handling and security
 const client = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
         fields: {
+          // Cache policies for better performance
           currentUser: {
             read(existing) {
+              console.log('🔍 APOLLO CACHE - Reading currentUser from cache:', !!existing);
               return existing;
-            },
-            merge(existing, incoming) {
-              return incoming;
-            },
-          },
-        },
-      },
-      User: {
-        keyFields: ['id'],
-        fields: {
-          // Ensure user data is properly cached
-          id: {
-            read(id: string) {
-              return id;
             },
           },
         },
@@ -113,7 +126,7 @@ const client = new ApolloClient({
   defaultOptions: {
     watchQuery: {
       errorPolicy: 'all',
-      fetchPolicy: 'cache-and-network',
+      notifyOnNetworkStatusChange: true,
     },
     query: {
       errorPolicy: 'all',
@@ -123,6 +136,10 @@ const client = new ApolloClient({
       errorPolicy: 'all',
     },
   },
+  connectToDevTools: process.env.NODE_ENV === 'development',
 });
+
+// Enhanced logging for GraphQL operations
+console.log('🔧 Apollo Client initialized with enhanced debugging');
 
 export default client; 

@@ -1,4 +1,5 @@
 import { authResolvers } from './auth';
+import { userResolvers } from './user';
 
 /**
  * GraphQL Resolvers Index
@@ -10,8 +11,10 @@ import { authResolvers } from './auth';
 export const resolvers = {
   Query: {
     ...authResolvers.Query,
+    ...userResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
+    ...userResolvers.Mutation,
   },
 };

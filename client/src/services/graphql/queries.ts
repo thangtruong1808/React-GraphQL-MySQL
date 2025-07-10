@@ -52,6 +52,18 @@ export const GET_USER_BY_ID = gql`
   }
 `;
 
+export const GET_USERS_WITH_SESSIONS = gql`
+  query GetUsersWithSessions {
+    usersWithSessions {
+      userId
+      userEmail
+      activeTokens
+      maxAllowed
+      isAtLimit
+    }
+  }
+`;
+
 // Project Queries
 export const GET_PROJECTS = gql`
   query GetProjects($limit: Int, $offset: Int, $status: ProjectStatus) {

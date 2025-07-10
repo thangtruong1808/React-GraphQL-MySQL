@@ -79,6 +79,12 @@ export const DELETE_USER = gql`
   }
 `;
 
+export const FORCE_LOGOUT_USER = gql`
+  mutation ForceLogoutUser($userId: ID!) {
+    forceLogoutUser(userId: $userId)
+  }
+`;
+
 // Project Mutations
 export const CREATE_PROJECT = gql`
   mutation CreateProject($input: CreateProjectInput!) {

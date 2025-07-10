@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from './jwt';
-import { User } from '../db/index';
+import { User, RefreshToken } from '../db/index';
+import { Op } from 'sequelize';
+import { isAccessTokenBlacklisted } from './tokenBlacklist';
 
 /**
  * Authentication Middleware
@@ -53,10 +55,38 @@ export const authenticateUser = async (
       return;
     }
 
+    // Check if token is blacklisted
+    const isBlacklisted = await isAccessTokenBlacklisted(token);
+    if (isBlacklisted) {
+      console.log('🔐 Access token is blacklisted - user force logged out');
+      // Token is blacklisted, continue without authentication
+      next();
+      return;
+    }
+
     // Find user in database
     const user = await User.findByPk(decoded.userId);
     if (!user) {
       // User not found, continue without authentication
+      next();
+      return;
+    }
+
+    // Check if user has been force logged out by verifying active refresh tokens
+    const activeTokenCount = await RefreshToken.count({
+      where: {
+        userId: user.id,
+        isRevoked: false,
+        expiresAt: {
+          [Op.gt]: new Date(),
+        },
+      },
+    });
+
+    // If user has no active refresh tokens, they have been force logged out
+    if (activeTokenCount === 0) {
+      console.log(`🔐 User ${user.id} has been force logged out - no active refresh tokens found`);
+      // Continue without authentication (don't set user)
       next();
       return;
     }

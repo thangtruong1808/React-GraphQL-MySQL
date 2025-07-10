@@ -98,34 +98,51 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log('🔐 LOGIN PAGE - Form submission started');
+    console.log('🔐 LOGIN PAGE - Form data:', {
+      email: formData.email,
+      passwordLength: formData.password.length,
+    });
+
     // Clear previous messages
     setError('');
     setSuccess('');
 
     // Validate form
     if (!validateForm()) {
+      console.log('❌ LOGIN PAGE - Form validation failed');
       return;
     }
 
+    console.log('✅ LOGIN PAGE - Form validation passed');
+
     try {
+      console.log('🔐 LOGIN PAGE - Calling login function...');
+
       // Attempt login
       const result = await login({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
 
+      console.log('🔐 LOGIN PAGE - Login result received:', {
+        success: result?.success,
+        hasUser: !!result?.user,
+        error: result?.error,
+      });
+
       if (result?.success) {
-        console.log('Login successful, user data:', result.user);
+        console.log('✅ LOGIN PAGE - Login successful, user data:', result.user);
         setSuccess(SUCCESS_MESSAGES.LOGIN_SUCCESS);
         // Redirect to dashboard immediately after successful login
-        console.log('Navigating to dashboard...');
+        console.log('🔐 LOGIN PAGE - Navigating to dashboard...');
         navigate(ROUTES.DASHBOARD);
       } else {
-        console.log('Login failed:', result?.error);
+        console.log('❌ LOGIN PAGE - Login failed:', result?.error);
         setError(result?.error || ERROR_MESSAGES.LOGIN_FAILED);
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('❌ LOGIN PAGE - Login error:', err);
       setError(ERROR_MESSAGES.UNKNOWN_ERROR);
     }
   };

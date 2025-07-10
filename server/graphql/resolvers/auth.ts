@@ -11,6 +11,7 @@ import {
   ERROR_MESSAGES, 
   SUCCESS_MESSAGES 
 } from '../../constants';
+import { blacklistAllUserTokens, blacklistAccessToken } from '../../auth/tokenBlacklist';
 
 /**
  * Enhanced Authentication Resolvers
@@ -129,9 +130,11 @@ const limitRefreshTokens = async (userId: number): Promise<void> => {
       },
     });
 
+    console.log(`🔍 Token limit check for user ID: ${userId} - Current tokens: ${tokenCount}, Max allowed: ${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}`);
+
     // Only limit if we exceed the maximum
     if (tokenCount > JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER) {
-      // Remove oldest tokens
+      // Find oldest tokens to delete
       const oldestTokens = await RefreshToken.findAll({
         where: {
           userId,
@@ -144,11 +147,17 @@ const limitRefreshTokens = async (userId: number): Promise<void> => {
         limit: tokenCount - JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER + 1,
       });
 
+      console.log(`🔍 Found ${oldestTokens.length} oldest tokens to delete for user ID: ${userId}`);
+
+      // Actually delete the oldest tokens (not just mark as revoked)
       for (const token of oldestTokens) {
-        await token.update({ isRevoked: true });
+        await token.destroy();
+        console.log(`🗑️ Deleted token ID: ${token.id} for user ID: ${userId}`);
       }
 
-      console.log(`🔒 Limited refresh tokens for user ID: ${userId} (removed ${oldestTokens.length} oldest tokens)`);
+      console.log(`🔒 Limited refresh tokens for user ID: ${userId} (deleted ${oldestTokens.length} oldest tokens)`);
+    } else {
+      console.log(`✅ Token count within limit for user ID: ${userId}`);
     }
   } catch (error) {
     console.error('❌ Error limiting refresh tokens:', error);
@@ -163,6 +172,7 @@ export const authResolvers = {
     /**
      * Get current authenticated user with enhanced security
      * Requires valid JWT token in Authorization header
+     * Force logout check is handled by authentication middleware
      */
     currentUser: async (_: any, __: any, context: GraphQLContext) => {
       if (!context.user) {
@@ -170,6 +180,18 @@ export const authResolvers = {
           extensions: { code: 'UNAUTHENTICATED' },
         });
       }
+
+      // Debug: Check token count for this user
+      const activeTokenCount = await RefreshToken.count({
+        where: {
+          userId: context.user.id,
+          isRevoked: false,
+          expiresAt: {
+            [require('sequelize').Op.gt]: new Date(),
+          },
+        },
+      });
+      console.log(`🔍 Current user ${context.user.id} has ${activeTokenCount} active refresh tokens`);
 
       // Return user data without sensitive information
       return {
@@ -255,6 +277,27 @@ export const authResolvers = {
           version: 1,
         });
 
+        // Check token count BEFORE creating new token (for registration, this should be 0)
+        const currentTokenCount = await RefreshToken.count({
+          where: {
+            userId: user.id,
+            isRevoked: false,
+            expiresAt: {
+              [require('sequelize').Op.gt]: new Date(),
+            },
+          },
+        });
+
+        console.log(`🔍 Pre-registration token check for user ID: ${user.id} - Current tokens: ${currentTokenCount}, Max allowed: ${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}`);
+
+        // For registration, this should always be 0, but check anyway for security
+        if (currentTokenCount >= JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER) {
+          console.log(`❌ User ID: ${user.id} has reached maximum active sessions during registration (${currentTokenCount}/${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER})`);
+          throw new GraphQLError(`Maximum active sessions reached (${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}). Please log out from another device to continue.`, {
+            extensions: { code: 'TOO_MANY_SESSIONS' },
+          });
+        }
+
         // Generate tokens with enhanced security
         const accessToken = generateAccessToken(user.id);
         const refreshToken = generateRefreshToken(user.id);
@@ -273,9 +316,6 @@ export const authResolvers = {
 
         // Clean up expired tokens only
         await cleanupRefreshTokens(user.id);
-
-        // Limit refresh tokens per user only if needed
-        await limitRefreshTokens(user.id);
 
         console.log(`✅ Registration successful for user ID: ${user.id}`);
 
@@ -374,6 +414,27 @@ export const authResolvers = {
         // Clean up expired tokens only (not all tokens)
         await cleanupRefreshTokens(user.id);
 
+        // Check token count BEFORE creating new token
+        const currentTokenCount = await RefreshToken.count({
+          where: {
+            userId: user.id,
+            isRevoked: false,
+            expiresAt: {
+              [require('sequelize').Op.gt]: new Date(),
+            },
+          },
+        });
+
+        console.log(`🔍 Pre-login token check for user ID: ${user.id} - Current tokens: ${currentTokenCount}, Max allowed: ${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}`);
+
+        // Reject login if user has reached the maximum number of active sessions
+        if (currentTokenCount >= JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER) {
+          console.log(`❌ User ID: ${user.id} has reached maximum active sessions (${currentTokenCount}/${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER})`);
+          throw new GraphQLError(`Maximum active sessions reached (${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}). Please log out from another device to continue.`, {
+            extensions: { code: 'TOO_MANY_SESSIONS' },
+          });
+        }
+
         // Generate tokens with enhanced security
         const accessToken = generateAccessToken(user.id);
         const refreshToken = generateRefreshToken(user.id);
@@ -391,9 +452,6 @@ export const authResolvers = {
           expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 7 days
           isRevoked: false,
         });
-
-        // Limit refresh tokens per user only if needed
-        await limitRefreshTokens(user.id);
 
         console.log(`✅ Login successful for user ID: ${user.id}`);
 
@@ -461,7 +519,12 @@ export const authResolvers = {
 
       console.log('🔍 Attempting to refresh token...');
 
-      // Find all valid refresh tokens and verify each one with enhanced security
+      // First, try to find the specific token that matches the provided refresh token
+      // This is more efficient and secure than checking all tokens
+      let validToken: any = null;
+      let validUser: any = null;
+
+      // Get all valid refresh tokens for all users to find the matching one
       const storedTokens = await RefreshToken.findAll({
         where: {
           isRevoked: false,
@@ -473,9 +536,6 @@ export const authResolvers = {
       });
 
       console.log(`📊 Found ${storedTokens.length} valid refresh tokens in database`);
-
-      let validToken: any = null;
-      let validUser: any = null;
 
       // Check each token to find a match with enhanced security
       for (const storedToken of storedTokens) {
@@ -543,25 +603,74 @@ export const authResolvers = {
     },
 
     /**
-     * Enhanced user logout - clears refresh token cookie
+     * Enhanced user logout - clears refresh token cookie and deletes from database
      */
-    logout: async (_: any, __: any, context: GraphQLContext) => {
+    logout: async (_: any, __: any, { req, res }: { req: any; res: any }) => {
       try {
-        if (!context.user) {
-          throw new GraphQLError('Authentication required', {
-            extensions: { code: 'UNAUTHENTICATED' },
+        // Get refresh token from httpOnly cookie
+        const refreshToken = req.cookies.jid;
+        
+        if (refreshToken) {
+          console.log('🔍 Logout: Found refresh token in cookie, attempting to delete from database');
+          
+          // Find and delete the specific refresh token from database
+          const storedTokens = await RefreshToken.findAll({
+            where: {
+              isRevoked: false,
+              expiresAt: {
+                [require('sequelize').Op.gt]: new Date(),
+              },
+            },
+            include: [{ model: User, as: 'refreshTokenUser' }],
           });
+
+          // Find the matching token and delete it
+          for (const storedToken of storedTokens) {
+            try {
+              const isValidHash = await verifyRefreshTokenHash(refreshToken, storedToken.tokenHash);
+              if (isValidHash) {
+                console.log(`🗑️ Logout: Deleting refresh token ID: ${storedToken.id} for user ID: ${storedToken.userId}`);
+                await storedToken.destroy();
+                break;
+              }
+            } catch (hashError) {
+              console.error('❌ Hash verification error during logout:', hashError);
+              continue;
+            }
+          }
+        } else {
+          console.log('🔍 Logout: No refresh token found in cookie');
         }
 
-        console.log(`🚪 Logging out user ID: ${context.user.id}`);
+        // Blacklist the current access token if available
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const accessToken = authHeader.substring(7);
+          try {
+            // Decode token to get expiration
+            const decoded = jwt.decode(accessToken) as any;
+            if (decoded && decoded.exp) {
+              const expiresAt = new Date(decoded.exp * 1000);
+              // Find user ID from the token
+              if (decoded.userId) {
+                await blacklistAccessToken(decoded.userId, accessToken, expiresAt, 'MANUAL_LOGOUT');
+                console.log('✅ Access token blacklisted during logout');
+              }
+            }
+          } catch (error: any) {
+            console.error('❌ Error blacklisting access token during logout:', error);
+          }
+        }
 
         // Clear the refresh token cookie
-        context.res.clearCookie('jid', {
+        res.clearCookie('jid', {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           path: '/graphql',
         });
+
+        console.log('✅ Logout successful - token deleted from database and cookie cleared');
         return {
           success: true,
           message: 'Successfully logged out',
@@ -572,6 +681,71 @@ export const authResolvers = {
         }
         console.error('❌ Logout error:', error);
         throw new GraphQLError('Logout failed', {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
+      }
+    },
+
+    /**
+     * Force logout user by revoking all refresh tokens (admin only)
+     * @param _ - Parent resolver
+     * @param args - Arguments containing user ID
+     * @param context - GraphQL context with user
+     * @returns Success status
+     */
+    forceLogoutUser: async (_: any, { userId }: { userId: string }, context: GraphQLContext) => {
+      try {
+        // Check authentication and admin role
+        if (!context.isAuthenticated || !context.user) {
+          throw new GraphQLError('Authentication required', {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
+        
+        if (context.user.role !== 'ADMIN') {
+          throw new GraphQLError('Admin access required', {
+            extensions: { code: 'FORBIDDEN' },
+          });
+        }
+
+        // Prevent admin from force logging out themselves
+        if (context.user.id.toString() === userId) {
+          throw new GraphQLError('Cannot force logout yourself', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+
+        // Find user to force logout
+        const user = await User.findByPk(userId);
+        if (!user) {
+          throw new GraphQLError('User not found', {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
+        }
+
+        // Delete all active refresh tokens for this user
+        const deletedCount = await RefreshToken.destroy({
+          where: {
+            userId: parseInt(userId),
+            isRevoked: false,
+            expiresAt: {
+              [require('sequelize').Op.gt]: new Date(),
+            },
+          },
+        });
+
+        // Blacklist all access tokens for this user
+        const blacklistedCount = await blacklistAllUserTokens(parseInt(userId));
+
+        console.log(`🔒 Admin force logged out user ID: ${userId}, deleted ${deletedCount} refresh tokens and blacklisted ${blacklistedCount} access tokens`);
+
+        return true;
+      } catch (error) {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
+        console.error('❌ Force logout error:', error);
+        throw new GraphQLError('Force logout failed', {
           extensions: { code: 'INTERNAL_SERVER_ERROR' },
         });
       }

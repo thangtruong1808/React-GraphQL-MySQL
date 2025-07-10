@@ -20,38 +20,51 @@ class TokenManager {
    */
   static storeTokens(accessToken: string, refreshToken: string, user: any): void {
     try {
+      console.log('🔐 STORE TOKENS - Starting token storage...');
+      console.log('🔐 STORE TOKENS - Access token length:', accessToken?.length);
+      console.log('🔐 STORE TOKENS - Refresh token length:', refreshToken?.length);
+      console.log('🔐 STORE TOKENS - Storage key:', AUTH_CONFIG.ACCESS_TOKEN_KEY);
+
       // Validate access token format (should be JWT)
       if (!this.isValidJWTFormat(accessToken)) {
-        console.error('❌ Invalid access token format:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
+        console.error('❌ STORE TOKENS - Invalid access token format:', accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
         throw new Error('Invalid access token format');
       }
 
       // Validate refresh token format (should be hex string)
       if (!this.isValidHexFormat(refreshToken)) {
-        console.error('❌ Invalid refresh token format:', refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null');
+        console.error('❌ STORE TOKENS - Invalid refresh token format:', refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null');
         throw new Error('Invalid refresh token format');
       }
 
       // Store access token in memory (temporary, will be refreshed)
       sessionStorage.setItem(AUTH_CONFIG.ACCESS_TOKEN_KEY, accessToken);
+      console.log('✅ STORE TOKENS - Access token stored in sessionStorage');
       
       // Store user data in session storage
       if (user) {
         sessionStorage.setItem(AUTH_CONFIG.USER_DATA_KEY, JSON.stringify(user));
+        console.log('✅ STORE TOKENS - User data stored in sessionStorage');
       }
 
       // Store token expiry for quick validation
       const expiry = this.getTokenExpiration(accessToken);
       if (expiry) {
         sessionStorage.setItem(AUTH_CONFIG.TOKEN_EXPIRY_KEY, expiry.toString());
+        console.log('✅ STORE TOKENS - Token expiry stored:', new Date(expiry).toISOString());
       }
 
       // Reset refresh attempts on successful login
       this.resetRefreshAttempts();
       
-      console.log('✅ Tokens stored securely (access token in memory, refresh token in httpOnly cookie)');
+      console.log('✅ STORE TOKENS - All tokens stored successfully');
+      
+      // Verify storage
+      const storedToken = sessionStorage.getItem(AUTH_CONFIG.ACCESS_TOKEN_KEY);
+      console.log('🔍 STORE TOKENS - Verification - Stored token exists:', !!storedToken);
+      console.log('🔍 STORE TOKENS - Verification - Stored token length:', storedToken?.length);
     } catch (error) {
-      console.error('❌ Error storing tokens:', error);
+      console.error('❌ STORE TOKENS - Error storing tokens:', error);
       this.clearTokens(); // Clear any partial data
       throw error;
     }
@@ -63,13 +76,32 @@ class TokenManager {
    */
   static getAccessToken(): string | null {
     try {
+      console.log('🔍 GET ACCESS TOKEN - Starting token retrieval...');
+      console.log('🔍 GET ACCESS TOKEN - Storage key:', AUTH_CONFIG.ACCESS_TOKEN_KEY);
+      
       const token = sessionStorage.getItem(AUTH_CONFIG.ACCESS_TOKEN_KEY);
-      if (!token || !this.isValidJWTFormat(token)) {
+      
+      console.log('🔍 GET ACCESS TOKEN - Raw token from storage:', !!token);
+      console.log('🔍 GET ACCESS TOKEN - Token length:', token?.length);
+      console.log('🔍 GET ACCESS TOKEN - Token preview:', token ? `${token.substring(0, 20)}...` : 'null');
+      
+      if (!token) {
+        console.log('❌ GET ACCESS TOKEN - No token found in storage');
         return null;
       }
+      
+      const isValidJWT = this.isValidJWTFormat(token);
+      console.log('🔍 GET ACCESS TOKEN - Is valid JWT format:', isValidJWT);
+      
+      if (!isValidJWT) {
+        console.log('❌ GET ACCESS TOKEN - Token validation failed - not a valid JWT');
+        return null;
+      }
+      
+      console.log('✅ GET ACCESS TOKEN - Token retrieved successfully');
       return token;
     } catch (error) {
-      console.error('❌ Error getting access token:', error);
+      console.error('❌ GET ACCESS TOKEN - Error getting access token:', error);
       return null;
     }
   }
@@ -349,34 +381,73 @@ class TokenManager {
 
 // Export utility functions for backward compatibility
 export const saveTokens = (accessToken: string, refreshToken: string): void => {
+  console.log('🔐 SAVE TOKENS - Function called');
   TokenManager.storeTokens(accessToken, refreshToken, null);
 };
 
 export const getTokens = (): { accessToken: string | null; refreshToken: string | null } => {
-  return {
-    accessToken: TokenManager.getAccessToken(),
-    refreshToken: TokenManager.getRefreshToken(),
-  };
+  try {
+    console.log('🔍 GET TOKENS - Function called');
+    const accessToken = TokenManager.getAccessToken();
+    
+    console.log('🔍 GET TOKENS - Access token retrieved:', !!accessToken);
+    console.log('🔍 GET TOKENS - Access token length:', accessToken?.length);
+    
+    const result = {
+      accessToken,
+      refreshToken: TokenManager.getRefreshToken(),
+    };
+    
+    console.log('🔍 GET TOKENS - Final result:', {
+      hasAccessToken: !!result.accessToken,
+      hasRefreshToken: !!result.refreshToken,
+    });
+    
+    return result;
+  } catch (error) {
+    console.error('❌ GET TOKENS - Error in getTokens:', error);
+    return {
+      accessToken: null,
+      refreshToken: null,
+    };
+  }
 };
 
 export const clearTokens = (): void => {
+  console.log('🗑️ CLEAR TOKENS - Function called');
   TokenManager.clearTokens();
 };
 
 export const isTokenExpired = (token: string): boolean => {
   try {
+    console.log('⏰ IS TOKEN EXPIRED - Checking token expiry');
     const decoded = TokenManager.decodeToken(token);
-    if (!decoded || !decoded.exp) return true;
+    if (!decoded || !decoded.exp) {
+      console.log('❌ IS TOKEN EXPIRED - No expiry found in token');
+      return true;
+    }
     
     const currentTime = Math.floor(Date.now() / 1000);
-    return decoded.exp < currentTime;
+    const isExpired = decoded.exp < currentTime;
+    
+    console.log('⏰ IS TOKEN EXPIRED - Result:', {
+      tokenExpiry: new Date(decoded.exp * 1000).toISOString(),
+      currentTime: new Date(currentTime * 1000).toISOString(),
+      isExpired,
+    });
+    
+    return isExpired;
   } catch (error) {
-    console.error('❌ Error checking token expiry:', error);
+    console.error('❌ IS TOKEN EXPIRED - Error checking token expiry:', error);
     return true;
   }
 };
 
-export const isAuthenticated = (): boolean => TokenManager.isAuthenticated();
+export const isAuthenticated = (): boolean => {
+  const result = TokenManager.isAuthenticated();
+  console.log('🔐 IS AUTHENTICATED - Result:', result);
+  return result;
+};
 export const shouldRefreshToken = (): boolean => TokenManager.shouldRefreshToken();
 export const canAttemptRefresh = (): boolean => TokenManager.canAttemptRefresh();
 export const incrementRefreshAttempts = (): void => TokenManager.incrementRefreshAttempts();

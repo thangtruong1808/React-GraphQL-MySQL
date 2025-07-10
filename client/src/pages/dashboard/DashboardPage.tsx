@@ -1,14 +1,24 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatMemberSince } from '../../utils/helpers';
+import UserSessionManager from '../../components/admin/UserSessionManager';
 
 /**
  * Dashboard Page Component
  * Displays user information and dashboard content for authenticated users
  * Shows loading state while fetching user data
+ * Includes force logout detection for immediate response
  */
 const DashboardPage: React.FC = () => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, validateSession } = useAuth();
+
+  // Check for force logout on component mount and when user changes
+  React.useEffect(() => {
+    if (isAuthenticated && !validateSession()) {
+      console.log('🔐 Dashboard - Session validation failed, redirecting to login');
+      window.location.href = '/login';
+    }
+  }, [isAuthenticated, validateSession]);
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -120,6 +130,13 @@ const DashboardPage: React.FC = () => {
             Your session is active and secure.
           </p>
         </div>
+
+        {/* Admin Section - Only show for admin users */}
+        {user.role === 'ADMIN' && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <UserSessionManager />
+          </div>
+        )}
 
         {/* Quick Actions Card */}
         <div className="bg-white shadow rounded-lg p-6">

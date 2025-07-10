@@ -1,6 +1,7 @@
 import { GraphQLContext } from '../context';
-import { User } from '../../db/index';
+import { User, RefreshToken } from '../../db/index';
 import { Op } from 'sequelize';
+import { JWT_CONFIG } from '../../constants';
 
 /**
  * User Resolvers
@@ -26,48 +27,6 @@ const validateName = (name: string): boolean => {
  */
 export const userResolvers = {
   Query: {
-    /**
-     * Get current authenticated user
-     * @param _ - Parent resolver
-     * @param __ - Arguments
-     * @param context - GraphQL context with user
-     * @returns Current user or null if not authenticated
-     */
-    currentUser: async (_: any, __: any, context: GraphQLContext) => {
-      try {
-        if (!context.isAuthenticated || !context.user) {
-          return null;
-        }
-        
-        // Return user without password and ensure dates are properly formatted
-        // Don't use toJSON() for dates as it might return timestamps
-        const createdAt = context.user.createdAt instanceof Date 
-          ? context.user.createdAt.toISOString() 
-          : new Date(context.user.createdAt).toISOString();
-        
-        const updatedAt = context.user.updatedAt instanceof Date 
-          ? context.user.updatedAt.toISOString() 
-          : new Date(context.user.updatedAt).toISOString();
-        
-        const result = {
-          id: context.user.id.toString(),
-          uuid: context.user.uuid,
-          email: context.user.email,
-          firstName: context.user.firstName,
-          lastName: context.user.lastName,
-          role: context.user.role,
-          isDeleted: context.user.isDeleted,
-          version: context.user.version,
-          createdAt,
-          updatedAt,
-        };
-        
-        return result;
-      } catch (error) {
-        console.error('Error fetching current user:', error);
-        throw new Error('Failed to fetch current user');
-      }
-    },
 
     /**
      * Get user by ID (admin only)
@@ -129,6 +88,59 @@ export const userResolvers = {
         return users;
       } catch (error) {
         console.error('Error fetching users:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Get users with active session info (admin only)
+     * @param _ - Parent resolver
+     * @param __ - Arguments
+     * @param context - GraphQL context with user
+     * @returns Array of user session info
+     */
+    usersWithSessions: async (_: any, __: any, context: GraphQLContext) => {
+      try {
+        // Check authentication and admin role
+        if (!context.isAuthenticated || !context.user) {
+          throw new Error('Authentication required');
+        }
+        
+        if (context.user.role !== 'ADMIN') {
+          throw new Error('Admin access required');
+        }
+
+        // Get all users with their active token counts
+        const users = await User.findAll({
+          where: { isDeleted: false },
+          attributes: ['id', 'email'],
+        });
+
+        const sessionInfo = await Promise.all(
+          users.map(async (user) => {
+            const activeTokenCount = await RefreshToken.count({
+              where: {
+                userId: user.id,
+                isRevoked: false,
+                expiresAt: {
+                  [Op.gt]: new Date(),
+                },
+              },
+            });
+
+            return {
+              userId: user.id.toString(),
+              userEmail: user.email,
+              activeTokens: activeTokenCount,
+              maxAllowed: JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER,
+              isAtLimit: activeTokenCount >= JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER,
+            };
+          })
+        );
+
+        return sessionInfo;
+      } catch (error) {
+        console.error('Error fetching users with sessions:', error);
         throw error;
       }
     },

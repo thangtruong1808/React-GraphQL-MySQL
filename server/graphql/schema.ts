@@ -64,10 +64,36 @@ export const typeDefs = gql`
     message: String!
   }
 
+  # User Session Info Type
+  type UserSessionInfo {
+    userId: ID!
+    userEmail: String!
+    activeTokens: Int!
+    maxAllowed: Int!
+    isAtLimit: Boolean!
+  }
+
   # Query Type
   type Query {
     # Get current authenticated user
     currentUser: User
+    
+    # Get user by ID (admin only)
+    user(id: ID!): User
+    
+    # Get all users with pagination (admin only)
+    users(limit: Int, offset: Int): [User!]!
+    
+    # Get users with active session info (admin only)
+    usersWithSessions: [UserSessionInfo!]!
+  }
+
+  # User Update Input Type
+  input UpdateUserInput {
+    email: String
+    firstName: String
+    lastName: String
+    role: UserRole
   }
 
   # Mutation Type
@@ -83,5 +109,14 @@ export const typeDefs = gql`
     
     # User logout (revokes tokens)
     logout: LogoutResponse!
+    
+    # Update user (admin or self)
+    updateUser(id: ID!, input: UpdateUserInput!): User!
+    
+    # Delete user (admin only)
+    deleteUser(id: ID!): Boolean!
+    
+    # Force logout user by revoking all refresh tokens (admin only)
+    forceLogoutUser(userId: ID!): Boolean!
   }
 `;

@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import { createContext } from './graphql/context';
+import { authenticateUser, createContext as createAuthContext } from './auth/middleware';
 import { testConnection, setupAssociations } from './db';
 
 // Load environment variables
@@ -46,7 +47,8 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Note: Authentication is handled in GraphQL context
+// Apply authentication middleware to all routes
+app.use(authenticateUser);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -60,7 +62,16 @@ app.get('/health', (req, res) => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req, res }: { req: any; res: any }) => createContext({ req, res }),
+  context: ({ req, res }: { req: any; res: any }) => {
+    // Use authentication middleware context for user info
+    const authContext = createAuthContext(req);
+    // Merge with base context
+    const baseContext = createContext({ req, res });
+    return {
+      ...baseContext,
+      ...authContext,
+    };
+  },
   formatError: (error) => {
     // Log errors in development
     if (process.env.NODE_ENV === 'development') {

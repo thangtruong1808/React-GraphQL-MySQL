@@ -6,6 +6,7 @@ import NavBar from './components/layout/NavBar';
 import HomePage from './pages/home/HomePage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+
 // Lazy load pages for better performance and code splitting
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
@@ -16,9 +17,10 @@ const DashboardPage = React.lazy(() => import('./pages/dashboard/DashboardPage')
  * Wraps routes that require authentication
  * Shows loading spinner while checking auth status
  * Redirects to login if user is not authenticated
+ * Checks for force logout and redirects immediately
  */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, validateSession } = useAuth();
 
   console.log('ProtectedRoute - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
 
@@ -29,6 +31,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
+  }
+
+  // Additional validation for authenticated users to check for force logout
+  if (isAuthenticated && !validateSession()) {
+    console.log('ProtectedRoute - Session validation failed, redirecting to login');
+    return <Navigate to="/login" replace />;
   }
 
   // Redirect to login if user is not authenticated
@@ -86,6 +94,8 @@ function App() {
                 </Routes>
               </React.Suspense>
             </main>
+
+
           </div>
         </Router>
       </AuthProvider>

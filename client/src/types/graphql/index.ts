@@ -56,6 +56,24 @@ export interface CurrentUserQuery {
   currentUser: User | null;
 }
 
+// User Session Info Type
+export interface UserSessionInfo {
+  userId: string;
+  userEmail: string;
+  activeTokens: number;
+  maxAllowed: number;
+  isAtLimit: boolean;
+}
+
+// GraphQL Query Response Types
+export interface CurrentUserQuery {
+  currentUser: User | null;
+}
+
+export interface UsersWithSessionsQuery {
+  usersWithSessions: UserSessionInfo[];
+}
+
 // GraphQL Mutation Response Types
 export interface LoginMutation {
   login: AuthResponse;
@@ -63,4 +81,8 @@ export interface LoginMutation {
 
 export interface LogoutMutation {
   logout: LogoutResponse;
+}
+
+export interface ForceLogoutUserMutation {
+  forceLogoutUser: boolean;
 } 

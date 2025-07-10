@@ -24,7 +24,7 @@ export const JWT_CONFIG = {
 
   
   // Token limits
-  MAX_REFRESH_TOKENS_PER_USER: 5, // Maximum refresh tokens per user
+  MAX_REFRESH_TOKENS_PER_USER: 2, // Maximum refresh tokens per user
   
   // JWT issuer and audience
   ISSUER: 'graphql-app',

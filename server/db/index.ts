@@ -3,6 +3,7 @@ import sequelize, { testConnection } from './db';
 // Import models for login functionality
 import User from './models/user';
 import RefreshToken from './models/refreshToken';
+import BlacklistedAccessToken from './models/blacklistedAccessToken';
 
 /**
  * Database Models Index
@@ -14,6 +15,7 @@ import RefreshToken from './models/refreshToken';
 export {
   User,
   RefreshToken,
+  BlacklistedAccessToken,
 };
 
 // Export sequelize instance and database functions
