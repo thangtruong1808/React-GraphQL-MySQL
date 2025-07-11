@@ -7,12 +7,8 @@ import sequelize from '../db';
  * Used for force logout and security breach scenarios
  */
 class BlacklistedAccessToken extends Model {
-  public id!: number;
-  public userId!: number;
-  public tokenHash!: string;
-  public expiresAt!: Date;
-  public blacklistedAt!: Date;
-  public reason!: 'FORCE_LOGOUT' | 'MANUAL_LOGOUT' | 'SECURITY_BREACH';
+  // Remove public class fields to avoid shadowing Sequelize's attribute getters & setters
+  // Sequelize will automatically provide these attributes based on the schema definition
 }
 
 BlacklistedAccessToken.init(

@@ -10,7 +10,7 @@
  */
 export const JWT_CONFIG = {
   // Access token configuration
-  ACCESS_TOKEN_EXPIRY: '15m', // 15 minutes
+  ACCESS_TOKEN_EXPIRY: '5m', // 5 minutes
   
   // Refresh token configuration
   // For production purposes, we'll use 1 day
@@ -19,12 +19,12 @@ export const JWT_CONFIG = {
 
 
   // For development purposes, we'll use 30 minutes
-  REFRESH_TOKEN_EXPIRY: '30m', // 30 minutes
-  REFRESH_TOKEN_EXPIRY_MS: 30 * 60 * 1000, // 30 minutes in milliseconds
+  REFRESH_TOKEN_EXPIRY: '10m', // 30 minutes
+  REFRESH_TOKEN_EXPIRY_MS: 10 * 60 * 1000, // 10 minutes in milliseconds
 
   
   // Token limits
-  MAX_REFRESH_TOKENS_PER_USER: 2, // Maximum refresh tokens per user
+  MAX_REFRESH_TOKENS_PER_USER: 5, // Maximum refresh tokens per user (increased for multiple sessions)
   
   // JWT issuer and audience
   ISSUER: 'graphql-app',
@@ -109,6 +109,49 @@ export const VALIDATION_CONFIG = {
 } as const;
 
 /**
+ * Authorization Configuration Constants
+ * Defines role-based access control and permission settings
+ */
+export const AUTHZ_CONFIG = {
+  // User roles hierarchy (higher number = more permissions)
+  ROLES: {
+    DEVELOPER: 1,
+    MANAGER: 2,
+    ADMIN: 3,
+  },
+  
+  // Resource types for fine-grained permissions
+  RESOURCE_TYPES: {
+    PROJECT: 'PROJECT',
+    TASK: 'TASK',
+    COMMENT: 'COMMENT',
+    USER: 'USER',
+  },
+  
+  // Permission levels
+  PERMISSIONS: {
+    READ: 'READ',
+    WRITE: 'WRITE',
+    DELETE: 'DELETE',
+    ADMIN: 'ADMIN',
+  },
+  
+  // Project member roles
+  PROJECT_ROLES: {
+    VIEWER: 'VIEWER',
+    EDITOR: 'EDITOR',
+    OWNER: 'OWNER',
+  },
+  
+  // Default permissions for roles
+  DEFAULT_PERMISSIONS: {
+    ADMIN: ['READ', 'WRITE', 'DELETE', 'ADMIN'],
+    MANAGER: ['READ', 'WRITE', 'DELETE'],
+    DEVELOPER: ['READ', 'WRITE'],
+  },
+} as const;
+
+/**
  * Error Messages Constants
  * Centralized error messages for consistency
  */
@@ -119,6 +162,12 @@ export const ERROR_MESSAGES = {
   USER_NOT_FOUND: 'User not found',
   TOKEN_EXPIRED: 'Token has expired',
   TOKEN_INVALID: 'Invalid token',
+  
+  // Authorization errors
+  INSUFFICIENT_PERMISSIONS: 'Insufficient permissions',
+  ACCESS_DENIED: 'Access denied',
+  RESOURCE_NOT_FOUND: 'Resource not found',
+  UNAUTHORIZED_OPERATION: 'Unauthorized operation',
   
   // Validation errors
   ALL_FIELDS_REQUIRED: 'All fields are required',

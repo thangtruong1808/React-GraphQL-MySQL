@@ -70,13 +70,27 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
       
       // Handle authentication errors (including force logout)
       if (extensions?.code === 'UNAUTHENTICATED') {
-        console.log('🔐 Authentication error detected - user may have been force logged out');
+        console.log('🔐 Authentication error detected - attempting token refresh...');
         
-        // Clear client-side tokens and redirect to login
+        // Check if this is a currentUser query (which should trigger refresh)
+        const isCurrentUserQuery = operation.operationName === 'GetCurrentUser' || 
+                                  path?.includes('currentUser');
+        
+        if (isCurrentUserQuery) {
+          console.log('🔐 CurrentUser query failed - this will trigger token refresh in AuthContext');
+          // Don't clear tokens here - let AuthContext handle the refresh
+          return;
+        }
+        
+        // For other queries, clear tokens and redirect
+        console.log('🔐 Non-currentUser query failed - clearing tokens and redirecting');
         clearTokens();
         
         // Show a more specific message for force logout
-        if (message.includes('logged out by an administrator') || message.includes('force') || message.includes('revoked')) {
+        if (message.includes('logged out by an administrator') || 
+            message.includes('force') || 
+            message.includes('revoked') ||
+            message.includes('blacklisted')) {
           alert('You have been logged out by an administrator. Please log in again.');
         }
         

@@ -6,17 +6,8 @@ import sequelize from '../db';
  * Junction table for many-to-many relationship between users and projects
  */
 export class ProjectMember extends Model {
-  public id!: string;
-  public projectId!: string;
-  public userId!: string;
-  public role!: string;
-  public joinedAt!: Date;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-
-  // Associations
-  public readonly user?: any;
-  public readonly project?: any;
+  // Remove public class fields to avoid shadowing Sequelize's attribute getters & setters
+  // Sequelize will automatically provide these attributes based on the schema definition
 }
 
 // Initialize ProjectMember model

@@ -6,18 +6,8 @@ import sequelize from '../db';
  * Handles project data with owner and member relationships
  */
 export class Project extends Model {
-  public id!: string;
-  public name!: string;
-  public description?: string;
-  public status!: string;
-  public ownerId!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-
-  // Associations
-  public readonly owner?: any;
-  public readonly members?: any[];
-  public readonly tasks?: any[];
+  // Remove public class fields to avoid shadowing Sequelize's attribute getters & setters
+  // Sequelize will automatically provide these attributes based on the schema definition
 }
 
 // Initialize Project model

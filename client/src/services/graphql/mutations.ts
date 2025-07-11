@@ -59,6 +59,31 @@ export const REGISTER = gql`
   }
 `;
 
+/**
+ * Mutation for refreshing access token using refresh token (httpOnly cookie)
+ * Returns new accessToken, refreshToken, and user
+ */
+export const REFRESH_TOKEN = gql`
+  mutation RefreshToken {
+    refreshToken {
+      accessToken
+      refreshToken
+      user {
+        id
+        uuid
+        email
+        firstName
+        lastName
+        role
+        isDeleted
+        version
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
 // User Mutations
 export const UPDATE_USER = gql`
   mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {

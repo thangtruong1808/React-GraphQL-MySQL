@@ -6,21 +6,8 @@ import sequelize from '../db';
  * Handles task data with project, assignee, and comment relationships
  */
 export class Task extends Model {
-  public id!: string;
-  public title!: string;
-  public description?: string;
-  public status!: string;
-  public priority!: string;
-  public projectId!: string;
-  public assigneeId?: string;
-  public dueDate?: Date;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-
-  // Associations
-  public readonly project?: any;
-  public readonly assignee?: any;
-  public readonly comments?: any[];
+  // Remove public class fields to avoid shadowing Sequelize's attribute getters & setters
+  // Sequelize will automatically provide these attributes based on the schema definition
 }
 
 // Initialize Task model

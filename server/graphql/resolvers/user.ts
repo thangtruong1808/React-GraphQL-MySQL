@@ -1,7 +1,9 @@
 import { GraphQLContext } from '../context';
 import { User, RefreshToken } from '../../db/index';
 import { Op } from 'sequelize';
-import { JWT_CONFIG } from '../../constants';
+import { JWT_CONFIG, ERROR_MESSAGES } from '../../constants';
+import { withAdmin, withAuth, authGuard } from '../../auth/guard';
+import { GraphQLError } from 'graphql';
 
 /**
  * User Resolvers
@@ -35,17 +37,8 @@ export const userResolvers = {
      * @param context - GraphQL context with user
      * @returns User or null if not found
      */
-    user: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+    user: withAdmin(async (_: any, { id }: { id: string }, context: GraphQLContext) => {
       try {
-        // Check authentication and admin role
-        if (!context.isAuthenticated || !context.user) {
-          throw new Error('Authentication required');
-        }
-        
-        if (context.user.role !== 'ADMIN') {
-          throw new Error('Admin access required');
-        }
-
         const user = await User.findByPk(id);
         if (!user) {
           return null;
@@ -56,9 +49,11 @@ export const userResolvers = {
         return userWithoutPassword;
       } catch (error) {
         console.error('Error fetching user:', error);
-        throw error;
+        throw new GraphQLError(ERROR_MESSAGES.DATABASE_ERROR, {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
       }
-    },
+    }),
 
     /**
      * Get all users with pagination (admin only)
@@ -67,17 +62,8 @@ export const userResolvers = {
      * @param context - GraphQL context with user
      * @returns Array of users
      */
-    users: async (_: any, { limit = 10, offset = 0 }: { limit?: number; offset?: number }, context: GraphQLContext) => {
+    users: withAdmin(async (_: any, { limit = 10, offset = 0 }: { limit?: number; offset?: number }, context: GraphQLContext) => {
       try {
-        // Check authentication and admin role
-        if (!context.isAuthenticated || !context.user) {
-          throw new Error('Authentication required');
-        }
-        
-        if (context.user.role !== 'ADMIN') {
-          throw new Error('Admin access required');
-        }
-
         const users = await User.findAll({
           limit,
           offset,
@@ -88,9 +74,11 @@ export const userResolvers = {
         return users;
       } catch (error) {
         console.error('Error fetching users:', error);
-        throw error;
+        throw new GraphQLError(ERROR_MESSAGES.DATABASE_ERROR, {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
       }
-    },
+    }),
 
     /**
      * Get users with active session info (admin only)
@@ -99,17 +87,15 @@ export const userResolvers = {
      * @param context - GraphQL context with user
      * @returns Array of user session info
      */
-    usersWithSessions: async (_: any, __: any, context: GraphQLContext) => {
+    usersWithSessions: withAdmin(async (_: any, __: any, context: GraphQLContext) => {
       try {
-        // Check authentication and admin role
-        if (!context.isAuthenticated || !context.user) {
-          throw new Error('Authentication required');
-        }
+        console.log('🔍 USERS WITH SESSIONS RESOLVER - Starting with context:', {
+          hasUser: !!context.user,
+          userId: context.user?.id,
+          userEmail: context.user?.email,
+          userRole: context.user?.role
+        });
         
-        if (context.user.role !== 'ADMIN') {
-          throw new Error('Admin access required');
-        }
-
         // Get all users with their active token counts
         const users = await User.findAll({
           where: { isDeleted: false },
@@ -141,9 +127,11 @@ export const userResolvers = {
         return sessionInfo;
       } catch (error) {
         console.error('Error fetching users with sessions:', error);
-        throw error;
+        throw new GraphQLError(ERROR_MESSAGES.DATABASE_ERROR, {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
       }
-    },
+    }),
   },
 
   Mutation: {
@@ -155,39 +143,44 @@ export const userResolvers = {
      * @param context - GraphQL context with user
      * @returns Updated user
      */
-    updateUser: async (_: any, { id, input }: { id: string; input: any }, context: GraphQLContext) => {
+    updateUser: withAuth(async (_: any, { id, input }: { id: string; input: any }, context: GraphQLContext) => {
       try {
-        // Check authentication
-        if (!context.isAuthenticated || !context.user) {
-          throw new Error('Authentication required');
-        }
-
         // Check permissions (admin or self)
-        const isAdmin = context.user.role === 'ADMIN';
-        const isSelf = context.user.id.toString() === id;
+        const isAdmin = context.user!.role === 'ADMIN';
+        const isSelf = context.user!.id.toString() === id;
 
         if (!isAdmin && !isSelf) {
-          throw new Error('Access denied');
+          throw new GraphQLError(ERROR_MESSAGES.ACCESS_DENIED, {
+            extensions: { code: 'FORBIDDEN' },
+          });
         }
 
         // Find user to update
         const user = await User.findByPk(id);
         if (!user) {
-          throw new Error('User not found');
+          throw new GraphQLError(ERROR_MESSAGES.USER_NOT_FOUND, {
+            extensions: { code: 'NOT_FOUND' },
+          });
         }
 
         // Validate email if provided
         if (input.email && !validateEmail(input.email)) {
-          throw new Error('Invalid email format');
+          throw new GraphQLError(ERROR_MESSAGES.INVALID_EMAIL_FORMAT, {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
         }
 
         // Validate names if provided
         if (input.firstName && !validateName(input.firstName)) {
-          throw new Error('First name must be between 1 and 50 characters');
+          throw new GraphQLError(ERROR_MESSAGES.NAME_TOO_SHORT, {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
         }
 
         if (input.lastName && !validateName(input.lastName)) {
-          throw new Error('Last name must be between 1 and 50 characters');
+          throw new GraphQLError(ERROR_MESSAGES.NAME_TOO_SHORT, {
+            extensions: { code: 'BAD_USER_INPUT' },
+          });
         }
 
         // Check for email conflicts
@@ -202,7 +195,9 @@ export const userResolvers = {
           });
 
           if (existingUser) {
-            throw new Error('Email already registered');
+            throw new GraphQLError('Email already registered', {
+              extensions: { code: 'BAD_USER_INPUT' },
+            });
           }
         }
 
@@ -213,10 +208,15 @@ export const userResolvers = {
         const { password, ...userWithoutPassword } = user.toJSON();
         return userWithoutPassword;
       } catch (error) {
+        if (error instanceof GraphQLError) {
+          throw error;
+        }
         console.error('Update user error:', error);
-        throw error;
+        throw new GraphQLError(ERROR_MESSAGES.DATABASE_ERROR, {
+          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        });
       }
-    },
+    }),
 
     /**
      * Delete user (admin only)

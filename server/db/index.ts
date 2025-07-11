@@ -1,9 +1,14 @@
 import sequelize, { testConnection } from './db';
 
-// Import models for login functionality
+// Import models
 import User from './models/user';
+import Project from './models/project';
+import ProjectMember from './models/projectMember';
+import Task from './models/task';
+import Comment from './models/comment';
 import RefreshToken from './models/refreshToken';
 import BlacklistedAccessToken from './models/blacklistedAccessToken';
+import Permission from './models/permission';
 
 /**
  * Database Models Index
@@ -14,8 +19,13 @@ import BlacklistedAccessToken from './models/blacklistedAccessToken';
 // Export models
 export {
   User,
+  Project,
+  ProjectMember,
+  Task,
+  Comment,
   RefreshToken,
   BlacklistedAccessToken,
+  Permission,
 };
 
 // Export sequelize instance and database functions

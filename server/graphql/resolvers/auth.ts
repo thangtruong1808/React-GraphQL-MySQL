@@ -1,17 +1,16 @@
-import { GraphQLError } from 'graphql';
 import bcrypt from 'bcryptjs';
+import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { User, RefreshToken } from '../../db';
-import { GraphQLContext } from '../context';
-import { 
-  JWT_CONFIG, 
-  AUTH_CONFIG, 
-  VALIDATION_CONFIG, 
-  ERROR_MESSAGES, 
-  SUCCESS_MESSAGES 
+import { blacklistAccessToken, blacklistAllUserTokens } from '../../auth/tokenBlacklist';
+import {
+  AUTH_CONFIG,
+  ERROR_MESSAGES,
+  JWT_CONFIG,
+  VALIDATION_CONFIG
 } from '../../constants';
-import { blacklistAllUserTokens, blacklistAccessToken } from '../../auth/tokenBlacklist';
+import { RefreshToken, User } from '../../db';
+import { GraphQLContext } from '../context';
 
 /**
  * Enhanced Authentication Resolvers
@@ -175,7 +174,16 @@ export const authResolvers = {
      * Force logout check is handled by authentication middleware
      */
     currentUser: async (_: any, __: any, context: GraphQLContext) => {
+      console.log('🔍 CURRENT USER RESOLVER - Context check:', {
+        hasUser: !!context.user,
+        userId: context.user?.id,
+        userEmail: context.user?.email,
+        userRole: context.user?.role,
+        isAuthenticated: context.isAuthenticated
+      });
+      
       if (!context.user) {
+        console.log('❌ CURRENT USER RESOLVER - No user in context, throwing authentication error');
         throw new GraphQLError('Authentication required', {
           extensions: { code: 'UNAUTHENTICATED' },
         });
@@ -460,7 +468,7 @@ export const authResolvers = {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          path: '/graphql',
+          path: '/', // Use root path to ensure cookie is available for all routes
           maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 7 days
         });
         
@@ -593,12 +601,26 @@ export const authResolvers = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        path: '/graphql',
+        path: '/', // Use root path to ensure cookie is available for all routes
         maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 7 days
       });
-      // Return only new accessToken
+      
+      // Return both accessToken and refreshToken as required by GraphQL schema
       return {
         accessToken: newAccessToken,
+        refreshToken: newRefreshToken, // Include refresh token in response
+        user: {
+          id: user.id.toString(),
+          uuid: user.uuid,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isDeleted: user.isDeleted,
+          version: user.version,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
       };
     },
 
@@ -667,7 +689,7 @@ export const authResolvers = {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          path: '/graphql',
+          path: '/', // Use root path to match the cookie setting
         });
 
         console.log('✅ Logout successful - token deleted from database and cookie cleared');
@@ -687,7 +709,7 @@ export const authResolvers = {
     },
 
     /**
-     * Force logout user by revoking all refresh tokens (admin only)
+     * Force logout user by revoking all refresh tokens and blacklisting access tokens (admin only)
      * @param _ - Parent resolver
      * @param args - Arguments containing user ID
      * @param context - GraphQL context with user
@@ -723,7 +745,13 @@ export const authResolvers = {
           });
         }
 
-        // Delete all active refresh tokens for this user
+        console.log(`🔒 Admin ${context.user.id} initiating force logout for user ${userId}`);
+
+        // First, blacklist all access tokens for this user (this will invalidate current sessions)
+        const blacklistedCount = await blacklistAllUserTokens(parseInt(userId));
+        console.log(`🔒 Blacklisted access tokens for user ${userId}: ${blacklistedCount} entries created`);
+
+        // Then, delete all active refresh tokens for this user
         const deletedCount = await RefreshToken.destroy({
           where: {
             userId: parseInt(userId),
@@ -734,10 +762,9 @@ export const authResolvers = {
           },
         });
 
-        // Blacklist all access tokens for this user
-        const blacklistedCount = await blacklistAllUserTokens(parseInt(userId));
-
-        console.log(`🔒 Admin force logged out user ID: ${userId}, deleted ${deletedCount} refresh tokens and blacklisted ${blacklistedCount} access tokens`);
+        console.log(`🔒 Admin force logged out user ID: ${userId}`);
+        console.log(`🔒 Deleted ${deletedCount} refresh tokens`);
+        console.log(`🔒 Created ${blacklistedCount} blacklist entries`);
 
         return true;
       } catch (error) {

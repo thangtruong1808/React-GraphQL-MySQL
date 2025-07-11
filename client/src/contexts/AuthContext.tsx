@@ -1,18 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useLazyQuery, useMutation, useApolloClient } from '@apollo/client';
+import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import { ERROR_MESSAGES } from '../constants';
+import { LOGIN, LOGOUT, REGISTER, REFRESH_TOKEN } from '../services/graphql/mutations';
 import { GET_CURRENT_USER } from '../services/graphql/queries';
-import { LOGIN, LOGOUT, REGISTER } from '../services/graphql/mutations';
-import { User, LoginInput, RegisterInput } from '../types/graphql';
+import { LoginInput, RegisterInput, User } from '../types/graphql';
 import {
-  saveTokens,
-  getTokens,
   clearTokens,
+  getTokens,
   isTokenExpired,
-  canAttemptRefresh,
-  incrementRefreshAttempts,
-  resetRefreshAttempts
+  resetRefreshAttempts,
+  saveTokens
 } from '../utils/tokenManager';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES, ROUTES } from '../constants';
 
 /**
  * Enhanced Authentication Context Interface
@@ -68,11 +66,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Apollo client for cache operations
   const client = useApolloClient();
 
+  // Ref to track if auth has been initialized (prevent duplicate calls)
+  const isInitializedRef = useRef(false);
+
+  // Ref to track if refresh is in progress (prevent duplicate refresh calls)
+  const isRefreshingRef = useRef(false);
+
   // GraphQL operations
   const [getCurrentUser, { loading: currentUserLoading }] = useLazyQuery(GET_CURRENT_USER);
   const [loginMutation, { loading: loginLoading }] = useMutation(LOGIN);
   const [registerMutation, { loading: registerLoading }] = useMutation(REGISTER);
   const [logoutMutation, { loading: logoutLoading }] = useMutation(LOGOUT);
+  const [refreshTokenMutation] = useMutation(REFRESH_TOKEN);
 
   /**
    * Validate current session and tokens
@@ -102,6 +107,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
+   * Attempt to refresh access token using refresh token cookie
+   * Called automatically if access token is missing/expired
+   */
+  const tryRefreshToken = useCallback(async () => {
+    // Prevent duplicate refresh calls
+    if (isRefreshingRef.current) {
+      console.log('🔄 Refresh already in progress, skipping...');
+      return false;
+    }
+
+    try {
+      isRefreshingRef.current = true;
+      console.log('🔄 Attempting to refresh access token...');
+
+      // Call refreshToken mutation (no variables needed)
+      const { data } = await refreshTokenMutation();
+      console.log('🔄 Refresh token response:', {
+        hasData: !!data,
+        hasRefreshToken: !!data?.refreshToken,
+        hasAccessToken: !!data?.refreshToken?.accessToken,
+        hasUser: !!data?.refreshToken?.user,
+      });
+
+      if (data?.refreshToken?.accessToken) {
+        console.log('✅ Refresh successful, saving new tokens...');
+        // Save new tokens
+        saveTokens(data.refreshToken.accessToken, data.refreshToken.refreshToken);
+        setUser(data.refreshToken.user);
+        setIsAuthenticated(true);
+        console.log('✅ Token refresh completed successfully');
+        return true;
+      }
+
+      console.log('❌ No access token in refresh response');
+      return false;
+    } catch (error) {
+      console.error('❌ Token refresh failed:', error);
+      // Refresh failed, clear tokens and redirect
+      clearTokens();
+      setUser(null);
+      setIsAuthenticated(false);
+      window.location.href = '/login';
+      return false;
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, [refreshTokenMutation]);
+
+  /**
    * Fetch current user data from GraphQL with error handling
    */
   const fetchCurrentUser = useCallback(async () => {
@@ -127,13 +181,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         extensions: error.graphQLErrors?.[0]?.extensions,
       });
 
-      setUser(null);
-      setIsAuthenticated(false);
-
-      // Clear tokens if there's an authentication error
+      // Handle authentication errors - try to refresh token first
       if (error.graphQLErrors?.[0]?.extensions?.code === 'UNAUTHENTICATED') {
-        console.log('🔐 UNAUTHENTICATED error detected - clearing tokens and redirecting to login');
+        console.log('🔐 UNAUTHENTICATED error detected - attempting token refresh...');
+
+        // Try to refresh the token instead of immediately clearing
+        const refreshSuccess = await tryRefreshToken();
+        if (refreshSuccess) {
+          console.log('✅ Token refresh successful - retrying current user fetch');
+          // Retry fetching current user with new token
+          try {
+            const { data: retryData } = await getCurrentUser();
+            if (retryData?.currentUser) {
+              setUser(retryData.currentUser);
+              setIsAuthenticated(true);
+              console.log('✅ Current user fetched successfully after token refresh');
+              return;
+            }
+          } catch (retryError) {
+            console.error('❌ Retry fetch current user failed:', retryError);
+          }
+        }
+
+        // If refresh failed or retry failed, clear tokens and redirect
+        console.log('🔐 Token refresh failed - clearing tokens and redirecting to login');
         clearTokens();
+        setUser(null);
+        setIsAuthenticated(false);
 
         // Show specific message for force logout
         const errorMessage = error.graphQLErrors[0].message;
@@ -143,7 +217,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Force redirect to login page
         window.location.href = '/login';
+        return;
       }
+
+      // Handle other errors
+      setUser(null);
+      setIsAuthenticated(false);
 
       // Handle too many sessions error
       if (error.graphQLErrors?.[0]?.extensions?.code === 'TOO_MANY_SESSIONS') {
@@ -152,50 +231,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         alert(error.graphQLErrors[0].message || 'Maximum active sessions reached. Please log out from another device to continue.');
       }
     }
-  }, [getCurrentUser]);
+  }, [getCurrentUser, tryRefreshToken]);
 
   /**
    * Initialize authentication state on app load with security checks
-   * Checks for existing tokens and validates them
+   * Checks for existing tokens and validates them, attempts refresh if needed
    */
   const initializeAuth = useCallback(async () => {
     try {
       console.log('🚀 Initializing authentication...');
-
       const tokens = getTokens();
-
-      if (!tokens.accessToken) {
-        console.log('❌ No access token found during initialization');
-        setIsLoading(false);
-        return;
+      if (!tokens.accessToken || isTokenExpired(tokens.accessToken)) {
+        // No access token or expired: try to refresh
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+          await fetchCurrentUser();
+        } else {
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        // Access token is valid, get current user
+        await fetchCurrentUser();
       }
-
-      // Validate session before proceeding
-      if (!validateSession()) {
-        console.log('❌ Invalid session during initialization');
-        clearTokens();
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if access token is expired
-      if (isTokenExpired(tokens.accessToken)) {
-        console.log('❌ Access token expired during initialization');
-        clearTokens();
-        setIsLoading(false);
-        return;
-      }
-
-      console.log('✅ Access token valid, fetching current user...');
-      // Access token is valid, get current user
-      await fetchCurrentUser();
     } catch (error) {
       console.error('❌ Auth initialization error:', error);
       clearTokens();
     } finally {
       setIsLoading(false);
     }
-  }, [fetchCurrentUser, validateSession]);
+  }, [fetchCurrentUser, tryRefreshToken]);
 
   /**
    * Enhanced login user with email and password and security measures
@@ -400,7 +465,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // Show specific message for force logout
         const errorMessage = error.graphQLErrors[0].message;
-        if (errorMessage.includes('logged out by an administrator')) {
+        if (errorMessage.includes('logged out by an administrator') ||
+          errorMessage.includes('force') ||
+          errorMessage.includes('revoked')) {
           alert('You have been logged out by an administrator. Please log in again.');
         }
 
@@ -413,10 +480,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [isAuthenticated, user, getCurrentUser, client]);
 
-  // Initialize authentication on mount
+  // Initialize authentication on mount (only once)
   useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      initializeAuth();
+    }
+  }, []); // Empty dependency array to run only once
 
   // Set up periodic force logout check when user is authenticated
   useEffect(() => {

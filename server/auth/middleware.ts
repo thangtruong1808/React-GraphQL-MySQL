@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from './jwt';
 import { User, RefreshToken } from '../db/index';
 import { Op } from 'sequelize';
-import { isAccessTokenBlacklisted } from './tokenBlacklist';
+import { isAccessTokenBlacklisted, isUserForceLoggedOut, isTokenIssuedBeforeForceLogout } from './tokenBlacklist';
 
 /**
  * Authentication Middleware
@@ -37,23 +37,32 @@ export const authenticateUser = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    // Debug: Log request details
+    console.log('🔍 AUTH MIDDLEWARE - Request path:', req.path);
+    console.log('🔍 AUTH MIDDLEWARE - Authorization header:', req.headers.authorization ? 'Present' : 'Missing');
+    console.log('🔍 AUTH MIDDLEWARE - All headers:', Object.keys(req.headers));
+    
     // Extract token from Authorization header
     const authHeader = req.headers.authorization;
     const token = extractTokenFromHeader(authHeader);
 
     if (!token) {
+      console.log('🔍 AUTH MIDDLEWARE - No token found in Authorization header');
       // No token provided, continue without authentication
       next();
       return;
     }
 
     // Verify token
+    console.log('🔍 AUTH MIDDLEWARE - Token extracted, length:', token.length);
     const decoded = verifyAccessToken(token);
     if (!decoded) {
+      console.log('🔍 AUTH MIDDLEWARE - Token verification failed');
       // Invalid token, continue without authentication
       next();
       return;
     }
+    console.log('🔍 AUTH MIDDLEWARE - Token verified, userId:', decoded.userId);
 
     // Check if token is blacklisted
     const isBlacklisted = await isAccessTokenBlacklisted(token);
@@ -72,7 +81,16 @@ export const authenticateUser = async (
       return;
     }
 
-    // Check if user has been force logged out by verifying active refresh tokens
+    // Enhanced force logout check - check if this specific token was issued before force logout
+    const wasTokenIssuedBeforeForceLogout = await isTokenIssuedBeforeForceLogout(user.id, token);
+    if (wasTokenIssuedBeforeForceLogout) {
+      console.log(`🔐 User ${user.id} has been force logged out - token was issued before force logout`);
+      // Token was issued before force logout, continue without authentication
+      next();
+      return;
+    }
+
+    // Check if user has active refresh tokens (additional security check)
     const activeTokenCount = await RefreshToken.count({
       where: {
         userId: user.id,
@@ -93,6 +111,11 @@ export const authenticateUser = async (
 
     // Add user to request object
     req.user = user;
+    console.log('🔍 AUTH MIDDLEWARE - User authenticated successfully:', {
+      userId: user.id,
+      userEmail: user.email,
+      userRole: user.role
+    });
     next();
   } catch (error) {
     console.error('Authentication middleware error:', error);

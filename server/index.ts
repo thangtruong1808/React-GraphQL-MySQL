@@ -8,6 +8,8 @@ import { resolvers } from './graphql/resolvers';
 import { createContext } from './graphql/context';
 import { authenticateUser, createContext as createAuthContext } from './auth/middleware';
 import { testConnection, setupAssociations } from './db';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { applyAuthDirective } from './graphql/directives/authDirective';
 
 // Load environment variables
 dotenv.config();
@@ -56,21 +58,34 @@ app.get('/health', (req, res) => {
 });
 
 /**
+ * Create GraphQL Schema with Authorization
+ * Applies auth directive to schema before creating Apollo Server
+ */
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
+
+// Apply authorization directive to schema
+const schemaWithAuth = applyAuthDirective(schema);
+
+/**
  * Apollo Server Configuration
  * Sets up GraphQL server with authentication context and cookie support
  */
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema: schemaWithAuth,
   context: ({ req, res }: { req: any; res: any }) => {
-    // Use authentication middleware context for user info
-    const authContext = createAuthContext(req);
-    // Merge with base context
-    const baseContext = createContext({ req, res });
-    return {
-      ...baseContext,
-      ...authContext,
-    };
+    // Create unified context with authentication
+    const context = createContext({ req, res });
+    console.log('🔍 APOLLO CONTEXT - Final context created:', {
+      hasUser: !!context.user,
+      userId: context.user?.id,
+      userEmail: context.user?.email,
+      userRole: context.user?.role,
+      isAuthenticated: context.isAuthenticated
+    });
+    return context;
   },
   formatError: (error) => {
     // Log errors in development

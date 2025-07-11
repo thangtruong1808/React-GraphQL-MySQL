@@ -6,16 +6,8 @@ import sequelize from '../db';
  * Handles comment data with task and author relationships
  */
 export class Comment extends Model {
-  public id!: string;
-  public content!: string;
-  public taskId!: string;
-  public authorId!: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-
-  // Associations
-  public readonly task?: any;
-  public readonly author?: any;
+  // Remove public class fields to avoid shadowing Sequelize's attribute getters & setters
+  // Sequelize will automatically provide these attributes based on the schema definition
 }
 
 // Initialize Comment model
