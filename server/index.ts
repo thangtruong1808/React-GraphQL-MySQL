@@ -7,6 +7,7 @@ import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import { createContext } from './graphql/context';
 import { authenticateUser, createContext as createAuthContext } from './auth/middleware';
+import { csrfProtection } from './auth/csrf';
 import { testConnection, setupAssociations } from './db';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
@@ -51,9 +52,24 @@ app.use(express.urlencoded({ extended: true }));
 // Apply authentication middleware to all routes
 app.use(authenticateUser);
 
+// Apply CSRF protection middleware to all routes
+app.use(csrfProtection);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// CSRF token endpoint for initial token generation
+app.get('/csrf-token', (req, res) => {
+  try {
+    const { generateCSRFToken, setCSRFToken } = require('./auth/csrf');
+    const csrfToken = setCSRFToken(res);
+    res.json({ csrfToken });
+  } catch (error) {
+    console.error('❌ Error generating CSRF token:', error);
+    res.status(500).json({ error: 'Failed to generate CSRF token' });
+  }
 });
 
 /**

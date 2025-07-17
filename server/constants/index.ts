@@ -54,6 +54,33 @@ export const AUTH_CONFIG = {
 } as const;
 
 /**
+ * CSRF Protection Configuration Constants
+ * Defines CSRF protection settings
+ */
+export const CSRF_CONFIG = {
+  // CSRF token cookie name
+  CSRF_COOKIE_NAME: 'csrf-token',
+  
+  // CSRF token header name
+  CSRF_HEADER_NAME: 'x-csrf-token',
+  
+  // CSRF token expiry (24 hours)
+  CSRF_TOKEN_EXPIRY: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  
+  // CSRF token length (32 characters)
+  CSRF_TOKEN_LENGTH: 32,
+  
+  // Cookie options for CSRF token
+  CSRF_COOKIE_OPTIONS: {
+    httpOnly: false, // Must be accessible by JavaScript
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  },
+} as const;
+
+/**
  * Server Configuration Constants
  * Defines server-related settings
  */
@@ -143,6 +170,11 @@ export const ERROR_MESSAGES = {
   ACCESS_DENIED: 'Access denied',
   RESOURCE_NOT_FOUND: 'Resource not found',
   UNAUTHORIZED_OPERATION: 'Unauthorized operation',
+  
+  // CSRF errors
+  CSRF_TOKEN_MISSING: 'CSRF token missing',
+  CSRF_TOKEN_INVALID: 'CSRF token invalid',
+  CSRF_TOKEN_EXPIRED: 'CSRF token expired',
   
   // Validation errors
   ALL_FIELDS_REQUIRED: 'All fields are required',

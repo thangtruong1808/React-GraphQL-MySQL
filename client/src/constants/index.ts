@@ -25,12 +25,6 @@ export const API_CONFIG = {
  * Defines authentication-related settings and validation rules
  */
 export const AUTH_CONFIG = {
-  // Token management
-  ACCESS_TOKEN_KEY: 'temp_access_token',
-  USER_DATA_KEY: 'auth_user_data',
-  TOKEN_EXPIRY_KEY: 'auth_token_expiry',
-  REFRESH_ATTEMPT_KEY: 'auth_refresh_attempts',
-  
   // Token expiry thresholds
   TOKEN_REFRESH_THRESHOLD: 5 * 60 * 1000, // 5 minutes before expiry
   MAX_REFRESH_ATTEMPTS: 3,
@@ -42,10 +36,6 @@ export const AUTH_CONFIG = {
   
   // Session management
   SESSION_DURATION: 60 * 60 * 1000, // 1 hour
-  SESSION_KEYS: {
-    USER: 'user',
-    EXPIRY: 'sessionExpiry',
-  },
 } as const;
 
 /**

@@ -43,6 +43,7 @@ export const typeDefs = gql`
   type AuthResponse {
     accessToken: String!
     refreshToken: String!
+    csrfToken: String!
     user: User!
   }
 

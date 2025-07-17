@@ -28,6 +28,7 @@ export interface User {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  csrfToken: string;
   user: User;
 }
 

@@ -10,6 +10,7 @@ import {
 } from '../../constants';
 import { RefreshToken, User } from '../../db';
 import { GraphQLContext } from '../context';
+import { setCSRFToken, clearCSRFToken } from '../../auth/csrf';
 
 /**
  * Enhanced Authentication Resolvers
@@ -325,11 +326,15 @@ export const authResolvers = {
           path: '/', // Use root path to ensure cookie is available for all routes
           maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 7 days
         });
+
+        // Set CSRF token for future mutations
+        const csrfToken = setCSRFToken(res);
         
         // Prepare response data
         const responseData = {
           accessToken,
           refreshToken, // Include refresh token in response
+          csrfToken, // Include CSRF token for client
           user: {
             id: user.id.toString(),
             uuid: user.uuid,
@@ -348,12 +353,13 @@ export const authResolvers = {
         console.log('🔍 Login response data:', {
           hasAccessToken: !!responseData.accessToken,
           hasRefreshToken: !!responseData.refreshToken,
+          hasCSRFToken: !!responseData.csrfToken,
           hasUser: !!responseData.user,
           userId: responseData.user.id,
           userEmail: responseData.user.email
         });
         
-        // Return accessToken, refreshToken, and user as required by GraphQL schema
+        // Return accessToken, refreshToken, CSRF token, and user as required by GraphQL schema
         return responseData;
       } catch (error) {
         if (error instanceof GraphQLError) {
@@ -458,11 +464,15 @@ export const authResolvers = {
         path: '/', // Use root path to ensure cookie is available for all routes
         maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 7 days
       });
+
+      // Set new CSRF token for future mutations
+      const csrfToken = setCSRFToken(res);
       
-      // Return both accessToken and refreshToken as required by GraphQL schema
+      // Return both accessToken, refreshToken, CSRF token, and user as required by GraphQL schema
       return {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken, // Include refresh token in response
+        csrfToken, // Include CSRF token for client
         user: {
           id: user.id.toString(),
           uuid: user.uuid,
@@ -528,6 +538,9 @@ export const authResolvers = {
           sameSite: 'lax',
           path: '/', // Use root path to match the cookie setting
         });
+
+        // Clear CSRF token
+        clearCSRFToken(res);
 
         console.log('✅ Logout successful - token deleted from database and cookie cleared');
         return {

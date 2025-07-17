@@ -10,6 +10,7 @@ import {
   isTokenExpired,
   saveTokens
 } from '../utils/tokenManager';
+import { setCSRFToken as setApolloCSRFToken, clearCSRFToken as clearApolloCSRFToken } from '../services/graphql/apollo-client';
 
 /**
  * Authentication Context Interface
@@ -63,6 +64,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Ref to track if auth has been initialized
   const isInitializedRef = useRef(false);
 
+  // Timer ref for access token expiry checking
+  const expiryTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // GraphQL operations
   const [getCurrentUser] = useLazyQuery(GET_CURRENT_USER);
   const [loginMutation, { loading: loginLoading }] = useMutation(LOGIN);
@@ -82,6 +86,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
+   * Check access token expiry and update auth state
+   * This function runs on a timer to immediately hide UserDropdown when token expires
+   */
+  const checkAccessTokenExpiry = useCallback(() => {
+    try {
+      const tokens = getTokens();
+      if (tokens.accessToken && isTokenExpired(tokens.accessToken)) {
+        // Access token has expired - immediately update auth state
+        // This will hide the UserDropdown without calling refresh
+        setUser(null);
+        setIsAuthenticated(false);
+
+        // Clear the timer since we're no longer authenticated
+        if (expiryTimerRef.current) {
+          clearInterval(expiryTimerRef.current);
+          expiryTimerRef.current = null;
+        }
+      }
+    } catch (error) {
+      // If there's an error checking tokens, assume they're invalid
+      setUser(null);
+      setIsAuthenticated(false);
+
+      if (expiryTimerRef.current) {
+        clearInterval(expiryTimerRef.current);
+        expiryTimerRef.current = null;
+      }
+    }
+  }, []);
+
+  /**
    * Attempt to refresh access token
    */
   const tryRefreshToken = useCallback(async () => {
@@ -91,6 +126,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         saveTokens(data.refreshToken.accessToken, data.refreshToken.refreshToken);
         setUser(data.refreshToken.user);
         setIsAuthenticated(true);
+
+        // Set new CSRF token in Apollo Client
+        if (data.refreshToken.csrfToken) {
+          setApolloCSRFToken(data.refreshToken.csrfToken);
+        }
+
         return true;
       }
       return false;
@@ -178,13 +219,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(loginData.user);
       setIsAuthenticated(true);
 
+      // Set CSRF token in Apollo Client
+      if (loginData.csrfToken) {
+        setApolloCSRFToken(loginData.csrfToken);
+      }
+
+      // Start access token expiry checking timer
+      if (expiryTimerRef.current) {
+        clearInterval(expiryTimerRef.current);
+      }
+      expiryTimerRef.current = setInterval(checkAccessTokenExpiry, AUTH_CONFIG.ACCESS_TOKEN_CHECK_INTERVAL);
+
       return { success: true, user: loginData.user };
     } catch (error: any) {
       return { success: false, error: error.message || 'Login failed' };
     } finally {
       setIsLoading(false);
     }
-  }, [loginMutation]);
+  }, [loginMutation, checkAccessTokenExpiry]);
 
 
 
@@ -200,6 +252,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       clearTokens();
       setUser(null);
       setIsAuthenticated(false);
+
+      // Clear CSRF token from Apollo Client
+      clearApolloCSRFToken();
+
+      // Clear access token expiry timer
+      if (expiryTimerRef.current) {
+        clearInterval(expiryTimerRef.current);
+        expiryTimerRef.current = null;
+      }
+
       await client.clearStore();
     }
   }, [logoutMutation, client]);
@@ -218,6 +280,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       initializeAuth();
     }
   }, [initializeAuth]);
+
+  // Start access token expiry checking when user becomes authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Clear any existing timer
+      if (expiryTimerRef.current) {
+        clearInterval(expiryTimerRef.current);
+      }
+
+      // Start checking for access token expiry
+      expiryTimerRef.current = setInterval(checkAccessTokenExpiry, AUTH_CONFIG.ACCESS_TOKEN_CHECK_INTERVAL);
+    } else {
+      // Clear timer when not authenticated
+      if (expiryTimerRef.current) {
+        clearInterval(expiryTimerRef.current);
+        expiryTimerRef.current = null;
+      }
+    }
+
+    // Cleanup timer on unmount
+    return () => {
+      if (expiryTimerRef.current) {
+        clearInterval(expiryTimerRef.current);
+        expiryTimerRef.current = null;
+      }
+    };
+  }, [isAuthenticated, user, checkAccessTokenExpiry]);
 
   // Context value
   const value: AuthContextType = {

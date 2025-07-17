@@ -10,6 +10,34 @@ import {
 } from '../../utils/tokenManager';
 import { API_CONFIG, ROUTES, ERROR_MESSAGES } from '../../constants';
 
+// CSRF token storage in memory (XSS protection)
+let csrfToken: string | null = null;
+
+/**
+ * Fetch initial CSRF token from server
+ */
+const fetchInitialCSRFToken = async (): Promise<void> => {
+  try {
+    const baseUrl = API_CONFIG.GRAPHQL_URL.replace('/graphql', '');
+    const response = await fetch(`${baseUrl}/csrf-token`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.csrfToken) {
+        csrfToken = data.csrfToken;
+        console.log('🔒 Initial CSRF token fetched successfully');
+      }
+    } else {
+      console.warn('⚠️ Failed to fetch initial CSRF token:', response.status);
+    }
+  } catch (error) {
+    console.warn('⚠️ Error fetching initial CSRF token:', error);
+  }
+};
+
 /**
  * Enhanced Apollo Client Configuration
  * Handles authentication headers and error management with httpOnly cookie support
@@ -36,6 +64,7 @@ const authLink = setContext((_, { headers }) => {
       hasAccessToken: !!tokens.accessToken,
       accessTokenLength: tokens.accessToken?.length,
       isAuthenticated: isAuthenticated(),
+      hasCSRFToken: !!csrfToken,
     });
     
     // Only add authorization header if token exists and is not expired
@@ -47,13 +76,24 @@ const authLink = setContext((_, { headers }) => {
       console.log('❌ No valid access token found for request');
     }
     
-    return {
-      headers: {
-        ...headers,
-        authorization: shouldAddToken ? `Bearer ${tokens.accessToken}` : '',
-        'Content-Type': 'application/json',
-      },
+    // Prepare headers
+    const requestHeaders: any = {
+      ...headers,
+      'Content-Type': 'application/json',
     };
+    
+    // Add authorization header if token is valid
+    if (shouldAddToken) {
+      requestHeaders.authorization = `Bearer ${tokens.accessToken}`;
+    }
+    
+    // Add CSRF token header for mutations
+    if (csrfToken) {
+      requestHeaders['x-csrf-token'] = csrfToken;
+      console.log('🔒 Adding CSRF token header to request');
+    }
+    
+    return { headers: requestHeaders };
   } catch (error) {
     console.error('❌ Error setting auth context:', error);
     return { headers };
@@ -155,5 +195,20 @@ const client = new ApolloClient({
 
 // Enhanced logging for GraphQL operations
 console.log('🔧 Apollo Client initialized with enhanced debugging');
+
+// Fetch initial CSRF token
+fetchInitialCSRFToken();
+
+// Export function to set CSRF token
+export const setCSRFToken = (token: string) => {
+  csrfToken = token;
+  console.log('🔒 CSRF token set in Apollo Client');
+};
+
+// Export function to clear CSRF token
+export const clearCSRFToken = () => {
+  csrfToken = null;
+  console.log('🔒 CSRF token cleared from Apollo Client');
+};
 
 export default client; 
