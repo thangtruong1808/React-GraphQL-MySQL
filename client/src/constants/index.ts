@@ -200,7 +200,6 @@ export const ERROR_MESSAGES = {
   AUTHENTICATION_REQUIRED: 'Authentication required',
   INVALID_CREDENTIALS: 'Invalid email or password',
   LOGIN_FAILED: 'Login failed. Please check your credentials.',
-  REGISTRATION_FAILED: 'Registration failed. Please try again.',
   SESSION_EXPIRED: 'Your session has expired. Please login again.',
   TOKEN_REFRESH_FAILED: 'Failed to refresh authentication token.',
   
@@ -242,7 +241,6 @@ export const SUCCESS_MESSAGES = {
   // Authentication
   LOGIN_SUCCESS: 'Login successful',
   LOGOUT_SUCCESS: 'Logout successful',
-  REGISTRATION_SUCCESS: 'Registration successful',
   PASSWORD_CHANGED: 'Password changed successfully',
   
   // User operations
@@ -269,7 +267,6 @@ export const ROUTES = {
   // Public routes
   HOME: '/',
   LOGIN: '/login',
-  REGISTER: '/register',
   
   // Protected routes
   DASHBOARD: '/dashboard',

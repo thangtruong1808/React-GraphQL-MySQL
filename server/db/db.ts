@@ -41,7 +41,7 @@ const sequelize = new Sequelize({
   
   // Connection pool settings
   pool: {
-    max: 5, // Maximum number of connection instances
+    max: 15, // Maximum number of connection instances
     min: 0, // Minimum number of connection instances
     acquire: 30000, // Maximum time to acquire connection
     idle: 10000, // Maximum time connection can be idle

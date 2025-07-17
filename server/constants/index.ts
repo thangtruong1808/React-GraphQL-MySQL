@@ -10,16 +10,16 @@
  */
 export const JWT_CONFIG = {
   // Access token configuration
-  ACCESS_TOKEN_EXPIRY: '1m', // 5 minutes
+  ACCESS_TOKEN_EXPIRY: '1m', // 1 minutes
   
   // Refresh token configuration
   // For production purposes, we'll use 1 day
   // REFRESH_TOKEN_EXPIRY: '1d', // 1 day
   // REFRESH_TOKEN_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day in milliseconds
 
-  // For development purposes, we'll use 10 minutes
+  // For development purposes, we'll use 2 minutes
   REFRESH_TOKEN_EXPIRY: '2m', // 2 minutes
-  REFRESH_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 10 minutes in milliseconds
+  REFRESH_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 2 minutes in milliseconds
 
   // Token limits
   MAX_REFRESH_TOKENS_PER_USER: 5, // Maximum refresh tokens per user (increased for multiple sessions)
@@ -167,7 +167,6 @@ export const SUCCESS_MESSAGES = {
   // Authentication
   LOGIN_SUCCESS: 'Login successful',
   LOGOUT_SUCCESS: 'Logout successful',
-  REGISTRATION_SUCCESS: 'Registration successful',
   TOKEN_REFRESH_SUCCESS: 'Token refreshed successfully',
   
   // User operations

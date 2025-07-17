@@ -314,18 +314,7 @@ const LoginPage: React.FC = () => {
               )}
             </button>
 
-            {/* Register Link */}
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link
-                  to={ROUTES.REGISTER}
-                  className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200"
-                >
-                  Sign up here
-                </Link>
-              </p>
-            </div>
+
           </form>
         </div>
 

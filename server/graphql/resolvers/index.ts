@@ -1,20 +1,15 @@
 import { authResolvers } from './auth';
-import { userResolvers } from './user';
 
 /**
  * GraphQL Resolvers Index
- * Combines all resolvers for the application
- * Includes authentication and user management functionality
+ * Only authentication resolvers are included for the minimal login feature
  */
 
-// Merge all resolvers
 export const resolvers = {
   Query: {
     ...authResolvers.Query,
-    ...userResolvers.Query,
   },
   Mutation: {
     ...authResolvers.Mutation,
-    ...userResolvers.Mutation,
   },
 };

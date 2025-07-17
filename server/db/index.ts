@@ -2,10 +2,6 @@ import sequelize, { testConnection } from './db';
 
 // Import models
 import User from './models/user';
-import Project from './models/project';
-import ProjectMember from './models/projectMember';
-import Task from './models/task';
-import Comment from './models/comment';
 import RefreshToken from './models/refreshToken';
 
 /**
@@ -17,10 +13,6 @@ import RefreshToken from './models/refreshToken';
 // Export models
 export {
   User,
-  Project,
-  ProjectMember,
-  Task,
-  Comment,
   RefreshToken,
 };
 
@@ -35,10 +27,8 @@ export { sequelize, testConnection };
 export const setupAssociations = (): void => {
   // User associations
   User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
-  
   // RefreshToken associations are already defined in the model file
   // No need to redefine them here
-
   console.log('✅ Associations setup completed (authentication functionality).');
 };
 

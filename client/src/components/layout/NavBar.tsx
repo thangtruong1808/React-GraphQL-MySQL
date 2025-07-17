@@ -21,6 +21,7 @@ const NavBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLDivElement>(null);
 
   // Get navigation items based on user role
   const navItems = getNavItemsForUser(user);
@@ -39,13 +40,15 @@ const NavBar: React.FC = () => {
 
   /**
    * Close dropdown and mobile menu when clicking outside
+   * Excludes mobile menu button to prevent conflicts with X button
    */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
+        mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -154,24 +157,17 @@ const NavBar: React.FC = () => {
                 >
                   Login
                 </Link>
-
-                <Link
-                  to="/register"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                >
-                  Register
-                </Link>
               </div>
             )}
           </div>
 
           {/* Mobile Menu Button - Visible below 1024px */}
-          <div className="lg:hidden">
+          <div className="lg:hidden" ref={mobileMenuButtonRef}>
             <MobileMenuButton isOpen={isMobileMenuOpen} onToggle={toggleMobileMenu} />
           </div>
         </div>
 
-        {/* Second Row Navigation - Two Rows (815px to 1440px) */}
+        {/* Second Row Navigation - Two Rows (815px to 1440) */}
         <div className="hidden lg:flex 2xl:hidden border-t border-emerald-100">
           <div className="flex items-center justify-center space-x-4 py-2 w-full">
             {navItems.map((item) => {

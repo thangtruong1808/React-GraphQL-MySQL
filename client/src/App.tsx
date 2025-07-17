@@ -6,11 +6,8 @@ import NavBar from './components/layout/NavBar';
 import HomePage from './pages/home/HomePage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-
 // Lazy load pages for better performance and code splitting
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
-const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'));
-const DashboardPage = React.lazy(() => import('./pages/dashboard/DashboardPage'));
 
 /**
  * Protected Route Component
@@ -77,17 +74,6 @@ function App() {
                   {/* Public routes */}
                   <Route path="/" element={<HomePage />} />
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-
-                  {/* Protected routes - require authentication */}
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardPage />
-                      </ProtectedRoute>
-                    }
-                  />
 
                   {/* Catch-all route - redirect to home */}
                   <Route path="*" element={<Navigate to="/" replace />} />

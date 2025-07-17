@@ -54,7 +54,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   };
 
   return (
-    <div className="md:hidden bg-white border-t border-gray-100 shadow-sm">
+    <div className="lg:hidden bg-white border-t border-gray-100 shadow-sm">
       <div className="px-4 py-2 space-y-1">
         {/* Mobile Navigation Links */}
         {mobileNavItems.map((item) => {
@@ -140,17 +140,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
             <Link
               to="/login"
               onClick={onClose}
-              className="block w-full text-center px-3 py-2 text-base font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors duration-200"
+              className="block w-full text-center px-3 py-3 text-base font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors duration-200 border border-emerald-700"
             >
               Login
-            </Link>
-
-            <Link
-              to="/register"
-              onClick={onClose}
-              className="block w-full text-center px-3 py-2 text-base font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors duration-200"
-            >
-              Register
             </Link>
           </div>
         )}

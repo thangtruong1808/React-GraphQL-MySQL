@@ -3,7 +3,7 @@ import { ROUTES, USER_ROLES } from './index';
 
 /**
  * Navigation Configuration
- * Defines NavBar items based on user roles and database schema
+ * Defines NavBar items for the minimal login feature application
  */
 
 export interface NavItem {
@@ -17,7 +17,7 @@ export interface NavItem {
 }
 
 /**
- * Core navigation items based on database schema
+ * Core navigation items for login feature only
  * Uses centralized route constants for consistency
  */
 export const NAV_ITEMS: NavItem[] = [
@@ -30,90 +30,33 @@ export const NAV_ITEMS: NavItem[] = [
     description: 'Landing page'
   },
   {
-    id: 'dashboard',
-    label: 'Dashboard',
-    path: ROUTES.DASHBOARD,
-    icon: 'dashboard',
-    requiresAuth: true,
-    description: 'User overview and quick actions'
-  },
-  {
-    id: 'projects',
-    label: 'Projects',
-    path: ROUTES.PROJECTS,
-    icon: 'folder',
-    requiresAuth: true,
-    description: 'Manage projects and teams'
-  },
-  {
-    id: 'tasks',
-    label: 'Tasks',
-    path: ROUTES.TASKS,
-    icon: 'checklist',
-    requiresAuth: true,
-    description: 'View and manage tasks'
-  },
-  {
-    id: 'team',
-    label: 'Team',
-    path: ROUTES.TEAM,
-    icon: 'users',
-    roles: [USER_ROLES.ADMIN, USER_ROLES.MANAGER],
-    requiresAuth: true,
-    description: 'User management and roles'
-  },
-  {
-    id: 'reports',
-    label: 'Reports',
-    path: ROUTES.REPORTS,
-    icon: 'chart',
-    requiresAuth: true,
-    description: 'Analytics and insights'
-  },
-  {
-    id: 'activity',
-    label: 'Activity',
-    path: ROUTES.ACTIVITY,
-    icon: 'activity',
-    requiresAuth: true,
-    description: 'Activity logs and history'
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    path: ROUTES.NOTIFICATIONS,
-    icon: 'bell',
-    requiresAuth: true,
-    description: 'User notifications'
-  },
-  {
-    id: 'admin',
-    label: 'Admin Panel',
-    path: ROUTES.ADMIN,
-    icon: 'settings',
-    roles: [USER_ROLES.ADMIN],
-    requiresAuth: true,
-    description: 'System administration'
+    id: 'login',
+    label: 'Login',
+    path: ROUTES.LOGIN,
+    icon: 'login',
+    requiresAuth: false,
+    description: 'Sign in to your account'
   }
 ];
 
 /**
  * Get navigation items for a specific user
- * Filters based on authentication and user role
+ * Filters based on authentication status
  */
 export const getNavItemsForUser = (user: User | null): NavItem[] => {
   if (!user) {
+    // Show all public routes for unauthenticated users
     return NAV_ITEMS.filter(item => !item.requiresAuth);
   }
 
+  // For authenticated users, show home and hide login
   return NAV_ITEMS.filter(item => {
-    // Check if user is authenticated for protected routes
     if (item.requiresAuth && !user) {
       return false;
     }
-
-    // Check role-based access
-    if (item.roles && !item.roles.includes(user.role)) {
+    
+    // Hide login for authenticated users
+    if (user && item.id === 'login') {
       return false;
     }
 
@@ -126,13 +69,5 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
  * Simplified version for mobile devices
  */
 export const getMobileNavItems = (user: User | null): NavItem[] => {
-  const allItems = getNavItemsForUser(user);
-  
-  // Prioritize core items for mobile
-  const priorityItems = ['home', 'dashboard', 'projects', 'tasks'];
-  
-  return allItems.filter(item => 
-    priorityItems.includes(item.id) || 
-    item.id === 'notifications' // Keep notifications for mobile
-  );
+  return getNavItemsForUser(user);
 }; 

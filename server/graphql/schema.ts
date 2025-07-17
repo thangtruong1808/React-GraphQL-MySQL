@@ -58,13 +58,7 @@ export const typeDefs = gql`
     password: String!
   }
 
-  # Register Input Type
-  input RegisterInput {
-    email: String!
-    password: String!
-    firstName: String!
-    lastName: String!
-  }
+
 
   # Update User Role Input Type
   input UpdateUserRoleInput {
@@ -104,7 +98,6 @@ export const typeDefs = gql`
   type Mutation {
     # Authentication mutations
     login(input: LoginInput!): AuthResponse!
-    register(input: RegisterInput!): AuthResponse!
     logout: LogoutResponse!
     refreshToken: AuthResponse!
     

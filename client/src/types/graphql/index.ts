@@ -43,13 +43,7 @@ export interface LoginInput {
   password: string;
 }
 
-// Register Input Type
-export interface RegisterInput {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-}
+
 
 // GraphQL Query Response Types
 export interface CurrentUserQuery {
