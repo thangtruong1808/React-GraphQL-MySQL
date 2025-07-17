@@ -143,80 +143,83 @@ export const userResolvers = {
      * @param context - GraphQL context with user
      * @returns Updated user
      */
-    updateUser: withAuth(async (_: any, { id, input }: { id: string; input: any }, context: GraphQLContext) => {
-      try {
-        // Check permissions (admin or self)
-        const isAdmin = context.user!.role === 'ADMIN';
-        const isSelf = context.user!.id.toString() === id;
+    updateUser: withAuth(
+      async (_: any, { id, input }: { id: string; input: any }, context: GraphQLContext) => {
+        try {
+          // Check permissions (admin or self)
+          const isAdmin = context.user!.role === 'ADMIN';
+          const isSelf = context.user!.id.toString() === id;
 
-        if (!isAdmin && !isSelf) {
-          throw new GraphQLError(ERROR_MESSAGES.ACCESS_DENIED, {
-            extensions: { code: 'FORBIDDEN' },
-          });
-        }
+          if (!isAdmin && !isSelf) {
+            throw new GraphQLError(ERROR_MESSAGES.ACCESS_DENIED, {
+              extensions: { code: 'FORBIDDEN' },
+            });
+          }
 
-        // Find user to update
-        const user = await User.findByPk(id);
-        if (!user) {
-          throw new GraphQLError(ERROR_MESSAGES.USER_NOT_FOUND, {
-            extensions: { code: 'NOT_FOUND' },
-          });
-        }
+          // Find user to update
+          const user = await User.findByPk(id);
+          if (!user) {
+            throw new GraphQLError(ERROR_MESSAGES.USER_NOT_FOUND, {
+              extensions: { code: 'NOT_FOUND' },
+            });
+          }
 
-        // Validate email if provided
-        if (input.email && !validateEmail(input.email)) {
-          throw new GraphQLError(ERROR_MESSAGES.INVALID_EMAIL_FORMAT, {
-            extensions: { code: 'BAD_USER_INPUT' },
-          });
-        }
-
-        // Validate names if provided
-        if (input.firstName && !validateName(input.firstName)) {
-          throw new GraphQLError(ERROR_MESSAGES.NAME_TOO_SHORT, {
-            extensions: { code: 'BAD_USER_INPUT' },
-          });
-        }
-
-        if (input.lastName && !validateName(input.lastName)) {
-          throw new GraphQLError(ERROR_MESSAGES.NAME_TOO_SHORT, {
-            extensions: { code: 'BAD_USER_INPUT' },
-          });
-        }
-
-        // Check for email conflicts
-        if (input.email) {
-          const existingUser = await User.findOne({
-            where: {
-              [Op.and]: [
-                { email: input.email },
-                { id: { [Op.ne]: id } },
-              ],
-            },
-          });
-
-          if (existingUser) {
-            throw new GraphQLError('Email already registered', {
+          // Validate email if provided
+          if (input.email && !validateEmail(input.email)) {
+            throw new GraphQLError(ERROR_MESSAGES.INVALID_EMAIL_FORMAT, {
               extensions: { code: 'BAD_USER_INPUT' },
             });
           }
-        }
 
-        // Update user
-        await user.update(input);
+          // Validate names if provided
+          if (input.firstName && !validateName(input.firstName)) {
+            throw new GraphQLError(ERROR_MESSAGES.NAME_TOO_SHORT, {
+              extensions: { code: 'BAD_USER_INPUT' },
+            });
+          }
 
-        // Return updated user without password
-        const { password, ...userWithoutPassword } = user.toJSON();
-        return userWithoutPassword;
-      } catch (error) {
-        if (error instanceof GraphQLError) {
-          throw error;
+          if (input.lastName && !validateName(input.lastName)) {
+            throw new GraphQLError(ERROR_MESSAGES.NAME_TOO_SHORT, {
+              extensions: { code: 'BAD_USER_INPUT' },
+            });
+          }
+
+          // Check for email conflicts
+          if (input.email) {
+            const existingUser = await User.findOne({
+              where: {
+                [Op.and]: [
+                  { email: input.email },
+                  { id: { [Op.ne]: id } },
+                ],
+              },
+            });
+
+            if (existingUser) {
+              throw new GraphQLError('Email already registered', {
+                extensions: { code: 'BAD_USER_INPUT' },
+              });
+            }
+          }
+
+          // Update user
+          await user.update(input);
+
+          // Return updated user without password
+          const { password, ...userWithoutPassword } = user.toJSON();
+          return userWithoutPassword;
+        } catch (error) {
+          if (error instanceof GraphQLError) {
+            throw error;
+          }
+          console.error('Update user error:', error);
+          throw new GraphQLError(ERROR_MESSAGES.DATABASE_ERROR, {
+            extensions: { code: 'INTERNAL_SERVER_ERROR' },
+          });
         }
-        console.error('Update user error:', error);
-        throw new GraphQLError(ERROR_MESSAGES.DATABASE_ERROR, {
-          extensions: { code: 'INTERNAL_SERVER_ERROR' },
-        });
-      }
-    }),
+      },
+      authGuard
+    ),
 
     /**
      * Delete user (admin only)

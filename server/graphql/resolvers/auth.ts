@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { blacklistAccessToken, blacklistAllUserTokens } from '../../auth/tokenBlacklist';
 import {
   AUTH_CONFIG,
   ERROR_MESSAGES,
@@ -664,25 +663,8 @@ export const authResolvers = {
           console.log('🔍 Logout: No refresh token found in cookie');
         }
 
-        // Blacklist the current access token if available
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          const accessToken = authHeader.substring(7);
-          try {
-            // Decode token to get expiration
-            const decoded = jwt.decode(accessToken) as any;
-            if (decoded && decoded.exp) {
-              const expiresAt = new Date(decoded.exp * 1000);
-              // Find user ID from the token
-              if (decoded.userId) {
-                await blacklistAccessToken(decoded.userId, accessToken, expiresAt, 'MANUAL_LOGOUT');
-                console.log('✅ Access token blacklisted during logout');
-              }
-            }
-          } catch (error: any) {
-            console.error('❌ Error blacklisting access token during logout:', error);
-          }
-        }
+        // Note: Access tokens are short-lived (5 minutes) and will expire automatically
+        // No need to blacklist them in this simplified approach
 
         // Clear the refresh token cookie
         res.clearCookie('jid', {
@@ -747,11 +729,7 @@ export const authResolvers = {
 
         console.log(`🔒 Admin ${context.user.id} initiating force logout for user ${userId}`);
 
-        // First, blacklist all access tokens for this user (this will invalidate current sessions)
-        const blacklistedCount = await blacklistAllUserTokens(parseInt(userId));
-        console.log(`🔒 Blacklisted access tokens for user ${userId}: ${blacklistedCount} entries created`);
-
-        // Then, delete all active refresh tokens for this user
+        // Delete all active refresh tokens for this user
         const deletedCount = await RefreshToken.destroy({
           where: {
             userId: parseInt(userId),
@@ -764,7 +742,7 @@ export const authResolvers = {
 
         console.log(`🔒 Admin force logged out user ID: ${userId}`);
         console.log(`🔒 Deleted ${deletedCount} refresh tokens`);
-        console.log(`🔒 Created ${blacklistedCount} blacklist entries`);
+        // Note: Access tokens are short-lived and will expire automatically
 
         return true;
       } catch (error) {

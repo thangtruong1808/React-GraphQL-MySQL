@@ -1,11 +1,10 @@
 import { GraphQLError } from 'graphql';
 import { GraphQLContext } from '../graphql/context';
-import { requireAuth, requireRole, requirePermission, requireProjectRole } from './permissions';
 import { AUTHZ_CONFIG, ERROR_MESSAGES } from '../constants';
 
 /**
  * Authentication Guard
- * Provides middleware functions for protecting GraphQL resolvers and routes
+ * Provides middleware functions for protecting GraphQL resolvers
  */
 
 /**
@@ -14,7 +13,12 @@ import { AUTHZ_CONFIG, ERROR_MESSAGES } from '../constants';
  * @returns User object if authenticated
  */
 export const authGuard = (context: GraphQLContext) => {
-  return requireAuth(context);
+  if (!context.user) {
+    throw new GraphQLError(ERROR_MESSAGES.AUTHENTICATION_REQUIRED, {
+      extensions: { code: 'UNAUTHENTICATED' },
+    });
+  }
+  return context.user;
 };
 
 /**
@@ -24,7 +28,18 @@ export const authGuard = (context: GraphQLContext) => {
  */
 export const roleGuard = (requiredRole: keyof typeof AUTHZ_CONFIG.ROLES) => {
   return (context: GraphQLContext) => {
-    return requireRole(context, requiredRole);
+    const user = authGuard(context);
+    
+    const userRoleLevel = AUTHZ_CONFIG.ROLES[user.role as keyof typeof AUTHZ_CONFIG.ROLES];
+    const requiredRoleLevel = AUTHZ_CONFIG.ROLES[requiredRole];
+    
+    if (userRoleLevel < requiredRoleLevel) {
+      throw new GraphQLError(ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS, {
+        extensions: { code: 'FORBIDDEN' },
+      });
+    }
+    
+    return user;
   };
 };
 
@@ -34,7 +49,7 @@ export const roleGuard = (requiredRole: keyof typeof AUTHZ_CONFIG.ROLES) => {
  * @returns User object if admin
  */
 export const adminGuard = (context: GraphQLContext) => {
-  return requireRole(context, 'ADMIN');
+  return roleGuard('ADMIN')(context);
 };
 
 /**
@@ -43,41 +58,7 @@ export const adminGuard = (context: GraphQLContext) => {
  * @returns User object if manager or admin
  */
 export const managerGuard = (context: GraphQLContext) => {
-  return requireRole(context, 'MANAGER');
-};
-
-/**
- * Guard function that requires permission on specific resource
- * @param resourceType - Type of resource
- * @param resourceId - Resource ID (can be from args or context)
- * @param requiredPermission - Required permission level
- * @returns Function that takes context and returns user if authorized
- */
-export const permissionGuard = (
-  resourceType: 'PROJECT' | 'TASK' | 'COMMENT',
-  resourceId: (args: any, context: GraphQLContext) => number,
-  requiredPermission: keyof typeof AUTHZ_CONFIG.PERMISSIONS
-) => {
-  return async (context: GraphQLContext, args: any) => {
-    const id = resourceId(args, context);
-    return await requirePermission(context, resourceType, id, requiredPermission);
-  };
-};
-
-/**
- * Guard function that requires project role
- * @param projectId - Project ID (can be from args or context)
- * @param requiredRole - Required project role
- * @returns Function that takes context and returns user if authorized
- */
-export const projectRoleGuard = (
-  projectId: (args: any, context: GraphQLContext) => number,
-  requiredRole: keyof typeof AUTHZ_CONFIG.PROJECT_ROLES
-) => {
-  return async (context: GraphQLContext, args: any) => {
-    const id = projectId(args, context);
-    return await requireProjectRole(context, id, requiredRole);
-  };
+  return roleGuard('MANAGER')(context);
 };
 
 /**
@@ -143,36 +124,4 @@ export const withManager = <T extends any[], R>(
   resolver: (...args: T) => Promise<R> | R
 ) => {
   return withAuth(resolver, managerGuard);
-};
-
-/**
- * Higher-order function that wraps resolver with permission guard
- * @param resolver - Original resolver function
- * @param resourceType - Resource type
- * @param resourceIdExtractor - Function to extract resource ID from args
- * @param requiredPermission - Required permission
- * @returns Wrapped resolver with permission check
- */
-export const withPermission = <T extends any[], R>(
-  resolver: (...args: T) => Promise<R> | R,
-  resourceType: 'PROJECT' | 'TASK' | 'COMMENT',
-  resourceIdExtractor: (args: any, context: GraphQLContext) => number,
-  requiredPermission: keyof typeof AUTHZ_CONFIG.PERMISSIONS
-) => {
-  return withAuth(resolver, permissionGuard(resourceType, resourceIdExtractor, requiredPermission));
-};
-
-/**
- * Higher-order function that wraps resolver with project role guard
- * @param resolver - Original resolver function
- * @param projectIdExtractor - Function to extract project ID from args
- * @param requiredRole - Required project role
- * @returns Wrapped resolver with project role check
- */
-export const withProjectRole = <T extends any[], R>(
-  resolver: (...args: T) => Promise<R> | R,
-  projectIdExtractor: (args: any, context: GraphQLContext) => number,
-  requiredRole: keyof typeof AUTHZ_CONFIG.PROJECT_ROLES
-) => {
-  return withAuth(resolver, projectRoleGuard(projectIdExtractor, requiredRole));
 };

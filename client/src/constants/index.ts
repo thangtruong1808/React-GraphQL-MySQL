@@ -35,6 +35,11 @@ export const AUTH_CONFIG = {
   TOKEN_REFRESH_THRESHOLD: 5 * 60 * 1000, // 5 minutes before expiry
   MAX_REFRESH_ATTEMPTS: 3,
   
+  // Security enhancement: Access token expiry checking
+  ACCESS_TOKEN_CHECK_INTERVAL: 3000, // Check every 3 seconds for immediate UI feedback
+  // When access token expires, UserDropdown is immediately hidden and stays hidden
+  // until user manually logs in again (no automatic refresh for enhanced security)
+  
   // Session management
   SESSION_DURATION: 60 * 60 * 1000, // 1 hour
   SESSION_KEYS: {

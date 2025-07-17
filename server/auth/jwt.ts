@@ -1,9 +1,9 @@
-import jwt, { TokenExpiredError } from 'jsonwebtoken';
-import { JWT_CONFIG, ERROR_MESSAGES } from '../constants';
+import jwt from 'jsonwebtoken';
+import { ERROR_MESSAGES, JWT_CONFIG } from '../constants';
 
 /**
  * JWT Utility Functions
- * Handles token verification and extraction for authentication
+ * Handles token generation, verification, and refresh token management
  */
 
 // JWT configuration - required environment variables
@@ -15,13 +15,33 @@ if (!JWT_SECRET) {
 }
 
 /**
+ * Generate access token for user
+ * @param user - User object with id
+ * @returns JWT access token
+ */
+export const generateAccessToken = (user: { id: number }): string => {
+  return jwt.sign(
+    { userId: user.id },
+    JWT_SECRET,
+    { 
+      expiresIn: JWT_CONFIG.ACCESS_TOKEN_EXPIRY,
+      issuer: JWT_CONFIG.ISSUER,
+      audience: JWT_CONFIG.AUDIENCE
+    }
+  );
+};
+
+/**
  * Verify JWT access token
  * @param token - JWT token to verify
  * @returns Decoded token payload or null if invalid
  */
 export const verifyAccessToken = (token: string): { userId: number } | null => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const decoded = jwt.verify(token, JWT_SECRET, {
+      issuer: JWT_CONFIG.ISSUER,
+      audience: JWT_CONFIG.AUDIENCE
+    }) as { userId: number };
     return decoded;
   } catch (error) {
     // Only log non-expiration errors to reduce noise
@@ -45,39 +65,4 @@ export const extractTokenFromHeader = (authHeader?: string): string | null => {
   }
   
   return authHeader.substring(7); // Remove 'Bearer ' prefix
-};
-
-/**
- * Generate access token for user
- * @param user - User object with id
- * @returns JWT access token
- */
-export const generateAccessToken = (user: { id: number }): string => {
-  return jwt.sign(
-    { userId: user.id },
-    JWT_SECRET,
-    { expiresIn: JWT_CONFIG.ACCESS_TOKEN_EXPIRY }
-  );
-};
-
-/**
- * Verify refresh token from database
- * @param token - Refresh token to verify
- * @returns Decoded token payload or null if invalid
- */
-export const verifyRefreshToken = (token: string): { userId: number } | null => {
-  // Refresh tokens are now verified against database storage
-  // This function is kept for compatibility but should be replaced with database verification
-  console.warn('verifyRefreshToken: Use database verification instead of JWT verification');
-  return null;
-};
-
-/**
- * Blacklist token (simple in-memory storage - consider Redis for production)
- * @param token - Token to blacklist
- */
-export const blacklistToken = (token: string): void => {
-  // For now, we'll use a simple in-memory approach
-  // In production, use Redis or database for token blacklisting
-  console.log(`Token blacklisted: ${token.substring(0, 20)}...`);
 };

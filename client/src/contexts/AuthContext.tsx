@@ -1,6 +1,6 @@
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client';
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState, useRef } from 'react';
-import { ERROR_MESSAGES } from '../constants';
+import { AUTH_CONFIG, ERROR_MESSAGES } from '../constants';
 import { LOGIN, LOGOUT, REGISTER, REFRESH_TOKEN } from '../services/graphql/mutations';
 import { GET_CURRENT_USER } from '../services/graphql/queries';
 import { LoginInput, RegisterInput, User } from '../types/graphql';
@@ -72,6 +72,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Ref to track if refresh is in progress (prevent duplicate refresh calls)
   const isRefreshingRef = useRef(false);
 
+  // Ref to track the access token expiry check timer
+  const accessTokenCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // GraphQL operations
   const [getCurrentUser, { loading: currentUserLoading }] = useLazyQuery(GET_CURRENT_USER);
   const [loginMutation, { loading: loginLoading }] = useMutation(LOGIN);
@@ -80,8 +83,81 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [refreshTokenMutation] = useMutation(REFRESH_TOKEN);
 
   /**
+   * Check access token expiry and update authentication state immediately
+   * This provides immediate UI feedback when access token expires
+   * Security enhancement: No automatic refresh - user must manually log in again
+   */
+  const checkAccessTokenExpiry = useCallback(() => {
+    try {
+      const tokens = getTokens();
+
+      // If no access token, user is not authenticated
+      if (!tokens.accessToken) {
+        if (isAuthenticated) {
+          console.log('🔐 Access token missing - updating authentication state');
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+        return;
+      }
+
+      // Check if access token is expired
+      if (isTokenExpired(tokens.accessToken)) {
+        console.log('🔐 Access token expired - immediately hiding authenticated UI (security enhancement)');
+        setIsAuthenticated(false);
+        setUser(null);
+
+        // Security enhancement: Do NOT attempt automatic refresh
+        // User must manually log in again for enhanced security
+        console.log('🔐 Security: No automatic refresh - user must manually authenticate');
+        return;
+      }
+
+      // Token is valid, ensure user is authenticated
+      if (!isAuthenticated && tokens.accessToken) {
+        console.log('🔐 Access token valid - restoring authentication state');
+        setIsAuthenticated(true);
+        // User data will be fetched by the refresh mechanism
+      }
+    } catch (error) {
+      console.error('❌ Error checking access token expiry:', error);
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  }, [isAuthenticated]);
+
+  /**
+   * Start the access token expiry check timer
+   * This provides immediate UI feedback when access token expires
+   */
+  const startAccessTokenCheckTimer = useCallback(() => {
+    // Clear existing timer
+    if (accessTokenCheckTimerRef.current) {
+      clearInterval(accessTokenCheckTimerRef.current);
+    }
+
+    // Start new timer to check access token expiry
+    accessTokenCheckTimerRef.current = setInterval(() => {
+      checkAccessTokenExpiry();
+    }, AUTH_CONFIG.ACCESS_TOKEN_CHECK_INTERVAL);
+
+    console.log('🔐 Started access token expiry check timer');
+  }, [checkAccessTokenExpiry]);
+
+  /**
+   * Stop the access token expiry check timer
+   */
+  const stopAccessTokenCheckTimer = useCallback(() => {
+    if (accessTokenCheckTimerRef.current) {
+      clearInterval(accessTokenCheckTimerRef.current);
+      accessTokenCheckTimerRef.current = null;
+      console.log('🔐 Stopped access token expiry check timer');
+    }
+  }, []);
+
+  /**
    * Validate current session and tokens
-   * @returns True if session is valid
+   * @returns truef session is valid
    */
   const validateSession = useCallback((): boolean => {
     try {
@@ -263,7 +339,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [fetchCurrentUser, tryRefreshToken]);
 
   /**
-   * Enhanced login user with email and password and security measures
+   * Login function with enhanced security
    */
   const login = useCallback(async (input: LoginInput) => {
     try {
@@ -335,7 +411,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [loginMutation]);
 
   /**
-   * Enhanced register user with security measures
+   * Register function with enhanced security
    */
   const register = useCallback(async (input: RegisterInput) => {
     try {
@@ -383,11 +459,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [registerMutation, client]);
 
   /**
-   * Enhanced logout with security cleanup
+   * Logout function with cleanup
    */
   const logout = useCallback(async () => {
     try {
       console.log('🚪 Attempting logout...');
+
+      // Stop access token expiry check timer
+      stopAccessTokenCheckTimer();
 
       // Call logout mutation to invalidate tokens server-side
       await logoutMutation();
@@ -414,7 +493,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await client.clearStore();
       resetRefreshAttempts();
     }
-  }, [logoutMutation, client]);
+  }, [logoutMutation, client, stopAccessTokenCheckTimer]);
 
   /**
    * Check if user has specific role
@@ -430,8 +509,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * @returns True if user is admin
    */
   const isAdmin = useCallback((): boolean => {
-    return hasRole('ADMIN');
-  }, [hasRole]);
+    return user?.role === 'ADMIN';
+  }, [user]);
 
   /**
  * Check if user has been force logged out by admin
@@ -488,6 +567,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []); // Empty dependency array to run only once
 
+  // Start access token expiry check timer when user becomes authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      startAccessTokenCheckTimer();
+    } else {
+      stopAccessTokenCheckTimer();
+    }
+  }, [isAuthenticated, startAccessTokenCheckTimer, stopAccessTokenCheckTimer]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      stopAccessTokenCheckTimer();
+    };
+  }, [stopAccessTokenCheckTimer]);
+
   // Set up periodic force logout check when user is authenticated
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -533,6 +628,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       window.removeEventListener('focus', handleFocus);
     };
   }, [isAuthenticated, user, checkForceLogout]);
+
+  // Handle page visibility changes for security
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Page became visible, check access token immediately
+        checkAccessTokenExpiry();
+      }
+    };
+
+    const handleFocus = () => {
+      // Window gained focus, check access token immediately
+      checkAccessTokenExpiry();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [checkAccessTokenExpiry]);
 
   // Context value
   const value: AuthContextType = {

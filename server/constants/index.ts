@@ -10,19 +10,17 @@
  */
 export const JWT_CONFIG = {
   // Access token configuration
-  ACCESS_TOKEN_EXPIRY: '5m', // 5 minutes
+  ACCESS_TOKEN_EXPIRY: '1m', // 5 minutes
   
   // Refresh token configuration
   // For production purposes, we'll use 1 day
   // REFRESH_TOKEN_EXPIRY: '1d', // 1 day
   // REFRESH_TOKEN_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day in milliseconds
 
+  // For development purposes, we'll use 10 minutes
+  REFRESH_TOKEN_EXPIRY: '2m', // 2 minutes
+  REFRESH_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 10 minutes in milliseconds
 
-  // For development purposes, we'll use 30 minutes
-  REFRESH_TOKEN_EXPIRY: '10m', // 30 minutes
-  REFRESH_TOKEN_EXPIRY_MS: 10 * 60 * 1000, // 10 minutes in milliseconds
-
-  
   // Token limits
   MAX_REFRESH_TOKENS_PER_USER: 5, // Maximum refresh tokens per user (increased for multiple sessions)
   
@@ -82,7 +80,7 @@ export const DB_CONFIG = {
   USER: process.env.DB_USER || 'root',
   
   // Connection pool
-  POOL_MAX: 10,
+  POOL_MAX: 15,
   POOL_MIN: 0,
   POOL_ACQUIRE: 30000,
   POOL_IDLE: 10000,
@@ -110,7 +108,7 @@ export const VALIDATION_CONFIG = {
 
 /**
  * Authorization Configuration Constants
- * Defines role-based access control and permission settings
+ * Simplified role-based access control
  */
 export const AUTHZ_CONFIG = {
   // User roles hierarchy (higher number = more permissions)
@@ -120,34 +118,11 @@ export const AUTHZ_CONFIG = {
     ADMIN: 3,
   },
   
-  // Resource types for fine-grained permissions
-  RESOURCE_TYPES: {
-    PROJECT: 'PROJECT',
-    TASK: 'TASK',
-    COMMENT: 'COMMENT',
-    USER: 'USER',
-  },
-  
-  // Permission levels
-  PERMISSIONS: {
-    READ: 'READ',
-    WRITE: 'WRITE',
-    DELETE: 'DELETE',
-    ADMIN: 'ADMIN',
-  },
-  
   // Project member roles
   PROJECT_ROLES: {
     VIEWER: 'VIEWER',
     EDITOR: 'EDITOR',
     OWNER: 'OWNER',
-  },
-  
-  // Default permissions for roles
-  DEFAULT_PERMISSIONS: {
-    ADMIN: ['READ', 'WRITE', 'DELETE', 'ADMIN'],
-    MANAGER: ['READ', 'WRITE', 'DELETE'],
-    DEVELOPER: ['READ', 'WRITE'],
   },
 } as const;
 

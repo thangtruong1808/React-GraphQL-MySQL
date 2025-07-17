@@ -2,7 +2,6 @@ import { GraphQLSchema, GraphQLObjectType, GraphQLField, GraphQLFieldMap } from 
 import { getDirective, MapperKind, mapSchema } from '@graphql-tools/utils';
 import { GraphQLError } from 'graphql';
 import { GraphQLContext } from '../context';
-import { requireAuth, requireRole, requirePermission, requireProjectRole } from '../../auth/permissions';
 import { AUTHZ_CONFIG, ERROR_MESSAGES } from '../../constants';
 
 /**
@@ -18,43 +17,21 @@ const AUTH_DIRECTIVE = 'auth';
  */
 interface AuthDirectiveArgs {
   role?: keyof typeof AUTHZ_CONFIG.ROLES;
-  permission?: keyof typeof AUTHZ_CONFIG.PERMISSIONS;
-  resourceType?: 'PROJECT' | 'TASK' | 'COMMENT';
-  resourceId?: string; // Field name to extract resource ID from
-  projectRole?: keyof typeof AUTHZ_CONFIG.PROJECT_ROLES;
-  projectId?: string; // Field name to extract project ID from
 }
 
 /**
- * Extract resource ID from resolver arguments
- * @param args - Resolver arguments
- * @param resourceIdField - Field name containing resource ID
- * @returns Resource ID
+ * Check if user has required role
+ * @param user - User object with role
+ * @param requiredRole - Minimum required role
+ * @returns True if user has sufficient role
  */
-const extractResourceId = (args: any, resourceIdField: string): number => {
-  const resourceId = args[resourceIdField];
-  if (!resourceId) {
-    throw new GraphQLError(`Resource ID field '${resourceIdField}' is required`, {
-      extensions: { code: 'BAD_USER_INPUT' },
-    });
-  }
-  return parseInt(resourceId, 10);
-};
-
-/**
- * Extract project ID from resolver arguments
- * @param args - Resolver arguments
- * @param projectIdField - Field name containing project ID
- * @returns Project ID
- */
-const extractProjectId = (args: any, projectIdField: string): number => {
-  const projectId = args[projectIdField];
-  if (!projectId) {
-    throw new GraphQLError(`Project ID field '${projectIdField}' is required`, {
-      extensions: { code: 'BAD_USER_INPUT' },
-    });
-  }
-  return parseInt(projectId, 10);
+const hasRole = (user: any, requiredRole: keyof typeof AUTHZ_CONFIG.ROLES): boolean => {
+  if (!user || !user.role) return false;
+  
+  const userRoleLevel = AUTHZ_CONFIG.ROLES[user.role as keyof typeof AUTHZ_CONFIG.ROLES];
+  const requiredRoleLevel = AUTHZ_CONFIG.ROLES[requiredRole];
+  
+  return userRoleLevel >= requiredRoleLevel;
 };
 
 /**
@@ -67,23 +44,17 @@ const createAuthMiddleware = (directiveArgs: AuthDirectiveArgs) => {
     return async (parent: any, args: any, context: GraphQLContext, info: any) => {
       try {
         // Check authentication first
-        const user = requireAuth(context);
+        if (!context.user) {
+          throw new GraphQLError(ERROR_MESSAGES.AUTHENTICATION_REQUIRED, {
+            extensions: { code: 'UNAUTHENTICATED' },
+          });
+        }
 
         // Check role if specified
-        if (directiveArgs.role) {
-          requireRole(context, directiveArgs.role);
-        }
-
-        // Check permission if specified
-        if (directiveArgs.permission && directiveArgs.resourceType && directiveArgs.resourceId) {
-          const resourceId = extractResourceId(args, directiveArgs.resourceId);
-          await requirePermission(context, directiveArgs.resourceType, resourceId, directiveArgs.permission);
-        }
-
-        // Check project role if specified
-        if (directiveArgs.projectRole && directiveArgs.projectId) {
-          const projectId = extractProjectId(args, directiveArgs.projectId);
-          await requireProjectRole(context, projectId, directiveArgs.projectRole);
+        if (directiveArgs.role && !hasRole(context.user, directiveArgs.role)) {
+          throw new GraphQLError(ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS, {
+            extensions: { code: 'FORBIDDEN' },
+          });
         }
 
         // If all checks pass, execute the resolver
@@ -138,34 +109,6 @@ export const authRole = (role: keyof typeof AUTHZ_CONFIG.ROLES): string => {
 };
 
 /**
- * Helper function to create @auth directive for permission-based access
- * @param permission - Required permission
- * @param resourceType - Resource type
- * @param resourceIdField - Field name containing resource ID
- * @returns Directive string
- */
-export const authPermission = (
-  permission: keyof typeof AUTHZ_CONFIG.PERMISSIONS,
-  resourceType: 'PROJECT' | 'TASK' | 'COMMENT',
-  resourceIdField: string
-): string => {
-  return `@auth(permission: ${permission}, resourceType: ${resourceType}, resourceId: "${resourceIdField}")`;
-};
-
-/**
- * Helper function to create @auth directive for project role access
- * @param projectRole - Required project role
- * @param projectIdField - Field name containing project ID
- * @returns Directive string
- */
-export const authProjectRole = (
-  projectRole: keyof typeof AUTHZ_CONFIG.PROJECT_ROLES,
-  projectIdField: string
-): string => {
-  return `@auth(projectRole: ${projectRole}, projectId: "${projectIdField}")`;
-};
-
-/**
  * Helper function to create @auth directive for authentication only
  * @returns Directive string
  */
@@ -178,14 +121,13 @@ export const authRequired = (): string => {
  * 
  * type Query {
  *   users: [User!]! @auth(role: ADMIN)
- *   project(id: ID!): Project @auth(permission: READ, resourceType: PROJECT, resourceId: "id")
- *   task(id: ID!): Task @auth(permission: READ, resourceType: TASK, resourceId: "id")
- *   projectMembers(projectId: ID!): [ProjectMember!]! @auth(projectRole: VIEWER, projectId: "projectId")
+ *   projects: [Project!]! @auth(role: MANAGER)
+ *   tasks: [Task!]! @auth
  * }
  * 
  * type Mutation {
  *   createProject(input: CreateProjectInput!): Project! @auth(role: MANAGER)
- *   updateProject(id: ID!, input: UpdateProjectInput!): Project! @auth(permission: WRITE, resourceType: PROJECT, resourceId: "id")
- *   deleteProject(id: ID!): Boolean! @auth(permission: DELETE, resourceType: PROJECT, resourceId: "id")
+ *   updateProject(id: ID!, input: UpdateProjectInput!): Project! @auth(role: MANAGER)
+ *   deleteProject(id: ID!): Boolean! @auth(role: ADMIN)
  * }
  */
