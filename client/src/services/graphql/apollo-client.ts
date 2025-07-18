@@ -1,20 +1,21 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-import { from } from '@apollo/client/link/core';
 import { setContext } from '@apollo/client/link/context';
+import { from } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
-import { 
-  getTokens, 
-  clearTokens, 
-  isTokenExpired,
-  isAuthenticated
+import { API_CONFIG, ROUTES } from '../../constants';
+import {
+  clearTokens,
+  getTokens,
+  isAuthenticated,
+  isTokenExpired
 } from '../../utils/tokenManager';
-import { API_CONFIG, ROUTES, ERROR_MESSAGES } from '../../constants';
 
 // CSRF token storage in memory (XSS protection)
 let csrfToken: string | null = null;
 
 /**
  * Fetch initial CSRF token from server
+ * Only called once on app startup - no DB connection needed
  */
 const fetchInitialCSRFToken = async (): Promise<void> => {
   try {
@@ -41,7 +42,7 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
 /**
  * Enhanced Apollo Client Configuration
  * Handles authentication headers and error management with httpOnly cookie support
- * Implements secure token handling for cookie-based authentication
+ * Optimized for performance: minimal overhead, efficient error handling
  */
 
 // Create HTTP link with timeout using centralized constants
@@ -56,7 +57,7 @@ const httpLink = createHttpLink({
 // Enhanced auth link with better token validation and debugging
 const authLink = setContext((_, { headers }) => {
   try {
-    // Get access token from memory
+    // Get access token from memory (no DB connection)
     const tokens = getTokens();
     
     // Debug: Log token retrieval
@@ -196,7 +197,7 @@ const client = new ApolloClient({
 // Enhanced logging for GraphQL operations
 console.log('🔧 Apollo Client initialized with enhanced debugging');
 
-// Fetch initial CSRF token
+// Fetch initial CSRF token (only once on startup)
 fetchInitialCSRFToken();
 
 // Export function to set CSRF token

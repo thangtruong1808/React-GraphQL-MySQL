@@ -7,28 +7,28 @@ import { LoginInput } from '../../types/graphql';
 /**
  * Login Form Component
  * Handles user authentication with email and password
- * Provides form validation and error handling
+ * Optimized for performance: only validates and submits - no DB connection on load
  */
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const { login, loginLoading } = useAuth();
 
-  // Form state
+  // Form state - only essential fields for login
   const [formData, setFormData] = useState<LoginInput>({
     email: '',
     password: '',
   });
 
-  // UI state for password visibility and input clearing
+  // UI state for password visibility
   const [showPassword, setShowPassword] = useState(false);
 
-  // Error and success state
+  // Error and success state for user feedback
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
 
   /**
    * Handle form input changes
-   * Updates form state and clears errors
+   * Updates form state and clears errors for better UX
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,7 +37,7 @@ const LoginForm: React.FC = () => {
       [name]: value,
     }));
 
-    // Clear error when user starts typing
+    // Clear error when user starts typing - immediate feedback
     if (error) {
       setError('');
     }
@@ -56,6 +56,7 @@ const LoginForm: React.FC = () => {
 
   /**
    * Toggle password visibility
+   * Simple UI enhancement for better UX
    */
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -63,9 +64,11 @@ const LoginForm: React.FC = () => {
 
   /**
    * Validate form data before submission
+   * Client-side validation to prevent unnecessary server requests
    * @returns True if form is valid, false otherwise
    */
   const validateForm = (): boolean => {
+    // Check for required fields first
     if (!formData.email.trim()) {
       setError(ERROR_MESSAGES.EMAIL_REQUIRED);
       return false;
@@ -76,7 +79,7 @@ const LoginForm: React.FC = () => {
       return false;
     }
 
-    // Email validation using centralized regex
+    // Email format validation using centralized regex
     if (!VALIDATION_CONFIG.EMAIL_REGEX.test(formData.email)) {
       setError(ERROR_MESSAGES.EMAIL_INVALID);
       return false;
@@ -93,22 +96,24 @@ const LoginForm: React.FC = () => {
 
   /**
    * Handle form submission
-   * Validates form and attempts login
+   * Only executes when valid credentials are provided
+   * Triggers authentication flow: LoginForm → AuthContext → GraphQL → Server → DB
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Clear previous messages
+    // Clear previous messages for clean state
     setError('');
     setSuccess('');
 
-    // Validate form
+    // Client-side validation - prevents unnecessary server requests
     if (!validateForm()) {
-      return;
+      return; // Stop here if validation fails - no DB connection needed
     }
 
     try {
-      // Attempt login
+      // Attempt login with validated credentials
+      // This triggers the full authentication flow
       const result = await login({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,

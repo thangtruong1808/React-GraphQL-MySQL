@@ -1,31 +1,25 @@
 import { gql } from 'graphql-tag';
 
 /**
- * GraphQL Schema with Basic Authorization
- * Includes @auth directive for schema-level authorization
+ * Cleaned GraphQL Schema for Authentication
+ * Contains only the types and operations actually used by the client
+ * Follows GraphQL best practices for schema design
  */
 
 export const typeDefs = gql`
-  # Authorization directive definition
+  # Authorization directive for schema-level security
   directive @auth(
     role: String
   ) on FIELD_DEFINITION
 
-  # User Role Enum
+  # User Role Enum - matches database schema
   enum UserRole {
     ADMIN
     MANAGER
     DEVELOPER
   }
 
-  # Project Role Enum
-  enum ProjectRole {
-    VIEWER
-    EDITOR
-    OWNER
-  }
-
-  # User Type
+  # User Type - matches database users table structure
   type User {
     id: ID!
     uuid: String!
@@ -39,7 +33,7 @@ export const typeDefs = gql`
     updatedAt: String!
   }
 
-  # Authentication Response Type
+  # Authentication Response Type - includes all tokens returned by login/refresh
   type AuthResponse {
     accessToken: String!
     refreshToken: String!
@@ -47,67 +41,33 @@ export const typeDefs = gql`
     user: User!
   }
 
-  # Logout Response Type
+  # Logout Response Type - simple success/error response
   type LogoutResponse {
     success: Boolean!
     message: String!
   }
 
-  # Login Input Type
+  # Login Input Type - email and password for authentication
   input LoginInput {
     email: String!
     password: String!
   }
 
-
-
-  # Update User Role Input Type
-  input UpdateUserRoleInput {
-    userId: ID!
-    role: UserRole!
-  }
-
-  # User Session Info Type
-  type UserSessionInfo {
-    userId: ID!
-    userEmail: String!
-    activeTokens: Int!
-    maxAllowed: Int!
-    isAtLimit: Boolean!
-  }
-
-  # User Update Input Type
-  input UpdateUserInput {
-    email: String
-    firstName: String
-    lastName: String
-    role: UserRole
-  }
-
-  # Query Type
+  # Query Type - only includes currentUser query that's actually used
   type Query {
-    # Authentication queries
+    # Get current authenticated user - requires valid JWT token
     currentUser: User @auth
-    
-    # User queries (require authentication)
-    user(id: ID!): User @auth(role: "ADMIN")
-    users(limit: Int, offset: Int): [User!]! @auth(role: "ADMIN")
-    usersWithSessions: [UserSessionInfo!]! @auth(role: "ADMIN")
   }
 
-  # Mutation Type
+  # Mutation Type - only includes authentication mutations that are actually used
   type Mutation {
-    # Authentication mutations
+    # User login with email/password - returns tokens and user data
     login(input: LoginInput!): AuthResponse!
+    
+    # User logout - clears refresh token cookie and database entry
     logout: LogoutResponse!
+    
+    # Refresh access token using refresh token from httpOnly cookie
     refreshToken: AuthResponse!
-    
-    # User mutations (require authentication)
-    updateUser(id: ID!, input: UpdateUserInput!): User! @auth
-    deleteUser(id: ID!): Boolean! @auth(role: "ADMIN")
-    forceLogoutUser(userId: ID!): Boolean! @auth(role: "ADMIN")
-    
-    # Admin mutations (require admin role)
-    updateUserRole(input: UpdateUserRoleInput!): User! @auth(role: "ADMIN")
   }
 `;
