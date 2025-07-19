@@ -36,22 +36,58 @@ interface AuthContextType {
 }
 
 /**
- * AuthContext
- * Provides shared authentication state across the application
- */
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-/**
- * AuthProvider Props
+ * AuthProvider Props Interface
+ * Defines props for the AuthProvider component
  */
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 /**
+ * AuthContext Creation
+ * Creates the authentication context with default values
+ */
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+/**
+ * Custom hook to use authentication context
+ * Provides type-safe access to authentication state and functions
+ */
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+/**
  * AuthProvider Component
  * Wraps the application and provides authentication context
  * Handles the complete authentication flow: Login → GraphQL → Server → DB → Response
+ * 
+ * EXECUTION FLOW FOR DIFFERENT SCENARIOS:
+ * 
+ * 1. FIRST TIME LOGIN (No tokens):
+ *    - validateSession() → returns false (no tokens)
+ *    - login() → calls loginMutation → apollo-client.ts → server auth.ts → DB
+ *    - saveTokens() → stores tokens in tokenManager.ts
+ *    - setUser() + setIsAuthenticated(true) → updates state
+ * 
+ * 2. EXPIRED ACCESS TOKEN + VALID REFRESH TOKEN:
+ *    - validateSession() → returns false (expired access token)
+ *    - tryRefreshToken() → calls refreshTokenMutation → apollo-client.ts → server auth.ts
+ *    - Server validates refresh token from httpOnly cookie → DB
+ *    - saveTokens() → stores new tokens in tokenManager.ts
+ *    - setUser() + setIsAuthenticated(true) → updates state
+ * 
+ * 3. EXPIRED ACCESS TOKEN + EXPIRED REFRESH TOKEN:
+ *    - validateSession() → returns false (expired access token)
+ *    - tryRefreshToken() → calls refreshTokenMutation → apollo-client.ts → server auth.ts
+ *    - Server rejects expired refresh token → returns error
+ *    - clearTokens() → clears all tokens from tokenManager.ts
+ *    - setUser(null) + setIsAuthenticated(false) → updates state
+ *    - User redirected to login
  */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Core authentication state
@@ -77,6 +113,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Validate current session and tokens
    * Quick client-side check without server communication
+   * 
+   * CALLED BY: initializeAuth(), checkAccessTokenExpiry()
+   * SCENARIOS: All scenarios - checks if user has valid tokens
+   * RETURNS: true if valid access token exists, false otherwise
    */
   const validateSession = useCallback((): boolean => {
     try {
@@ -90,6 +130,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Check access token expiry and update auth state
    * Performance optimization: runs on timer for immediate UI feedback
+   * 
+   * CALLED BY: Timer interval after successful login
+   * SCENARIOS: 
+   * - Valid tokens: No action
+   * - Expired access token: Updates state to unauthenticated
+   * - Invalid tokens: Updates state to unauthenticated
    */
   const checkAccessTokenExpiry = useCallback(() => {
     try {
@@ -120,6 +166,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Attempt to refresh access token
    * Only called when current token is expired or invalid
+   * 
+   * CALLED BY: initializeAuth(), fetchCurrentUser()
+   * SCENARIOS:
+   * - Valid refresh token: Generates new access token, returns true
+   * - Expired refresh token: Clears tokens, returns false
+   * - No refresh token: Clears tokens, returns false
    */
   const tryRefreshToken = useCallback(async () => {
     try {
@@ -150,6 +202,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Fetch current user data
    * Only called when we have valid tokens
+   * 
+   * CALLED BY: initializeAuth()
+   * SCENARIOS:
+   * - Valid access token: Fetches user data, updates state
+   * - Expired access token: Triggers token refresh, retries fetch
+   * - Invalid tokens: Updates state to unauthenticated
    */
   const fetchCurrentUser = useCallback(async () => {
     try {
@@ -186,6 +244,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Initialize authentication state
    * Only runs once on app startup
+   * 
+   * CALLED BY: useEffect on component mount
+   * SCENARIOS:
+   * - No tokens: Tries refresh, fails, sets unauthenticated
+   * - Expired access token + valid refresh token: Refreshes successfully
+   * - Valid tokens: Fetches user data
+   * - Invalid tokens: Clears tokens, sets unauthenticated
    */
   const initializeAuth = useCallback(async () => {
     try {
@@ -211,6 +276,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * Login function - Main authentication entry point
    * Handles the complete flow: LoginForm → AuthContext → GraphQL → Server → DB
    * Only executes when valid credentials are provided
+   * 
+   * CALLED BY: LoginForm component on form submission
+   * SCENARIOS:
+   * - First time login: Validates credentials, generates tokens, stores them
+   * - Re-login after logout: Same as first time login
+   * - Invalid credentials: Returns error, no tokens generated
    */
   const login = useCallback(async (input: LoginInput) => {
     try {
@@ -256,6 +327,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Logout function
    * Clears all authentication data and resets state
+   * 
+   * CALLED BY: User logout action, force logout scenarios
+   * SCENARIOS:
+   * - User-initiated logout: Calls server logout, clears local state
+   * - Force logout: Clears local state only
+   * - Token expiration: Clears local state only
    */
   const logout = useCallback(async () => {
     try {
@@ -286,6 +363,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   /**
    * Check if user has specific role
    * Simple role-based access control
+   * 
+   * CALLED BY: Components for conditional rendering
+   * SCENARIOS: All scenarios - checks user role for authorization
    */
   const hasRole = useCallback((role: string): boolean => {
     return user?.role === role;
@@ -299,56 +379,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [initializeAuth]);
 
-  // Manage access token expiry checking timer
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      // Clear any existing timer
-      if (expiryTimerRef.current) {
-        clearInterval(expiryTimerRef.current);
-      }
-
-      // Start checking for access token expiry
-      expiryTimerRef.current = setInterval(checkAccessTokenExpiry, AUTH_CONFIG.ACCESS_TOKEN_CHECK_INTERVAL);
-    } else {
-      // Clear timer when not authenticated
-      if (expiryTimerRef.current) {
-        clearInterval(expiryTimerRef.current);
-        expiryTimerRef.current = null;
-      }
-    }
-
-    // Cleanup timer on unmount
-    return () => {
-      if (expiryTimerRef.current) {
-        clearInterval(expiryTimerRef.current);
-        expiryTimerRef.current = null;
-      }
-    };
-  }, [isAuthenticated, user, checkAccessTokenExpiry]);
-
-  // Context value - only essential data for authentication
-  const value: AuthContextType = {
+  // Context value with all authentication state and functions
+  const contextValue: AuthContextType = {
+    // State
     user,
     isAuthenticated,
     isLoading,
+
+    // Loading states
     loginLoading,
     logoutLoading,
+
+    // Actions
     login,
     logout,
+
+    // Utilities
     hasRole,
     validateSession,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-/**
- * Custom hook to use authentication context
- */
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }; 

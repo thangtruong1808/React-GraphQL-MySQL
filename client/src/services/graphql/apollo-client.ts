@@ -16,6 +16,10 @@ let csrfToken: string | null = null;
 /**
  * Fetch initial CSRF token from server
  * Only called once on app startup - no DB connection needed
+ * 
+ * CALLED BY: Apollo Client initialization
+ * SCENARIOS: All scenarios - fetches CSRF token for security
+ * PURPOSE: Provides CSRF protection for all GraphQL mutations
  */
 const fetchInitialCSRFToken = async (): Promise<void> => {
   try {
@@ -43,6 +47,26 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
  * Enhanced Apollo Client Configuration
  * Handles authentication headers and error management with httpOnly cookie support
  * Optimized for performance: minimal overhead, efficient error handling
+ * 
+ * EXECUTION FLOW FOR DIFFERENT SCENARIOS:
+ * 
+ * 1. FIRST TIME LOGIN (No tokens):
+ *    - authLink: getTokens() returns null → no authorization header
+ *    - Request sent without Bearer token
+ *    - Server validates credentials → returns tokens
+ *    - errorLink: No errors → request succeeds
+ * 
+ * 2. EXPIRED ACCESS TOKEN + VALID REFRESH TOKEN:
+ *    - authLink: getTokens() returns expired token → no authorization header
+ *    - Request sent without Bearer token
+ *    - Server returns UNAUTHENTICATED error
+ *    - errorLink: Handles UNAUTHENTICATED → triggers refresh in AuthContext
+ * 
+ * 3. EXPIRED ACCESS TOKEN + EXPIRED REFRESH TOKEN:
+ *    - authLink: getTokens() returns expired token → no authorization header
+ *    - Request sent without Bearer token
+ *    - Server returns UNAUTHENTICATED error
+ *    - errorLink: Handles UNAUTHENTICATED → clearTokens() → redirect to login
  */
 
 // Create HTTP link with timeout using centralized constants
@@ -54,7 +78,17 @@ const httpLink = createHttpLink({
   credentials: 'include', // Include cookies in requests
 });
 
-// Enhanced auth link with better token validation and debugging
+/**
+ * Enhanced auth link with better token validation and debugging
+ * Runs BEFORE every GraphQL request to add authentication headers
+ * 
+ * CALLED BY: Every GraphQL request (queries and mutations)
+ * SCENARIOS:
+ * - Valid access token: Adds Bearer token to headers
+ * - Expired access token: No authorization header added
+ * - No access token: No authorization header added
+ * - All scenarios: Adds CSRF token if available
+ */
 const authLink = setContext((_, { headers }) => {
   try {
     // Get access token from memory (no DB connection)
@@ -101,7 +135,17 @@ const authLink = setContext((_, { headers }) => {
   }
 });
 
-// Enhanced error link with comprehensive authentication handling
+/**
+ * Enhanced error link with comprehensive authentication handling
+ * Runs AFTER every GraphQL response to handle authentication errors
+ * 
+ * CALLED BY: Every GraphQL response (success or error)
+ * SCENARIOS:
+ * - UNAUTHENTICATED error: Triggers token refresh or logout
+ * - TOO_MANY_SESSIONS error: Shows error message to user
+ * - Network errors: Handles 401/Unauthorized responses
+ * - Other errors: Logs error details
+ */
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
@@ -160,7 +204,14 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   }
 });
 
-// Create Apollo Client with enhanced error handling and security
+/**
+ * Create Apollo Client with enhanced error handling and security
+ * Configures the complete GraphQL client with authentication support
+ * 
+ * CALLED BY: App initialization
+ * SCENARIOS: All scenarios - provides GraphQL communication layer
+ * FEATURES: Authentication, error handling, caching, CSRF protection
+ */
 const client = new ApolloClient({
   link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache({
@@ -200,13 +251,25 @@ console.log('🔧 Apollo Client initialized with enhanced debugging');
 // Fetch initial CSRF token (only once on startup)
 fetchInitialCSRFToken();
 
-// Export function to set CSRF token
+/**
+ * Set CSRF token in Apollo Client memory
+ * Called when new CSRF token is received from server
+ * 
+ * CALLED BY: AuthContext after successful login/refresh
+ * SCENARIOS: All scenarios - updates CSRF token for security
+ */
 export const setCSRFToken = (token: string) => {
   csrfToken = token;
   console.log('🔒 CSRF token set in Apollo Client');
 };
 
-// Export function to clear CSRF token
+/**
+ * Clear CSRF token from Apollo Client memory
+ * Called during logout or token clearing
+ * 
+ * CALLED BY: AuthContext during logout
+ * SCENARIOS: Logout scenarios - clears CSRF token
+ */
 export const clearCSRFToken = () => {
   csrfToken = null;
   console.log('🔒 CSRF token cleared from Apollo Client');

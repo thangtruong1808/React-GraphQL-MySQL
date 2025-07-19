@@ -16,6 +16,29 @@ import { setCSRFToken, clearCSRFToken } from '../../auth/csrf';
  * Enhanced Authentication Resolvers
  * Handles login, logout, and token refresh operations with security measures
  * Optimized for performance: minimal DB queries, efficient token management
+ * 
+ * EXECUTION FLOW FOR DIFFERENT SCENARIOS:
+ * 
+ * 1. FIRST TIME LOGIN (No tokens):
+ *    - login() → validates credentials → generates tokens → stores in DB → sets httpOnly cookie
+ *    - generateAccessToken() → creates JWT with user ID and expiry
+ *    - generateRefreshToken() → creates random hex string
+ *    - hashRefreshToken() → bcrypt hashes refresh token for DB storage
+ *    - RefreshToken.create() → stores hashed token in database
+ *    - res.cookie() → sets refresh token as httpOnly cookie
+ * 
+ * 2. EXPIRED ACCESS TOKEN + VALID REFRESH TOKEN:
+ *    - refreshToken() → reads refresh token from httpOnly cookie
+ *    - verifyRefreshTokenHash() → validates token against DB hash
+ *    - generateAccessToken() → creates new JWT access token
+ *    - generateRefreshToken() → creates new refresh token (token rotation)
+ *    - RefreshToken.create() → stores new hashed token in database
+ *    - res.cookie() → sets new refresh token as httpOnly cookie
+ * 
+ * 3. EXPIRED ACCESS TOKEN + EXPIRED REFRESH TOKEN:
+ *    - refreshToken() → reads refresh token from httpOnly cookie
+ *    - verifyRefreshTokenHash() → fails validation (token expired/not found)
+ *    - Returns UNAUTHENTICATED error → client clears tokens
  */
 
 // JWT configuration - required environment variables
@@ -30,6 +53,10 @@ if (!JWT_SECRET) {
  * Generate JWT access token with enhanced security
  * @param userId - User ID to encode in token
  * @returns JWT access token
+ * 
+ * CALLED BY: login(), refreshToken()
+ * SCENARIOS: All scenarios - creates JWT tokens for client authentication
+ * FEATURES: User ID, token type, issued timestamp, expiry, issuer, audience
  */
 const generateAccessToken = (userId: number): string => {
   return jwt.sign(
@@ -51,6 +78,10 @@ const generateAccessToken = (userId: number): string => {
  * Generate refresh token (random string, not JWT) with enhanced security
  * @param userId - User ID for the token
  * @returns Random refresh token string
+ * 
+ * CALLED BY: login(), refreshToken()
+ * SCENARIOS: All scenarios - creates cryptographically secure random tokens
+ * FEATURES: 64 bytes (128 characters), hex format, cryptographically secure
  */
 const generateRefreshToken = (userId: number): string => {
   // Generate a cryptographically secure random token
@@ -61,6 +92,10 @@ const generateRefreshToken = (userId: number): string => {
  * Hash refresh token for storage with enhanced security
  * @param token - Raw refresh token
  * @returns Hashed token
+ * 
+ * CALLED BY: login(), refreshToken()
+ * SCENARIOS: All scenarios - secures refresh tokens before DB storage
+ * FEATURES: Bcrypt hashing, salt rounds, one-way encryption
  */
 const hashRefreshToken = async (token: string): Promise<string> => {
   return bcrypt.hash(token, AUTH_CONFIG.BCRYPT_ROUNDS);
@@ -71,6 +106,10 @@ const hashRefreshToken = async (token: string): Promise<string> => {
  * @param token - Raw refresh token
  * @param hash - Stored hash
  * @returns Boolean indicating if token matches hash
+ * 
+ * CALLED BY: refreshToken(), logout()
+ * SCENARIOS: Token validation - compares client token with stored hash
+ * FEATURES: Bcrypt comparison, timing attack protection
  */
 const verifyRefreshTokenHash = async (token: string, hash: string): Promise<boolean> => {
   return bcrypt.compare(token, hash);
@@ -80,6 +119,10 @@ const verifyRefreshTokenHash = async (token: string, hash: string): Promise<bool
  * Clean up expired and revoked refresh tokens
  * Performance optimization: only removes expired/revoked tokens
  * @param userId - User ID to clean tokens for
+ * 
+ * CALLED BY: login(), refreshToken()
+ * SCENARIOS: All scenarios - maintains clean token database
+ * FEATURES: Removes expired tokens, removes revoked tokens, performance logging
  */
 const cleanupRefreshTokens = async (userId: number): Promise<void> => {
   try {
@@ -119,6 +162,10 @@ const cleanupRefreshTokens = async (userId: number): Promise<void> => {
  * Limit refresh tokens per user for security
  * Performance optimization: only limits when necessary
  * @param userId - User ID to check
+ * 
+ * CALLED BY: refreshToken()
+ * SCENARIOS: Token refresh - prevents excessive active sessions
+ * FEATURES: Enforces token limits, deletes oldest tokens, security logging
  */
 const limitRefreshTokens = async (userId: number): Promise<void> => {
   try {
@@ -167,57 +214,13 @@ const limitRefreshTokens = async (userId: number): Promise<void> => {
 };
 
 /**
- * Enhanced Authentication Resolvers
+ * Authentication Resolvers Object
+ * Contains all GraphQL resolvers for authentication operations
  */
 export const authResolvers = {
+
   Query: {
-    /**
-     * Get current authenticated user with enhanced security
-     * Requires valid JWT token in Authorization header
-     * Performance optimization: single DB query, no token generation
-     */
-    currentUser: async (_: any, __: any, context: GraphQLContext) => {
-      console.log('🔍 CURRENT USER RESOLVER - Context check:', {
-        hasUser: !!context.user,
-        userId: context.user?.id,
-        userEmail: context.user?.email,
-        userRole: context.user?.role,
-        isAuthenticated: context.isAuthenticated
-      });
-      
-      if (!context.user) {
-        console.log('❌ CURRENT USER RESOLVER - No user in context, throwing authentication error');
-        throw new GraphQLError('Authentication required', {
-          extensions: { code: 'UNAUTHENTICATED' },
-        });
-      }
-
-      // Debug: Check token count for this user
-      const activeTokenCount = await RefreshToken.count({
-        where: {
-          userId: context.user.id,
-          isRevoked: false,
-          expiresAt: {
-            [require('sequelize').Op.gt]: new Date(),
-          },
-        },
-      });
-      console.log(`🔍 Current user ${context.user.id} has ${activeTokenCount} active refresh tokens`);
-
-      // Return user data without sensitive information
-      return {
-        id: context.user.id.toString(),
-        uuid: context.user.uuid,
-        email: context.user.email,
-        firstName: context.user.firstName,
-        lastName: context.user.lastName,
-        role: context.user.role,
-        isDeleted: context.user.isDeleted,
-        version: context.user.version,
-        createdAt: context.user.createdAt.toISOString(),
-        updatedAt: context.user.updatedAt.toISOString(),
-      };
-    },
+    // Query resolvers would go here if needed
   },
 
   Mutation: {
@@ -226,6 +229,15 @@ export const authResolvers = {
      * Enhanced user login with email and password
      * Main authentication entry point: validates credentials, generates tokens, stores in DB
      * Performance optimization: minimal DB queries, efficient token management
+     * 
+     * CALLED BY: Client login mutation
+     * SCENARIOS:
+     * - First time login: Validates credentials, generates new tokens
+     * - Re-login after logout: Same as first time login
+     * - Invalid credentials: Returns UNAUTHENTICATED error
+     * - Too many sessions: Returns TOO_MANY_SESSIONS error
+     * 
+     * FLOW: Input validation → User lookup → Password verification → Token generation → DB storage → Cookie setting → Response
      */
     login: async (_: any, { input }: { input: { email: string; password: string } }, { res }: { res: any }) => {
       try {
@@ -380,6 +392,15 @@ export const authResolvers = {
      * Enhanced refresh access token using refresh token from httpOnly cookie
      * Performance optimization: efficient token lookup, minimal DB queries
      * Returns new access token and sets new refresh token as httpOnly cookie
+     * 
+     * CALLED BY: Client refresh token mutation
+     * SCENARIOS:
+     * - Valid refresh token: Generates new access token, rotates refresh token
+     * - Expired refresh token: Returns UNAUTHENTICATED error
+     * - Invalid refresh token: Returns UNAUTHENTICATED error
+     * - Revoked refresh token: Returns UNAUTHENTICATED error
+     * 
+     * FLOW: Read cookie → Find token in DB → Verify hash → Generate new tokens → Store new token → Set cookie → Response
      */
     refreshToken: async (_: any, __: any, { req, res }: { req: any; res: any }) => {
       // Get refresh token from httpOnly cookie
@@ -496,6 +517,14 @@ export const authResolvers = {
     /**
      * Enhanced user logout - clears refresh token cookie and deletes from database
      * Performance optimization: efficient token lookup and deletion
+     * 
+     * CALLED BY: Client logout mutation
+     * SCENARIOS:
+     * - User logout: Finds and deletes refresh token from DB, clears cookie
+     * - No refresh token: Just clears cookie (already logged out)
+     * - Invalid refresh token: Just clears cookie (token already invalid)
+     * 
+     * FLOW: Read cookie → Find token in DB → Delete token → Clear cookie → Response
      */
     logout: async (_: any, __: any, { req, res }: { req: any; res: any }) => {
       try {
@@ -548,19 +577,27 @@ export const authResolvers = {
         // Clear CSRF token
         clearCSRFToken(res);
 
-        console.log('✅ Logout successful - token deleted from database and cookie cleared');
+        console.log('✅ Logout successful - refresh token deleted and cookies cleared');
+
         return {
           success: true,
-          message: 'Successfully logged out',
+          message: 'Logout successful',
         };
       } catch (error) {
-        if (error instanceof GraphQLError) {
-          throw error;
-        }
         console.error('❌ Logout error:', error);
-        throw new GraphQLError('Logout failed', {
-          extensions: { code: 'INTERNAL_SERVER_ERROR' },
+        
+        // Even if there's an error, try to clear the cookie
+        res.clearCookie('jid', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
         });
+
+        return {
+          success: false,
+          message: 'Logout completed with errors',
+        };
       }
     },
   },

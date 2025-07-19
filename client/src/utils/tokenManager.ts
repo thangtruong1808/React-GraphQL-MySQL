@@ -4,6 +4,25 @@ import { AUTH_CONFIG, STORAGE_KEYS } from '../constants';
  * Enhanced Token Manager with Memory-Only Storage for XSS Protection
  * Handles JWT access and refresh token management with secure memory-based storage
  * Implements secure storage practices and token validation
+ * 
+ * EXECUTION FLOW FOR DIFFERENT SCENARIOS:
+ * 
+ * 1. FIRST TIME LOGIN (No tokens):
+ *    - getTokens() → returns { accessToken: null, refreshToken: null }
+ *    - storeTokens() → stores new tokens in memory
+ *    - isAuthenticated() → returns true after storage
+ * 
+ * 2. EXPIRED ACCESS TOKEN + VALID REFRESH TOKEN:
+ *    - getTokens() → returns { accessToken: "expired_token", refreshToken: null }
+ *    - isTokenExpired() → returns true
+ *    - updateAccessToken() → stores new access token
+ *    - isAuthenticated() → returns true after update
+ * 
+ * 3. EXPIRED ACCESS TOKEN + EXPIRED REFRESH TOKEN:
+ *    - getTokens() → returns { accessToken: "expired_token", refreshToken: null }
+ *    - isTokenExpired() → returns true
+ *    - clearTokens() → clears all memory data
+ *    - isAuthenticated() → returns false
  */
 
 // Memory-only storage for access tokens (XSS protection)
@@ -22,6 +41,12 @@ class TokenManager {
    * @param accessToken - JWT access token (stored in memory only)
    * @param refreshToken - Random hex refresh token (stored in httpOnly cookie)
    * @param user - User data object (stored in memory only)
+   * 
+   * CALLED BY: AuthContext after successful login/refresh
+   * SCENARIOS:
+   * - First time login: Stores new tokens from server response
+   * - Token refresh: Stores new tokens after successful refresh
+   * - Re-login: Stores new tokens after successful login
    */
   static storeTokens(accessToken: string, refreshToken: string, user: any): void {
     try {
@@ -76,6 +101,13 @@ class TokenManager {
   /**
    * Get stored access token from memory with validation
    * @returns Access token or null if not found/invalid
+   * 
+   * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
+   * SCENARIOS:
+   * - Valid token: Returns JWT token for authorization header
+   * - Expired token: Returns token (expiry checked separately)
+   * - No token: Returns null (first time login)
+   * - Invalid token: Returns null (cleared tokens)
    */
   static getAccessToken(): string | null {
     try {
@@ -110,6 +142,9 @@ class TokenManager {
    * Get stored refresh token from httpOnly cookie
    * Note: This is handled server-side, client can't directly access httpOnly cookies
    * @returns null (refresh token is managed server-side)
+   * 
+   * CALLED BY: Legacy code (not used in current implementation)
+   * SCENARIOS: All scenarios - refresh tokens handled by server via httpOnly cookies
    */
   static getRefreshToken(): string | null {
     // Refresh tokens are now stored in httpOnly cookies and managed server-side
@@ -120,6 +155,12 @@ class TokenManager {
   /**
    * Get stored user data with validation
    * @returns User data object or null if not found/invalid
+   * 
+   * CALLED BY: Components needing user information
+   * SCENARIOS:
+   * - Valid user: Returns user object for UI display
+   * - No user: Returns null (not logged in)
+   * - Invalid user: Returns null (cleared data)
    */
   static getUser(): any | null {
     try {
@@ -139,6 +180,11 @@ class TokenManager {
   /**
    * Update access token securely (for token refresh)
    * @param accessToken - New access token
+   * 
+   * CALLED BY: AuthContext after successful token refresh
+   * SCENARIOS:
+   * - Token refresh: Updates with new access token from server
+   * - Token rotation: Updates with new access token
    */
   static updateAccessToken(accessToken: string): void {
     try {
@@ -165,6 +211,11 @@ class TokenManager {
    * Update both tokens securely (for token rotation)
    * @param accessToken - New access token
    * @param refreshToken - New refresh token (handled server-side)
+   * 
+   * CALLED BY: AuthContext after successful token refresh
+   * SCENARIOS:
+   * - Token rotation: Updates both tokens with new values
+   * - Full refresh: Updates both tokens after server refresh
    */
   static updateTokens(accessToken: string, refreshToken: string): void {
     try {
@@ -196,6 +247,13 @@ class TokenManager {
 
   /**
    * Clear all authentication data securely
+   * 
+   * CALLED BY: AuthContext logout, apollo-client.ts errorLink
+   * SCENARIOS:
+   * - User logout: Clears all data after server logout
+   * - Force logout: Clears all data due to admin action
+   * - Token expiration: Clears all data when refresh fails
+   * - Authentication errors: Clears all data on server errors
    */
   static clearTokens(): void {
     try {
@@ -216,6 +274,13 @@ class TokenManager {
   /**
    * Check if user is authenticated
    * @returns Boolean indicating if user is authenticated
+   * 
+   * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
+   * SCENARIOS:
+   * - Valid token: Returns true (user is authenticated)
+   * - Expired token: Returns false (needs refresh)
+   * - No token: Returns false (not authenticated)
+   * - Invalid token: Returns false (not authenticated)
    */
   static isAuthenticated(): boolean {
     try {
@@ -232,6 +297,12 @@ class TokenManager {
   /**
    * Check if access token is expired
    * @returns Boolean indicating if access token is expired
+   * 
+   * CALLED BY: isAuthenticated(), apollo-client.ts authLink
+   * SCENARIOS:
+   * - Valid token: Returns false (token still valid)
+   * - Expired token: Returns true (needs refresh)
+   * - No expiry data: Returns true (assume expired)
    */
   static isAccessTokenExpired(): boolean {
     try {
@@ -249,14 +320,17 @@ class TokenManager {
       return isExpired;
     } catch (error) {
       console.error('❌ Error checking access token expiry:', error);
-      return true;
+      return true; // Assume expired on error
     }
   }
 
   /**
-   * Get token expiration time
+   * Get token expiration timestamp from JWT
    * @param token - JWT token to decode
-   * @returns Expiration timestamp or null
+   * @returns Expiration timestamp or null if invalid
+   * 
+   * CALLED BY: storeTokens(), updateAccessToken(), updateTokens()
+   * SCENARIOS: All scenarios - extracts expiry from JWT payload
    */
   static getTokenExpiration(token?: string): number | null {
     try {
@@ -266,7 +340,7 @@ class TokenManager {
       const decoded = this.decodeToken(tokenToDecode);
       if (!decoded || !decoded.exp) return null;
       
-      // Convert to milliseconds if in seconds
+      // Convert to milliseconds
       return decoded.exp * 1000;
     } catch (error) {
       console.error('❌ Error getting token expiration:', error);
@@ -276,7 +350,13 @@ class TokenManager {
 
   /**
    * Check if token should be refreshed
-   * @returns Boolean indicating if token should be refreshed
+   * @returns Boolean indicating if token refresh is needed
+   * 
+   * CALLED BY: AuthContext for proactive token refresh
+   * SCENARIOS:
+   * - Token expiring soon: Returns true (proactive refresh)
+   * - Token valid: Returns false (no refresh needed)
+   * - No token: Returns false (no refresh possible)
    */
   static shouldRefreshToken(): boolean {
     try {
@@ -284,55 +364,60 @@ class TokenManager {
       
       const now = Date.now();
       const timeUntilExpiry = memoryTokenExpiry - now;
-      const refreshThreshold = AUTH_CONFIG.TOKEN_REFRESH_THRESHOLD;
-      
-      console.log('🔍 SHOULD REFRESH CHECK - Time until expiry:', timeUntilExpiry);
-      console.log('🔍 SHOULD REFRESH CHECK - Refresh threshold:', refreshThreshold);
-      console.log('🔍 SHOULD REFRESH CHECK - Should refresh:', timeUntilExpiry <= refreshThreshold);
+      const refreshThreshold = 5 * 60 * 1000; // 5 minutes
       
       return timeUntilExpiry <= refreshThreshold;
     } catch (error) {
-      console.error('❌ Error checking if should refresh token:', error);
+      console.error('❌ Error checking if token should be refreshed:', error);
       return false;
     }
   }
 
   /**
-   * Check if refresh can be attempted
+   * Check if refresh attempt is allowed
    * @returns Boolean indicating if refresh can be attempted
+   * 
+   * CALLED BY: AuthContext before attempting token refresh
+   * SCENARIOS:
+   * - Under limit: Returns true (can attempt refresh)
+   * - At limit: Returns false (prevent infinite refresh loops)
+   * - No attempts: Returns true (first attempt)
    */
   static canAttemptRefresh(): boolean {
     try {
-      const canAttempt = memoryRefreshAttempts < AUTH_CONFIG.MAX_REFRESH_ATTEMPTS;
-      console.log('🔍 CAN ATTEMPT REFRESH - Current attempts:', memoryRefreshAttempts);
-      console.log('🔍 CAN ATTEMPT REFRESH - Max attempts:', AUTH_CONFIG.MAX_REFRESH_ATTEMPTS);
-      console.log('🔍 CAN ATTEMPT REFRESH - Can attempt:', canAttempt);
-      return canAttempt;
+      const maxAttempts = 3;
+      return memoryRefreshAttempts < maxAttempts;
     } catch (error) {
-      console.error('❌ Error checking if can attempt refresh:', error);
+      console.error('❌ Error checking if refresh can be attempted:', error);
       return false;
     }
   }
 
   /**
-   * Increment refresh attempts counter
+   * Increment refresh attempt counter
+   * 
+   * CALLED BY: AuthContext after failed refresh attempt
+   * SCENARIOS: Failed refresh attempts - tracks to prevent infinite loops
    */
   static incrementRefreshAttempts(): void {
     try {
       memoryRefreshAttempts++;
-      console.log('📈 REFRESH ATTEMPTS - Incremented to:', memoryRefreshAttempts);
+      console.log(`🔄 Refresh attempts: ${memoryRefreshAttempts}`);
     } catch (error) {
       console.error('❌ Error incrementing refresh attempts:', error);
     }
   }
 
   /**
-   * Reset refresh attempts counter
+   * Reset refresh attempt counter
+   * 
+   * CALLED BY: storeTokens(), updateTokens() after successful operations
+   * SCENARIOS: Successful login/refresh - resets attempt counter
    */
   static resetRefreshAttempts(): void {
     try {
       memoryRefreshAttempts = 0;
-      console.log('🔄 REFRESH ATTEMPTS - Reset to 0');
+      console.log('🔄 Refresh attempts reset to 0');
     } catch (error) {
       console.error('❌ Error resetting refresh attempts:', error);
     }
@@ -342,23 +427,28 @@ class TokenManager {
    * Validate JWT token format
    * @param token - Token to validate
    * @returns Boolean indicating if token is valid JWT format
+   * 
+   * CALLED BY: storeTokens(), getAccessToken(), updateAccessToken()
+   * SCENARIOS: All scenarios - validates JWT structure before use
    */
   private static isValidJWTFormat(token: string): boolean {
-    if (!token || typeof token !== 'string') return false;
-    
-    // JWT format: header.payload.signature
-    const parts = token.split('.');
-    if (parts.length !== 3) return false;
-    
-    // Check if parts are base64 encoded
     try {
-      parts.forEach(part => {
-        if (part) {
-          atob(part.replace(/-/g, '+').replace(/_/g, '/'));
-        }
-      });
-      return true;
-    } catch {
+      if (!token || typeof token !== 'string') return false;
+      
+      // JWT format: header.payload.signature
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
+      
+      // Check if parts are base64 encoded
+      const [header, payload] = parts;
+      try {
+        JSON.parse(atob(header));
+        JSON.parse(atob(payload));
+        return true;
+      } catch {
+        return false;
+      }
+    } catch (error) {
       return false;
     }
   }
@@ -367,18 +457,28 @@ class TokenManager {
    * Validate hex token format
    * @param token - Token to validate
    * @returns Boolean indicating if token is valid hex format
+   * 
+   * CALLED BY: storeTokens(), updateTokens()
+   * SCENARIOS: All scenarios - validates refresh token format
    */
   private static isValidHexFormat(token: string): boolean {
-    if (!token || typeof token !== 'string') return false;
-    
-    // Check if token is valid hex string
-    return /^[0-9a-fA-F]+$/.test(token);
+    try {
+      if (!token || typeof token !== 'string') return false;
+      
+      // Check if string is valid hex
+      return /^[0-9a-fA-F]+$/.test(token);
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
-   * Decode JWT token
+   * Decode JWT token without verification
    * @param token - JWT token to decode
-   * @returns Decoded token payload or null
+   * @returns Decoded payload or null if invalid
+   * 
+   * CALLED BY: getTokenExpiration()
+   * SCENARIOS: All scenarios - extracts data from JWT payload
    */
   static decodeToken(token: string): any {
     try {
@@ -386,7 +486,7 @@ class TokenManager {
       if (parts.length !== 3) return null;
       
       const payload = parts[1];
-      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      const decoded = atob(payload);
       return JSON.parse(decoded);
     } catch (error) {
       console.error('❌ Error decoding token:', error);
@@ -395,11 +495,30 @@ class TokenManager {
   }
 }
 
-// Export functions for backward compatibility
+/**
+ * Legacy wrapper functions for backward compatibility
+ * These functions provide the same interface as the class methods
+ */
+
+/**
+ * Save tokens to memory storage
+ * @param accessToken - JWT access token
+ * @param refreshToken - Hex refresh token
+ * 
+ * CALLED BY: AuthContext after successful login/refresh
+ * SCENARIOS: All scenarios - stores tokens in memory
+ */
 export const saveTokens = (accessToken: string, refreshToken: string): void => {
   TokenManager.storeTokens(accessToken, refreshToken, null);
 };
 
+/**
+ * Get tokens from memory storage
+ * @returns Object with accessToken and refreshToken
+ * 
+ * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
+ * SCENARIOS: All scenarios - retrieves tokens for validation
+ */
 export const getTokens = (): { accessToken: string | null; refreshToken: string | null } => {
   return {
     accessToken: TokenManager.getAccessToken(),
@@ -407,28 +526,77 @@ export const getTokens = (): { accessToken: string | null; refreshToken: string 
   };
 };
 
+/**
+ * Clear all tokens from memory storage
+ * 
+ * CALLED BY: AuthContext logout, apollo-client.ts errorLink
+ * SCENARIOS: Logout, authentication errors, token expiration
+ */
 export const clearTokens = (): void => {
   TokenManager.clearTokens();
 };
 
+/**
+ * Check if token is expired
+ * @param token - JWT token to check
+ * @returns Boolean indicating if token is expired
+ * 
+ * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
+ * SCENARIOS: All scenarios - validates token expiry
+ */
 export const isTokenExpired = (token: string): boolean => {
   try {
     const decoded = TokenManager.decodeToken(token);
     if (!decoded || !decoded.exp) return true;
     
     const now = Math.floor(Date.now() / 1000);
-    return now >= decoded.exp;
+    return decoded.exp <= now;
   } catch (error) {
-    console.error('❌ Error checking token expiry:', error);
-    return true;
+    return true; // Assume expired on error
   }
 };
 
+/**
+ * Check if user is authenticated
+ * @returns Boolean indicating if user is authenticated
+ * 
+ * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
+ * SCENARIOS: All scenarios - checks authentication status
+ */
 export const isAuthenticated = (): boolean => {
   return TokenManager.isAuthenticated();
 };
 
+/**
+ * Check if token should be refreshed
+ * @returns Boolean indicating if token refresh is needed
+ * 
+ * CALLED BY: AuthContext for proactive token refresh
+ * SCENARIOS: Token expiring soon - triggers proactive refresh
+ */
 export const shouldRefreshToken = (): boolean => TokenManager.shouldRefreshToken();
+
+/**
+ * Check if refresh attempt is allowed
+ * @returns Boolean indicating if refresh can be attempted
+ * 
+ * CALLED BY: AuthContext before attempting token refresh
+ * SCENARIOS: Failed refresh attempts - prevents infinite loops
+ */
 export const canAttemptRefresh = (): boolean => TokenManager.canAttemptRefresh();
+
+/**
+ * Increment refresh attempt counter
+ * 
+ * CALLED BY: AuthContext after failed refresh attempt
+ * SCENARIOS: Failed refresh attempts - tracks attempt count
+ */
 export const incrementRefreshAttempts = (): void => TokenManager.incrementRefreshAttempts();
+
+/**
+ * Reset refresh attempt counter
+ * 
+ * CALLED BY: AuthContext after successful login/refresh
+ * SCENARIOS: Successful operations - resets attempt counter
+ */
 export const resetRefreshAttempts = (): void => TokenManager.resetRefreshAttempts(); 
