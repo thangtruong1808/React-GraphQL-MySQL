@@ -1,4 +1,3 @@
-import { GraphQLError } from 'graphql';
 import crypto from 'crypto';
 import { CSRF_CONFIG, ERROR_MESSAGES } from '../constants';
 

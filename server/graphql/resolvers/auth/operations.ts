@@ -122,7 +122,7 @@ export const login = async (input: { email: string; password: string }, res: any
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/', // Use root path to ensure cookie is available for all routes
-      maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 7 days
+      maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, 
     });
 
     // Set CSRF token for future mutations

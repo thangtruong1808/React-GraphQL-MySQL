@@ -18,6 +18,27 @@ export * from './operations';
 // Import operations for resolver creation
 import { login, refreshToken, logout } from './operations';
 
+// Import guards for authentication and authorization
+import { withAuth, authGuard } from '../../../auth/guard';
+
+/**
+ * Get current authenticated user
+ * Returns the user object from GraphQL context
+ * Protected by authentication guard
+ * 
+ * CALLED BY: Client currentUser query
+ * SCENARIOS:
+ * - Valid authentication: Returns user data
+ * - No authentication: Throws UNAUTHENTICATED error
+ * - Expired token: Throws UNAUTHENTICATED error (handled by middleware)
+ * 
+ * FLOW: Guard check → Return user from context
+ */
+const getCurrentUser = (_: any, __: any, context: any) => {
+  // User is already validated by authGuard, just return it
+  return context.user;
+};
+
 /**
  * Authentication Resolvers Object
  * Contains all GraphQL resolvers for authentication operations
@@ -30,7 +51,19 @@ import { login, refreshToken, logout } from './operations';
  */
 export const authResolvers = {
   Query: {
-    // Query resolvers would go here if needed
+    /**
+     * Get current authenticated user - protected by authentication guard
+     * Returns user data for authenticated requests only
+     * 
+     * CALLED BY: Client currentUser query
+     * SCENARIOS:
+     * - Valid authentication: Returns user data
+     * - No authentication: Throws UNAUTHENTICATED error
+     * - Expired token: Throws UNAUTHENTICATED error
+     * 
+     * FLOW: Authentication guard → Return user data
+     */
+    currentUser: withAuth(getCurrentUser, authGuard),
   },
 
   Mutation: {

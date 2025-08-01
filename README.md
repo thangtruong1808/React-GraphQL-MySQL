@@ -5,10 +5,12 @@ A modern full-stack application built with React, GraphQL, and MySQL featuring s
 ## Features
 
 ### Authentication System
-- **Access Tokens**: Short-lived (5 minutes) JWT tokens for API calls
+- **Access Tokens**: Short-lived (1 minute) JWT tokens for API calls
 - **Refresh Tokens**: Longer-lived tokens stored in HTTP-only cookies
 - **Automatic Token Refresh**: Seamless user experience with automatic token renewal
-- **Role-Based Access Control**: Basic role system (ADMIN, MANAGER, DEVELOPER)
+- **Role-Based Access Control**: Comprehensive role system (ADMIN, MANAGER, DEVELOPER)
+- **Authentication Guards**: Clean, reusable protection for GraphQL resolvers
+- **CSRF Protection**: Cross-site request forgery protection for mutations
 
 ### User Management
 - User registration and login
@@ -29,7 +31,9 @@ A modern full-stack application built with React, GraphQL, and MySQL featuring s
 - **GraphQL API** with authentication directives
 - **MySQL Database** with Sequelize ORM
 - **JWT Authentication** with access/refresh token pattern
-- **Role-based Authorization** using GraphQL directives
+- **Role-based Authorization** using authentication guards
+- **CSRF Protection** for secure mutations
+- **Middleware-based Authentication** for request-level security
 
 ### Frontend (React + TypeScript)
 - **Modern React** with hooks and functional components
@@ -53,6 +57,36 @@ The application uses a simplified database schema focused on authentication and 
 2. **API Calls**: Access token used in Authorization header
 3. **Token Refresh**: When access token expires, refresh token automatically gets new access token
 4. **Logout**: Refresh token deleted from database and cookie cleared
+
+## Authentication Guards
+
+The application uses a comprehensive guard system for protecting GraphQL resolvers:
+
+### Available Guards
+- **`authGuard`**: Basic authentication check
+- **`roleGuard`**: Role-based authorization (DEVELOPER, MANAGER, ADMIN)
+- **`adminGuard`**: Admin-only access
+- **`managerGuard`**: Manager or higher access
+
+### Usage Example
+```typescript
+import { withAuth, withAdmin, withManager } from '../auth/guard';
+
+// Basic authentication
+const getMyProfile = withAuth((_, __, context) => context.user, authGuard);
+
+// Admin-only access
+const getAllUsers = withAdmin(async (_, __, context) => {
+  return await User.findAll();
+});
+
+// Manager or higher access
+const createProject = withManager(async (_, { input }, context) => {
+  return await Project.create(input);
+});
+```
+
+For detailed documentation, see `server/auth/README.md`.
 
 ## Getting Started
 

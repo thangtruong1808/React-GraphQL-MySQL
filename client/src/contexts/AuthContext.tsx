@@ -259,8 +259,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Try to refresh token if current one is invalid
         const refreshed = await tryRefreshToken();
         if (refreshed) {
+          // Only fetch user data if refresh succeeded
           await fetchCurrentUser();
         }
+        // If refresh failed, user remains unauthenticated (no need to fetch user data)
       } else {
         // Fetch user data if we have valid tokens
         await fetchCurrentUser();

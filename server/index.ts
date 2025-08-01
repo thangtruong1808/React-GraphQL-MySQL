@@ -1,15 +1,15 @@
-import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
-import { typeDefs } from './graphql/schema';
-import { resolvers } from './graphql/resolvers';
-import { createContext } from './graphql/context';
-import { authenticateUser, createContext as createAuthContext } from './auth/middleware';
-import { csrfProtection } from './auth/csrf';
-import { testConnection, setupAssociations } from './db';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { ApolloServer } from 'apollo-server-express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import { csrfProtection } from './auth/csrf';
+import { authenticateUser } from './auth/middleware';
+import { setupAssociations, testConnection } from './db';
+import { createContext } from './graphql/context';
+import { resolvers } from './graphql/resolvers';
+import { typeDefs } from './graphql/schema';
 
 // Load environment variables
 dotenv.config();
