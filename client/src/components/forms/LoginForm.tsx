@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ERROR_MESSAGES, ROUTES, SUCCESS_MESSAGES, VALIDATION_CONFIG } from '../../constants';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppActivityTracker } from '../../hooks/custom/useAppActivityTracker';
 import { LoginInput } from '../../types/graphql';
 
 /**
@@ -12,6 +13,7 @@ import { LoginInput } from '../../types/graphql';
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const { login, loginLoading } = useAuth();
+  const { trackFormSubmission } = useAppActivityTracker();
 
   // Form state - only essential fields for login
   const [formData, setFormData] = useState<LoginInput>({
@@ -112,6 +114,9 @@ const LoginForm: React.FC = () => {
     }
 
     try {
+      // Track form submission activity
+      trackFormSubmission();
+
       // Attempt login with validated credentials
       // This triggers the full authentication flow
       const result = await login({

@@ -11,6 +11,30 @@ export const LOGIN = gql`
     login(input: $input) {
       accessToken
       refreshToken
+      csrfToken
+      user {
+        id
+        uuid
+        email
+        firstName
+        lastName
+        role
+        isDeleted
+        version
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+// Mutation for refreshing access token
+export const REFRESH_TOKEN = gql`
+  mutation RefreshToken {
+    refreshToken {
+      accessToken
+      refreshToken
+      csrfToken
       user {
         id
         uuid
@@ -37,27 +61,4 @@ export const LOGOUT = gql`
   }
 `;
 
-/**
- * Mutation for refreshing access token using refresh token (httpOnly cookie)
- * Returns new accessToken, refreshToken, and user
- */
-export const REFRESH_TOKEN = gql`
-  mutation RefreshToken {
-    refreshToken {
-      accessToken
-      refreshToken
-      user {
-        id
-        uuid
-        email
-        firstName
-        lastName
-        role
-        isDeleted
-        version
-        createdAt
-        updatedAt
-      }
-    }
-  }
-`; 
+ 

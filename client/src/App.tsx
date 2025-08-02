@@ -6,9 +6,50 @@ import NavBar from './components/layout/NavBar';
 import HomePage from './pages/home/HomePage';
 import { ROUTES } from './constants';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useActivityTracker } from './hooks/custom/useActivityTracker';
+import ActivityDebugger from './components/debug/ActivityDebugger';
 
 // Lazy load pages for better performance and code splitting
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
+
+/**
+ * App Content Component
+ * Contains the main application content with activity tracking
+ * Must be inside Router context to use useLocation()
+ */
+function AppContent() {
+  // Track user activity across the application (inside Router context)
+  useActivityTracker();
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Global navigation bar */}
+      <NavBar />
+      <main>
+        {/* Suspense wrapper for lazy-loaded pages */}
+        <React.Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            </div>
+          }
+        >
+          <Routes>
+            {/* Public routes */}
+            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+
+            {/* Catch-all route - redirect to home */}
+            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+          </Routes>
+        </React.Suspense>
+      </main>
+
+      {/* Debug component for development */}
+      <ActivityDebugger />
+    </div>
+  );
+}
 
 /**
  * Main App Component
@@ -21,31 +62,7 @@ function App() {
     <ApolloProvider client={client}>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50">
-            {/* Global navigation bar */}
-            <NavBar />
-            <main>
-              {/* Suspense wrapper for lazy-loaded pages */}
-              <React.Suspense
-                fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-                  </div>
-                }
-              >
-                <Routes>
-                  {/* Public routes */}
-                  <Route path={ROUTES.HOME} element={<HomePage />} />
-                  <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-
-                  {/* Catch-all route - redirect to home */}
-                  <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-                </Routes>
-              </React.Suspense>
-            </main>
-
-
-          </div>
+          <AppContent />
         </Router>
       </AuthProvider>
     </ApolloProvider>

@@ -25,17 +25,12 @@ export const API_CONFIG = {
  * Defines authentication-related settings and validation rules
  */
 export const AUTH_CONFIG = {
-  // Token expiry thresholds
-  TOKEN_REFRESH_THRESHOLD: 5 * 60 * 1000, // 5 minutes before expiry
-  MAX_REFRESH_ATTEMPTS: 3,
-  
-  // Security enhancement: Access token expiry checking
-  ACCESS_TOKEN_CHECK_INTERVAL: 3000, // Check every 3 seconds for immediate UI feedback
-  // When access token expires, UserDropdown is immediately hidden and stays hidden
-  // until user manually logs in again (no automatic refresh for enhanced security)
-  
   // Session management
   SESSION_DURATION: 60 * 60 * 1000, // 1 hour
+  
+  // Activity tracking for session management
+  ACTIVITY_CHECK_INTERVAL: 2000, // Check user activity every 2 seconds (to catch 1-minute access token expiry)
+  INACTIVITY_THRESHOLD: 1 * 60 * 1000, // 1 minute of inactivity before logout (matches ACCESS_TOKEN_EXPIRY)
 } as const;
 
 /**
@@ -191,7 +186,6 @@ export const ERROR_MESSAGES = {
   INVALID_CREDENTIALS: 'Invalid email or password',
   LOGIN_FAILED: 'Login failed. Please check your credentials.',
   SESSION_EXPIRED: 'Your session has expired. Please login again.',
-  TOKEN_REFRESH_FAILED: 'Failed to refresh authentication token.',
   
   // Validation errors
   EMAIL_REQUIRED: 'Email is required',

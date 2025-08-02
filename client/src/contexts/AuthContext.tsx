@@ -9,7 +9,11 @@ import {
   clearTokens,
   getTokens,
   isTokenExpired,
-  saveTokens
+  saveTokens,
+  updateActivity,
+  isRefreshTokenExpired,
+  isUserInactive,
+  TokenManager
 } from '../utils/tokenManager';
 
 /**
@@ -33,6 +37,7 @@ interface AuthContextType {
   // Utilities
   hasRole: (role: string) => boolean;
   validateSession: () => boolean;
+  handleUserActivity: () => Promise<void>;
 }
 
 /**
@@ -74,20 +79,17 @@ export const useAuth = (): AuthContextType => {
  *    - saveTokens() → stores tokens in tokenManager.ts
  *    - setUser() + setIsAuthenticated(true) → updates state
  * 
- * 2. EXPIRED ACCESS TOKEN + VALID REFRESH TOKEN:
- *    - validateSession() → returns false (expired access token)
- *    - tryRefreshToken() → calls refreshTokenMutation → apollo-client.ts → server auth.ts
- *    - Server validates refresh token from httpOnly cookie → DB
- *    - saveTokens() → stores new tokens in tokenManager.ts
- *    - setUser() + setIsAuthenticated(true) → updates state
+ * 2. ACTIVE USER (Within ACCESS_TOKEN_EXPIRY):
+ *    - User activity detected → updateActivity() → extends session
+ *    - User remains authenticated → no logout
  * 
- * 3. EXPIRED ACCESS TOKEN + EXPIRED REFRESH TOKEN:
- *    - validateSession() → returns false (expired access token)
- *    - tryRefreshToken() → calls refreshTokenMutation → apollo-client.ts → server auth.ts
- *    - Server rejects expired refresh token → returns error
- *    - clearTokens() → clears all tokens from tokenManager.ts
- *    - setUser(null) + setIsAuthenticated(false) → updates state
- *    - User redirected to login
+ * 3. INACTIVE USER (ACCESS_TOKEN_EXPIRY reached):
+ *    - User inactive for 1 minute → automatic logout
+ *    - User must login again
+ * 
+ * 4. REFRESH_TOKEN_EXPIRY reached (Absolute timeout):
+ *    - Regardless of activity → automatic logout
+ *    - User must login again
  */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Core authentication state
@@ -101,8 +103,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Ref to track if auth has been initialized (prevents duplicate initialization)
   const isInitializedRef = useRef(false);
 
-  // Timer ref for access token expiry checking (performance optimization)
-  const expiryTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Timer ref for activity and session checking
+  const activityTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // GraphQL operations - only essential mutations and queries
   const [getCurrentUser] = useLazyQuery(GET_CURRENT_USER);
@@ -114,7 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * Validate current session and tokens
    * Quick client-side check without server communication
    * 
-   * CALLED BY: initializeAuth(), checkAccessTokenExpiry()
+   * CALLED BY: initializeAuth()
    * SCENARIOS: All scenarios - checks if user has valid tokens
    * RETURNS: true if valid access token exists, false otherwise
    */
@@ -128,76 +130,184 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Check access token expiry and update auth state
-   * Performance optimization: runs on timer for immediate UI feedback
+   * Perform complete logout process
+   * Centralized logout function for consistent behavior
+   * 
+   * CALLED BY: checkSessionAndActivity(), fetchCurrentUser() when authentication fails
+   * SCENARIOS: All logout scenarios - ensures consistent cleanup
+   */
+  const performCompleteLogout = useCallback(async () => {
+    // Clear all authentication data
+    clearTokens();
+    setUser(null);
+    setIsAuthenticated(false);
+
+    // Clear CSRF token from Apollo Client
+    clearApolloCSRFToken();
+
+    // Clear activity timer since we're no longer authenticated
+    if (activityTimerRef.current) {
+      clearInterval(activityTimerRef.current);
+      activityTimerRef.current = null;
+    }
+
+    // Clear Apollo cache to ensure clean state
+    try {
+      await client.clearStore();
+    } catch (cacheError) {
+      console.warn('⚠️ Error clearing Apollo cache:', cacheError);
+    }
+  }, [client]);
+
+  /**
+   * Refresh access token using refresh token
+   * Called when user is active to extend session
+   * 
+   * CALLED BY: checkSessionAndActivity() when user is active
+   * SCENARIOS: User activity detected - extends access token lifetime
+   */
+  const refreshAccessToken = useCallback(async () => {
+    try {
+      console.log('🔄 Refreshing access token due to user activity...');
+
+      const response = await refreshTokenMutation();
+
+      if (response.errors && response.errors.length > 0) {
+        console.error('❌ Refresh token failed:', response.errors[0]?.message);
+        await performCompleteLogout();
+        return false;
+      }
+
+      const { refreshToken: refreshData } = response.data || {};
+      if (!refreshData?.accessToken || !refreshData?.refreshToken) {
+        console.error('❌ Invalid refresh response');
+        await performCompleteLogout();
+        return false;
+      }
+
+      // Save new tokens and update state
+      saveTokens(refreshData.accessToken, refreshData.refreshToken);
+
+      // Set new CSRF token if provided
+      if (refreshData.csrfToken) {
+        setApolloCSRFToken(refreshData.csrfToken);
+      }
+
+      console.log('✅ Access token refreshed successfully');
+      return true;
+    } catch (error: any) {
+      console.error('❌ Error refreshing access token:', error);
+      await performCompleteLogout();
+      return false;
+    }
+  }, [refreshTokenMutation, performCompleteLogout]);
+
+  /**
+   * Check session and user activity
+   * Runs periodically to manage session based on activity and timeouts
    * 
    * CALLED BY: Timer interval after successful login
    * SCENARIOS: 
-   * - Valid tokens: No action
-   * - Expired access token: Updates state to unauthenticated
-   * - Invalid tokens: Updates state to unauthenticated
+   * - Active user: Continues session (activity tracked by handleUserActivity)
+   * - Inactive user: Performs logout due to inactivity
+   * - Access token expired: Performs logout due to access token expiry
+   * - Refresh token expired: Performs logout due to absolute timeout
    */
-  const checkAccessTokenExpiry = useCallback(() => {
+  const checkSessionAndActivity = useCallback(async () => {
     try {
+      console.log('⏰ checkSessionAndActivity called - checking session status...');
+
+      // Check if refresh token is expired (absolute timeout)
+      if (isRefreshTokenExpired()) {
+        console.log('🔐 Refresh token expired (absolute timeout), performing logout...');
+        await performCompleteLogout();
+        return;
+      }
+
+      // Check if access token is expired (ACCESS_TOKEN_EXPIRY reached)
       const tokens = getTokens();
       if (tokens.accessToken && isTokenExpired(tokens.accessToken)) {
-        // Access token expired - immediately update auth state
-        setUser(null);
-        setIsAuthenticated(false);
-
-        // Clear timer since we're no longer authenticated
-        if (expiryTimerRef.current) {
-          clearInterval(expiryTimerRef.current);
-          expiryTimerRef.current = null;
-        }
+        console.log('🔐 Access token expired (ACCESS_TOKEN_EXPIRY reached), performing logout...');
+        await performCompleteLogout();
+        return;
       }
+
+      // Check if user has been inactive for too long (application-level inactivity)
+      if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
+        console.log('🔐 User inactive for too long (no application actions), performing logout...');
+        await performCompleteLogout();
+        return;
+      }
+
+      // User session is still valid and active - NO TOKEN REFRESH HERE
+      // Token refresh is handled by handleUserActivity when actual user activity is detected
+      console.log('✅ User session active (no action needed - activity handled separately)');
     } catch (error) {
-      // If error checking tokens, assume invalid
-      setUser(null);
-      setIsAuthenticated(false);
-
-      if (expiryTimerRef.current) {
-        clearInterval(expiryTimerRef.current);
-        expiryTimerRef.current = null;
-      }
+      console.error('❌ Error checking session and activity:', error);
+      await performCompleteLogout();
     }
-  }, []);
+  }, [performCompleteLogout]);
 
   /**
-   * Attempt to refresh access token
-   * Only called when current token is expired or invalid
+   * Handle user activity and potentially refresh tokens
+   * Called when user performs meaningful actions
    * 
-   * CALLED BY: initializeAuth(), fetchCurrentUser()
-   * SCENARIOS:
-   * - Valid refresh token: Generates new access token, returns true
-   * - Expired refresh token: Clears tokens, returns false
-   * - No refresh token: Clears tokens, returns false
+   * CALLED BY: Activity tracking hooks when user activity is detected
+   * SCENARIOS: User navigation, form submissions, API calls, etc.
    */
-  const tryRefreshToken = useCallback(async () => {
+  const handleUserActivity = useCallback(async () => {
     try {
-      const { data } = await refreshTokenMutation();
-      if (data?.refreshToken?.accessToken) {
-        // Save new tokens and update state
-        saveTokens(data.refreshToken.accessToken, data.refreshToken.refreshToken);
-        setUser(data.refreshToken.user);
-        setIsAuthenticated(true);
+      console.log('🎯 handleUserActivity called - updating activity timestamp');
 
-        // Set new CSRF token in Apollo Client
-        if (data.refreshToken.csrfToken) {
-          setApolloCSRFToken(data.refreshToken.csrfToken);
+      // Update activity timestamp
+      updateActivity();
+
+      // Check if access token needs refresh (proactive for active users)
+      const tokens = getTokens();
+      if (tokens.accessToken) {
+        const expiry = TokenManager.getTokenExpiration(tokens.accessToken);
+        if (expiry) {
+          const timeUntilExpiry = expiry - Date.now();
+          // Refresh token if it's more than halfway through its lifetime (30 seconds for 1-minute token)
+          // This ensures active users stay logged in by refreshing proactively
+          const shouldRefresh = timeUntilExpiry < 30000; // 30 seconds (half of 1 minute)
+
+          console.log('🔍 Token expiry check - Time until expiry:', timeUntilExpiry, 'ms, Should refresh:', shouldRefresh);
+
+          if (shouldRefresh) {
+            console.log('🔄 Access token more than halfway through lifetime, refreshing due to user activity...');
+            await refreshAccessToken();
+          } else {
+            console.log('✅ User activity detected, access token still has plenty of time');
+          }
         }
-
-        return true;
       }
-      return false;
     } catch (error) {
-      // Clear tokens on refresh failure
-      clearTokens();
-      setUser(null);
-      setIsAuthenticated(false);
-      return false;
+      console.error('❌ Error handling user activity:', error);
     }
-  }, [refreshTokenMutation]);
+  }, [refreshAccessToken]);
+
+  /**
+   * Set up activity tracking
+   * Starts timer to monitor user activity and session timeouts
+   * 
+   * CALLED BY: useEffect when user becomes authenticated
+   * SCENARIOS: All scenarios - monitors user activity and session
+   */
+  const setupActivityTracking = useCallback(() => {
+    console.log('🔧 Setting up activity tracking...');
+
+    // Clear existing timer
+    if (activityTimerRef.current) {
+      console.log('🔄 Clearing existing activity timer');
+      clearInterval(activityTimerRef.current);
+      activityTimerRef.current = null;
+    }
+
+    // Start activity checking timer
+    activityTimerRef.current = setInterval(checkSessionAndActivity, AUTH_CONFIG.ACTIVITY_CHECK_INTERVAL);
+    console.log('✅ Activity tracking started with interval:', AUTH_CONFIG.ACTIVITY_CHECK_INTERVAL, 'ms');
+  }, [checkSessionAndActivity]);
 
   /**
    * Fetch current user data
@@ -206,7 +316,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * CALLED BY: initializeAuth()
    * SCENARIOS:
    * - Valid access token: Fetches user data, updates state
-   * - Expired access token: Triggers token refresh, retries fetch
+   * - Expired access token: Performs logout, user must login again
    * - Invalid tokens: Updates state to unauthenticated
    */
   const fetchCurrentUser = useCallback(async () => {
@@ -220,26 +330,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsAuthenticated(false);
       }
     } catch (error: any) {
-      // Handle authentication errors with token refresh
+      // Handle authentication errors by performing logout
       if (error.graphQLErrors?.[0]?.extensions?.code === 'UNAUTHENTICATED') {
-        const refreshSuccess = await tryRefreshToken();
-        if (refreshSuccess) {
-          try {
-            const { data: retryData } = await getCurrentUser();
-            if (retryData?.currentUser) {
-              setUser(retryData.currentUser);
-              setIsAuthenticated(true);
-              return;
-            }
-          } catch (retryError) {
-            // Ignore retry errors
-          }
-        }
+        console.log('🔐 User authentication failed, performing logout...');
+        await performCompleteLogout();
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
       }
-      setUser(null);
-      setIsAuthenticated(false);
     }
-  }, [getCurrentUser, tryRefreshToken]);
+  }, [getCurrentUser, performCompleteLogout]);
 
   /**
    * Initialize authentication state
@@ -247,32 +347,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * 
    * CALLED BY: useEffect on component mount
    * SCENARIOS:
-   * - No tokens: Tries refresh, fails, sets unauthenticated
-   * - Expired access token + valid refresh token: Refreshes successfully
+   * - No tokens: Sets unauthenticated
+   * - Expired access token: Performs logout, sets unauthenticated
    * - Valid tokens: Fetches user data
    * - Invalid tokens: Clears tokens, sets unauthenticated
    */
   const initializeAuth = useCallback(async () => {
     try {
+      console.log('🔍 Initializing authentication...');
       const tokens = getTokens();
+
       if (!tokens.accessToken || isTokenExpired(tokens.accessToken)) {
-        // Try to refresh token if current one is invalid
-        const refreshed = await tryRefreshToken();
-        if (refreshed) {
-          // Only fetch user data if refresh succeeded
-          await fetchCurrentUser();
-        }
-        // If refresh failed, user remains unauthenticated (no need to fetch user data)
+        console.log('🔍 No valid access token found, user must login...');
+        // No automatic refresh - user must login again
+        await performCompleteLogout();
       } else {
+        console.log('✅ Valid access token found, fetching user data...');
         // Fetch user data if we have valid tokens
         await fetchCurrentUser();
+
+        // Set up activity tracking if user was successfully fetched
+        // Note: fetchCurrentUser will set isAuthenticated state if successful
+        // We'll set up activity tracking after the state is updated
       }
     } catch (error) {
+      console.error('❌ Error during authentication initialization:', error);
       clearTokens();
     } finally {
       setIsLoading(false);
     }
-  }, [fetchCurrentUser, tryRefreshToken]);
+  }, [fetchCurrentUser, performCompleteLogout, setupActivityTracking]);
 
   /**
    * Login function - Main authentication entry point
@@ -312,19 +416,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setApolloCSRFToken(loginData.csrfToken);
       }
 
-      // Start access token expiry checking timer
-      if (expiryTimerRef.current) {
-        clearInterval(expiryTimerRef.current);
-      }
-      expiryTimerRef.current = setInterval(checkAccessTokenExpiry, AUTH_CONFIG.ACCESS_TOKEN_CHECK_INTERVAL);
-
+      // Activity tracking will be set up by useEffect when user state is updated
       return { success: true, user: loginData.user };
     } catch (error: any) {
       return { success: false, error: error.message || 'Login failed' };
     } finally {
       setIsLoading(false);
     }
-  }, [loginMutation, checkAccessTokenExpiry]);
+  }, [loginMutation, setupActivityTracking]);
 
   /**
    * Logout function
@@ -351,10 +450,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Clear CSRF token from Apollo Client
       clearApolloCSRFToken();
 
-      // Clear access token expiry timer
-      if (expiryTimerRef.current) {
-        clearInterval(expiryTimerRef.current);
-        expiryTimerRef.current = null;
+      // Clear activity timer
+      if (activityTimerRef.current) {
+        clearInterval(activityTimerRef.current);
+        activityTimerRef.current = null;
       }
 
       // Clear Apollo cache
@@ -381,6 +480,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [initializeAuth]);
 
+  // Set up activity tracking when user becomes authenticated
+  useEffect(() => {
+    console.log('🔍 Activity tracking useEffect - isAuthenticated:', isAuthenticated, 'user:', !!user);
+    if (isAuthenticated && user) {
+      console.log('✅ User authenticated, setting up activity tracking');
+      setupActivityTracking();
+    } else {
+      console.log('🔍 User not authenticated or no user data, skipping activity tracking setup');
+    }
+  }, [isAuthenticated, user, setupActivityTracking]);
+
   // Context value with all authentication state and functions
   const contextValue: AuthContextType = {
     // State
@@ -399,6 +509,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Utilities
     hasRole,
     validateSession,
+    handleUserActivity,
   };
 
   return (

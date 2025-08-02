@@ -29,7 +29,8 @@ import { AUTH_CONFIG, STORAGE_KEYS } from '../constants';
 let memoryAccessToken: string | null = null;
 let memoryUserData: any | null = null;
 let memoryTokenExpiry: number | null = null;
-let memoryRefreshAttempts: number = 0;
+let memoryRefreshTokenExpiry: number | null = null;
+let memoryLastActivity: number | null = null;
 
 /**
  * Enhanced Token Manager Class for Memory-Only Storage
@@ -83,8 +84,14 @@ class TokenManager {
         console.log('✅ STORE TOKENS - Token expiry stored in memory:', new Date(expiry).toISOString());
       }
 
-      // Reset refresh attempts on successful login
-      this.resetRefreshAttempts();
+      // Store refresh token expiry (5 minutes from now - matches server REFRESH_TOKEN_EXPIRY)
+      memoryRefreshTokenExpiry = Date.now() + (5 * 60 * 1000); // 5 minutes
+      console.log('✅ STORE TOKENS - Refresh token expiry stored in memory:', new Date(memoryRefreshTokenExpiry).toISOString());
+
+      // Initialize last activity timestamp
+      memoryLastActivity = Date.now();
+      console.log('✅ STORE TOKENS - Last activity timestamp initialized:', new Date(memoryLastActivity).toISOString());
+
       
       console.log('✅ STORE TOKENS - All tokens stored securely in memory');
       
@@ -235,8 +242,7 @@ class TokenManager {
         memoryTokenExpiry = expiry;
       }
 
-      // Reset refresh attempts on successful refresh
-      this.resetRefreshAttempts();
+
       
       console.log('✅ Tokens updated securely in memory (refresh token handled server-side)');
     } catch (error) {
@@ -263,11 +269,86 @@ class TokenManager {
       memoryAccessToken = null;
       memoryUserData = null;
       memoryTokenExpiry = null;
-      memoryRefreshAttempts = 0;
+      memoryRefreshTokenExpiry = null;
+      memoryLastActivity = null;
       
       console.log('✅ CLEAR TOKENS - All memory data cleared securely');
     } catch (error) {
       console.error('❌ CLEAR TOKENS - Error clearing tokens:', error);
+    }
+  }
+
+  /**
+   * Update user activity timestamp
+   * Called when user performs any action
+   * 
+   * CALLED BY: AuthContext when user is active
+   * SCENARIOS: All user interactions - updates last activity time
+   */
+  static updateActivity(): void {
+    try {
+      memoryLastActivity = Date.now();
+      console.log('✅ Activity updated:', new Date(memoryLastActivity).toISOString());
+    } catch (error) {
+      console.error('❌ Error updating activity:', error);
+    }
+  }
+
+  /**
+   * Check if refresh token is expired (absolute session timeout)
+   * @returns Boolean indicating if refresh token is expired
+   * 
+   * CALLED BY: AuthContext for session management
+   * SCENARIOS: All scenarios - checks absolute session timeout
+   */
+  static isRefreshTokenExpired(): boolean {
+    try {
+      if (!memoryRefreshTokenExpiry) {
+        return true;
+      }
+      
+      const now = Date.now();
+      const isExpired = now >= memoryRefreshTokenExpiry;
+      
+      console.log('🔍 REFRESH TOKEN EXPIRY CHECK - Current time:', new Date(now).toISOString());
+      console.log('🔍 REFRESH TOKEN EXPIRY CHECK - Refresh token expires:', new Date(memoryRefreshTokenExpiry).toISOString());
+      console.log('🔍 REFRESH TOKEN EXPIRY CHECK - Is expired:', isExpired);
+      
+      return isExpired;
+    } catch (error) {
+      console.error('❌ Error checking refresh token expiry:', error);
+      return true; // Assume expired on error
+    }
+  }
+
+  /**
+   * Check if user has been inactive for too long
+   * @param inactivityThreshold - Time in milliseconds to consider user inactive
+   * @returns Boolean indicating if user is inactive
+   * 
+   * CALLED BY: AuthContext for inactivity detection
+   * SCENARIOS: All scenarios - checks user activity level
+   */
+  static isUserInactive(inactivityThreshold: number): boolean {
+    try {
+      if (!memoryLastActivity) {
+        return true;
+      }
+      
+      const now = Date.now();
+      const timeSinceLastActivity = now - memoryLastActivity;
+      const isInactive = timeSinceLastActivity >= inactivityThreshold;
+      
+      console.log('🔍 INACTIVITY CHECK - Current time:', new Date(now).toISOString());
+      console.log('🔍 INACTIVITY CHECK - Last activity:', new Date(memoryLastActivity).toISOString());
+      console.log('🔍 INACTIVITY CHECK - Time since last activity:', timeSinceLastActivity, 'ms');
+      console.log('🔍 INACTIVITY CHECK - Inactivity threshold:', inactivityThreshold, 'ms');
+      console.log('🔍 INACTIVITY CHECK - Is inactive:', isInactive);
+      
+      return isInactive;
+    } catch (error) {
+      console.error('❌ Error checking user inactivity:', error);
+      return true; // Assume inactive on error
     }
   }
 
@@ -348,80 +429,7 @@ class TokenManager {
     }
   }
 
-  /**
-   * Check if token should be refreshed
-   * @returns Boolean indicating if token refresh is needed
-   * 
-   * CALLED BY: AuthContext for proactive token refresh
-   * SCENARIOS:
-   * - Token expiring soon: Returns true (proactive refresh)
-   * - Token valid: Returns false (no refresh needed)
-   * - No token: Returns false (no refresh possible)
-   */
-  static shouldRefreshToken(): boolean {
-    try {
-      if (!memoryTokenExpiry) return false;
-      
-      const now = Date.now();
-      const timeUntilExpiry = memoryTokenExpiry - now;
-      const refreshThreshold = 5 * 60 * 1000; // 5 minutes
-      
-      return timeUntilExpiry <= refreshThreshold;
-    } catch (error) {
-      console.error('❌ Error checking if token should be refreshed:', error);
-      return false;
-    }
-  }
 
-  /**
-   * Check if refresh attempt is allowed
-   * @returns Boolean indicating if refresh can be attempted
-   * 
-   * CALLED BY: AuthContext before attempting token refresh
-   * SCENARIOS:
-   * - Under limit: Returns true (can attempt refresh)
-   * - At limit: Returns false (prevent infinite refresh loops)
-   * - No attempts: Returns true (first attempt)
-   */
-  static canAttemptRefresh(): boolean {
-    try {
-      const maxAttempts = 3;
-      return memoryRefreshAttempts < maxAttempts;
-    } catch (error) {
-      console.error('❌ Error checking if refresh can be attempted:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Increment refresh attempt counter
-   * 
-   * CALLED BY: AuthContext after failed refresh attempt
-   * SCENARIOS: Failed refresh attempts - tracks to prevent infinite loops
-   */
-  static incrementRefreshAttempts(): void {
-    try {
-      memoryRefreshAttempts++;
-      console.log(`🔄 Refresh attempts: ${memoryRefreshAttempts}`);
-    } catch (error) {
-      console.error('❌ Error incrementing refresh attempts:', error);
-    }
-  }
-
-  /**
-   * Reset refresh attempt counter
-   * 
-   * CALLED BY: storeTokens(), updateTokens() after successful operations
-   * SCENARIOS: Successful login/refresh - resets attempt counter
-   */
-  static resetRefreshAttempts(): void {
-    try {
-      memoryRefreshAttempts = 0;
-      console.log('🔄 Refresh attempts reset to 0');
-    } catch (error) {
-      console.error('❌ Error resetting refresh attempts:', error);
-    }
-  }
 
   /**
    * Validate JWT token format
@@ -557,6 +565,40 @@ export const isTokenExpired = (token: string): boolean => {
 };
 
 /**
+ * Update user activity timestamp
+ * @returns void
+ * 
+ * CALLED BY: AuthContext when user is active
+ * SCENARIOS: All user interactions - updates last activity time
+ */
+export const updateActivity = (): void => {
+  TokenManager.updateActivity();
+};
+
+/**
+ * Check if refresh token is expired (absolute session timeout)
+ * @returns Boolean indicating if refresh token is expired
+ * 
+ * CALLED BY: AuthContext for session management
+ * SCENARIOS: All scenarios - checks absolute session timeout
+ */
+export const isRefreshTokenExpired = (): boolean => {
+  return TokenManager.isRefreshTokenExpired();
+};
+
+/**
+ * Check if user has been inactive for too long
+ * @param inactivityThreshold - Time in milliseconds to consider user inactive
+ * @returns Boolean indicating if user is inactive
+ * 
+ * CALLED BY: AuthContext for inactivity detection
+ * SCENARIOS: All scenarios - checks user activity level
+ */
+export const isUserInactive = (inactivityThreshold: number): boolean => {
+  return TokenManager.isUserInactive(inactivityThreshold);
+};
+
+/**
  * Check if user is authenticated
  * @returns Boolean indicating if user is authenticated
  * 
@@ -568,35 +610,11 @@ export const isAuthenticated = (): boolean => {
 };
 
 /**
- * Check if token should be refreshed
- * @returns Boolean indicating if token refresh is needed
+ * Export TokenManager class for direct access to static methods
  * 
- * CALLED BY: AuthContext for proactive token refresh
- * SCENARIOS: Token expiring soon - triggers proactive refresh
+ * CALLED BY: AuthContext for advanced token operations
+ * SCENARIOS: Token expiry calculation, advanced validation
  */
-export const shouldRefreshToken = (): boolean => TokenManager.shouldRefreshToken();
+export { TokenManager };
 
-/**
- * Check if refresh attempt is allowed
- * @returns Boolean indicating if refresh can be attempted
- * 
- * CALLED BY: AuthContext before attempting token refresh
- * SCENARIOS: Failed refresh attempts - prevents infinite loops
- */
-export const canAttemptRefresh = (): boolean => TokenManager.canAttemptRefresh();
-
-/**
- * Increment refresh attempt counter
- * 
- * CALLED BY: AuthContext after failed refresh attempt
- * SCENARIOS: Failed refresh attempts - tracks attempt count
- */
-export const incrementRefreshAttempts = (): void => TokenManager.incrementRefreshAttempts();
-
-/**
- * Reset refresh attempt counter
- * 
- * CALLED BY: AuthContext after successful login/refresh
- * SCENARIOS: Successful operations - resets attempt counter
- */
-export const resetRefreshAttempts = (): void => TokenManager.resetRefreshAttempts(); 
+ 
