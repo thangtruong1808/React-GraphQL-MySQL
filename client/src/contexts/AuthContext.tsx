@@ -27,6 +27,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitializing: boolean; // New: indicates if auth is being initialized
+  showLoadingSpinner: boolean; // New: indicates if loading spinner should be shown
 
   // Loading states
   loginLoading: boolean;
@@ -38,7 +40,7 @@ interface AuthContextType {
 
   // Utilities
   hasRole: (role: string) => boolean;
-  validateSession: () => boolean;
+  validateSession: () => Promise<boolean>;
   handleUserActivity: () => Promise<void>;
 }
 
@@ -98,6 +100,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true); // New state for initialization
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false); // New state for loading spinner
 
   // Apollo client for cache operations
   const client = useApolloClient();
@@ -114,31 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [logoutMutation, { loading: logoutLoading }] = useMutation(LOGOUT);
   const [refreshTokenMutation] = useMutation(REFRESH_TOKEN);
 
-  /**
-   * Validate current session
-   * Checks if user has valid tokens and is authenticated
-   * 
-   * CALLED BY: apollo-client.ts authLink, components needing auth status
-   * SCENARIOS: All scenarios - validates authentication status
-   */
-  const validateSession = useCallback((): boolean => {
-    try {
-      const tokens = getTokens();
-      if (!tokens.accessToken) {
-        return false;
-      }
 
-      // Use activity-based token validation if enabled
-      if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
-        return !isActivityBasedTokenExpired();
-      }
-
-      // Fallback to fixed token expiry check
-      return !isTokenExpired(tokens.accessToken);
-    } catch (error) {
-      return false;
-    }
-  }, []);
 
   /**
    * Perform complete logout process
@@ -214,14 +194,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [refreshTokenMutation, performCompleteLogout]);
 
   /**
+   * Validate current session
+   * Checks if user has valid tokens and is authenticated
+   * 
+   * CALLED BY: apollo-client.ts authLink, components needing auth status
+   * SCENARIOS: All scenarios - validates authentication status
+   */
+  const validateSession = useCallback(async (): Promise<boolean> => {
+    try {
+      const tokens = getTokens();
+      if (!tokens.accessToken) {
+        console.log('🔍 No access token found in validateSession, attempting token refresh...');
+        // Try to refresh the access token using the refresh token from httpOnly cookie
+        const refreshSuccess = await refreshAccessToken();
+        return refreshSuccess;
+      }
+
+      // Use activity-based token validation if enabled
+      if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+        const isExpired = isActivityBasedTokenExpired();
+        if (isExpired) {
+          console.log('🔍 Activity-based token expired in validateSession, attempting token refresh...');
+          const refreshSuccess = await refreshAccessToken();
+          return refreshSuccess;
+        }
+        return true;
+      }
+
+      // Fallback to fixed token expiry check
+      const isExpired = isTokenExpired(tokens.accessToken);
+      if (isExpired) {
+        console.log('🔍 Fixed token expired in validateSession, attempting token refresh...');
+        const refreshSuccess = await refreshAccessToken();
+        return refreshSuccess;
+      }
+      return true;
+    } catch (error) {
+      console.error('❌ Error in validateSession:', error);
+      return false;
+    }
+  }, [refreshAccessToken]);
+
+  /**
    * Check session and user activity
    * Runs periodically to manage session based on activity and timeouts
    * 
    * CALLED BY: Timer interval after successful login
    * SCENARIOS: 
    * - Active user: Continues session (activity tracked by handleUserActivity)
-   * - Inactive user: Performs logout due to inactivity
-   * - Activity-based token expired: Performs logout due to activity-based token expiry
+   * - Inactive user: Attempts token refresh, logs out if refresh fails
+   * - Activity-based token expired: Attempts token refresh, logs out if refresh fails
    * - Refresh token expired: Performs logout due to absolute timeout
    */
   const checkSessionAndActivity = useCallback(async () => {
@@ -237,15 +259,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Check if activity-based token is expired (when user stops being active)
       if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
-        console.log('🔐 Activity-based token expired (user stopped being active), performing logout...');
-        await performCompleteLogout();
+        console.log('🔐 Activity-based token expired (user stopped being active), attempting token refresh...');
+        const refreshSuccess = await refreshAccessToken();
+        if (!refreshSuccess) {
+          console.log('🔐 Token refresh failed, performing logout...');
+          await performCompleteLogout();
+        }
         return;
       }
 
       // Check if user has been inactive for too long (application-level inactivity)
       if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
-        console.log('🔐 User inactive for too long (no application actions), performing logout...');
-        await performCompleteLogout();
+        console.log('🔐 User inactive for too long (no application actions), attempting token refresh...');
+        const refreshSuccess = await refreshAccessToken();
+        if (!refreshSuccess) {
+          console.log('🔐 Token refresh failed, performing logout...');
+          await performCompleteLogout();
+        }
         return;
       }
 
@@ -256,7 +286,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('❌ Error checking session and activity:', error);
       await performCompleteLogout();
     }
-  }, [performCompleteLogout]);
+  }, [performCompleteLogout, refreshAccessToken]);
 
   /**
    * Handle user activity and potentially refresh tokens
@@ -375,20 +405,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * CALLED BY: useEffect on component mount
    * SCENARIOS:
    * - No tokens: Sets unauthenticated
-   * - Expired access token: Performs logout, sets unauthenticated
+   * - Expired access token + valid refresh token: Attempts token refresh
+   * - Expired access token + expired refresh token: Performs logout
    * - Valid tokens: Fetches user data
    * - Invalid tokens: Clears tokens, sets unauthenticated
    */
   const initializeAuth = useCallback(async () => {
     try {
       console.log('🔍 Initializing authentication...');
-      const tokens = getTokens();
+      setIsInitializing(true);
 
-      if (!tokens.accessToken || isTokenExpired(tokens.accessToken)) {
-        console.log('🔍 No valid access token found, user must login...');
-        // No automatic refresh - user must login again
-        await performCompleteLogout();
-      } else {
+      // Start delayed loading spinner timer
+      const loadingTimer = setTimeout(() => {
+        setShowLoadingSpinner(true);
+      }, AUTH_CONFIG.SHOW_LOADING_AFTER_DELAY);
+
+      // Set overall timeout for auth initialization
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Auth initialization timeout')), AUTH_CONFIG.AUTH_INITIALIZATION_TIMEOUT);
+      });
+
+      const authPromise = (async () => {
+        const tokens = getTokens();
+
+        // Optimistic state restoration: if we have tokens, assume user is authenticated
+        // This provides immediate UI feedback while background refresh happens
+        if (tokens.accessToken) {
+          console.log('🔍 Access token found in memory, optimistically restoring session...');
+          setIsAuthenticated(true);
+          // Don't set user yet - wait for fetchCurrentUser to get fresh user data
+        }
+
+        if (!tokens.accessToken) {
+          console.log('🔍 No access token found, attempting token refresh...');
+          // Try to refresh the access token using the refresh token from httpOnly cookie
+          const refreshSuccess = await refreshAccessToken();
+          if (!refreshSuccess) {
+            console.log('🔍 Token refresh failed, user must login...');
+            await performCompleteLogout();
+            return;
+          }
+        } else {
+          // Check if access token is expired (using activity-based validation if enabled)
+          let isExpired = false;
+          if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+            isExpired = isActivityBasedTokenExpired();
+          } else {
+            isExpired = isTokenExpired(tokens.accessToken);
+          }
+
+          if (isExpired) {
+            console.log('🔍 Access token expired, attempting token refresh...');
+            // Try to refresh the access token using the refresh token from httpOnly cookie
+            const refreshSuccess = await refreshAccessToken();
+            if (!refreshSuccess) {
+              console.log('🔍 Token refresh failed, user must login...');
+              await performCompleteLogout();
+              return;
+            }
+          }
+        }
+
         console.log('✅ Valid access token found, fetching user data...');
         // Fetch user data if we have valid tokens
         await fetchCurrentUser();
@@ -396,14 +473,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Set up activity tracking if user was successfully fetched
         // Note: fetchCurrentUser will set isAuthenticated state if successful
         // We'll set up activity tracking after the state is updated
-      }
+      })();
+
+      // Race between auth initialization and timeout
+      await Promise.race([authPromise, timeoutPromise]);
+
+      // Clear loading timer if auth completed quickly
+      clearTimeout(loadingTimer);
+      setShowLoadingSpinner(false);
+
     } catch (error) {
       console.error('❌ Error during authentication initialization:', error);
-      clearTokens();
+      setShowLoadingSpinner(false);
+      await performCompleteLogout();
     } finally {
       setIsLoading(false);
+      setIsInitializing(false);
     }
-  }, [fetchCurrentUser, performCompleteLogout, setupActivityTracking]);
+  }, [fetchCurrentUser, performCompleteLogout, setupActivityTracking, refreshAccessToken]);
 
   /**
    * Login function - Main authentication entry point
@@ -524,6 +611,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     isAuthenticated,
     isLoading,
+    isInitializing,
+    showLoadingSpinner,
 
     // Loading states
     loginLoading,

@@ -12,12 +12,6 @@ export const JWT_CONFIG = {
   // Access token configuration - short-lived for security
   ACCESS_TOKEN_EXPIRY: '2m', // 2 minutes
   
-  // Activity-based token configuration
-  // When user is active, access token expiry resets from last activity
-  // ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
-  // ACTIVITY_TOKEN_EXPIRY: '2m', // 2 minute from last activity
-  // ACTIVITY_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 2 minute in milliseconds
-  
   // Refresh token configuration - longer-lived for session continuity
   // REFRESH_TOKEN_EXPIRY: '7d', // 7 days
   REFRESH_TOKEN_EXPIRY: '5m', // 5 mins

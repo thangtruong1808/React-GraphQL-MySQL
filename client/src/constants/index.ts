@@ -29,22 +29,26 @@ export const AUTH_CONFIG = {
   SESSION_DURATION: 60 * 60 * 1000, // 1 hour
   
   // Activity tracking for session management
-  ACTIVITY_CHECK_INTERVAL: 2000, // Check user activity every 2 seconds (to catch 1-minute access token expiry)
-  INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 1 minute of inactivity before logout (matches ACCESS_TOKEN_EXPIRY)
+  ACTIVITY_CHECK_INTERVAL: 2000, // Check user activity every 2 seconds (to catch 2-minute access token expiry)
+  INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout (matches server ACCESS_TOKEN_EXPIRY)
   ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events (mousemove, scroll) to 1 second
   
   // Activity-based token configuration
   // When user is active, access token expiry resets from last activity
   ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
-  ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 1 minute from last activity in milliseconds
-  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 60 * 1000, // Refresh token when 30 seconds remaining (half of 1 minute)
+  ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes from last activity in milliseconds (matches server ACCESS_TOKEN_EXPIRY)
+  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 60 * 1000, // Refresh token when 60 seconds remaining (half of 2 minutes)
   
   // Token refresh thresholds for proactive refresh
   TOKEN_REFRESH_WARNING_THRESHOLD: 60 * 1000, // 60 seconds - warning threshold (red)
   TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds - caution threshold (yellow)
   
   // Refresh token configuration (matches server REFRESH_TOKEN_EXPIRY)
-  REFRESH_TOKEN_EXPIRY_MS: 5 * 60 * 1000, // 5 minutes in milliseconds
+  REFRESH_TOKEN_EXPIRY_MS: 5 * 60 * 1000, // 5 minutes in milliseconds (matches server REFRESH_TOKEN_EXPIRY)
+  
+  // Loading state optimization
+  AUTH_INITIALIZATION_TIMEOUT: 3000, // 3 seconds timeout for auth initialization
+  SHOW_LOADING_AFTER_DELAY: 500, // Show loading spinner after 500ms delay
 } as const;
 
 /**
