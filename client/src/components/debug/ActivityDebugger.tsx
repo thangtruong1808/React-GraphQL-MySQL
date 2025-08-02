@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTokens, TokenManager } from '../../utils/tokenManager';
+import { getTokens, TokenManager, isUserInactive, getLastActivityTime } from '../../utils/tokenManager';
+import { AUTH_CONFIG, UI_CONFIG } from '../../constants';
 
 /**
  * Activity Debugger Component
@@ -22,6 +23,28 @@ const ActivityDebugger: React.FC = () => {
         const accessTokenExpiry = tokens.accessToken ? TokenManager.getTokenExpiration(tokens.accessToken) : null;
         const now = Date.now();
 
+        // Get last activity time from TokenManager (stored in memory)
+        const lastActivityTime = getLastActivityTime();
+        const timeSinceLastActivity = lastActivityTime ? now - lastActivityTime : null;
+        const isUserCurrentlyInactive = isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD);
+
+        // Calculate activity status
+        let activityStatus = 'Unknown';
+        let activityStatusColor = 'text-gray-600';
+
+        if (lastActivityTime) {
+          if (isUserCurrentlyInactive) {
+            activityStatus = 'Inactive';
+            activityStatusColor = 'text-red-600';
+          } else {
+            activityStatus = 'Active';
+            activityStatusColor = 'text-green-600';
+          }
+        } else {
+          activityStatus = 'No Activity';
+          activityStatusColor = 'text-yellow-600';
+        }
+
         setDebugInfo({
           isAuthenticated,
           isLoading,
@@ -32,6 +55,11 @@ const ActivityDebugger: React.FC = () => {
           currentTime: new Date().toLocaleTimeString(),
           userEmail: user?.email || 'N/A',
           userRole: user?.role || 'N/A',
+          lastActivityTime: lastActivityTime ? new Date(lastActivityTime).toLocaleTimeString() : 'N/A',
+          timeSinceLastActivity: timeSinceLastActivity ? Math.floor(timeSinceLastActivity / 1000) : 'N/A',
+          activityStatus,
+          activityStatusColor,
+          isUserCurrentlyInactive,
         });
       } catch (error) {
         console.error('Error updating debug info:', error);
@@ -86,6 +114,35 @@ const ActivityDebugger: React.FC = () => {
             </div>
 
             <div className="flex justify-between">
+              <span className="font-medium">Activity Status:</span>
+              <span className={`font-mono ${debugInfo.activityStatusColor}`}>
+                {debugInfo.activityStatus}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="font-medium">Last Activity:</span>
+              <span className="font-mono text-gray-600">{debugInfo.lastActivityTime}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="font-medium">Time Since Activity:</span>
+              <span className={`font-mono ${typeof debugInfo.timeSinceLastActivity === 'number'
+                ? debugInfo.timeSinceLastActivity >= AUTH_CONFIG.INACTIVITY_THRESHOLD / 1000
+                  ? 'text-red-600'
+                  : debugInfo.timeSinceLastActivity >= (AUTH_CONFIG.INACTIVITY_THRESHOLD / 1000) * 0.8
+                    ? 'text-yellow-600'
+                    : 'text-green-600'
+                : 'text-gray-600'
+                }`}>
+                {typeof debugInfo.timeSinceLastActivity === 'number'
+                  ? `${debugInfo.timeSinceLastActivity}s`
+                  : debugInfo.timeSinceLastActivity
+                }
+              </span>
+            </div>
+
+            <div className="flex justify-between">
               <span className="font-medium">Access Token:</span>
               <span className={`font-mono ${debugInfo.hasAccessToken ? 'text-green-600' : 'text-red-600'}`}>
                 {debugInfo.hasAccessToken ? 'Present' : 'Missing'}
@@ -131,9 +188,9 @@ const ActivityDebugger: React.FC = () => {
             <p className="text-xs text-gray-500">
               💡 Move your mouse, type, or click to see activity tracking in action.
               <br />
-              🔄 Activity check interval: 2 seconds
+              🔄 Activity check interval: {AUTH_CONFIG.ACTIVITY_CHECK_INTERVAL / 1000} seconds
               <br />
-              ⏰ Inactivity threshold: 1 minute
+              ⏰ Inactivity threshold: {AUTH_CONFIG.INACTIVITY_THRESHOLD / 1000 / 60} minute{AUTH_CONFIG.INACTIVITY_THRESHOLD / 1000 / 60 !== 1 ? 's' : ''}
             </p>
           </div>
         </div>

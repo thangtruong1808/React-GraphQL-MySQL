@@ -8,17 +8,58 @@
  * JWT Configuration Constants
  * Defines token expiry times and security settings
  */
+// Lazy validation function for JWT environment variables
+const getJWTConfig = () => {
+  const requiredVars = {
+    ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY,
+    REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY,
+    REFRESH_TOKEN_EXPIRY_MS: process.env.REFRESH_TOKEN_EXPIRY_MS,
+  };
+
+  const missingVars = Object.entries(requiredVars)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required JWT environment variables: ${missingVars.join(', ')}. Please check your .env file.`);
+  }
+
+  // Validate REFRESH_TOKEN_EXPIRY_MS is a valid number
+  const refreshTokenExpiryMs = parseInt(process.env.REFRESH_TOKEN_EXPIRY_MS!);
+  if (isNaN(refreshTokenExpiryMs)) {
+    throw new Error(`Invalid REFRESH_TOKEN_EXPIRY_MS value: ${process.env.REFRESH_TOKEN_EXPIRY_MS}. Must be a valid number.`);
+  }
+
+  return {
+    ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY!,
+    REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY!,
+    REFRESH_TOKEN_EXPIRY_MS: refreshTokenExpiryMs,
+  };
+};
+
+// Lazy JWT configuration that validates when first accessed
+let jwtConfigCache: ReturnType<typeof getJWTConfig> | null = null;
+
 export const JWT_CONFIG = {
   // Access token configuration - short-lived for security
-  ACCESS_TOKEN_EXPIRY: '2m', // 2 minutes
+  get ACCESS_TOKEN_EXPIRY() {
+    if (!jwtConfigCache) jwtConfigCache = getJWTConfig();
+    return jwtConfigCache.ACCESS_TOKEN_EXPIRY;
+  },
   
   // Refresh token configuration - longer-lived for session continuity
-  // REFRESH_TOKEN_EXPIRY: '7d', // 7 days
-  REFRESH_TOKEN_EXPIRY: '10m', // 10 mins
-  REFRESH_TOKEN_EXPIRY_MS: 10 * 60 * 1000, // 10 mins in milliseconds
+  get REFRESH_TOKEN_EXPIRY() {
+    if (!jwtConfigCache) jwtConfigCache = getJWTConfig();
+    return jwtConfigCache.REFRESH_TOKEN_EXPIRY;
+  },
+  
+  get REFRESH_TOKEN_EXPIRY_MS() {
+    if (!jwtConfigCache) jwtConfigCache = getJWTConfig();
+    return jwtConfigCache.REFRESH_TOKEN_EXPIRY_MS;
+  },
 
   // Token limits
-  MAX_REFRESH_TOKENS_PER_USER: 5, // Maximum refresh tokens per user (increased for multiple sessions)
+  MAX_REFRESH_TOKENS_PER_USER: process.env.MAX_REFRESH_TOKENS_PER_USER, // Maximum refresh tokens per user (increased for multiple sessions)
   
   // JWT issuer and audience
   ISSUER: 'graphql-app',

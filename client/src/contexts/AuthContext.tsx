@@ -270,7 +270,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const timeUntilExpiry = expiry - Date.now();
           // Refresh token if it's more than halfway through its lifetime (30 seconds for 1-minute token)
           // This ensures active users stay logged in by refreshing proactively
-          const shouldRefresh = timeUntilExpiry < 30000; // 30 seconds (half of 1 minute)
+          const shouldRefresh = timeUntilExpiry < AUTH_CONFIG.TOKEN_REFRESH_THRESHOLD; // Use environment variable for token refresh threshold
 
           console.log('🔍 Token expiry check - Time until expiry:', timeUntilExpiry, 'ms, Should refresh:', shouldRefresh);
 

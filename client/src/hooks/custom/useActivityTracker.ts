@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { AUTH_CONFIG } from '../../constants';
 
 /**
  * Custom hook to track user activity
@@ -35,7 +36,7 @@ export const useActivityTracker = () => {
 
     // Throttle function to limit activity updates frequency
     let lastActivityUpdate = 0;
-    const THROTTLE_DELAY = 1000; // Update activity at most once per second
+    const THROTTLE_DELAY = AUTH_CONFIG.ACTIVITY_THROTTLE_DELAY; // Update activity at most once per second
 
     const throttledActivityUpdate = () => {
       const now = Date.now();

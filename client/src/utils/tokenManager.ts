@@ -84,8 +84,18 @@ class TokenManager {
         console.log('✅ STORE TOKENS - Token expiry stored in memory:', new Date(expiry).toISOString());
       }
 
-      // Store refresh token expiry (5 minutes from now - matches server REFRESH_TOKEN_EXPIRY)
-      memoryRefreshTokenExpiry = Date.now() + (5 * 60 * 1000); // 5 minutes
+      // Store refresh token expiry (matches server REFRESH_TOKEN_EXPIRY)
+      const refreshTokenExpiryMsEnv = import.meta.env.VITE_REFRESH_TOKEN_EXPIRY_MS;
+      if (!refreshTokenExpiryMsEnv) {
+        throw new Error('Missing required environment variable: VITE_REFRESH_TOKEN_EXPIRY_MS. Please check your .env file.');
+      }
+      
+      const refreshTokenExpiryMs = parseInt(refreshTokenExpiryMsEnv);
+      if (isNaN(refreshTokenExpiryMs)) {
+        throw new Error(`Invalid VITE_REFRESH_TOKEN_EXPIRY_MS value: ${refreshTokenExpiryMsEnv}. Must be a valid number.`);
+      }
+      
+      memoryRefreshTokenExpiry = Date.now() + refreshTokenExpiryMs;
       console.log('✅ STORE TOKENS - Refresh token expiry stored in memory:', new Date(memoryRefreshTokenExpiry).toISOString());
 
       // Initialize last activity timestamp
@@ -319,6 +329,17 @@ class TokenManager {
       console.error('❌ Error checking refresh token expiry:', error);
       return true; // Assume expired on error
     }
+  }
+
+  /**
+   * Get the timestamp of the last user activity
+   * @returns Timestamp of last activity or null if no activity recorded
+   * 
+   * CALLED BY: ActivityDebugger for displaying activity information
+   * SCENARIOS: Debugging and monitoring user activity
+   */
+  static getLastActivityTime(): number | null {
+    return memoryLastActivity;
   }
 
   /**
@@ -596,6 +617,17 @@ export const isRefreshTokenExpired = (): boolean => {
  */
 export const isUserInactive = (inactivityThreshold: number): boolean => {
   return TokenManager.isUserInactive(inactivityThreshold);
+};
+
+/**
+ * Get the timestamp of the last user activity
+ * @returns Timestamp of last activity or null if no activity recorded
+ * 
+ * CALLED BY: ActivityDebugger for displaying activity information
+ * SCENARIOS: Debugging and monitoring user activity
+ */
+export const getLastActivityTime = (): number | null => {
+  return TokenManager.getLastActivityTime();
 };
 
 /**

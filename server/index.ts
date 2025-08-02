@@ -11,8 +11,8 @@ import { createContext } from './graphql/context';
 import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from root .env file
+dotenv.config({ path: require('path').resolve(__dirname, '../.env') });
 
 /**
  * Main Server Setup
