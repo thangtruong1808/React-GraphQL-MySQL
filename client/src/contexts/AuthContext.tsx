@@ -13,6 +13,8 @@ import {
   updateActivity,
   isRefreshTokenExpired,
   isUserInactive,
+  getActivityBasedTokenExpiry,
+  isActivityBasedTokenExpired,
   TokenManager
 } from '../utils/tokenManager';
 
@@ -113,17 +115,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [refreshTokenMutation] = useMutation(REFRESH_TOKEN);
 
   /**
-   * Validate current session and tokens
-   * Quick client-side check without server communication
+   * Validate current session
+   * Checks if user has valid tokens and is authenticated
    * 
-   * CALLED BY: initializeAuth()
-   * SCENARIOS: All scenarios - checks if user has valid tokens
-   * RETURNS: true if valid access token exists, false otherwise
+   * CALLED BY: apollo-client.ts authLink, components needing auth status
+   * SCENARIOS: All scenarios - validates authentication status
    */
   const validateSession = useCallback((): boolean => {
     try {
       const tokens = getTokens();
-      return !!(tokens.accessToken && !isTokenExpired(tokens.accessToken));
+      if (!tokens.accessToken) {
+        return false;
+      }
+
+      // Use activity-based token validation if enabled
+      if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+        return !isActivityBasedTokenExpired();
+      }
+
+      // Fallback to fixed token expiry check
+      return !isTokenExpired(tokens.accessToken);
     } catch (error) {
       return false;
     }
@@ -210,7 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    * SCENARIOS: 
    * - Active user: Continues session (activity tracked by handleUserActivity)
    * - Inactive user: Performs logout due to inactivity
-   * - Access token expired: Performs logout due to access token expiry
+   * - Activity-based token expired: Performs logout due to activity-based token expiry
    * - Refresh token expired: Performs logout due to absolute timeout
    */
   const checkSessionAndActivity = useCallback(async () => {
@@ -224,10 +235,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      // Check if access token is expired (ACCESS_TOKEN_EXPIRY reached)
-      const tokens = getTokens();
-      if (tokens.accessToken && isTokenExpired(tokens.accessToken)) {
-        console.log('🔐 Access token expired (ACCESS_TOKEN_EXPIRY reached), performing logout...');
+      // Check if activity-based token is expired (when user stops being active)
+      if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
+        console.log('🔐 Activity-based token expired (user stopped being active), performing logout...');
         await performCompleteLogout();
         return;
       }
@@ -265,20 +275,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Check if access token needs refresh (proactive for active users)
       const tokens = getTokens();
       if (tokens.accessToken) {
-        const expiry = TokenManager.getTokenExpiration(tokens.accessToken);
-        if (expiry) {
-          const timeUntilExpiry = expiry - Date.now();
+        // Use activity-based token expiry if enabled
+        const activityBasedExpiry = getActivityBasedTokenExpiry();
+        if (activityBasedExpiry && AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+          const timeUntilExpiry = activityBasedExpiry - Date.now();
           // Refresh token if it's more than halfway through its lifetime (30 seconds for 1-minute token)
           // This ensures active users stay logged in by refreshing proactively
-          const shouldRefresh = timeUntilExpiry < AUTH_CONFIG.TOKEN_REFRESH_THRESHOLD; // Use environment variable for token refresh threshold
+          const shouldRefresh = timeUntilExpiry < AUTH_CONFIG.ACTIVITY_TOKEN_REFRESH_THRESHOLD;
 
-          console.log('🔍 Token expiry check - Time until expiry:', timeUntilExpiry, 'ms, Should refresh:', shouldRefresh);
+          console.log('🔍 Activity-based token expiry check - Time until expiry:', timeUntilExpiry, 'ms, Should refresh:', shouldRefresh);
 
           if (shouldRefresh) {
-            console.log('🔄 Access token more than halfway through lifetime, refreshing due to user activity...');
+            console.log('🔄 Activity-based token more than halfway through lifetime, refreshing due to user activity...');
             await refreshAccessToken();
           } else {
-            console.log('✅ User activity detected, access token still has plenty of time');
+            console.log('✅ User activity detected, activity-based token still has plenty of time');
+          }
+        } else {
+          // Fallback to original token expiry check
+          const expiry = TokenManager.getTokenExpiration(tokens.accessToken);
+          if (expiry) {
+            const timeUntilExpiry = expiry - Date.now();
+            const shouldRefresh = timeUntilExpiry < AUTH_CONFIG.ACTIVITY_TOKEN_REFRESH_THRESHOLD;
+
+            console.log('🔍 Fixed token expiry check - Time until expiry:', timeUntilExpiry, 'ms, Should refresh:', shouldRefresh);
+
+            if (shouldRefresh) {
+              console.log('🔄 Fixed token more than halfway through lifetime, refreshing due to user activity...');
+              await refreshAccessToken();
+            } else {
+              console.log('✅ User activity detected, fixed token still has plenty of time');
+            }
           }
         }
       }

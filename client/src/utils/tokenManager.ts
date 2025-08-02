@@ -31,6 +31,7 @@ let memoryUserData: any | null = null;
 let memoryTokenExpiry: number | null = null;
 let memoryRefreshTokenExpiry: number | null = null;
 let memoryLastActivity: number | null = null;
+let memoryActivityBasedExpiry: number | null = null; // Activity-based token expiry timestamp
 
 /**
  * Enhanced Token Manager Class for Memory-Only Storage
@@ -84,23 +85,17 @@ class TokenManager {
         console.log('✅ STORE TOKENS - Token expiry stored in memory:', new Date(expiry).toISOString());
       }
 
-      // Store refresh token expiry (matches server REFRESH_TOKEN_EXPIRY)
-      const refreshTokenExpiryMsEnv = import.meta.env.VITE_REFRESH_TOKEN_EXPIRY_MS;
-      if (!refreshTokenExpiryMsEnv) {
-        throw new Error('Missing required environment variable: VITE_REFRESH_TOKEN_EXPIRY_MS. Please check your .env file.');
-      }
-      
-      const refreshTokenExpiryMs = parseInt(refreshTokenExpiryMsEnv);
-      if (isNaN(refreshTokenExpiryMs)) {
-        throw new Error(`Invalid VITE_REFRESH_TOKEN_EXPIRY_MS value: ${refreshTokenExpiryMsEnv}. Must be a valid number.`);
-      }
-      
-      memoryRefreshTokenExpiry = Date.now() + refreshTokenExpiryMs;
+      // Store refresh token expiry (5 minutes from now - matches server REFRESH_TOKEN_EXPIRY)
+      memoryRefreshTokenExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
       console.log('✅ STORE TOKENS - Refresh token expiry stored in memory:', new Date(memoryRefreshTokenExpiry).toISOString());
 
       // Initialize last activity timestamp
       memoryLastActivity = Date.now();
       console.log('✅ STORE TOKENS - Last activity timestamp initialized:', new Date(memoryLastActivity).toISOString());
+
+      // Initialize activity-based token expiry (1 minute from now)
+      memoryActivityBasedExpiry = Date.now() + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
+      console.log('✅ STORE TOKENS - Activity-based token expiry initialized:', new Date(memoryActivityBasedExpiry).toISOString());
 
       
       console.log('✅ STORE TOKENS - All tokens stored securely in memory');
@@ -281,6 +276,7 @@ class TokenManager {
       memoryTokenExpiry = null;
       memoryRefreshTokenExpiry = null;
       memoryLastActivity = null;
+      memoryActivityBasedExpiry = null; // Clear activity-based expiry
       
       console.log('✅ CLEAR TOKENS - All memory data cleared securely');
     } catch (error) {
@@ -298,7 +294,12 @@ class TokenManager {
   static updateActivity(): void {
     try {
       memoryLastActivity = Date.now();
+      
+      // Reset activity-based token expiry (1 minute from now)
+      memoryActivityBasedExpiry = Date.now() + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
+      
       console.log('✅ Activity updated:', new Date(memoryLastActivity).toISOString());
+      console.log('✅ Activity-based token expiry reset:', new Date(memoryActivityBasedExpiry).toISOString());
     } catch (error) {
       console.error('❌ Error updating activity:', error);
     }
@@ -389,6 +390,13 @@ class TokenManager {
       const token = this.getAccessToken();
       if (!token) return false;
       
+      // Use activity-based token validation if enabled
+      // This allows active users to stay logged in longer
+      if (memoryActivityBasedExpiry !== null) {
+        return !this.isActivityBasedTokenExpired();
+      }
+      
+      // Fallback to original token expiry check
       return !this.isAccessTokenExpired();
     } catch (error) {
       console.error('❌ Error checking authentication:', error);
@@ -424,6 +432,47 @@ class TokenManager {
       console.error('❌ Error checking access token expiry:', error);
       return true; // Assume expired on error
     }
+  }
+
+  /**
+   * Check if activity-based token is expired
+   * @returns Boolean indicating if activity-based token is expired
+   * 
+   * CALLED BY: isAuthenticated(), AuthContext for activity-based validation
+   * SCENARIOS:
+   * - Active user: Returns false (token valid based on activity)
+   * - Inactive user: Returns true (needs refresh or logout)
+   * - No activity data: Returns true (assume expired)
+   */
+  static isActivityBasedTokenExpired(): boolean {
+    try {
+      if (!memoryActivityBasedExpiry) {
+        return true;
+      }
+      
+      const now = Date.now();
+      const isExpired = now >= memoryActivityBasedExpiry;
+      
+      console.log('🔍 ACTIVITY-BASED TOKEN EXPIRY CHECK - Current time:', new Date(now).toISOString());
+      console.log('🔍 ACTIVITY-BASED TOKEN EXPIRY CHECK - Activity-based expiry:', new Date(memoryActivityBasedExpiry).toISOString());
+      console.log('🔍 ACTIVITY-BASED TOKEN EXPIRY CHECK - Is expired:', isExpired);
+      
+      return isExpired;
+    } catch (error) {
+      console.error('❌ Error checking activity-based token expiry:', error);
+      return true; // Assume expired on error
+    }
+  }
+
+  /**
+   * Get activity-based token expiry timestamp
+   * @returns Activity-based expiry timestamp or null if not available
+   * 
+   * CALLED BY: ActivityDebugger for displaying activity-based expiry information
+   * SCENARIOS: Debugging and monitoring activity-based token expiry
+   */
+  static getActivityBasedTokenExpiry(): number | null {
+    return memoryActivityBasedExpiry;
   }
 
   /**
@@ -639,6 +688,28 @@ export const getLastActivityTime = (): number | null => {
  */
 export const isAuthenticated = (): boolean => {
   return TokenManager.isAuthenticated();
+};
+
+/**
+ * Check if activity-based token is expired
+ * @returns Boolean indicating if activity-based token is expired
+ * 
+ * CALLED BY: AuthContext for activity-based validation
+ * SCENARIOS: All scenarios - checks activity-based token expiry
+ */
+export const isActivityBasedTokenExpired = (): boolean => {
+  return TokenManager.isActivityBasedTokenExpired();
+};
+
+/**
+ * Get activity-based token expiry timestamp
+ * @returns Activity-based expiry timestamp or null if not available
+ * 
+ * CALLED BY: ActivityDebugger for displaying activity-based expiry information
+ * SCENARIOS: Debugging and monitoring activity-based token expiry
+ */
+export const getActivityBasedTokenExpiry = (): number | null => {
+  return TokenManager.getActivityBasedTokenExpiry();
 };
 
 /**

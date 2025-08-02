@@ -8,132 +8,43 @@
  * API Configuration Constants
  * Defines API endpoints and connection settings
  */
-// Lazy validation function for API environment variables
-const getAPIConfig = () => {
-  // Try to get environment variables with fallbacks for development
-  const requestTimeout = import.meta.env.VITE_REQUEST_TIMEOUT || '10000';
-  const maxRetries = import.meta.env.VITE_MAX_RETRIES || '3';
-  const retryDelay = import.meta.env.VITE_RETRY_DELAY || '1000';
-
-  // Validate numeric values
-  const requestTimeoutNum = parseInt(requestTimeout);
-  const maxRetriesNum = parseInt(maxRetries);
-  const retryDelayNum = parseInt(retryDelay);
-
-  if (isNaN(requestTimeoutNum) || isNaN(maxRetriesNum) || isNaN(retryDelayNum)) {
-    throw new Error('Invalid API environment variables. VITE_REQUEST_TIMEOUT, VITE_MAX_RETRIES, and VITE_RETRY_DELAY must be valid numbers.');
-  }
-
-  // Log warning if using fallbacks (development only)
-  if (!import.meta.env.VITE_REQUEST_TIMEOUT || !import.meta.env.VITE_MAX_RETRIES || !import.meta.env.VITE_RETRY_DELAY) {
-    console.warn('⚠️ Using fallback values for API configuration. For production, set VITE_REQUEST_TIMEOUT, VITE_MAX_RETRIES, and VITE_RETRY_DELAY in your .env file.');
-  }
-
-  return {
-    REQUEST_TIMEOUT: requestTimeoutNum,
-    MAX_RETRIES: maxRetriesNum,
-    RETRY_DELAY: retryDelayNum,
-  };
-};
-
-// Lazy API configuration that validates when first accessed
-let apiConfigCache: ReturnType<typeof getAPIConfig> | null = null;
-
 export const API_CONFIG = {
   // GraphQL endpoint
   GRAPHQL_URL: import.meta.env.VITE_API_URL || 'http://localhost:4000/graphql',
   
-  // Request timeout - uses environment variable
-  get REQUEST_TIMEOUT() {
-    if (!apiConfigCache) apiConfigCache = getAPIConfig();
-    return apiConfigCache.REQUEST_TIMEOUT;
-  },
+  // Request timeout
+  REQUEST_TIMEOUT: 10000, // 10 seconds
   
-  // Retry configuration - uses environment variables
-  get MAX_RETRIES() {
-    if (!apiConfigCache) apiConfigCache = getAPIConfig();
-    return apiConfigCache.MAX_RETRIES;
-  },
-  
-  get RETRY_DELAY() {
-    if (!apiConfigCache) apiConfigCache = getAPIConfig();
-    return apiConfigCache.RETRY_DELAY;
-  },
+  // Retry configuration
+  MAX_RETRIES: 3,
+  RETRY_DELAY: 1000, // 1 second
 } as const;
 
 /**
  * Authentication Configuration Constants
  * Defines authentication-related settings and validation rules
  */
-// Lazy validation function for AUTH environment variables
-const getAuthConfig = () => {
-  // Try to get environment variables with fallbacks for development
-  const sessionDuration = import.meta.env.VITE_SESSION_DURATION || '3600000';
-  const activityCheckInterval = import.meta.env.VITE_ACTIVITY_CHECK_INTERVAL || '2000';
-  const inactivityThreshold = import.meta.env.VITE_INACTIVITY_THRESHOLD || '60000';
-  const tokenRefreshThreshold = import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD || '30000';
-  const activityThrottleDelay = import.meta.env.VITE_ACTIVITY_THROTTLE_DELAY || '1000';
-
-  // Validate numeric values
-  const sessionDurationNum = parseInt(sessionDuration);
-  const activityCheckIntervalNum = parseInt(activityCheckInterval);
-  const inactivityThresholdNum = parseInt(inactivityThreshold);
-  const tokenRefreshThresholdNum = parseInt(tokenRefreshThreshold);
-  const activityThrottleDelayNum = parseInt(activityThrottleDelay);
-
-  if (isNaN(sessionDurationNum) || isNaN(activityCheckIntervalNum) || isNaN(inactivityThresholdNum) || 
-      isNaN(tokenRefreshThresholdNum) || isNaN(activityThrottleDelayNum)) {
-    throw new Error('Invalid AUTH environment variables. All AUTH variables must be valid numbers.');
-  }
-
-  // Log warning if using fallbacks (development only)
-  if (!import.meta.env.VITE_SESSION_DURATION || !import.meta.env.VITE_ACTIVITY_CHECK_INTERVAL || 
-      !import.meta.env.VITE_INACTIVITY_THRESHOLD || !import.meta.env.VITE_TOKEN_REFRESH_THRESHOLD || 
-      !import.meta.env.VITE_ACTIVITY_THROTTLE_DELAY) {
-    console.warn('⚠️ Using fallback values for AUTH configuration. For production, set all VITE_* variables in your .env file.');
-  }
-
-  return {
-    SESSION_DURATION: sessionDurationNum,
-    ACTIVITY_CHECK_INTERVAL: activityCheckIntervalNum,
-    INACTIVITY_THRESHOLD: inactivityThresholdNum,
-    TOKEN_REFRESH_THRESHOLD: tokenRefreshThresholdNum,
-    ACTIVITY_THROTTLE_DELAY: activityThrottleDelayNum,
-  };
-};
-
-// Lazy AUTH configuration that validates when first accessed
-let authConfigCache: ReturnType<typeof getAuthConfig> | null = null;
-
 export const AUTH_CONFIG = {
-  // Session management - uses environment variable
-  get SESSION_DURATION() {
-    if (!authConfigCache) authConfigCache = getAuthConfig();
-    return authConfigCache.SESSION_DURATION;
-  },
+  // Session management
+  SESSION_DURATION: 60 * 60 * 1000, // 1 hour
   
-  // Activity tracking for session management - uses environment variables
-  get ACTIVITY_CHECK_INTERVAL() {
-    if (!authConfigCache) authConfigCache = getAuthConfig();
-    return authConfigCache.ACTIVITY_CHECK_INTERVAL;
-  },
+  // Activity tracking for session management
+  ACTIVITY_CHECK_INTERVAL: 2000, // Check user activity every 2 seconds (to catch 1-minute access token expiry)
+  INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 1 minute of inactivity before logout (matches ACCESS_TOKEN_EXPIRY)
+  ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events (mousemove, scroll) to 1 second
   
-  get INACTIVITY_THRESHOLD() {
-    if (!authConfigCache) authConfigCache = getAuthConfig();
-    return authConfigCache.INACTIVITY_THRESHOLD;
-  },
+  // Activity-based token configuration
+  // When user is active, access token expiry resets from last activity
+  ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
+  ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 1 minute from last activity in milliseconds
+  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 60 * 1000, // Refresh token when 30 seconds remaining (half of 1 minute)
   
-  // Token refresh settings - uses environment variable
-  get TOKEN_REFRESH_THRESHOLD() {
-    if (!authConfigCache) authConfigCache = getAuthConfig();
-    return authConfigCache.TOKEN_REFRESH_THRESHOLD;
-  },
+  // Token refresh thresholds for proactive refresh
+  TOKEN_REFRESH_WARNING_THRESHOLD: 60 * 1000, // 60 seconds - warning threshold (red)
+  TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds - caution threshold (yellow)
   
-  // Activity tracking settings - uses environment variable
-  get ACTIVITY_THROTTLE_DELAY() {
-    if (!authConfigCache) authConfigCache = getAuthConfig();
-    return authConfigCache.ACTIVITY_THROTTLE_DELAY;
-  },
+  // Refresh token configuration (matches server REFRESH_TOKEN_EXPIRY)
+  REFRESH_TOKEN_EXPIRY_MS: 5 * 60 * 1000, // 5 minutes in milliseconds
 } as const;
 
 /**

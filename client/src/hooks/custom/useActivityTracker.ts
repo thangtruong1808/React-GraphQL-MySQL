@@ -1,28 +1,39 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import { AUTH_CONFIG } from '../../constants';
+import { updateActivity } from '../../utils/tokenManager';
 
 /**
- * Custom hook to track user activity
- * Monitors comprehensive user interactions and triggers token refresh when needed
+ * Custom hook for tracking user activity across the application
+ * Monitors comprehensive user interactions and navigation
  * 
- * CALLED BY: App component and other components that need activity tracking
- * SCENARIOS: Application navigation and user interactions - extends session when user is active
+ * FEATURES:
+ * - Tracks navigation between routes
+ * - Monitors mouse, keyboard, touch, and scroll events
+ * - Throttles high-frequency events for performance
+ * - Filters out system-generated events
+ * - Uses passive event listeners for better performance
+ * 
+ * USAGE:
+ * - Automatically tracks all user interactions
+ * - Updates activity timestamp for authentication system
+ * - Helps prevent premature logout for active users
  */
 export const useActivityTracker = () => {
   const location = useLocation();
-  const { handleUserActivity } = useAuth();
-  
-  // Ref to track if we've already set up global event listeners
   const listenersSetupRef = useRef(false);
 
-  // Track route changes (navigation activity)
+  // Handle user activity - called when any user interaction is detected
+  const handleUserActivity = useCallback(() => {
+    console.log('🎯 User activity detected - updating activity timestamp');
+    updateActivity();
+  }, []);
+
+  // Track navigation changes
   useEffect(() => {
-    // Handle user activity when user navigates to different routes
+    console.log('🔧 Navigation detected - updating activity timestamp');
     handleUserActivity();
-    console.log('✅ Navigation activity detected:', location.pathname);
-  }, [location.pathname, handleUserActivity]);
+  }, [location, handleUserActivity]);
 
   // Track comprehensive user interactions (mouse, keyboard, touch, scroll)
   useEffect(() => {
@@ -36,11 +47,10 @@ export const useActivityTracker = () => {
 
     // Throttle function to limit activity updates frequency
     let lastActivityUpdate = 0;
-    const THROTTLE_DELAY = AUTH_CONFIG.ACTIVITY_THROTTLE_DELAY; // Update activity at most once per second
 
     const throttledActivityUpdate = () => {
       const now = Date.now();
-      if (now - lastActivityUpdate >= THROTTLE_DELAY) {
+      if (now - lastActivityUpdate >= AUTH_CONFIG.ACTIVITY_THROTTLE_DELAY) {
         handleUserActivity();
         lastActivityUpdate = now;
       }

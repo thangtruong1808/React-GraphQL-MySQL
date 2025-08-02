@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTokens, TokenManager, isUserInactive, getLastActivityTime } from '../../utils/tokenManager';
+import { getTokens, TokenManager, isUserInactive, getLastActivityTime, getActivityBasedTokenExpiry } from '../../utils/tokenManager';
 import { AUTH_CONFIG, UI_CONFIG } from '../../constants';
 
 /**
@@ -28,6 +28,10 @@ const ActivityDebugger: React.FC = () => {
         const timeSinceLastActivity = lastActivityTime ? now - lastActivityTime : null;
         const isUserCurrentlyInactive = isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD);
 
+        // Get activity-based token expiry information
+        const activityBasedTokenExpiry = getActivityBasedTokenExpiry();
+        const timeUntilActivityBasedExpiry = activityBasedTokenExpiry ? Math.max(0, activityBasedTokenExpiry - now) : 'N/A';
+
         // Calculate activity status
         let activityStatus = 'Unknown';
         let activityStatusColor = 'text-gray-600';
@@ -52,6 +56,8 @@ const ActivityDebugger: React.FC = () => {
           hasRefreshToken: !!tokens.refreshToken,
           accessTokenExpiry: accessTokenExpiry ? new Date(accessTokenExpiry).toLocaleTimeString() : 'N/A',
           timeUntilAccessTokenExpiry: accessTokenExpiry ? Math.max(0, accessTokenExpiry - now) : 'N/A',
+          activityBasedTokenExpiry: activityBasedTokenExpiry ? new Date(activityBasedTokenExpiry).toLocaleTimeString() : 'N/A',
+          timeUntilActivityBasedExpiry: timeUntilActivityBasedExpiry,
           currentTime: new Date().toLocaleTimeString(),
           userEmail: user?.email || 'N/A',
           userRole: user?.role || 'N/A',
@@ -164,9 +170,9 @@ const ActivityDebugger: React.FC = () => {
             <div className="flex justify-between">
               <span className="font-medium">Time Until Expiry:</span>
               <span className={`font-mono ${typeof debugInfo.timeUntilAccessTokenExpiry === 'number'
-                ? debugInfo.timeUntilAccessTokenExpiry < 30000
+                ? debugInfo.timeUntilAccessTokenExpiry < AUTH_CONFIG.TOKEN_REFRESH_WARNING_THRESHOLD
                   ? 'text-red-600'
-                  : debugInfo.timeUntilAccessTokenExpiry < 60000
+                  : debugInfo.timeUntilAccessTokenExpiry < AUTH_CONFIG.TOKEN_REFRESH_CAUTION_THRESHOLD
                     ? 'text-yellow-600'
                     : 'text-green-600'
                 : 'text-gray-600'
@@ -174,6 +180,28 @@ const ActivityDebugger: React.FC = () => {
                 {typeof debugInfo.timeUntilAccessTokenExpiry === 'number'
                   ? `${Math.floor(debugInfo.timeUntilAccessTokenExpiry / 1000)}s`
                   : debugInfo.timeUntilAccessTokenExpiry
+                }
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="font-medium">Activity-Based Token Expires:</span>
+              <span className="font-mono text-gray-600">{debugInfo.activityBasedTokenExpiry}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="font-medium">Time Until Activity-Based Expiry:</span>
+              <span className={`font-mono ${typeof debugInfo.timeUntilActivityBasedExpiry === 'number'
+                ? debugInfo.timeUntilActivityBasedExpiry < AUTH_CONFIG.TOKEN_REFRESH_WARNING_THRESHOLD
+                  ? 'text-red-600'
+                  : debugInfo.timeUntilActivityBasedExpiry < AUTH_CONFIG.TOKEN_REFRESH_CAUTION_THRESHOLD
+                    ? 'text-yellow-600'
+                    : 'text-green-600'
+                : 'text-gray-600'
+                }`}>
+                {typeof debugInfo.timeUntilActivityBasedExpiry === 'number'
+                  ? `${Math.floor(debugInfo.timeUntilActivityBasedExpiry / 1000)}s`
+                  : debugInfo.timeUntilActivityBasedExpiry
                 }
               </span>
             </div>
@@ -191,6 +219,10 @@ const ActivityDebugger: React.FC = () => {
               🔄 Activity check interval: {AUTH_CONFIG.ACTIVITY_CHECK_INTERVAL / 1000} seconds
               <br />
               ⏰ Inactivity threshold: {AUTH_CONFIG.INACTIVITY_THRESHOLD / 1000 / 60} minute{AUTH_CONFIG.INACTIVITY_THRESHOLD / 1000 / 60 !== 1 ? 's' : ''}
+              <br />
+              🎯 Activity-based token: {AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED ? 'Enabled' : 'Disabled'}
+              <br />
+              ⏱️ Activity token expiry: {AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY / 1000 / 60} minute{AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY / 1000 / 60 !== 1 ? 's' : ''} from last activity
             </p>
           </div>
         </div>
