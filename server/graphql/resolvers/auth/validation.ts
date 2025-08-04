@@ -49,6 +49,7 @@ export const validateLoginCredentials = (email: string, password: string): void 
  */
 export const validateRefreshToken = (refreshToken: string): void => {
   if (!refreshToken) {
+    console.log('🔍 Validation: Refresh token is required (expected for new users)');
     throw new GraphQLError('Refresh token is required', {
       extensions: { code: 'BAD_USER_INPUT' },
     });

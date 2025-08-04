@@ -85,9 +85,9 @@ class TokenManager {
         console.log('✅ STORE TOKENS - Token expiry stored in memory:', new Date(expiry).toISOString());
       }
 
-      // Store refresh token expiry (5 minutes from now - matches server REFRESH_TOKEN_EXPIRY)
-      memoryRefreshTokenExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
-      console.log('✅ STORE TOKENS - Refresh token expiry stored in memory:', new Date(memoryRefreshTokenExpiry).toISOString());
+      // DO NOT set refresh token expiry at login - it will be set when access token expires
+      memoryRefreshTokenExpiry = null;
+      console.log('✅ STORE TOKENS - Refresh token expiry not set yet (will be set when access token expires)');
 
       // Initialize last activity timestamp
       memoryLastActivity = Date.now();
@@ -190,69 +190,90 @@ class TokenManager {
   }
 
   /**
-   * Update access token securely (for token refresh)
-   * @param accessToken - New access token
+   * Update access token only
+   * Used when only access token is refreshed
    * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS:
-   * - Token refresh: Updates with new access token from server
-   * - Token rotation: Updates with new access token
+   * CALLED BY: AuthContext after successful access token refresh
+   * SCENARIOS: Access token refresh - updates access token with new expiry
    */
   static updateAccessToken(accessToken: string): void {
     try {
+      console.log('🔄 UPDATE ACCESS TOKEN - Updating access token...');
+      
+      // Validate access token format
       if (!this.isValidJWTFormat(accessToken)) {
+        console.error('❌ UPDATE ACCESS TOKEN - Invalid access token format');
         throw new Error('Invalid access token format');
       }
 
+      // Update access token
       memoryAccessToken = accessToken;
       
-      // Update expiry
+      // Update token expiry
       const expiry = this.getTokenExpiration(accessToken);
       if (expiry) {
         memoryTokenExpiry = expiry;
+        console.log('✅ UPDATE ACCESS TOKEN - Access token expiry updated:', new Date(expiry).toISOString());
       }
 
-      console.log('✅ Access token updated securely in memory');
+      // Clear refresh token expiry timer since access token was refreshed
+      // It will be set again when access token expires next time
+      memoryRefreshTokenExpiry = null;
+      console.log('✅ UPDATE ACCESS TOKEN - Refresh token expiry timer cleared (access token refreshed)');
+      
+      console.log('✅ Access token updated securely in memory. Refresh token expiry timer cleared.');
     } catch (error) {
       console.error('❌ Error updating access token:', error);
-      throw error;
     }
   }
 
   /**
-   * Update both tokens securely (for token rotation)
-   * @param accessToken - New access token
-   * @param refreshToken - New refresh token (handled server-side)
+   * Update both access and refresh tokens
+   * Used when tokens are refreshed from server
    * 
    * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS:
-   * - Token rotation: Updates both tokens with new values
-   * - Full refresh: Updates both tokens after server refresh
+   * SCENARIOS: Token refresh - updates both tokens with new expiry
    */
-  static updateTokens(accessToken: string, refreshToken: string): void {
+  static updateTokens(accessToken: string, refreshToken: string, user?: any): void {
     try {
+      console.log('🔄 UPDATE TOKENS - Updating both access and refresh tokens...');
+      
+      // Validate access token format
       if (!this.isValidJWTFormat(accessToken)) {
+        console.error('❌ UPDATE TOKENS - Invalid access token format');
         throw new Error('Invalid access token format');
       }
 
+      // Validate refresh token format
       if (!this.isValidHexFormat(refreshToken)) {
+        console.error('❌ UPDATE TOKENS - Invalid refresh token format');
         throw new Error('Invalid refresh token format');
       }
 
+      // Update access token
       memoryAccessToken = accessToken;
       
-      // Update expiry
+      // Update user data if provided
+      if (user) {
+        memoryUserData = user;
+        console.log('✅ UPDATE TOKENS - User data updated');
+      }
+      
+      // Update token expiry
       const expiry = this.getTokenExpiration(accessToken);
       if (expiry) {
         memoryTokenExpiry = expiry;
+        console.log('✅ UPDATE TOKENS - Access token expiry updated:', new Date(expiry).toISOString());
       }
 
-
+      // Clear refresh token expiry timer since tokens were refreshed
+      // It will be set again when access token expires next time
+      memoryRefreshTokenExpiry = null;
+      console.log('✅ UPDATE TOKENS - Refresh token expiry timer cleared (tokens refreshed)');
       
-      console.log('✅ Tokens updated securely in memory (refresh token handled server-side)');
+      console.log('✅ Tokens updated securely in memory (refresh token handled server-side). Refresh token expiry timer cleared.');
     } catch (error) {
       console.error('❌ Error updating tokens:', error);
-      throw error;
     }
   }
 
@@ -297,38 +318,101 @@ class TokenManager {
       
       // Reset activity-based token expiry (1 minute from now)
       memoryActivityBasedExpiry = Date.now() + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
-      
-      console.log('✅ Activity updated:', new Date(memoryLastActivity).toISOString());
-      console.log('✅ Activity-based token expiry reset:', new Date(memoryActivityBasedExpiry).toISOString());
     } catch (error) {
       console.error('❌ Error updating activity:', error);
     }
   }
 
   /**
-   * Check if refresh token is expired (absolute session timeout)
-   * @returns Boolean indicating if refresh token is expired
+   * Start refresh token expiry timer
+   * Called when access token expires to start the 4-minute countdown
    * 
-   * CALLED BY: AuthContext for session management
-   * SCENARIOS: All scenarios - checks absolute session timeout
+   * CALLED BY: AuthContext when access token expires
+   * SCENARIOS: Access token expiry - starts refresh token countdown
+   */
+  static startRefreshTokenExpiryTimer(): void {
+    try {
+      memoryRefreshTokenExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
+      console.log('🔄 Refresh token expiry timer started:', new Date(memoryRefreshTokenExpiry).toISOString());
+    } catch (error) {
+      console.error('❌ Error starting refresh token expiry timer:', error);
+    }
+  }
+
+  /**
+   * Check if refresh token is expired (absolute timeout)
+   * Uses the stored expiry timestamp in memory
+   * 
+   * @returns boolean - true if refresh token is expired
    */
   static isRefreshTokenExpired(): boolean {
     try {
       if (!memoryRefreshTokenExpiry) {
-        return true;
+        console.log('❌ No refresh token expiry timestamp found');
+        return false; // Not expired if timer hasn't started yet
       }
       
       const now = Date.now();
       const isExpired = now >= memoryRefreshTokenExpiry;
       
-      console.log('🔍 REFRESH TOKEN EXPIRY CHECK - Current time:', new Date(now).toISOString());
-      console.log('🔍 REFRESH TOKEN EXPIRY CHECK - Refresh token expires:', new Date(memoryRefreshTokenExpiry).toISOString());
-      console.log('🔍 REFRESH TOKEN EXPIRY CHECK - Is expired:', isExpired);
+      if (isExpired) {
+        console.log('❌ Refresh token expired at:', new Date(memoryRefreshTokenExpiry).toISOString());
+      } else {
+        console.log('✅ Refresh token valid until:', new Date(memoryRefreshTokenExpiry).toISOString());
+      }
       
       return isExpired;
     } catch (error) {
       console.error('❌ Error checking refresh token expiry:', error);
-      return true; // Assume expired on error
+      return false; // Not expired on error
+    }
+  }
+
+  /**
+   * Check if refresh token needs renewal (proactive renewal)
+   * Returns true if refresh token will expire within the renewal threshold
+   * 
+   * @returns boolean - true if refresh token needs renewal
+   */
+  static isRefreshTokenNeedsRenewal(): boolean {
+    try {
+      if (!memoryRefreshTokenExpiry) {
+        console.log('❌ No refresh token expiry timestamp found for renewal check');
+        return false;
+      }
+      
+      const now = Date.now();
+      const timeUntilExpiry = memoryRefreshTokenExpiry - now;
+      const needsRenewal = timeUntilExpiry <= AUTH_CONFIG.REFRESH_TOKEN_RENEWAL_THRESHOLD;
+      
+      if (needsRenewal) {
+        console.log('🔄 Refresh token needs renewal - expires in:', Math.round(timeUntilExpiry / 1000), 'seconds');
+        console.log('🔄 Renewal threshold:', Math.round(AUTH_CONFIG.REFRESH_TOKEN_RENEWAL_THRESHOLD / 1000), 'seconds');
+      }
+      
+      return needsRenewal;
+    } catch (error) {
+      console.error('❌ Error checking refresh token renewal:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Update refresh token expiry after renewal
+   * Extends the refresh token expiry time when token is renewed
+   * OR clears the expiry timer when user continues working
+   */
+  static updateRefreshTokenExpiry(): void {
+    try {
+      const oldExpiry = memoryRefreshTokenExpiry;
+      
+      // Clear the refresh token expiry timer since user is continuing to work
+      // It will be set again when access token expires next time
+      memoryRefreshTokenExpiry = null;
+      
+      console.log('✅ Refresh token expiry timer cleared (user continuing to work). Previous expiry was:', oldExpiry ? new Date(oldExpiry).toISOString() : 'null');
+    } catch (error) {
+      console.error('❌ Error updating refresh token expiry:', error);
     }
   }
 
@@ -360,12 +444,6 @@ class TokenManager {
       const now = Date.now();
       const timeSinceLastActivity = now - memoryLastActivity;
       const isInactive = timeSinceLastActivity >= inactivityThreshold;
-      
-      console.log('🔍 INACTIVITY CHECK - Current time:', new Date(now).toISOString());
-      console.log('🔍 INACTIVITY CHECK - Last activity:', new Date(memoryLastActivity).toISOString());
-      console.log('🔍 INACTIVITY CHECK - Time since last activity:', timeSinceLastActivity, 'ms');
-      console.log('🔍 INACTIVITY CHECK - Inactivity threshold:', inactivityThreshold, 'ms');
-      console.log('🔍 INACTIVITY CHECK - Is inactive:', isInactive);
       
       return isInactive;
     } catch (error) {
@@ -452,10 +530,6 @@ class TokenManager {
       
       const now = Date.now();
       const isExpired = now >= memoryActivityBasedExpiry;
-      
-      console.log('🔍 ACTIVITY-BASED TOKEN EXPIRY CHECK - Current time:', new Date(now).toISOString());
-      console.log('🔍 ACTIVITY-BASED TOKEN EXPIRY CHECK - Activity-based expiry:', new Date(memoryActivityBasedExpiry).toISOString());
-      console.log('🔍 ACTIVITY-BASED TOKEN EXPIRY CHECK - Is expired:', isExpired);
       
       return isExpired;
     } catch (error) {
@@ -654,6 +728,28 @@ export const updateActivity = (): void => {
  */
 export const isRefreshTokenExpired = (): boolean => {
   return TokenManager.isRefreshTokenExpired();
+};
+
+/**
+ * Check if refresh token needs renewal (proactive renewal)
+ * @returns Boolean indicating if refresh token needs renewal
+ * 
+ * CALLED BY: AuthContext for proactive token renewal
+ * SCENARIOS: All scenarios - checks if refresh token is about to expire
+ */
+export const isRefreshTokenNeedsRenewal = (): boolean => {
+  return TokenManager.isRefreshTokenNeedsRenewal();
+};
+
+/**
+ * Update refresh token expiry after renewal
+ * @returns void
+ * 
+ * CALLED BY: AuthContext after successful token refresh
+ * SCENARIOS: All scenarios - updates refresh token expiry
+ */
+export const updateRefreshTokenExpiry = (): void => {
+  TokenManager.updateRefreshTokenExpiry();
 };
 
 /**

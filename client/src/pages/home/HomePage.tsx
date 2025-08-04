@@ -50,14 +50,11 @@ const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Navigation */}
-            <div className="space-y-3">
-              <Link
-                to="/login"
-                className="block w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
-              >
-                Continue to App
-              </Link>
+            {/* Success message */}
+            <div className="text-center">
+              <p className="text-emerald-600 font-medium">
+                ✅ You are successfully authenticated!
+              </p>
             </div>
           </div>
         ) : (

@@ -126,8 +126,8 @@ const LoginForm: React.FC = () => {
 
       if (result?.success) {
         setSuccess(SUCCESS_MESSAGES.LOGIN_SUCCESS);
-        // Redirect to dashboard immediately after successful login
-        navigate(ROUTES.DASHBOARD);
+        // Redirect to home page immediately after successful login
+        navigate(ROUTES.HOME);
       } else {
         setError(result?.error || ERROR_MESSAGES.LOGIN_FAILED);
       }

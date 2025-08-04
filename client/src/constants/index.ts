@@ -44,7 +44,11 @@ export const AUTH_CONFIG = {
   TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds - caution threshold (yellow)
   
   // Refresh token configuration (matches server REFRESH_TOKEN_EXPIRY)
-  REFRESH_TOKEN_EXPIRY_MS: 5 * 60 * 1000, // 5 minutes in milliseconds (matches server REFRESH_TOKEN_EXPIRY)
+  REFRESH_TOKEN_EXPIRY_MS: 4 * 60 * 1000, // mins in milliseconds (matches server REFRESH_TOKEN_EXPIRY)
+  
+  // Refresh token auto-renewal for better user experience
+  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic refresh token renewal
+  REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // Renew refresh token when 30 seconds remaining
   
   // Loading state optimization
   AUTH_INITIALIZATION_TIMEOUT: 3000, // 3 seconds timeout for auth initialization
@@ -269,18 +273,6 @@ export const ROUTES = {
   // Public routes
   HOME: '/',
   LOGIN: '/login',
-  
-  // Protected routes
-  DASHBOARD: '/dashboard',
-  PROJECTS: '/projects',
-  TASKS: '/tasks',
-  TEAM: '/team',
-  REPORTS: '/reports',
-  ACTIVITY: '/activity',
-  NOTIFICATIONS: '/notifications',
-  ADMIN: '/admin',
-  PROFILE: '/profile',
-  SETTINGS: '/settings',
   
   // API routes
   GRAPHQL: '/graphql',

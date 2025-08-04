@@ -47,6 +47,13 @@ export const typeDefs = gql`
     message: String!
   }
 
+  # Refresh Token Renewal Response Type - for extending refresh token expiry
+  type RefreshTokenRenewalResponse {
+    success: Boolean!
+    message: String!
+    user: User!
+  }
+
   # Login Input Type - email and password for authentication
   input LoginInput {
     email: String!
@@ -69,5 +76,8 @@ export const typeDefs = gql`
     
     # Refresh access token using refresh token from httpOnly cookie
     refreshToken: AuthResponse!
+    
+    # Renew refresh token to extend session - for active users
+    refreshTokenRenewal: RefreshTokenRenewalResponse!
   }
 `;

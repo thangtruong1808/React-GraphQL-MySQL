@@ -20,7 +20,6 @@ export const useAppActivityTracker = () => {
    */
   const trackFormSubmission = useCallback(() => {
     handleUserActivity();
-    console.log('✅ Form submission activity detected');
   }, [handleUserActivity]);
 
   /**
@@ -32,7 +31,6 @@ export const useAppActivityTracker = () => {
    */
   const trackDataOperation = useCallback(() => {
     handleUserActivity();
-    console.log('✅ Data operation activity detected');
   }, [handleUserActivity]);
 
   /**
@@ -44,7 +42,6 @@ export const useAppActivityTracker = () => {
    */
   const trackApiCall = useCallback(() => {
     handleUserActivity();
-    console.log('✅ API call activity detected');
   }, [handleUserActivity]);
 
   /**
@@ -56,7 +53,6 @@ export const useAppActivityTracker = () => {
    */
   const trackPreferenceChange = useCallback(() => {
     handleUserActivity();
-    console.log('✅ Preference change activity detected');
   }, [handleUserActivity]);
 
   /**
@@ -68,7 +64,6 @@ export const useAppActivityTracker = () => {
    */
   const trackAppAction = useCallback((actionName: string) => {
     handleUserActivity();
-    console.log(`✅ Application action detected: ${actionName}`);
   }, [handleUserActivity]);
 
   return {

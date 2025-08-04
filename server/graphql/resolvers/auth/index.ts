@@ -16,7 +16,7 @@ export * from './validation';
 export * from './operations';
 
 // Import operations for resolver creation
-import { login, refreshToken, logout } from './operations';
+import { login, refreshToken, logout, refreshTokenRenewal } from './operations';
 
 // Import guards for authentication and authorization
 import { withAuth, authGuard } from '../../../auth/guard';
@@ -101,6 +101,23 @@ export const authResolvers = {
      */
     refreshToken: async (_: any, __: any, { req, res }: { req: any; res: any }) => {
       return await refreshToken(req, res);
+    },
+
+    /**
+     * Renew refresh token to extend session
+     * Used when user is active but refresh token is about to expire
+     * Does NOT generate new access token - only extends refresh token expiry
+     * 
+     * CALLED BY: Client refreshTokenRenewal mutation
+     * SCENARIOS:
+     * - Active user with expiring refresh token: Extends refresh token expiry
+     * - Expired refresh token: Returns UNAUTHENTICATED error
+     * - Invalid refresh token: Returns UNAUTHENTICATED error
+     * 
+     * FLOW: Read cookie → Find token in DB → Verify hash → Extend expiry → Response
+     */
+    refreshTokenRenewal: async (_: any, __: any, { req, res }: { req: any; res: any }) => {
+      return await refreshTokenRenewal(req, res);
     },
 
     /**

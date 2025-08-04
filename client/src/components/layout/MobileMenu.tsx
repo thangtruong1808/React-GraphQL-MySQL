@@ -103,22 +103,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 
             {/* Mobile User Actions */}
             <div className="mt-3 space-y-1">
-              <Link
-                to="/dashboard"
-                onClick={onClose}
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-              >
-                Dashboard
-              </Link>
-
-              <Link
-                to="/profile"
-                onClick={onClose}
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-              >
-                Profile Settings
-              </Link>
-
               <button
                 onClick={onLogout}
                 disabled={logoutLoading}

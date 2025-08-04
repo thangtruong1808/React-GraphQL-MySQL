@@ -1,42 +1,43 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
-import client from './services/graphql/apollo-client';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useActivityTracker } from './hooks/custom/useActivityTracker';
 import NavBar from './components/layout/NavBar';
-import HomePage from './pages/home/HomePage';
+import apolloClient from './services/graphql/apollo-client';
 import { ROUTES } from './constants';
-import ActivityDebugger from './components/debug/ActivityDebugger';
 import './App.css';
 
-// Lazy load pages for better performance and code splitting
+// Lazy load components for better performance
+const HomePage = React.lazy(() => import('./pages/home/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
+const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDebugger'));
+const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
+const Notification = React.lazy(() => import('./components/ui/Notification'));
+
+// Loading component for Suspense fallback
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+  </div>
+);
 
 /**
- * App Content Component
- * Contains the main application content with activity tracking
- * Must be inside Router context to use useLocation()
+ * Main App Routes Component
+ * Handles routing based on authentication status
+ * 
+ * CALLED BY: App component
+ * SCENARIOS: All application routes and authentication states
  */
-function AppContent() {
-  const { isLoading, isInitializing, showLoadingSpinner, isAuthenticated } = useAuth();
+const AppRoutes: React.FC = () => {
+  const { isAuthenticated, isLoading, isInitializing, showLoadingSpinner } = useAuth();
 
   // Track user activity across the application (inside Router context)
   useActivityTracker();
 
-  // Show loading spinner during authentication initialization to prevent state flicker
-  // This ensures users don't see unauthenticated state briefly on page refresh
-  if (isLoading || isInitializing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {isInitializing ? 'Initializing...' : 'Loading...'}
-          </p>
-        </div>
-      </div>
-    );
+  // Show loading spinner during authentication initialization
+  if (isLoading || isInitializing || showLoadingSpinner) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -44,30 +45,73 @@ function AppContent() {
       {/* Global navigation bar */}
       <NavBar />
       <main>
-        {/* Suspense wrapper for lazy-loaded pages */}
-        <React.Suspense
-          fallback={
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-            </div>
-          }
-        >
-          <Routes>
-            {/* Public routes */}
-            <Route path={ROUTES.HOME} element={<HomePage />} />
-            <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Routes>
+          {/* Public routes */}
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
-            {/* Catch-all route - redirect to home */}
-            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-          </Routes>
-        </React.Suspense>
+          {/* Catch-all route - redirect to home */}
+          <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+        </Routes>
       </main>
-
-      {/* Debug component for development */}
-      <ActivityDebugger />
     </div>
   );
-}
+};
+
+/**
+ * App Component with Session Expiry Modal
+ * Main application component with authentication and session management
+ * 
+ * CALLED BY: main.tsx
+ * SCENARIOS: All application scenarios
+ */
+const AppContent: React.FC = () => {
+  const {
+    showSessionExpiryModal,
+    sessionExpiryMessage,
+    refreshSession,
+    logout,
+    notification,
+    hideNotification
+  } = useAuth();
+
+  return (
+    <>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingSpinner />}>
+          <AppRoutes />
+        </Suspense>
+      </BrowserRouter>
+
+      {/* Session Expiry Modal */}
+      <Suspense fallback={null}>
+        <SessionExpiryModal
+          isOpen={showSessionExpiryModal}
+          message={sessionExpiryMessage}
+          onRefresh={refreshSession}
+          onLogout={logout}
+        />
+      </Suspense>
+
+      {/* Notification */}
+      <Suspense fallback={null}>
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          isVisible={notification.isVisible}
+          onClose={hideNotification}
+        />
+      </Suspense>
+
+      {/* Activity Debugger (development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <ActivityDebugger />
+        </Suspense>
+      )}
+    </>
+  );
+};
 
 /**
  * Main App Component
@@ -77,11 +121,9 @@ function AppContent() {
  */
 function App() {
   return (
-    <ApolloProvider client={client}>
+    <ApolloProvider client={apolloClient}>
       <AuthProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <AppContent />
       </AuthProvider>
     </ApolloProvider>
   );

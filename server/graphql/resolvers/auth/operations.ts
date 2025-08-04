@@ -187,6 +187,22 @@ export const login = async (input: { email: string; password: string }, res: any
 export const refreshToken = async (req: any, res: any) => {
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies.jid;
+  
+  // Debug: Log cookie information
+  console.log('🔍 Refresh token request debug:', {
+    hasCookies: !!req.cookies,
+    cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
+    hasJidCookie: !!refreshToken,
+    jidValue: refreshToken ? 'present' : 'missing',
+    userAgent: req.headers['user-agent'],
+    origin: req.headers.origin,
+  });
+  
+  // If no refresh token, this is expected for new users
+  if (!refreshToken) {
+    console.log('🔍 Expected: No refresh token found (user not logged in)');
+  }
+  
   validateRefreshToken(refreshToken);
 
   console.log('🔍 Attempting to refresh token...');
@@ -288,6 +304,107 @@ export const refreshToken = async (req: any, res: any) => {
       version: user.version,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    },
+  };
+};
+
+/**
+ * Renew refresh token to extend session
+ * Used when user is active but refresh token is about to expire
+ * Does NOT generate new access token - only extends refresh token expiry
+ * 
+ * CALLED BY: Client refreshTokenRenewal mutation
+ * SCENARIOS:
+ * - Active user with expiring refresh token: Extends refresh token expiry
+ * - Expired refresh token: Returns UNAUTHENTICATED error
+ * - Invalid refresh token: Returns UNAUTHENTICATED error
+ * 
+ * FLOW: Read cookie → Find token in DB → Verify hash → Extend expiry → Response
+ */
+export const refreshTokenRenewal = async (req: any, res: any) => {
+  // Get refresh token from httpOnly cookie
+  const refreshToken = req.cookies.jid;
+  
+  // Debug: Log cookie information
+  console.log('🔄 Refresh token renewal request debug:', {
+    hasCookies: !!req.cookies,
+    cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
+    hasJidCookie: !!refreshToken,
+    jidValue: refreshToken ? 'present' : 'missing',
+    userAgent: req.headers['user-agent'],
+    origin: req.headers.origin,
+  });
+  
+  // If no refresh token, this is expected for new users
+  if (!refreshToken) {
+    console.log('🔄 Expected: No refresh token found for renewal (user not logged in)');
+  }
+  
+  validateRefreshToken(refreshToken);
+
+  console.log('🔄 Attempting to renew refresh token...');
+
+  // Find the specific token that matches the provided refresh token
+  let validToken: any = null;
+  let validUser: any = null;
+
+  // Get all valid refresh tokens to find the matching one
+  const storedTokens = await RefreshToken.findAll({
+    where: {
+      isRevoked: false,
+      expiresAt: {
+        [require('sequelize').Op.gt]: new Date(),
+      },
+    },
+    include: [{ model: User, as: 'refreshTokenUser' }],
+  });
+
+  console.log(`📊 Found ${storedTokens.length} valid refresh tokens in database`);
+
+  // Check each token to find a match
+  for (const storedToken of storedTokens) {
+    try {
+      const isValidHash = await verifyRefreshTokenHash(refreshToken, storedToken.tokenHash);
+      if (isValidHash) {
+        validToken = storedToken;
+        validUser = storedToken.refreshTokenUser;
+        console.log(`✅ Found matching refresh token for user ID: ${validUser.id}`);
+        break;
+      }
+    } catch (hashError) {
+      console.error('❌ Hash verification error:', hashError);
+      continue;
+    }
+  }
+
+  if (!validToken || !validUser) {
+    console.log('❌ No valid refresh token found for renewal');
+    throw new GraphQLError('Invalid refresh token', {
+      extensions: { code: 'UNAUTHENTICATED' },
+    });
+  }
+
+  // Extend the refresh token expiry
+  const newExpiryDate = new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS);
+  await validToken.update({ expiresAt: newExpiryDate });
+
+  console.log(`🔄 Successfully renewed refresh token for user ID: ${validUser.id}`);
+
+  // Return success response with user data
+  return {
+    success: true,
+    message: 'Refresh token renewed successfully',
+    user: {
+      id: validUser.id.toString(),
+      uuid: validUser.uuid,
+      email: validUser.email,
+      firstName: validUser.firstName,
+      lastName: validUser.lastName,
+      role: validUser.role,
+      isDeleted: validUser.isDeleted,
+      version: validUser.version,
+      createdAt: validUser.createdAt,
+      updatedAt: validUser.updatedAt,
     },
   };
 };

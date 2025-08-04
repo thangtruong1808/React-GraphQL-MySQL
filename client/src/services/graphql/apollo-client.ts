@@ -95,14 +95,6 @@ const authLink = setContext((_, { headers }) => {
     // Get access token from memory (no DB connection)
     const tokens = getTokens();
     
-    // Debug: Log token retrieval
-    console.log('🔍 Auth link - Token check:', {
-      hasAccessToken: !!tokens.accessToken,
-      accessTokenLength: tokens.accessToken?.length,
-      isAuthenticated: isAuthenticated(),
-      hasCSRFToken: !!csrfToken,
-    });
-    
     // Only add authorization header if token exists and is not expired
     let shouldAddToken = false;
     
@@ -114,12 +106,6 @@ const authLink = setContext((_, { headers }) => {
         // Fallback to fixed token expiry check
         shouldAddToken = !isTokenExpired(tokens.accessToken);
       }
-    }
-    
-    if (shouldAddToken) {
-      console.log('🔐 Adding authorization header to request');
-    } else {
-      console.log('❌ No valid access token found for request');
     }
     
     // Prepare headers
@@ -136,7 +122,6 @@ const authLink = setContext((_, { headers }) => {
     // Add CSRF token header for mutations
     if (csrfToken) {
       requestHeaders['x-csrf-token'] = csrfToken;
-      console.log('🔒 Adding CSRF token header to request');
     }
     
     return { headers: requestHeaders };
@@ -160,6 +145,12 @@ const authLink = setContext((_, { headers }) => {
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
+      // Handle expected "Refresh token is required" error gracefully
+      if (message === 'Refresh token is required') {
+        console.log('🔍 Expected: No refresh token available (user not logged in)');
+        return; // Don't log as error or take any action
+      }
+      
       console.error(
         `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
       );
@@ -178,19 +169,10 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
           return;
         }
         
-        // For other queries, clear tokens and redirect
-        console.log('🔐 Non-currentUser query failed - clearing tokens and redirecting');
-        clearTokens();
-        
-        // Show a more specific message for force logout
-        if (message.includes('logged out by an administrator') || 
-            message.includes('force') || 
-            message.includes('revoked') ||
-            message.includes('blacklisted')) {
-          alert('You have been logged out by an administrator. Please log in again.');
-        }
-        
-        window.location.href = ROUTES.LOGIN;
+        // For other queries, don't immediately redirect - let AuthContext handle session expiry
+        console.log('🔐 Non-currentUser query failed - letting AuthContext handle session expiry');
+        // Don't clear tokens or redirect - AuthContext will show session expiry modal
+        return;
       }
 
       // Handle too many sessions error

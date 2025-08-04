@@ -25,13 +25,11 @@ export const useActivityTracker = () => {
 
   // Handle user activity - called when any user interaction is detected
   const handleUserActivity = useCallback(() => {
-    console.log('🎯 User activity detected - updating activity timestamp');
     updateActivity();
   }, []);
 
   // Track navigation changes
   useEffect(() => {
-    console.log('🔧 Navigation detected - updating activity timestamp');
     handleUserActivity();
   }, [location, handleUserActivity]);
 
@@ -43,7 +41,6 @@ export const useActivityTracker = () => {
     }
     
     listenersSetupRef.current = true;
-    console.log('🔧 Setting up comprehensive user activity tracking...');
 
     // Throttle function to limit activity updates frequency
     let lastActivityUpdate = 0;
@@ -98,8 +95,6 @@ export const useActivityTracker = () => {
           handleUserActivity();
           break;
       }
-      
-      console.log('✅ User interaction detected:', event.type);
     };
 
     // Add event listeners for user interaction events
@@ -112,7 +107,6 @@ export const useActivityTracker = () => {
 
     // Cleanup function to remove event listeners
     return () => {
-      console.log('🧹 Cleaning up user activity tracking...');
       userInteractionEvents.forEach(eventType => {
         window.removeEventListener(eventType, handleUserInteraction);
       });
