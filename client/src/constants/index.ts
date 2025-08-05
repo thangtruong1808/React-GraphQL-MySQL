@@ -29,7 +29,7 @@ export const AUTH_CONFIG = {
   SESSION_DURATION: 60 * 60 * 1000, // 1 hour
   
   // Activity tracking for session management
-  ACTIVITY_CHECK_INTERVAL: 2000, // Check user activity every 2 seconds (to catch 2-minute access token expiry)
+  ACTIVITY_CHECK_INTERVAL: 10000, // Check user activity every 10 seconds (reduced frequency to prevent modal flicker and improve performance)
   INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout (matches server ACCESS_TOKEN_EXPIRY)
   ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events (mousemove, scroll) to 1 second
   
@@ -44,11 +44,11 @@ export const AUTH_CONFIG = {
   TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds - caution threshold (yellow)
   
   // Refresh token configuration (matches server REFRESH_TOKEN_EXPIRY)
-  REFRESH_TOKEN_EXPIRY_MS: 4 * 60 * 1000, // mins in milliseconds (matches server REFRESH_TOKEN_EXPIRY)
+  REFRESH_TOKEN_EXPIRY_MS: 3 * 60 * 1000, // 3 minutes in milliseconds (matches server REFRESH_TOKEN_EXPIRY for 5m total timeline)
   
   // Refresh token auto-renewal for better user experience
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic refresh token renewal
-  REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // Renew refresh token when 30 seconds remaining
+  REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // Renew refresh token when 30 seconds remaining (half of 3 minutes)
   
   // Loading state optimization
   AUTH_INITIALIZATION_TIMEOUT: 3000, // 3 seconds timeout for auth initialization

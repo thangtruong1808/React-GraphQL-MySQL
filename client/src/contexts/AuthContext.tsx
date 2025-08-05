@@ -125,6 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Session expiry state
   const [showSessionExpiryModal, setShowSessionExpiryModal] = useState(false); // New: shows session expiry modal
   const [sessionExpiryMessage, setSessionExpiryMessage] = useState(''); // New: message to display in modal
+  const [lastModalShowTime, setLastModalShowTime] = useState<number | null>(null); // Track when modal was last shown
 
   // Notification state
   const [notification, setNotification] = useState<{
@@ -168,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Close session expiry modal if it's open
     setShowSessionExpiryModal(false);
     setSessionExpiryMessage('');
+    setLastModalShowTime(null); // Reset modal show time
 
     // Clear all authentication data
     clearTokens();
@@ -349,47 +351,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log('🔍 SESSION CHECK - Access token expired:', isAccessTokenExpired);
         console.log('🔍 SESSION CHECK - Modal currently showing:', showSessionExpiryModal);
 
-        // Show modal only if access token is expired, refresh token is valid, and modal is not already showing
-        if (isAccessTokenExpired && !refreshTokenExpired && !showSessionExpiryModal) {
+        // Show modal only if access token is expired, refresh token is valid, modal is not already showing, and enough time has passed since last show
+        const now = Date.now();
+        const timeSinceLastShow = lastModalShowTime ? now - lastModalShowTime : Infinity;
+        const minTimeBetweenShows = 5000; // 5 seconds minimum between modal shows
+
+        if (isAccessTokenExpired && !refreshTokenExpired && !showSessionExpiryModal && timeSinceLastShow > minTimeBetweenShows) {
           console.log('🔐 Access token expired but refresh token still valid - showing session expiry modal');
           setSessionExpiryMessage('Your session has expired. Click "Continue to Work" to refresh your session or "Logout" to sign in again.');
           setShowSessionExpiryModal(true);
+          setLastModalShowTime(now);
 
           // Start the refresh token expiry timer when access token expires
           TokenManager.startRefreshTokenExpiryTimer();
-        }
-        // Note: We don't auto-hide the modal when access token becomes valid again
-        // The modal should only be hidden when user takes action or refresh token expires
-      }
 
-      // Check if refresh token needs renewal (proactive renewal for active users)
-      if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && isRefreshTokenNeedsRenewal()) {
-        console.log('🔄 Refresh token needs renewal, attempting renewal...');
-        const renewalSuccess = await renewRefreshToken();
-        if (!renewalSuccess) {
-          console.log('❌ Refresh token renewal failed, but continuing session...');
+          // Return early to prevent other checks from hiding the modal
+          return;
         }
-      }
 
-      // Check if activity-based token is expired (when user stops being active)
-      if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
-        console.log('🔐 Activity-based token expired (user stopped being active), attempting token refresh...');
-        const refreshSuccess = await refreshAccessToken();
-        if (!refreshSuccess) {
-          console.log('🔐 Token refresh failed, performing logout...');
-          await performCompleteLogout();
+        // If modal is already showing, don't run additional checks that could hide it
+        if (showSessionExpiryModal) {
+          console.log('🔐 Session expiry modal is already showing - skipping additional checks');
           return;
         }
       }
 
-      // Check if user has been inactive for too long (application-level inactivity)
-      if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
-        console.log('🔐 User inactive for too long (no application actions), attempting token refresh...');
-        const refreshSuccess = await refreshAccessToken();
-        if (!refreshSuccess) {
-          console.log('🔐 Token refresh failed, performing logout...');
-          await performCompleteLogout();
-          return;
+      // Only run these checks if modal is not showing to prevent auto-hiding
+      if (!showSessionExpiryModal) {
+        // Check if refresh token needs renewal (proactive renewal for active users)
+        if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && isRefreshTokenNeedsRenewal()) {
+          console.log('🔄 Refresh token needs renewal, attempting renewal...');
+          const renewalSuccess = await renewRefreshToken();
+          if (!renewalSuccess) {
+            console.log('❌ Refresh token renewal failed, but continuing session...');
+          }
+        }
+
+        // Check if activity-based token is expired (when user stops being active)
+        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
+          console.log('🔐 Activity-based token expired (user stopped being active), attempting token refresh...');
+          const refreshSuccess = await refreshAccessToken();
+          if (!refreshSuccess) {
+            console.log('🔐 Token refresh failed, performing logout...');
+            await performCompleteLogout();
+            return;
+          }
+        }
+
+        // Check if user has been inactive for too long (application-level inactivity)
+        if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
+          console.log('🔐 User inactive for too long (no application actions), attempting token refresh...');
+          const refreshSuccess = await refreshAccessToken();
+          if (!refreshSuccess) {
+            console.log('🔐 Token refresh failed, performing logout...');
+            await performCompleteLogout();
+            return;
+          }
         }
       }
 
@@ -719,6 +736,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (refreshSuccess) {
         console.log('✅ Session refreshed successfully.');
         setShowSessionExpiryModal(false);
+        setLastModalShowTime(null); // Reset modal show time to allow future shows
 
         // Note: refreshAccessToken already calls TokenManager.storeTokens() 
         // which clears the refresh token expiry timer

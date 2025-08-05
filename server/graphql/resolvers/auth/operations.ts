@@ -110,7 +110,7 @@ export const login = async (input: { email: string; password: string }, res: any
       id: uuidv4(),
       userId: user.id,
       tokenHash,
-      expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 3 days
+      expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 3 minutes
       isRevoked: false,
     });
 
@@ -266,7 +266,7 @@ export const refreshToken = async (req: any, res: any) => {
     id: uuidv4(),
     userId: user.id,
     tokenHash: newTokenHash,
-    expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 7 days
+          expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 3 minutes
     isRevoked: false,
   });
 
@@ -282,7 +282,7 @@ export const refreshToken = async (req: any, res: any) => {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/', // Use root path to ensure cookie is available for all routes
-    maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 7 days
+            maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS, // 3 minutes
   });
 
   // Set new CSRF token for future mutations

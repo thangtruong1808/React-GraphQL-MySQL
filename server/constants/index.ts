@@ -12,9 +12,9 @@ export const JWT_CONFIG = {
   // Access token configuration - short-lived for security
   ACCESS_TOKEN_EXPIRY: '2m', // 2 minutes
   
-  // Refresh token configuration - longer-lived for session continuity
-  REFRESH_TOKEN_EXPIRY: '7d', // 7 days
-  REFRESH_TOKEN_EXPIRY_MS: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+  // Refresh token configuration - shorter-lived for testing timeline (3 minutes to achieve 5 minutes total)
+  REFRESH_TOKEN_EXPIRY: '3m', // 3 minutes (2m access + 3m refresh = 5m total)
+  REFRESH_TOKEN_EXPIRY_MS: 3 * 60 * 1000, // 3 minutes in milliseconds
 
   // Token limits
   MAX_REFRESH_TOKENS_PER_USER: 3, // Maximum refresh tokens per user (increased for multiple sessions)
