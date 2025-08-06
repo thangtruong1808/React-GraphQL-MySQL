@@ -14,6 +14,7 @@ const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDebugger'));
 const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
 const Notification = React.lazy(() => import('./components/ui/Notification'));
+const AuthRedirect = React.lazy(() => import('./components/auth/AuthRedirect'));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -80,6 +81,11 @@ const AppContent: React.FC = () => {
       <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <AppRoutes />
+        </Suspense>
+
+        {/* Authentication Redirect Handler */}
+        <Suspense fallback={null}>
+          <AuthRedirect />
         </Suspense>
       </BrowserRouter>
 

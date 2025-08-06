@@ -1,166 +1,102 @@
-# Authentication System Fixes
+# Authentication Timeline Fixes
 
-## Problem Summary
+## Overview
+This document outlines the fixes implemented to address the authentication timeline scenarios and ensure proper redirects to the login page.
 
-The authentication system was not properly tracking user activity, causing users to be logged out even when they were actively using the application. The system was only tracking navigation events and not basic user interactions like mouse movements, keystrokes, and clicks.
+## Issues Fixed
 
-## Root Cause
+### 1. Modal Timing Precision
+- **Issue**: Modal was appearing after 2 minutes with some delay due to 10-second activity check interval
+- **Fix**: Reduced `ACTIVITY_CHECK_INTERVAL` from 10 seconds to 5 seconds for more precise modal timing
+- **Location**: `client/src/constants/index.ts`
 
-The `useActivityTracker` hook was only monitoring:
-- Route changes (navigation)
-- `beforeunload` events
+### 2. Logout Redirect to Login Page
+- **Issue**: Logout scenarios were not consistently redirecting to login page
+- **Fix**: Added explicit redirect to login page in all logout scenarios
+- **Scenarios Fixed**:
+  - Manual logout from session expiry modal
+  - Automatic logout after 3 minutes of modal inactivity
+  - Refresh token expiry (absolute timeout)
+  - Token refresh failures
+  - Authentication initialization errors
 
-It was missing essential user interaction events like:
-- Mouse movements, clicks, and scroll events
-- Keyboard input (keystrokes)
-- Touch interactions
-- Form interactions
+### 3. Automatic Logout Timing
+- **Issue**: Automatic logout after modal needed proper timing configuration
+- **Fix**: Added `MODAL_AUTO_LOGOUT_DELAY` constant (3 minutes) and implemented automatic logout timer
+- **Location**: `client/src/constants/index.ts` and `client/src/contexts/AuthContext.tsx`
 
-## Fixes Implemented
+## Implementation Details
 
-### 1. Enhanced Activity Tracking (`client/src/hooks/custom/useActivityTracker.ts`)
-
-**Before:**
-- Only tracked navigation and `beforeunload` events
-- Limited user interaction detection
-
-**After:**
-- Comprehensive user interaction tracking including:
-  - Mouse: `mousedown`, `mouseup`, `click`, `dblclick`, `mousemove`, `wheel`
-  - Keyboard: `keydown`, `keyup`, `keypress`
-  - Touch: `touchstart`, `touchend`, `touchmove`
-  - Scroll: `scroll`
-  - Forms: `focus`, `blur`, `input`, `change`, `submit`
-  - Navigation: `beforeunload`
-
-**Performance Optimizations:**
-- High-frequency events (mousemove, scroll) are throttled to update activity at most once per second
-- Event listeners use `passive: true` for better performance
-- System-generated events are filtered out using `event.isTrusted`
-- Event listeners are properly cleaned up to prevent memory leaks
-
-### 2. Updated Configuration Constants
-
-**Client Constants (`client/src/constants/index.ts`):**
+### Constants Updated
 ```typescript
-ACTIVITY_CHECK_INTERVAL: 3000, // Check user activity every 3 seconds (was 30 seconds)
-INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout
+// client/src/constants/index.ts
+export const AUTH_CONFIG = {
+  // Activity tracking for session management
+  ACTIVITY_CHECK_INTERVAL: 5000, // Reduced from 10000ms to 5000ms for precise timing
+  
+  // Session expiry modal configuration
+  MODAL_AUTO_LOGOUT_DELAY: 3 * 60 * 1000, // 3 minutes after modal appears
+}
 ```
 
-**Server Constants (`server/constants/index.ts`):**
-```typescript
-ACCESS_TOKEN_EXPIRY: '2m', // 2 minutes (was incorrectly commented as 5 minutes)
-REFRESH_TOKEN_EXPIRY: '10m', // 10 minutes
-REFRESH_TOKEN_EXPIRY_MS: 10 * 60 * 1000, // 10 minutes in milliseconds
-```
+### AuthContext Enhancements
+1. **Modal Auto-Logout Timer**: Added timer that automatically logs out user after 3 minutes of modal inactivity
+2. **Consistent Redirects**: All logout scenarios now redirect to login page using `window.location.href = ROUTES.LOGIN`
+3. **Timer Cleanup**: Proper cleanup of auto-logout timer when user continues working or manually logs out
 
-### 3. Fixed Token Management (`client/src/utils/tokenManager.ts`)
+### Scenarios Verified
 
-**Before:**
-- Refresh token expiry was hardcoded to 2 minutes
+#### ✅ Scenario 1: Continue Working
+- **Flow**: Login → Wait 2 minutes → Modal appears → Click "Continue to Work"
+- **Result**: Both access token and refresh token expiry reset, user continues working
+- **Status**: Working correctly, no changes needed
 
-**After:**
-- Refresh token expiry matches server configuration (10 minutes)
+#### ✅ Scenario 2: Manual Logout
+- **Flow**: Login → Wait 2 minutes → Modal appears → Click "Logout"
+- **Result**: Immediate logout, modal closes, user redirected to login page
+- **Status**: Fixed - now redirects to login page instead of homepage
 
-### 4. Updated Authentication Logic (`client/src/contexts/AuthContext.tsx`)
+#### ✅ Scenario 3: Automatic Logout
+- **Flow**: Login → Wait 2 minutes → Modal appears → Do nothing → Wait 3 minutes
+- **Result**: Automatic logout, modal closes, user redirected to login page
+- **Status**: Fixed - now redirects to login page instead of homepage
 
-**Token Refresh Logic:**
-- Now refreshes tokens when they're more than halfway through their 2-minute lifetime (1 minute)
-- Previously was set to 30 seconds (half of 1 minute)
+## Technical Implementation
 
-### 5. Added Debug Component (`client/src/components/debug/ActivityDebugger.tsx`)
+### Modal Timing
+- Activity check interval reduced to 5 seconds for more precise 2-minute detection
+- Modal appears within 2:01-2:05 range (acceptable precision)
 
-- Real-time display of authentication status
-- Token expiry countdown
-- Activity tracking verification
-- Only visible in development mode
+### Redirect Mechanism
+- Uses `window.location.href = ROUTES.LOGIN` for consistent redirects
+- Applied to all logout scenarios:
+  - Manual logout from modal
+  - Automatic logout after modal timeout
+  - Refresh token expiry
+  - Token refresh failures
+  - Authentication errors
 
-## Authentication Flow
-
-### Expected Behavior
-
-1. **Active User**: When users interact with the application (mouse, keyboard, touch, etc.), their activity timestamp is updated
-2. **Token Refresh**: Active users get their access tokens refreshed proactively (when token is more than halfway through its 2-minute lifetime)
-3. **Inactive User**: Users who don't interact for 2 minutes are automatically logged out
-4. **Absolute Timeout**: Users are logged out after 10 minutes regardless of activity (refresh token expiry)
-
-### Configuration Summary
-
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| ACCESS_TOKEN_EXPIRY | 2 minutes | Short-lived token for security |
-| REFRESH_TOKEN_EXPIRY | 10 minutes | Absolute session timeout |
-| ACTIVITY_CHECK_INTERVAL | 3 seconds | How often to check for inactivity |
-| INACTIVITY_THRESHOLD | 2 minutes | How long to wait before logging out inactive users |
-
-## Testing the Fixes
-
-### 1. Manual Testing
-
-1. **Login to the application**
-2. **Verify active user behavior:**
-   - Move your mouse around the page
-   - Type in any input fields
-   - Click on buttons and links
-   - Scroll the page
-   - Navigate between pages
-   - **Expected**: User should remain logged in
-
-3. **Test inactivity logout:**
-   - Stop all interactions (don't move mouse, don't type, don't click)
-   - Wait for 2 minutes
-   - **Expected**: User should be automatically logged out
-
-4. **Test token refresh:**
-   - Use the debug component (blue "Show Debug" button in bottom-right corner)
-   - Monitor the "Time Until Expiry" counter
-   - Continue using the application actively
-   - **Expected**: Token should refresh when it gets below 1 minute remaining
-
-### 2. Debug Component
-
-The debug component provides real-time information:
-- Authentication status
-- Token presence and expiry times
-- Countdown to token expiry
-- User information
-
-**To use:**
-1. Click the blue "Show Debug" button in the bottom-right corner
-2. Monitor the information while using the application
-3. Verify that activity updates the timestamp and prevents logout
-
-### 3. Console Logs
-
-The system provides detailed console logging:
-- `✅ User interaction detected: [event-type]` - When user activity is detected
-- `🔄 Refreshing access token due to user activity...` - When tokens are refreshed
-- `🔐 User inactive for too long, performing logout...` - When user is logged out due to inactivity
-- `🔐 Access token expired, performing logout...` - When access token expires
+### Timer Management
+- Auto-logout timer starts when modal appears
+- Timer cleared when user continues working or manually logs out
+- Prevents multiple timers from running simultaneously
 
 ## Files Modified
 
-1. `client/src/hooks/custom/useActivityTracker.ts` - Enhanced activity tracking
-2. `client/src/constants/index.ts` - Updated activity check interval
-3. `server/constants/index.ts` - Fixed access token expiry comment
-4. `client/src/utils/tokenManager.ts` - Fixed refresh token expiry
-5. `client/src/contexts/AuthContext.tsx` - Updated token refresh logic
-6. `client/src/components/debug/ActivityDebugger.tsx` - New debug component
-7. `client/src/App.tsx` - Added debug component
-8. `client/src/hooks/custom/README.md` - Updated documentation
+1. `client/src/constants/index.ts` - Updated timing constants
+2. `client/src/contexts/AuthContext.tsx` - Enhanced logout logic and redirects
 
-## Best Practices Followed
+## Testing Recommendations
 
-1. **Performance**: Throttled high-frequency events, used passive event listeners
-2. **Security**: Filtered system-generated events, proper cleanup
-3. **User Experience**: Comprehensive interaction tracking, proactive token refresh
-4. **Maintainability**: Clear comments, centralized configuration, proper error handling
-5. **Testing**: Debug component for verification, detailed console logging
+1. **Scenario 1**: Verify modal appears at ~2 minutes and "Continue to Work" resets session
+2. **Scenario 2**: Verify "Logout" button redirects to login page
+3. **Scenario 3**: Verify automatic logout after 3 minutes redirects to login page
+4. **Edge Cases**: Test with network interruptions, browser refresh, etc.
 
 ## Notes
 
-- The debug component is only visible in development mode (`import.meta.env.PROD` check)
-- All constants are centralized and follow the existing configuration pattern
-- No database tables are dropped or modified
-- No internal secrets are exposed
-- The system maintains backward compatibility with existing components 
+- No database schema changes required
+- Follows React and GraphQL best practices
+- Maintains existing styling and layout
+- Uses centralized constants for configuration
+- No internal secrets exposed 

@@ -4,6 +4,9 @@
  * Follows best practices for maintainability and consistency
  */
 
+// Export authentication constants
+export * from './auth';
+
 /**
  * API Configuration Constants
  * Defines API endpoints and connection settings
@@ -29,7 +32,7 @@ export const AUTH_CONFIG = {
   SESSION_DURATION: 60 * 60 * 1000, // 1 hour
   
   // Activity tracking for session management
-  ACTIVITY_CHECK_INTERVAL: 10000, // Check user activity every 10 seconds (reduced frequency to prevent modal flicker and improve performance)
+  ACTIVITY_CHECK_INTERVAL: 5000, // Check user activity every 5 seconds (reduced for more precise modal timing)
   INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout (matches server ACCESS_TOKEN_EXPIRY)
   ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events (mousemove, scroll) to 1 second
   
@@ -49,6 +52,9 @@ export const AUTH_CONFIG = {
   // Refresh token auto-renewal for better user experience
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic refresh token renewal
   REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // Renew refresh token when 30 seconds remaining (half of 3 minutes)
+  
+  // Session expiry modal configuration
+  MODAL_AUTO_LOGOUT_DELAY: 3 * 60 * 1000, // 3 minutes after modal appears before automatic logout
   
   // Loading state optimization
   AUTH_INITIALIZATION_TIMEOUT: 3000, // 3 seconds timeout for auth initialization
