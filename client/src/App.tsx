@@ -3,18 +3,19 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useActivityTracker } from './hooks/custom/useActivityTracker';
+import { ProtectedRoute, PublicRoute } from './components/routing';
 import NavBar from './components/layout/NavBar';
 import apolloClient from './services/graphql/apollo-client';
-import { ROUTES } from './constants';
+import { ROUTE_PATHS } from './constants/routing';
 import './App.css';
 
 // Lazy load components for better performance
 const HomePage = React.lazy(() => import('./pages/home/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDebugger'));
+const AuthDebugger = React.lazy(() => import('./components/debug/AuthDebugger'));
 const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
 const Notification = React.lazy(() => import('./components/ui/Notification'));
-const AuthRedirect = React.lazy(() => import('./components/auth/AuthRedirect'));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -31,28 +32,44 @@ const LoadingSpinner = () => (
  * SCENARIOS: All application routes and authentication states
  */
 const AppRoutes: React.FC = () => {
-  const { isAuthenticated, isLoading, isInitializing, showLoadingSpinner } = useAuth();
+  const { isAuthenticated, isLoading, isInitializing } = useAuth();
 
-  // Track user activity across the application (inside Router context)
+  // Track user activity across the application
   useActivityTracker();
 
-  // Show loading spinner during authentication initialization
-  if (isLoading || isInitializing || showLoadingSpinner) {
+  // Show loading spinner only during initial authentication check
+  if (isLoading && isInitializing) {
     return <LoadingSpinner />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Global navigation bar */}
+      {/* Global navigation bar - show for all users */}
       <NavBar />
+
       <main>
         <Routes>
-          {/* Public routes */}
-          <Route path={ROUTES.HOME} element={<HomePage />} />
-          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          {/* Public routes - accessible without authentication */}
+          <Route
+            path={ROUTE_PATHS.LOGIN}
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
 
-          {/* Catch-all route - redirect to home */}
-          <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+          {/* Home route - accessible to all users */}
+          <Route
+            path={ROUTE_PATHS.HOME}
+            element={<HomePage />}
+          />
+
+          {/* Catch-all route - redirect to HomePage first */}
+          <Route
+            path="*"
+            element={<Navigate to={ROUTE_PATHS.HOME} replace />}
+          />
         </Routes>
       </main>
     </div>
@@ -82,11 +99,6 @@ const AppContent: React.FC = () => {
         <Suspense fallback={<LoadingSpinner />}>
           <AppRoutes />
         </Suspense>
-
-        {/* Authentication Redirect Handler */}
-        <Suspense fallback={null}>
-          <AuthRedirect />
-        </Suspense>
       </BrowserRouter>
 
       {/* Session Expiry Modal */}
@@ -113,6 +125,13 @@ const AppContent: React.FC = () => {
       {process.env.NODE_ENV === 'development' && (
         <Suspense fallback={null}>
           <ActivityDebugger />
+        </Suspense>
+      )}
+
+      {/* Auth Debugger (development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <AuthDebugger />
         </Suspense>
       )}
     </>

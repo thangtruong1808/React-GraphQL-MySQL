@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { AUTH_CONFIG } from '../../constants';
+import { AUTH_CONFIG, AUTH_FEATURES, AUTH_ERROR_MESSAGES } from '../../constants';
 import { getTokens, isTokenExpired, isActivityBasedTokenExpired } from '../../utils/tokenManager';
 
 /**
@@ -14,6 +14,7 @@ export interface AuthInitializer {
 /**
  * Authentication Initializer Hook
  * Manages authentication initialization on app startup
+ * Handles first-time users and returning users appropriately
  */
 export const useAuthInitializer = (
   refreshAccessToken: () => Promise<boolean>,
@@ -29,10 +30,14 @@ export const useAuthInitializer = (
   /**
    * Initialize authentication state
    * Only runs once on app startup
+   * Handles first-time users and returning users appropriately
    */
   const initializeAuth = useCallback(async () => {
     try {
-      console.log('🔍 Initializing authentication...');
+      if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+        console.log('🔍 Starting authentication initialization...');
+      }
+      
       setIsInitializing(true);
 
       // Start delayed loading spinner timer
@@ -42,7 +47,7 @@ export const useAuthInitializer = (
 
       // Set overall timeout for auth initialization
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Auth initialization timeout')), AUTH_CONFIG.AUTH_INITIALIZATION_TIMEOUT);
+        setTimeout(() => reject(new Error(AUTH_ERROR_MESSAGES.INITIALIZATION_TIMEOUT)), AUTH_CONFIG.AUTH_INITIALIZATION_TIMEOUT);
       });
 
       const authPromise = (async () => {
@@ -50,7 +55,9 @@ export const useAuthInitializer = (
 
         // Check if we have a valid access token in memory
         if (tokens.accessToken) {
-          console.log('🔍 Access token found in memory, checking if valid...');
+          if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+            console.log('🔍 Access token found in memory, checking if valid...');
+          }
 
           // Check if access token is expired (using activity-based validation if enabled)
           let isExpired = false;
@@ -61,34 +68,49 @@ export const useAuthInitializer = (
           }
 
           if (isExpired) {
-            console.log('🔍 Access token expired, attempting token refresh...');
+            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+              console.log('🔍 Access token expired, attempting token refresh...');
+            }
             // Try to refresh the access token using the refresh token from httpOnly cookie
             const refreshSuccess = await refreshAccessToken();
             if (!refreshSuccess) {
-              console.log('🔍 Token refresh failed - user must login (refresh token expired or invalid)');
+              if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+                console.log('🔍 Token refresh failed - user must login (refresh token expired or invalid)');
+              }
               await performCompleteLogout();
               return;
             }
             // refreshAccessToken already sets user data, so we're done
-            console.log('✅ Authentication restored via token refresh');
+            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+              console.log('✅ Authentication restored via token refresh');
+            }
             return;
           } else {
-            console.log('✅ Valid access token found, fetching user data...');
+            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+              console.log('✅ Valid access token found, fetching user data...');
+            }
             // Token is valid, fetch user data
             await fetchCurrentUser();
             return;
           }
         } else {
-          console.log('🔍 No access token found, attempting token refresh...');
+          if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+            console.log('🔍 No access token found, attempting token refresh...');
+          }
           // Try to refresh the access token using the refresh token from httpOnly cookie
           const refreshSuccess = await refreshAccessToken();
           if (!refreshSuccess) {
-            console.log('🔍 Token refresh failed - user must login (no refresh token available)');
-            await performCompleteLogout();
+            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+              console.log('🔍 Token refresh failed - user must login (no refresh token available)');
+            }
+            // For first-time users, don't call performCompleteLogout immediately
+            // Let them see the login page naturally
             return;
           }
           // refreshAccessToken already sets user data, so we're done
-          console.log('✅ Authentication restored via token refresh');
+          if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+            console.log('✅ Authentication restored via token refresh');
+          }
           return;
         }
       })();
@@ -100,10 +122,20 @@ export const useAuthInitializer = (
       clearTimeout(loadingTimer);
       setShowLoadingSpinner(false);
 
+      if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+        console.log('✅ Authentication initialization completed successfully');
+      }
+
     } catch (error) {
-      console.error('❌ Error during authentication initialization:', error);
+      if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
+        console.error('❌ Error during authentication initialization:', error);
+      }
       setShowLoadingSpinner(false);
-      await performCompleteLogout();
+      
+      // Only perform logout if it's not a timeout error (first-time users)
+      if (error instanceof Error && error.message !== AUTH_ERROR_MESSAGES.INITIALIZATION_TIMEOUT) {
+        await performCompleteLogout();
+      }
     } finally {
       setIsLoading(false);
       setIsInitializing(false);

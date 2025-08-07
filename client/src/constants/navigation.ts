@@ -1,5 +1,5 @@
 import { User } from '../types/graphql';
-import { ROUTES, USER_ROLES } from './index';
+import { ROUTE_PATHS } from './routing';
 
 /**
  * Navigation Configuration
@@ -24,7 +24,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'home',
     label: 'Home',
-    path: ROUTES.HOME,
+    path: ROUTE_PATHS.HOME,
     icon: 'home',
     requiresAuth: false,
     description: 'Landing page'
@@ -32,7 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'login',
     label: 'Login',
-    path: ROUTES.LOGIN,
+    path: ROUTE_PATHS.LOGIN,
     icon: 'login',
     requiresAuth: false,
     description: 'Sign in to your account'

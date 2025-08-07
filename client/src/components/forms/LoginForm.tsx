@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ERROR_MESSAGES, ROUTES, SUCCESS_MESSAGES, VALIDATION_CONFIG } from '../../constants';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES, VALIDATION_CONFIG } from '../../constants';
+import { ROUTE_PATHS } from '../../constants/routing';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppActivityTracker } from '../../hooks/custom/useAppActivityTracker';
 import { LoginInput } from '../../types/graphql';
@@ -12,8 +13,12 @@ import { LoginInput } from '../../types/graphql';
  */
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, loginLoading } = useAuth();
   const { trackFormSubmission } = useAppActivityTracker();
+
+  // Get redirect path from location state (where user was trying to go)
+  const from = (location.state as any)?.from?.pathname || ROUTE_PATHS.HOME;
 
   // Form state - only essential fields for login
   const [formData, setFormData] = useState<LoginInput>({
@@ -126,8 +131,8 @@ const LoginForm: React.FC = () => {
 
       if (result?.success) {
         setSuccess(SUCCESS_MESSAGES.LOGIN_SUCCESS);
-        // Redirect to home page immediately after successful login
-        navigate(ROUTES.HOME);
+        // Redirect to intended page or home page after successful login
+        navigate(from, { replace: true });
       } else {
         setError(result?.error || ERROR_MESSAGES.LOGIN_FAILED);
       }

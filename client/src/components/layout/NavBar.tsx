@@ -1,212 +1,156 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getNavItemsForUser, getMobileNavItems } from '../../constants/navigation';
+import { ROUTE_PATHS } from '../../constants/routing';
+import { getNavItemsForUser } from '../../constants/navigation';
 import Logo from './Logo';
 import UserDropdown from './UserDropdown';
-import MobileMenu from './MobileMenu';
 import MobileMenuButton from './MobileMenuButton';
-import NavIcon from '../ui/NavIcon';
+import MobileMenu from './MobileMenu';
 
 /**
- * NavBar Component
- * Main navigation bar with responsive design and role-based access
- * Orchestrates logo, navigation, user menu, and mobile menu
+ * Navigation Bar Component
+ * Main navigation component that adapts based on authentication status
+ * 
+ * CALLED BY: App.tsx for all users
+ * SCENARIOS: Both authenticated and unauthenticated user navigation
  */
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, isAuthenticated, logout, logoutLoading } = useAuth();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const mobileMenuButtonRef = useRef<HTMLDivElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Get navigation items based on user role
+  // Get navigation items based on user authentication status
   const navItems = getNavItemsForUser(user);
 
   /**
-   * Check if navigation item is currently active
-   * @param itemPath - Navigation item path
-   * @returns True if item is active
+   * Handle click outside to close dropdowns
+   * Closes mobile menu and user dropdown when clicking outside
    */
-  const isActiveItem = (itemPath: string): boolean => {
-    if (itemPath === '/') {
-      return location.pathname === '/';
+  const handleClickOutside = (event: MouseEvent) => {
+    if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+      setIsMobileMenuOpen(false);
     }
-    return location.pathname.startsWith(itemPath);
+    if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
+      setIsUserDropdownOpen(false);
+    }
   };
 
   /**
-   * Close dropdown and mobile menu when clicking outside
-   * Excludes mobile menu button to prevent conflicts with X button
+   * Handle user logout
+   * Performs logout and redirects to login page
    */
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
-        mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  /**
-   * Toggle user dropdown menu
-   */
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate(ROUTE_PATHS.LOGIN, { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   /**
-   * Get user initials for avatar
-   */
-  const getUserInitials = () => {
-    if (!user) return '';
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-  };
-
-  /**
-   * Toggle mobile menu
+   * Toggle mobile menu visibility
+   * Opens/closes mobile navigation menu
    */
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsUserDropdownOpen(false); // Close user dropdown when opening mobile menu
   };
 
   /**
-   * Close mobile menu when navigating
+   * Toggle user dropdown visibility
+   * Opens/closes user profile dropdown
+   */
+  const toggleUserDropdown = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+    setIsMobileMenuOpen(false); // Close mobile menu when opening user dropdown
+  };
+
+  /**
+   * Close mobile menu
+   * Closes mobile navigation menu
    */
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
   /**
-   * Handle user logout
+   * Get user initials for avatar
+   * Returns user's first and last name initials
    */
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const getUserInitials = () => {
+    if (!user) return '';
+    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
   };
 
+  // Add click outside listener
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100">
-      <div className="w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        {/* Main NavBar Row */}
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center flex-shrink-0">
+    <nav className="bg-white shadow-sm border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo and brand */}
+          <div className="flex items-center">
             <Logo />
           </div>
 
-          {/* Desktop Navigation Links - Single Row (1440px and above) */}
-          <div className="hidden 2xl:flex items-center space-x-6">
-            {navItems.map((item) => {
-              const isActive = isActiveItem(item.path);
-              return (
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {/* Navigation links - show based on navigation items */}
+            <div className="flex items-center space-x-6">
+              {navItems.map((item) => (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`group flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap ${isActive
-                    ? 'text-emerald-700 bg-emerald-50'
-                    : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50'
-                    }`}
-                  title={item.description}
+                  className="text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
-                  <NavIcon
-                    icon={item.icon || 'default'}
-                    className={`w-5 h-5 transition-colors duration-200 ${isActive ? 'text-emerald-700' : 'text-gray-500 group-hover:text-emerald-600'
-                      }`}
-                  />
-                  <span className={`text-sm transition-all duration-200 ${isActive ? 'font-medium' : 'font-normal'
-                    }`}>
-                    {item.label}
-                  </span>
+                  {item.label}
                 </Link>
-              );
-            })}
-          </div>
+              ))}
+            </div>
 
-          {/* Desktop User Menu */}
-          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
-            {isAuthenticated ? (
-              <div ref={dropdownRef}>
+            {/* User dropdown - only show for authenticated users */}
+            {isAuthenticated && (
+              <div className="relative" ref={userDropdownRef}>
                 <UserDropdown
                   user={user}
-                  isDropdownOpen={isDropdownOpen}
-                  logoutLoading={logoutLoading}
-                  onToggleDropdown={toggleDropdown}
+                  isDropdownOpen={isUserDropdownOpen}
+                  onToggleDropdown={toggleUserDropdown}
                   onLogout={handleLogout}
+                  logoutLoading={logoutLoading}
                   getUserInitials={getUserInitials}
                 />
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <Link
-                  to="/login"
-                  className="text-emerald-700 hover:text-emerald-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-emerald-50 border border-emerald-500 hover:border-emerald-300"
-                >
-                  Login
-                </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Button - Visible below 1024px */}
-          <div className="lg:hidden" ref={mobileMenuButtonRef}>
-            <MobileMenuButton isOpen={isMobileMenuOpen} onToggle={toggleMobileMenu} />
-          </div>
-        </div>
-
-        {/* Second Row Navigation - Two Rows (815px to 1440) */}
-        <div className="hidden lg:flex 2xl:hidden border-t border-emerald-100">
-          <div className="flex items-center justify-center space-x-4 py-2 w-full">
-            {navItems.map((item) => {
-              const isActive = isActiveItem(item.path);
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className={`group flex flex-col items-center space-y-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap ${isActive
-                    ? 'text-emerald-700 bg-emerald-50'
-                    : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50'
-                    }`}
-                  title={item.description}
-                >
-                  <NavIcon
-                    icon={item.icon || 'default'}
-                    className={`w-5 h-5 transition-colors duration-200 ${isActive ? 'text-emerald-700' : 'text-gray-500 group-hover:text-emerald-600'
-                      }`}
-                  />
-                  <span className={`text-sm transition-all duration-200 ${isActive ? 'font-medium' : 'font-normal'
-                    }`}>
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <MobileMenuButton
+              isOpen={isMobileMenuOpen}
+              onToggle={toggleMobileMenu}
+            />
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       <div ref={mobileMenuRef}>
         <MobileMenu
           isOpen={isMobileMenuOpen}
           user={user}
           isAuthenticated={isAuthenticated}
-          logoutLoading={logoutLoading}
           onClose={closeMobileMenu}
           onLogout={handleLogout}
+          logoutLoading={logoutLoading}
           getUserInitials={getUserInitials}
           navItems={navItems}
         />

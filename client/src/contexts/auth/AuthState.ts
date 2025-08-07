@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { User } from '../../types/graphql';
+import { AUTH_FEATURES } from '../../constants/auth';
 
 /**
  * Authentication State Interface
@@ -34,13 +35,14 @@ export interface AuthState {
 /**
  * Initial authentication state
  * Provides default values for all authentication state properties
+ * Optimized for first-time user experience
  */
 export const initialAuthState: AuthState = {
   // Core authentication state
   user: null,
   isAuthenticated: false,
-  isLoading: true,
-  isInitializing: true,
+  isLoading: AUTH_FEATURES.ENABLE_FIRST_TIME_USER_OPTIMIZATION ? false : true, // Start as false for better UX
+  isInitializing: AUTH_FEATURES.ENABLE_FIRST_TIME_USER_OPTIMIZATION ? false : true, // Start as false for better UX
   showLoadingSpinner: false,
 
   // Session expiry state

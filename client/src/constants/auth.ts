@@ -35,8 +35,11 @@ export const AUTH_TIMING = {
   MODAL_AUTO_LOGOUT_DELAY: 3 * 60 * 1000, // 3 minutes after modal appears
   
   // Loading states
-  AUTH_INITIALIZATION_TIMEOUT: 3000, // 3 seconds auth initialization timeout
-  SHOW_LOADING_AFTER_DELAY: 500, // Show loading spinner after 500ms
+  AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)
+  SHOW_LOADING_AFTER_DELAY: 1000, // Show loading spinner after 1 second (increased for better UX)
+  
+  // First-time user experience
+  FIRST_TIME_USER_DELAY: 500, // 500ms delay for first-time users to avoid flash
 } as const;
 
 /**
@@ -49,6 +52,12 @@ export const AUTH_FEATURES = {
   
   // Refresh token auto-renewal
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic refresh token renewal
+  
+  // First-time user experience
+  ENABLE_FIRST_TIME_USER_OPTIMIZATION: true, // Enable optimizations for first-time users
+  
+  // Debug mode
+  ENABLE_AUTH_DEBUG_LOGGING: process.env.NODE_ENV === 'development', // Enable debug logging in development
 } as const;
 
 /**
@@ -68,6 +77,10 @@ export const AUTH_ERROR_MESSAGES = {
   SESSION_TIMEOUT: 'Session expired due to inactivity. Please log in again.',
   REFRESH_FAILED: 'Failed to refresh session. Please log in again.',
   
+  // Initialization errors
+  INITIALIZATION_TIMEOUT: 'Authentication initialization timed out. Please refresh the page.',
+  INITIALIZATION_FAILED: 'Failed to initialize authentication. Please refresh the page.',
+  
   // General errors
   UNKNOWN_ERROR: 'An unexpected error occurred',
   NETWORK_ERROR: 'Network error. Please check your connection.',
@@ -86,6 +99,9 @@ export const AUTH_SUCCESS_MESSAGES = {
   
   // Session management
   SESSION_CONTINUED: 'Session refreshed successfully',
+  
+  // Initialization
+  INITIALIZATION_SUCCESS: 'Authentication initialized successfully',
 } as const;
 
 /**
@@ -119,6 +135,9 @@ export const AUTH_STORAGE_KEYS = {
   // Session management
   LAST_ACTIVITY: 'last_activity',
   SESSION_EXPIRY: 'session_expiry',
+  
+  // First-time user
+  FIRST_TIME_USER: 'first_time_user',
 } as const;
 
 /**

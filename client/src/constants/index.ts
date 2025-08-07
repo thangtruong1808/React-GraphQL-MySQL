@@ -7,6 +7,9 @@
 // Export authentication constants
 export * from './auth';
 
+// Export routing constants
+export * from './routing';
+
 /**
  * API Configuration Constants
  * Defines API endpoints and connection settings
@@ -273,7 +276,8 @@ export const SUCCESS_MESSAGES = {
 
 /**
  * Route Configuration Constants
- * Defines application routes and navigation settings
+ * @deprecated Use ROUTE_PATHS from './routing' instead
+ * Kept for backward compatibility
  */
 export const ROUTES = {
   // Public routes
