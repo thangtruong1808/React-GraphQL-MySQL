@@ -13,7 +13,6 @@ import './App.css';
 const HomePage = React.lazy(() => import('./pages/home/HomePage'));
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDebugger'));
-const AuthDebugger = React.lazy(() => import('./components/debug/AuthDebugger'));
 const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
 const Notification = React.lazy(() => import('./components/ui/Notification'));
 
@@ -127,22 +126,16 @@ const AppContent: React.FC = () => {
           <ActivityDebugger />
         </Suspense>
       )}
-
-      {/* Auth Debugger (development only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <Suspense fallback={null}>
-          <AuthDebugger />
-        </Suspense>
-      )}
     </>
   );
 };
 
 /**
- * Main App Component
- * Sets up Apollo Client, Router, and application layout
- * Handles lazy loading of pages with Suspense
- * Implements protected routes for authentication
+ * App Component
+ * Main application wrapper with authentication provider
+ * 
+ * CALLED BY: main.tsx
+ * SCENARIOS: All application scenarios
  */
 function App() {
   return (

@@ -2,13 +2,12 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { from } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
-import { API_CONFIG, ROUTES, AUTH_CONFIG } from '../../constants';
+import { API_CONFIG, AUTH_CONFIG, ROUTES } from '../../constants';
 import {
   clearTokens,
   getTokens,
-  isAuthenticated,
-  isTokenExpired,
-  isActivityBasedTokenExpired
+  isActivityBasedTokenExpired,
+  isTokenExpired
 } from '../../utils/tokenManager';
 
 // CSRF token storage in memory (XSS protection)

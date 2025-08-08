@@ -251,6 +251,14 @@ export const useAuthActions = (
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
       console.log('🔄 Attempting to refresh session manually...');
+      
+      // Clear auto logout timer when user chooses to continue working
+      if (modalAutoLogoutTimer) {
+        clearTimeout(modalAutoLogoutTimer);
+        setModalAutoLogoutTimer(null);
+        console.log('✅ Modal auto logout timer cleared (user continuing to work)');
+      }
+      
       const refreshSuccess = await refreshAccessToken();
       if (refreshSuccess) {
         console.log('✅ Session refreshed successfully.');
@@ -270,7 +278,7 @@ export const useAuthActions = (
       showNotification('Failed to refresh session. Please log in again.', 'error');
       return false;
     }
-  }, [refreshAccessToken, setShowSessionExpiryModal, setLastModalShowTime, showNotification]);
+  }, [refreshAccessToken, setShowSessionExpiryModal, setLastModalShowTime, showNotification, modalAutoLogoutTimer, setModalAutoLogoutTimer]);
 
   return {
     login,

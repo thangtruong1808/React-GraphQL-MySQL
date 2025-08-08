@@ -5,6 +5,47 @@
  */
 
 /**
+ * Authentication Configuration
+ * Main configuration object for authentication settings
+ */
+export const AUTH_CONFIG = {
+  // Activity tracking intervals
+  ACTIVITY_CHECK_INTERVAL: 3000, // Check user activity every 3 seconds
+  ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events to 1 second
+  
+  // Session management
+  SESSION_DURATION: 60 * 60 * 1000, // 1 hour session duration
+  INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout
+  
+  // Token configuration
+  ACCESS_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes access token expiry
+  REFRESH_TOKEN_EXPIRY_MS: 4 * 60 * 1000, // 4 minutes refresh token expiry (matches server-side)
+  ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes activity-based token expiry
+  
+  // Activity-based token management
+  ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
+  
+  // Token refresh thresholds
+  TOKEN_REFRESH_WARNING_THRESHOLD: 60 * 1000, // 60 seconds warning threshold
+  TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds caution threshold
+  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 60 * 1000, // 60 seconds activity refresh threshold
+  
+  // Refresh token management
+  REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // 30 seconds renewal threshold
+  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
+  
+  // Session expiry modal
+  MODAL_AUTO_LOGOUT_DELAY: 4 * 60 * 1000, // 4 minutes after modal appears
+  
+  // Loading states
+  AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)
+  SHOW_LOADING_AFTER_DELAY: 1000, // Show loading spinner after 1 second (increased for better UX)
+  
+  // First-time user experience
+  FIRST_TIME_USER_DELAY: 500, // 500ms delay for first-time users to avoid flash
+} as const;
+
+/**
  * Authentication Timing Constants
  * Defines timing-related settings for authentication flow
  */
@@ -19,7 +60,7 @@ export const AUTH_TIMING = {
   
   // Token configuration
   ACCESS_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes access token expiry
-  REFRESH_TOKEN_EXPIRY: 3 * 60 * 1000, // 3 minutes refresh token expiry
+  REFRESH_TOKEN_EXPIRY: 4 * 60 * 1000, // 4 minutes refresh token expiry
   ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes activity-based token expiry
   
   // Token refresh thresholds
@@ -32,7 +73,7 @@ export const AUTH_TIMING = {
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
   
   // Session expiry modal
-  MODAL_AUTO_LOGOUT_DELAY: 3 * 60 * 1000, // 3 minutes after modal appears
+  MODAL_AUTO_LOGOUT_DELAY: 4 * 60 * 1000, // 4 minutes after modal appears
   
   // Loading states
   AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)

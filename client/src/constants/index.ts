@@ -26,43 +26,7 @@ export const API_CONFIG = {
   RETRY_DELAY: 1000, // 1 second
 } as const;
 
-/**
- * Authentication Configuration Constants
- * Defines authentication-related settings and validation rules
- */
-export const AUTH_CONFIG = {
-  // Session management
-  SESSION_DURATION: 60 * 60 * 1000, // 1 hour
-  
-  // Activity tracking for session management
-  ACTIVITY_CHECK_INTERVAL: 5000, // Check user activity every 5 seconds (reduced for more precise modal timing)
-  INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout (matches server ACCESS_TOKEN_EXPIRY)
-  ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events (mousemove, scroll) to 1 second
-  
-  // Activity-based token configuration
-  // When user is active, access token expiry resets from last activity
-  ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
-  ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes from last activity in milliseconds (matches server ACCESS_TOKEN_EXPIRY)
-  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 60 * 1000, // Refresh token when 60 seconds remaining (half of 2 minutes)
-  
-  // Token refresh thresholds for proactive refresh
-  TOKEN_REFRESH_WARNING_THRESHOLD: 60 * 1000, // 60 seconds - warning threshold (red)
-  TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds - caution threshold (yellow)
-  
-  // Refresh token configuration (matches server REFRESH_TOKEN_EXPIRY)
-  REFRESH_TOKEN_EXPIRY_MS: 3 * 60 * 1000, // 3 minutes in milliseconds (matches server REFRESH_TOKEN_EXPIRY for 5m total timeline)
-  
-  // Refresh token auto-renewal for better user experience
-  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic refresh token renewal
-  REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // Renew refresh token when 30 seconds remaining (half of 3 minutes)
-  
-  // Session expiry modal configuration
-  MODAL_AUTO_LOGOUT_DELAY: 3 * 60 * 1000, // 3 minutes after modal appears before automatic logout
-  
-  // Loading state optimization
-  AUTH_INITIALIZATION_TIMEOUT: 3000, // 3 seconds timeout for auth initialization
-  SHOW_LOADING_AFTER_DELAY: 500, // Show loading spinner after 500ms delay
-} as const;
+
 
 /**
  * Validation Configuration Constants
