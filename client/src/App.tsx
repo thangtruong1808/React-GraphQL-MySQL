@@ -1,18 +1,16 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { useActivityTracker } from './hooks/custom/useActivityTracker';
-import { ProtectedRoute, PublicRoute } from './components/routing';
+import { AppRoutes } from './components/routing';
 import NavBar from './components/layout/NavBar';
+import { ActivityTracker } from './components/activity';
 import apolloClient from './services/graphql/apollo-client';
-import { ROUTE_PATHS } from './constants/routing';
 import './App.css';
 
 // Lazy load components for better performance
-const HomePage = React.lazy(() => import('./pages/home/HomePage'));
-const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'));
 const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDebugger'));
+const ActivityTestPanel = React.lazy(() => import('./components/debug/ActivityTestPanel'));
 const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
 const Notification = React.lazy(() => import('./components/ui/Notification'));
 
@@ -24,17 +22,14 @@ const LoadingSpinner = () => (
 );
 
 /**
- * Main App Routes Component
- * Handles routing based on authentication status
+ * Main App Content Component
+ * Handles main application layout and routing
  * 
  * CALLED BY: App component
- * SCENARIOS: All application routes and authentication states
+ * SCENARIOS: All application scenarios
  */
-const AppRoutes: React.FC = () => {
-  const { isAuthenticated, isLoading, isInitializing } = useAuth();
-
-  // Track user activity across the application
-  useActivityTracker();
+const AppContent: React.FC = () => {
+  const { isLoading, isInitializing } = useAuth();
 
   // Show loading spinner only during initial authentication check
   if (isLoading && isInitializing) {
@@ -46,31 +41,19 @@ const AppRoutes: React.FC = () => {
       {/* Global navigation bar - show for all users */}
       <NavBar />
 
+      {/* Activity tracker - handles user activity monitoring */}
+      <ActivityTracker />
+
       <main>
-        <Routes>
-          {/* Public routes - accessible without authentication */}
-          <Route
-            path={ROUTE_PATHS.LOGIN}
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
-
-          {/* Home route - accessible to all users */}
-          <Route
-            path={ROUTE_PATHS.HOME}
-            element={<HomePage />}
-          />
-
-          {/* Catch-all route - redirect to HomePage first */}
-          <Route
-            path="*"
-            element={<Navigate to={ROUTE_PATHS.HOME} replace />}
-          />
-        </Routes>
+        <AppRoutes />
       </main>
+
+      {/* Activity Test Panel (development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <ActivityTestPanel />
+        </Suspense>
+      )}
     </div>
   );
 };
@@ -82,7 +65,7 @@ const AppRoutes: React.FC = () => {
  * CALLED BY: main.tsx
  * SCENARIOS: All application scenarios
  */
-const AppContent: React.FC = () => {
+const AppWithModals: React.FC = () => {
   const {
     showSessionExpiryModal,
     sessionExpiryMessage,
@@ -96,7 +79,7 @@ const AppContent: React.FC = () => {
     <>
       <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
-          <AppRoutes />
+          <AppContent />
         </Suspense>
       </BrowserRouter>
 
@@ -141,7 +124,7 @@ function App() {
   return (
     <ApolloProvider client={apolloClient}>
       <AuthProvider>
-        <AppContent />
+        <AppWithModals />
       </AuthProvider>
     </ApolloProvider>
   );

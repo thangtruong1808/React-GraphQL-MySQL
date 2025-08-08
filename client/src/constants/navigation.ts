@@ -1,5 +1,5 @@
 import { User } from '../types/graphql';
-import { ROUTE_PATHS } from './routing';
+import { ROUTE_PATHS } from './routingConstants';
 
 /**
  * Navigation Configuration

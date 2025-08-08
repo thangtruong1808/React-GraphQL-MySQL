@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { ROUTE_PATHS } from '../../constants/routing';
+import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { getNavItemsForUser } from '../../constants/navigation';
 import Logo from './Logo';
 import UserDropdown from './UserDropdown';

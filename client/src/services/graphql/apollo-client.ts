@@ -2,7 +2,8 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { from } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
-import { API_CONFIG, AUTH_CONFIG, ROUTES } from '../../constants';
+import { API_CONFIG, AUTH_CONFIG } from '../../constants';
+import { ROUTE_PATHS } from '../../constants/routingConstants';
 import {
   clearTokens,
   getTokens,
@@ -191,7 +192,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     if (networkError.message.includes('401') || networkError.message.includes('Unauthorized')) {
       console.log('🔐 Network authentication error detected - user may have been force logged out');
       clearTokens();
-      window.location.href = ROUTES.LOGIN;
+      window.location.href = ROUTE_PATHS.LOGIN;
     }
   }
 });

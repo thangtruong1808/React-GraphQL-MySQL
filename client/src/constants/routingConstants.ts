@@ -1,7 +1,7 @@
 /**
- * Routing Configuration Constants
- * Defines route paths, protection levels, and navigation settings
- * Centralized configuration for maintainability and consistency
+ * Routing Constants
+ * Centralized configuration for all routing-related constants
+ * Follows best practices for maintainability and consistency
  */
 
 /**
@@ -11,22 +11,13 @@
 export const ROUTE_PATHS = {
   // Public routes (accessible without authentication)
   LOGIN: '/login',
-  REGISTER: '/register',
-  FORGOT_PASSWORD: '/forgot-password',
-  RESET_PASSWORD: '/reset-password',
   
   // Protected routes (require authentication)
   HOME: '/',
-  DASHBOARD: '/dashboard',
-  PROFILE: '/profile',
-  SETTINGS: '/settings',
   
   // API routes
   GRAPHQL: '/graphql',
   HEALTH: '/health',
-  
-  // Fallback route
-  NOT_FOUND: '/404',
 } as const;
 
 /**
@@ -37,17 +28,11 @@ export const ROUTE_PROTECTION = {
   // Public routes (no authentication required)
   PUBLIC: [
     ROUTE_PATHS.LOGIN,
-    ROUTE_PATHS.REGISTER,
-    ROUTE_PATHS.FORGOT_PASSWORD,
-    ROUTE_PATHS.RESET_PASSWORD,
   ],
   
   // Protected routes (authentication required)
   PROTECTED: [
     ROUTE_PATHS.HOME,
-    ROUTE_PATHS.DASHBOARD,
-    ROUTE_PATHS.PROFILE,
-    ROUTE_PATHS.SETTINGS,
   ],
   
   // API routes (no protection needed)
@@ -69,27 +54,13 @@ export const ROUTE_CONFIG = {
   // Route titles for navigation
   TITLES: {
     [ROUTE_PATHS.LOGIN]: 'Login',
-    [ROUTE_PATHS.REGISTER]: 'Register',
-    [ROUTE_PATHS.FORGOT_PASSWORD]: 'Forgot Password',
-    [ROUTE_PATHS.RESET_PASSWORD]: 'Reset Password',
     [ROUTE_PATHS.HOME]: 'Home',
-    [ROUTE_PATHS.DASHBOARD]: 'Dashboard',
-    [ROUTE_PATHS.PROFILE]: 'Profile',
-    [ROUTE_PATHS.SETTINGS]: 'Settings',
-    [ROUTE_PATHS.NOT_FOUND]: 'Page Not Found',
   },
   
   // Route descriptions for SEO
   DESCRIPTIONS: {
     [ROUTE_PATHS.LOGIN]: 'Sign in to your account',
-    [ROUTE_PATHS.REGISTER]: 'Create a new account',
-    [ROUTE_PATHS.FORGOT_PASSWORD]: 'Reset your password',
-    [ROUTE_PATHS.RESET_PASSWORD]: 'Set your new password',
     [ROUTE_PATHS.HOME]: 'Welcome to the application',
-    [ROUTE_PATHS.DASHBOARD]: 'View your dashboard',
-    [ROUTE_PATHS.PROFILE]: 'Manage your profile',
-    [ROUTE_PATHS.SETTINGS]: 'Application settings',
-    [ROUTE_PATHS.NOT_FOUND]: 'Page not found',
   },
 } as const;
 
@@ -109,4 +80,34 @@ export const NAVIGATION_CONFIG = {
   
   // Route change delay
   ROUTE_CHANGE_DELAY: 100, // Delay in milliseconds for route changes
-} as const; 
+} as const;
+
+/**
+ * Route Error Messages
+ * Centralized error messages for routing scenarios
+ */
+export const ROUTE_ERROR_MESSAGES = {
+  // Authentication errors
+  ACCESS_DENIED: 'Access denied. Please log in to continue.',
+  UNAUTHORIZED: 'You are not authorized to access this page.',
+  
+  // Navigation errors
+  PAGE_NOT_FOUND: 'Page not found.',
+  NAVIGATION_FAILED: 'Navigation failed. Please try again.',
+  
+  // General errors
+  UNKNOWN_ROUTE_ERROR: 'An unexpected error occurred during navigation.',
+} as const;
+
+/**
+ * Route Success Messages
+ * Centralized success messages for routing scenarios
+ */
+export const ROUTE_SUCCESS_MESSAGES = {
+  // Navigation
+  NAVIGATION_SUCCESS: 'Navigation completed successfully',
+  
+  // Authentication
+  LOGIN_REDIRECT: 'Redirecting to login page...',
+  HOME_REDIRECT: 'Redirecting to home page...',
+} as const;

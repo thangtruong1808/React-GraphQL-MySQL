@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { ROUTE_CONFIG } from '../../constants/routing';
+import { ROUTE_CONFIG } from '../../constants/routingConstants';
 
 /**
  * Protected Route Component

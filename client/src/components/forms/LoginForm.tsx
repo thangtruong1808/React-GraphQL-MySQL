@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, VALIDATION_CONFIG } from '../../constants';
-import { ROUTE_PATHS } from '../../constants/routing';
+import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppActivityTracker } from '../../hooks/custom/useAppActivityTracker';
 import { LoginInput } from '../../types/graphql';

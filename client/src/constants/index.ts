@@ -8,7 +8,10 @@
 export * from './auth';
 
 // Export routing constants
-export * from './routing';
+export * from './routingConstants';
+
+// Export activity tracking constants
+export * from './activity';
 
 /**
  * API Configuration Constants
@@ -238,20 +241,7 @@ export const SUCCESS_MESSAGES = {
   OPERATION_SUCCESS: 'Operation completed successfully',
 } as const;
 
-/**
- * Route Configuration Constants
- * @deprecated Use ROUTE_PATHS from './routing' instead
- * Kept for backward compatibility
- */
-export const ROUTES = {
-  // Public routes
-  HOME: '/',
-  LOGIN: '/login',
-  
-  // API routes
-  GRAPHQL: '/graphql',
-  HEALTH: '/health',
-} as const;
+
 
 /**
  * User Role Constants
