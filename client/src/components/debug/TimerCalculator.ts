@@ -67,34 +67,33 @@ export class TimerCalculator {
           timeNow: new Date(now).toLocaleTimeString()
         };
         
-        // Only log when state changes occur
-        const currentState = isActivityBasedTokenExpired ? (refreshTokenExpiry ? 'refresh' : 'transition') : 'activity';
+        // Only log when state changes occur - prioritize refresh token countdown
+        const currentState = refreshTokenExpiry ? 'refresh' : (isActivityBasedTokenExpired ? 'transition' : 'activity');
         if (!this.lastLoggedState || this.lastLoggedState !== currentState) {
           console.log('🔄 Timer State Change:', currentState, debugInfo);
           this.lastLoggedState = currentState;
         }
       }
 
-      // The logic must match the session manager:
-      // 1. Activity-based token NOT expired -> Show activity timer
-      // 2. Activity-based token expired AND no refresh timer -> Transition state (modal is being prepared)
-      // 3. Activity-based token expired AND refresh timer exists -> Refresh countdown
+      // FIXED LOGIC: Refresh token countdown takes PRIORITY over activity status
+      // This ensures refresh countdown continues regardless of user activity
       
+      // Priority 1: If refresh token countdown is active, ALWAYS show it (ignore activity)
+      if (refreshTokenExpiry) {
+        // Refresh token timer is active - show countdown regardless of user activity
+        // This ensures the countdown continues even if user moves mouse
+        return this.calculateRefreshTokenTimer(now, refreshTokenStatus);
+      }
+      
+      // Priority 2: No refresh timer active - check activity-based logic
       if (!isActivityBasedTokenExpired) {
         // Activity-based token is still valid - show activity timer
-        // This covers the case where user moves mouse and resets the timer
+        // This covers normal operation before any expiry
         return this.calculateAccessTokenTimer(now, refreshTokenStatus);
       } else {
-        // Activity-based token has expired - check modal/refresh state
-        if (!refreshTokenExpiry) {
-          // No refresh token timer started yet - transition state (waiting for modal)
-          // This is the brief period between activity expiry and modal appearance
-          return this.calculateTransitionState(now, refreshTokenStatus);
-        } else {
-          // Refresh token timer active - show countdown
-          // Modal has appeared and refresh token countdown started
-          return this.calculateRefreshTokenTimer(now, refreshTokenStatus);
-        }
+        // Activity-based token expired AND no refresh timer yet - transition state
+        // This is the brief period between activity expiry and modal appearance
+        return this.calculateTransitionState(now, refreshTokenStatus);
       }
     } catch (error) {
       console.error('Error calculating timer state:', error);
@@ -186,6 +185,9 @@ export class TimerCalculator {
    * @param now - Current timestamp
    * @param refreshTokenStatus - Refresh token status information
    * @returns TimerState for refresh token
+   * 
+   * IMPORTANT: This method IGNORES all user activity and shows fixed countdown
+   * The refresh token countdown should NEVER be affected by mouse movement or user actions
    */
   private static calculateRefreshTokenTimer(now: number, refreshTokenStatus: any): TimerState {
     const refreshTokenExpiry = refreshTokenStatus.expiry;

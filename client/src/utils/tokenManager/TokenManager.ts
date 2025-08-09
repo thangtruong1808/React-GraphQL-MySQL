@@ -177,14 +177,25 @@ export class TokenManager {
 
   /**
    * Update refresh token expiry after renewal
-   * Extends the refresh token expiry time when token is renewed
-   * OR clears the expiry timer when user continues working
+   * Extends the refresh token expiry time when token is renewed with NEW tokens from server
+   * IMPORTANT: This should ONLY be called when getting NEW refresh tokens from server
    * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS: All scenarios - updates refresh token expiry
+   * CALLED BY: AuthContext after successful token refresh with NEW tokens
+   * SCENARIOS: Full session refresh with new refresh token from server
    */
   static updateRefreshTokenExpiry(): void {
     RefreshTokenManager.updateRefreshTokenExpiry();
+  }
+
+  /**
+   * Clear refresh token expiry timer
+   * ONLY used when user logs out or session is completely reset
+   * 
+   * CALLED BY: AuthContext during logout operations
+   * SCENARIOS: User logout, forced logout, session termination
+   */
+  static clearRefreshTokenExpiry(): void {
+    RefreshTokenManager.clearRefreshTokenExpiry();
   }
 
   /**

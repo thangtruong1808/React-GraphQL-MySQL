@@ -97,23 +97,48 @@ export class RefreshTokenManager {
 
   /**
    * Update refresh token expiry after renewal
-   * Extends the refresh token expiry time when token is renewed
-   * OR clears the expiry timer when user continues working
+   * Extends the refresh token expiry time when token is renewed with NEW tokens from server
+   * IMPORTANT: This should ONLY be called when getting NEW refresh tokens from server
    * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS: All scenarios - updates refresh token expiry
+   * CALLED BY: AuthContext after successful token refresh with NEW tokens
+   * SCENARIOS: Full session refresh with new refresh token from server
    */
   static updateRefreshTokenExpiry(): void {
     try {
       const oldExpiry = MemoryStorage.getRefreshTokenExpiry();
       
-      // Clear the refresh token expiry timer since user is continuing to work
-      // It will be set again when access token expires next time
-      MemoryStorage.setRefreshTokenExpiry(null);
+      // Only clear if we got NEW refresh tokens from server
+      // For "Continue to Work" scenarios, we should NOT clear the timer
+      // The refresh token countdown should remain FIXED and unaffected by user activity
       
-      console.log('✅ Refresh token expiry timer cleared (user continuing to work). Previous expiry was:', oldExpiry ? new Date(oldExpiry).toISOString() : 'null');
+      // Start new refresh token timer with fresh duration
+      const newExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
+      MemoryStorage.setRefreshTokenExpiry(newExpiry);
+      
+      console.log('✅ Refresh token expiry updated with NEW tokens. Old expiry:', 
+        oldExpiry ? new Date(oldExpiry).toISOString() : 'null',
+        'New expiry:', new Date(newExpiry).toISOString());
     } catch (error) {
       console.error('❌ Error updating refresh token expiry:', error);
+    }
+  }
+
+  /**
+   * Clear refresh token expiry timer
+   * ONLY used when user logs out or session is completely reset
+   * 
+   * CALLED BY: AuthContext during logout operations
+   * SCENARIOS: User logout, forced logout, session termination
+   */
+  static clearRefreshTokenExpiry(): void {
+    try {
+      const oldExpiry = MemoryStorage.getRefreshTokenExpiry();
+      MemoryStorage.setRefreshTokenExpiry(null);
+      
+      console.log('✅ Refresh token expiry timer cleared (logout/session reset). Previous expiry was:', 
+        oldExpiry ? new Date(oldExpiry).toISOString() : 'null');
+    } catch (error) {
+      console.error('❌ Error clearing refresh token expiry:', error);
     }
   }
 

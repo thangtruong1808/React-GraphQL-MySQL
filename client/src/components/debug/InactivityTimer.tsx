@@ -155,7 +155,7 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
             <span>Timer Type:</span>
             <span className="font-mono">
               {timerState.timerType === 'access' ? 'Access Token (Activity-Based)' :
-                timerState.timerType === 'refresh' ? 'Refresh Token (Fixed)' : 'Transition'}
+                timerState.timerType === 'refresh' ? 'Refresh Token' : 'Transition'}
             </span>
           </div>
           <div className="flex justify-between">
@@ -169,34 +169,10 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
             <span>Progress:</span>
             <span className="font-mono">{Math.round(timerState.progressPercentage)}%</span>
           </div>
-          {timerState.isCountingDown && (
-            <div className="flex justify-between">
-              <span>Time Remaining:</span>
-              <span className={`font-mono ${ACTIVITY_DEBUGGER_COLORS.DANGER}`}>
-                {timerState.timeDisplay}
-              </span>
-            </div>
-          )}
+
         </div>
 
-        {/* Additional Info */}
-        {/* {timerState.timerType === 'access' && !timerState.isAccessTokenExpired && (
-          <div className={`mt-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT} ${ACTIVITY_DEBUGGER_COLORS.NEUTRAL}`}>
-            <div>Activity-based token resets on user activity</div>
-            <div>Token expires in: {timerState.timeDisplay}</div>
-          </div>
-        )} */}
-
-        {/* {timerState.timerType === 'refresh' && (
-          <div className={`mt-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT} ${ACTIVITY_DEBUGGER_COLORS.DANGER}`}>
-            <div>⚠️ Fixed countdown - unaffected by user activity</div>
-            <div>System logout in: {timerState.timeDisplay}</div>
-          </div>
-        )} */}
       </div>
-
-      {/* Always show refresh token info when available */}
-      {/* <RefreshTokenInfo timerState={timerState} /> */}
     </>
   );
 };

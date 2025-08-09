@@ -25,6 +25,9 @@ export const ACTIVITY_DEBUGGER_UI = {
   // Component sizing
   DEBUG_PANEL_WIDTH: 'w-80', // Panel width class
   DEBUG_PANEL_MAX_HEIGHT: 'max-h-full', // Panel max height class
+  
+  // Timer priority rules
+  REFRESH_TIMER_PRIORITY: true, // Refresh timer takes priority over activity status
 } as const;
 
 /**
@@ -56,6 +59,7 @@ export const ACTIVITY_DEBUGGER_MESSAGES = {
   COUNTDOWN_WARNING: 'Logout countdown active',
   TRANSITION_STATE: 'Waiting for session modal...',
   REFRESH_TOKEN_COUNTDOWN: 'Refresh token countdown',
+  REFRESH_TIMER_FIXED: 'Fixed countdown - not affected by activity',
   
   // Help text
   HELP_TEXT: '💡 Move your mouse, type, or click to see activity tracking in action.',

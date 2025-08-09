@@ -97,13 +97,27 @@ export const isRefreshTokenNeedsRenewal = (): boolean => {
 
 /**
  * Update refresh token expiry after renewal
+ * Extends the refresh token expiry time when token is renewed with NEW tokens
+ * IMPORTANT: Should only be called when getting NEW refresh tokens from server
  * @returns void
  * 
- * CALLED BY: AuthContext after successful token refresh
- * SCENARIOS: All scenarios - updates refresh token expiry
+ * CALLED BY: AuthContext after successful token refresh with NEW tokens
+ * SCENARIOS: Full session refresh with new refresh token from server
  */
 export const updateRefreshTokenExpiry = (): void => {
   TokenManager.updateRefreshTokenExpiry();
+};
+
+/**
+ * Clear refresh token expiry timer
+ * ONLY used when user logs out or session is completely reset
+ * @returns void
+ * 
+ * CALLED BY: AuthContext during logout operations
+ * SCENARIOS: User logout, forced logout, session termination
+ */
+export const clearRefreshTokenExpiry = (): void => {
+  TokenManager.clearRefreshTokenExpiry();
 };
 
 /**

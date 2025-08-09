@@ -71,6 +71,10 @@ export const useAuthActions = (
 
     // Clear all authentication data
     clearTokens();
+    
+    // Clear refresh token expiry timer
+    TokenManager.clearRefreshTokenExpiry();
+    
     setUser(null);
     setIsAuthenticated(false);
 
@@ -151,9 +155,13 @@ export const useAuthActions = (
       if (success && renewedUser) {
         console.log('✅ Refresh token renewed successfully');
 
-        // Update user data and extend refresh token expiry
+        // Update user data
         setUser(renewedUser);
-        TokenManager.updateRefreshTokenExpiry();
+        
+        // DO NOT update refresh token expiry here!
+        // The refresh token timer should remain FIXED and unaffected by user activity
+        // Only reset refresh token timer on initial login or complete session reset
+        console.log('🔒 Refresh token timer remains FIXED (not affected by renewal)');
 
         return true;
       } else {
