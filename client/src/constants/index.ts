@@ -13,6 +13,12 @@ export * from './routingConstants';
 // Export activity tracking constants
 export * from './activity';
 
+// Export activity debugger constants
+export * from './activityDebugger';
+
+// Export navbar constants
+export * from './navbar';
+
 /**
  * API Configuration Constants
  * Defines API endpoints and connection settings

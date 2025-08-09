@@ -12,19 +12,19 @@ const LoginCredentials: React.FC = () => {
         {/* Column 1 */}
         <div className="flex flex-col items-start">
           <p className="text-gray-700 text-xs">Email: admin25@gmail.com</p>
-          <p className="py-1 text-xs">Password: UserTest123!</p>
+          <p className="py-1 text-xs">Password: {"UserTest123!<>"}</p>
           <p className="text-red-600 text-xs">Role: ADMIN</p>
         </div>
         {/* Column 2 */}
         <div className="flex flex-col items-start">
           <p className="text-gray-700 text-xs">Email: karenacosta@gmail.com</p>
-          <p className="py-1 text-xs">Password: UserTest123!</p>
+          <p className="py-1 text-xs">Password: {"UserTest123!<>"}</p>
           <p className="text-xs text-blue-600">Role: MANAGER</p>
         </div>
         {/* Column 3 */}
         <div className="flex flex-col items-start">
           <p className="text-gray-700 text-xs">Email: jgriffin@thomas.com</p>
-          <p className="py-1 text-xs">Password: UserTest123!</p>
+          <p className="py-1 text-xs">Password: {"UserTest123!<>"}</p>
           <p className="text-xs text-purple-600">Role: DEVELOPER</p>
         </div>
       </div>
@@ -34,19 +34,19 @@ const LoginCredentials: React.FC = () => {
         {/* Column 1 */}
         <div className="flex flex-col items-start">
           <p className=" text-gray-700 text-xs">Email: dicksonmark@greene.com</p>
-          <p className="py-1 text-xs">Password: UserTest123!</p>
+          <p className="py-1 text-xs">Password: {"UserTest123!<>"}</p>
           <p className="text-xs text-orange-600">Role: ADMIN</p>
         </div>
         {/* Column 2 */}
         <div className="flex flex-col items-start">
           <p className=" text-gray-700 text-xs">Email: andrewmay@yahoo.com</p>
-          <p className="py-1 text-xs">Password: UserTest123!</p>
+          <p className="py-1 text-xs">Password: {"UserTest123!<>"}</p>
           <p className="text-xs text-blue-600">Role: MANAGER</p>
         </div>
         {/* Column 3 */}
         <div className="flex flex-col items-start">
           <p className=" text-gray-700 text-xs">Email: dherman@gmail.com</p>
-          <p className="py-1 text-xs">Password: UserTest123!</p>
+          <p className="py-1 text-xs">Password: {"UserTest123!<>"}</p>
           <p className="text-xs text-purple-600">Role: DEVELOPER</p>
         </div>
       </div>

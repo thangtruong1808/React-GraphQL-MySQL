@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { getNavItemsForUser } from '../../constants/navigation';
+import { NAVBAR_UI } from '../../constants/navbar';
 import Logo from './Logo';
 import UserDropdown from './UserDropdown';
 import MobileMenuButton from './MobileMenuButton';
@@ -86,6 +87,21 @@ const NavBar: React.FC = () => {
     if (!user) return '';
     return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
   };
+
+  // Reset dropdown and mobile menu states when authentication changes
+  useEffect(() => {
+    if (NAVBAR_UI.CLOSE_DROPDOWNS_ON_AUTH_CHANGE) {
+      // Close user dropdown when authentication state changes
+      // This ensures dropdowns are reset on login/logout
+      setIsUserDropdownOpen(false);
+    }
+
+    if (NAVBAR_UI.CLOSE_MOBILE_MENU_ON_AUTH_CHANGE) {
+      // Close mobile menu when authentication state changes
+      // This ensures mobile menu is reset on login/logout
+      setIsMobileMenuOpen(false);
+    }
+  }, [isAuthenticated, user?.id]); // Reset when auth state or user changes
 
   // Add click outside listener
   useEffect(() => {

@@ -28,6 +28,9 @@ export const ACTIVITY_DEBUGGER_UI = {
   
   // Timer priority rules
   REFRESH_TIMER_PRIORITY: true, // Refresh timer takes priority over activity status
+  
+  // Debug panel behavior
+  HIDE_ON_AUTH_CHANGE: true, // Always hide debug panel when authentication state changes
 } as const;
 
 /**
@@ -39,8 +42,8 @@ export const ACTIVITY_DEBUGGER_MESSAGES = {
   TITLE: '🔍 Activity Management',
   
   // Toggle button
-  SHOW_DEBUG: 'Show Activity Debug',
-  HIDE_DEBUG: 'Hide Activity Debug',
+  SHOW_DEBUG: 'Show Token Session',
+  HIDE_DEBUG: 'Hide Token Session',
   
   // Section headers
   USER_INFO_HEADER: '👤 USER INFO',

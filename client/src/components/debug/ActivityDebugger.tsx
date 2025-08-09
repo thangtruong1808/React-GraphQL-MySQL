@@ -7,7 +7,8 @@ import UserInfoSection from './UserInfoSection';
 import {
   ACTIVITY_DEBUGGER_LAYOUT,
   ACTIVITY_DEBUGGER_MESSAGES,
-  ACTIVITY_DEBUGGER_COLORS
+  ACTIVITY_DEBUGGER_COLORS,
+  ACTIVITY_DEBUGGER_UI
 } from '../../constants/activityDebugger';
 
 /**
@@ -22,6 +23,15 @@ const ActivityDebugger: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [isVisible, setIsVisible] = useState(false);
+
+  // Reset debug panel visibility when authentication state changes
+  useEffect(() => {
+    if (ACTIVITY_DEBUGGER_UI.HIDE_ON_AUTH_CHANGE) {
+      // Hide debug panel when user logs out or authentication state changes
+      // This ensures panel is always hidden by default on fresh login
+      setIsVisible(false);
+    }
+  }, [isAuthenticated, user?.id]); // Reset when auth state or user changes
 
   // Update current time every second
   useEffect(() => {
