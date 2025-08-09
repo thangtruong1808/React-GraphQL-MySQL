@@ -10,7 +10,6 @@ import './App.css';
 
 // Lazy load components for better performance
 const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDebugger'));
-const ActivityTestPanel = React.lazy(() => import('./components/debug/ActivityTestPanel'));
 const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
 const Notification = React.lazy(() => import('./components/ui/Notification'));
 
@@ -47,13 +46,6 @@ const AppContent: React.FC = () => {
       <main>
         <AppRoutes />
       </main>
-
-      {/* Activity Test Panel (development only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <Suspense fallback={null}>
-          <ActivityTestPanel />
-        </Suspense>
-      )}
     </div>
   );
 };

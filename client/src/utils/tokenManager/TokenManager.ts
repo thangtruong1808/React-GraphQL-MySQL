@@ -188,6 +188,33 @@ export class TokenManager {
   }
 
   /**
+   * Get refresh token expiry timestamp
+   * @returns Refresh token expiry timestamp or null if not set
+   * 
+   * CALLED BY: Debug components for displaying refresh token information
+   * SCENARIOS: Debugging and monitoring refresh token expiry
+   */
+  static getRefreshTokenExpiry(): number | null {
+    return RefreshTokenManager.getRefreshTokenExpiry();
+  }
+
+  /**
+   * Get refresh token status information for debugging
+   * @returns Object with refresh token status information
+   * 
+   * CALLED BY: Debug components for displaying comprehensive refresh token information
+   * SCENARIOS: Debugging and monitoring refresh token status
+   */
+  static getRefreshTokenStatus(): {
+    expiry: number | null;
+    isExpired: boolean;
+    needsRenewal: boolean;
+    timeRemaining: number | null;
+  } {
+    return RefreshTokenManager.getRefreshTokenStatus();
+  }
+
+  /**
    * Get the timestamp of the last user activity
    * @returns Timestamp of last activity or null if no activity recorded
    * 
