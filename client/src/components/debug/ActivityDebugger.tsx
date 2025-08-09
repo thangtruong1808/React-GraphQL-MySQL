@@ -9,6 +9,7 @@ import { AUTH_CONFIG } from '../../constants';
  * Includes prominent inactivity timer display and all authentication information
  * 
  * NOTE: This component should only be used in development mode
+ * IMPORTANT: Only displays when user is successfully logged in
  */
 const ActivityDebugger: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -116,16 +117,18 @@ const ActivityDebugger: React.FC = () => {
 
   return (
     <>
-      {/* Toggle Button */}
-      <button
-        onClick={() => setIsVisible(!isVisible)}
-        className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg"
-      >
-        {isVisible ? 'Hide' : 'Show'} Debug
-      </button>
+      {/* Only show toggle button when user is authenticated */}
+      {isAuthenticated && (
+        <button
+          onClick={() => setIsVisible(!isVisible)}
+          className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-lg"
+        >
+          {isVisible ? 'Hide' : 'Show'} Session Token
+        </button>
+      )}
 
-      {/* Debug Panel */}
-      {isVisible && (
+      {/* Debug Panel - only show when authenticated and visible */}
+      {isAuthenticated && isVisible && (
         <div className="fixed bottom-16 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-xl p-4 w-80 max-h-full overflow-y-auto">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">🔍 Activity Debugger</h3>
 
@@ -292,4 +295,4 @@ const ActivityDebugger: React.FC = () => {
   );
 };
 
-export default ActivityDebugger; 
+export default ActivityDebugger;
