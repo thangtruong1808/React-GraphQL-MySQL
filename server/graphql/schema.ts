@@ -7,6 +7,9 @@ import { gql } from 'graphql-tag';
  */
 
 export const typeDefs = gql`
+  # Custom JSON Scalar Type for flexible data structures
+  scalar JSON
+
   # Authorization directive for schema-level security
   directive @auth(
     role: String
@@ -54,6 +57,33 @@ export const typeDefs = gql`
     user: User!
   }
 
+  # Error Log Type - for server error logging
+  type ErrorLog {
+    id: ID!
+    timestamp: String!
+    level: String!
+    category: String!
+    message: String!
+    details: JSON
+    userId: String
+    operation: String
+    requestId: String
+  }
+
+  # Error Log Statistics Type - for error log analytics
+  type ErrorLogStats {
+    totalLogs: Int!
+    logsByCategory: JSON!
+    logsByLevel: JSON!
+    recentErrors: Int!
+  }
+
+  # Error Log Response Type - for error log operations
+  type ErrorLogResponse {
+    success: Boolean!
+    message: String!
+  }
+
   # Login Input Type - email and password for authentication
   input LoginInput {
     email: String!
@@ -64,6 +94,13 @@ export const typeDefs = gql`
   type Query {
     # Get current authenticated user - requires valid JWT token
     currentUser: User @auth
+    
+    # Error log queries for debugging and monitoring
+    errorLogs(category: String, level: String, userId: String, limit: Int, offset: Int): [ErrorLog!]!
+    errorLogsByCategory(category: String!, limit: Int, offset: Int): [ErrorLog!]!
+    errorLogsByUser(userId: String!, limit: Int, offset: Int): [ErrorLog!]!
+    errorLogsByLevel(level: String!, limit: Int, offset: Int): [ErrorLog!]!
+    errorLogStats: ErrorLogStats!
   }
 
   # Mutation Type - only includes authentication mutations that are actually used
@@ -79,5 +116,8 @@ export const typeDefs = gql`
     
     # Renew refresh token to extend session - for active users
     refreshTokenRenewal: RefreshTokenRenewalResponse!
+    
+    # Error log mutations for management
+    clearErrorLogs: ErrorLogResponse!
   }
 `;

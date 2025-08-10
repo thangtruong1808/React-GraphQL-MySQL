@@ -34,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    console.log('🔐 Access denied - redirecting to login');
+    // Debug logging disabled for better user experience
     return (
       <Navigate
         to={fallbackPath}

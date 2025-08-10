@@ -6,6 +6,8 @@ import { LoginInput, User } from '../../types/graphql';
 import { clearCSRFToken as clearApolloCSRFToken, setCSRFToken as setApolloCSRFToken } from '../../services/graphql/apollo-client';
 import { clearTokens, saveTokens, TokenManager } from '../../utils/tokenManager';
 import { useApolloClient } from '@apollo/client';
+import { DEBUG_CONFIG } from '../../constants';
+import { useError } from '../ErrorContext';
 
 /**
  * Authentication Actions Interface
@@ -45,6 +47,7 @@ export const useAuthActions = (
   modalAutoLogoutTimer: NodeJS.Timeout | null,
 ) => {
   const client = useApolloClient();
+  const { showError } = useError();
   
   // GraphQL operations
   const [getCurrentUser] = useLazyQuery(GET_CURRENT_USER);
@@ -95,19 +98,18 @@ export const useAuthActions = (
    */
   const refreshAccessToken = useCallback(async (): Promise<boolean> => {
     try {
-      console.log('🔄 Attempting to refresh access token...');
+      // Debug logging disabled for better user experience
 
       const result = await refreshTokenMutation();
 
       if (!result.data || !result.data.refreshToken) {
-        console.log('❌ Invalid refresh token response structure:', result);
         return false;
       }
 
       const { accessToken, refreshToken, csrfToken, user: refreshedUser } = result.data.refreshToken;
 
       if (accessToken && refreshedUser) {
-        console.log('✅ Access token refreshed successfully');
+        // Debug logging disabled for better user experience
 
         // Store the new access token and user data in memory
         TokenManager.updateTokens(accessToken, refreshToken || '', refreshedUser);
@@ -123,17 +125,15 @@ export const useAuthActions = (
 
         return true;
       } else {
-        console.log('❌ Access token refresh failed: Missing accessToken or user data');
         return false;
       }
     } catch (error: any) {
       if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         const graphQLError = error.graphQLErrors[0];
         if (graphQLError.message === 'Refresh token is required') {
-          console.log('🔍 No refresh token available - user must login');
           return false;
         }
-        console.log('❌ GraphQL error during token refresh:', graphQLError.message);
+        // Debug logging disabled for better user experience
       } else {
         console.error('❌ Error refreshing access token:', error);
       }
@@ -147,13 +147,13 @@ export const useAuthActions = (
    */
   const renewRefreshToken = useCallback(async (): Promise<boolean> => {
     try {
-      console.log('🔄 Attempting to renew refresh token...');
+      // Debug logging disabled for better user experience
 
       const result = await refreshTokenRenewalMutation();
       const { success, user: renewedUser } = result.data.refreshTokenRenewal;
 
       if (success && renewedUser) {
-        console.log('✅ Refresh token renewed successfully');
+        // Debug logging disabled for better user experience
 
         // Update user data
         setUser(renewedUser);
@@ -161,11 +161,9 @@ export const useAuthActions = (
         // DO NOT update refresh token expiry here!
         // The refresh token timer should remain FIXED and unaffected by user activity
         // Only reset refresh token timer on initial login or complete session reset
-        console.log('🔒 Refresh token timer remains FIXED (not affected by renewal)');
 
         return true;
       } else {
-        console.log('❌ Refresh token renewal failed:', result.data.refreshTokenRenewal.message);
         return false;
       }
     } catch (error) {
@@ -190,7 +188,6 @@ export const useAuthActions = (
       }
     } catch (error: any) {
       if (error.graphQLErrors?.[0]?.extensions?.code === 'UNAUTHENTICATED') {
-        console.log('🔐 User authentication failed, performing logout...');
         await performCompleteLogout();
       } else {
         setUser(null);
@@ -210,12 +207,16 @@ export const useAuthActions = (
       const response = await loginMutation({ variables: { input } });
 
       if (response.errors && response.errors.length > 0) {
-        return { success: false, error: response.errors[0]?.message || 'Login failed' };
+        const errorMessage = response.errors[0]?.message || 'Login failed';
+        showError(errorMessage, 'Authentication');
+        return { success: false, error: errorMessage };
       }
 
       const { login: loginData } = response.data || {};
       if (!loginData?.accessToken || !loginData?.refreshToken || !loginData?.user) {
-        return { success: false, error: 'Invalid login response' };
+        const errorMessage = 'Invalid login response';
+        showError(errorMessage, 'Authentication');
+        return { success: false, error: errorMessage };
       }
 
       // Save tokens and update authentication state
@@ -230,11 +231,13 @@ export const useAuthActions = (
 
       return { success: true, user: loginData.user };
     } catch (error: any) {
-      return { success: false, error: error.message || 'Login failed' };
+      const errorMessage = error.message || 'Login failed';
+      showError(errorMessage, 'Authentication');
+      return { success: false, error: errorMessage };
     } finally {
       setLoginLoading(false);
     }
-  }, [loginMutation, setUser, setIsAuthenticated, setLoginLoading]);
+  }, [loginMutation, setUser, setIsAuthenticated, setLoginLoading, showError]);
 
   /**
    * Logout function - Main logout entry point
@@ -258,24 +261,24 @@ export const useAuthActions = (
    */
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
-      console.log('🔄 Attempting to refresh session manually...');
+      // Debug logging disabled for better user experience
       
       // Clear auto logout timer when user chooses to continue working
       if (modalAutoLogoutTimer) {
         clearTimeout(modalAutoLogoutTimer);
         setModalAutoLogoutTimer(null);
-        console.log('✅ Modal auto logout timer cleared (user continuing to work)');
+        // Debug logging disabled for better user experience
       }
       
       const refreshSuccess = await refreshAccessToken();
       if (refreshSuccess) {
-        console.log('✅ Session refreshed successfully.');
+        // Debug logging disabled for better user experience
         setShowSessionExpiryModal(false);
         setLastModalShowTime(null);
         showNotification('You can continue working now!', 'success');
         return true;
       } else {
-        console.log('❌ Failed to refresh session manually.');
+        // Debug logging disabled for better user experience
         setShowSessionExpiryModal(false);
         showNotification('Failed to refresh session. Please log in again.', 'error');
         return false;

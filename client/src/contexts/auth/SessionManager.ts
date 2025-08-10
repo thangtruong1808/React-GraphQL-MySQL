@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { AUTH_CONFIG } from '../../constants';
+import { AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
 import {
   getTokens,
   isTokenExpired,
@@ -58,10 +58,8 @@ export const useSessionManager = (
     try {
       // Check if refresh token is expired (absolute timeout) - ALWAYS CHECK FIRST
       const refreshTokenExpired = isRefreshTokenExpired();
-      console.log('🔍 SESSION CHECK - Refresh token expired:', refreshTokenExpired);
 
       if (refreshTokenExpired) {
-        console.log('🔐 Refresh token expired (absolute timeout), performing logout...');
         setShowSessionExpiryModal(false);
         showNotification('Your session has expired due to inactivity. Please log in again.', 'info');
         await performCompleteLogout();
@@ -78,8 +76,7 @@ export const useSessionManager = (
           isAccessTokenExpired = isTokenExpired(tokens.accessToken);
         }
 
-        console.log('🔍 SESSION CHECK - Access token expired:', isAccessTokenExpired);
-        console.log('🔍 SESSION CHECK - Modal currently showing:', showSessionExpiryModal);
+        // Debug logging disabled for better user experience
 
         // Show modal only if access token is expired, refresh token is valid, modal is not already showing, and enough time has passed since last show
         const now = Date.now();
@@ -87,7 +84,7 @@ export const useSessionManager = (
         const minTimeBetweenShows = 5000; // 5 seconds minimum between modal shows
 
         if (isAccessTokenExpired && !refreshTokenExpired && !showSessionExpiryModal && timeSinceLastShow > minTimeBetweenShows) {
-          console.log('🔐 Access token expired but refresh token still valid - showing session expiry modal');
+          // Debug logging disabled for better user experience
           setSessionExpiryMessage('Your session has expired. Click "Continue to Work" to refresh your session or "Logout" to sign in again.');
           setShowSessionExpiryModal(true);
           setLastModalShowTime(now);
@@ -97,7 +94,7 @@ export const useSessionManager = (
 
           // Start automatic logout timer (3 minutes after modal appears)
           const autoLogoutTimer = setTimeout(async () => {
-            console.log('🔐 Automatic logout after modal timeout - performing logout...');
+            // Debug logging disabled for better user experience
             setShowSessionExpiryModal(false);
             showNotification('Session expired due to inactivity. Please log in again.', 'info');
             await performCompleteLogout();
@@ -111,7 +108,7 @@ export const useSessionManager = (
 
         // If modal is already showing, don't run additional checks that could hide it
         if (showSessionExpiryModal) {
-          console.log('🔐 Session expiry modal is already showing - skipping additional checks');
+          // Debug logging disabled for better user experience
           return;
         }
       }
@@ -120,19 +117,19 @@ export const useSessionManager = (
       if (!showSessionExpiryModal) {
         // Check if refresh token needs renewal (proactive renewal for active users)
         if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && isRefreshTokenNeedsRenewal()) {
-          console.log('🔄 Refresh token needs renewal, attempting renewal...');
+          // Debug logging disabled for better user experience
           const renewalSuccess = await renewRefreshToken();
           if (!renewalSuccess) {
-            console.log('❌ Refresh token renewal failed, but continuing session...');
+            // Debug logging disabled for better user experience
           }
         }
 
         // Check if activity-based token is expired (when user stops being active)
         if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
-          console.log('🔐 Activity-based token expired (user stopped being active), attempting token refresh...');
+          // Debug logging disabled for better user experience
           const refreshSuccess = await refreshAccessToken();
           if (!refreshSuccess) {
-            console.log('🔐 Token refresh failed, performing logout...');
+            // Debug logging disabled for better user experience
             await performCompleteLogout();
             return;
           }
@@ -140,10 +137,10 @@ export const useSessionManager = (
 
         // Check if user has been inactive for too long (application-level inactivity)
         if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
-          console.log('🔐 User inactive for too long (no application actions), attempting token refresh...');
+          // Debug logging disabled for better user experience
           const refreshSuccess = await refreshAccessToken();
           if (!refreshSuccess) {
-            console.log('🔐 Token refresh failed, performing logout...');
+            // Debug logging disabled for better user experience
             await performCompleteLogout();
             return;
           }
@@ -181,7 +178,6 @@ export const useSessionManager = (
     try {
       const tokens = getTokens();
       if (!tokens.accessToken) {
-        console.log('🔍 No access token found in validateSession, attempting token refresh...');
         const refreshSuccess = await refreshAccessToken();
         return refreshSuccess;
       }
@@ -190,7 +186,6 @@ export const useSessionManager = (
       if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
         const isExpired = isActivityBasedTokenExpired();
         if (isExpired) {
-          console.log('🔍 Activity-based token expired in validateSession, attempting token refresh...');
           const refreshSuccess = await refreshAccessToken();
           return refreshSuccess;
         }
@@ -200,7 +195,6 @@ export const useSessionManager = (
       // Fallback to fixed token expiry check
       const isExpired = isTokenExpired(tokens.accessToken);
       if (isExpired) {
-        console.log('🔍 Fixed token expired in validateSession, attempting token refresh...');
         const refreshSuccess = await refreshAccessToken();
         return refreshSuccess;
       }
@@ -223,7 +217,6 @@ export const useSessionManager = (
       // Don't refresh tokens if session expiry modal is showing
       // This prevents the modal from auto-closing when user moves mouse
       if (showSessionExpiryModal) {
-        console.log('🔐 Session expiry modal is showing - skipping token refresh to prevent auto-close');
         return;
       }
 
@@ -238,7 +231,7 @@ export const useSessionManager = (
           const shouldRefresh = timeUntilExpiry < AUTH_CONFIG.ACTIVITY_TOKEN_REFRESH_THRESHOLD;
 
           if (shouldRefresh) {
-            console.log('🔄 Activity-based token more than halfway through lifetime, refreshing due to user activity...');
+            // Debug logging disabled for better user experience
             await refreshAccessToken();
           }
         } else {
@@ -249,7 +242,7 @@ export const useSessionManager = (
             const shouldRefresh = timeUntilExpiry < AUTH_CONFIG.ACTIVITY_TOKEN_REFRESH_THRESHOLD;
 
             if (shouldRefresh) {
-              console.log('🔄 Fixed token more than halfway through lifetime, refreshing due to user activity...');
+              // Debug logging disabled for better user experience
               await refreshAccessToken();
             }
           }

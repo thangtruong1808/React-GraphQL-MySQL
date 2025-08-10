@@ -97,7 +97,7 @@ export const ACTIVITY_FEATURES = {
   ENABLE_SYSTEM_EVENT_FILTERING: true, // Filter out system-generated events
   
   // Debug mode
-  ENABLE_ACTIVITY_DEBUG_LOGGING: process.env.NODE_ENV === 'development', // Enable debug logging in development
+  ENABLE_ACTIVITY_DEBUG_LOGGING: false, // Disabled for better user experience
 } as const;
 
 /**

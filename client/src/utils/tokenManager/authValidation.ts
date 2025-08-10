@@ -1,6 +1,7 @@
 import { MemoryStorage } from './memoryStorage';
 import { TokenValidation } from './tokenValidation';
 import { ActivityManager } from './activityManager';
+import { DEBUG_CONFIG } from '../../constants';
 
 /**
  * Authentication Validation Module
@@ -64,9 +65,7 @@ export class AuthValidation {
       const now = Date.now();
       const isExpired = now >= tokenExpiry;
       
-      console.log('🔍 ACCESS TOKEN EXPIRY CHECK - Current time:', new Date(now).toISOString());
-      console.log('🔍 ACCESS TOKEN EXPIRY CHECK - Token expires:', new Date(tokenExpiry).toISOString());
-      console.log('🔍 ACCESS TOKEN EXPIRY CHECK - Is expired:', isExpired);
+      // Debug logging disabled for better user experience
       
       return isExpired;
     } catch (error) {

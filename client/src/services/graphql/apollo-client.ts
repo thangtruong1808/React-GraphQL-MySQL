@@ -2,7 +2,7 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { from } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
-import { API_CONFIG, AUTH_CONFIG } from '../../constants';
+import { API_CONFIG, AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import {
   clearTokens,
@@ -10,6 +10,15 @@ import {
   isActivityBasedTokenExpired,
   isTokenExpired
 } from '../../utils/tokenManager';
+import { ClientLogger } from '../../utils/errorLogger';
+
+// Global error handler - will be set by App.tsx
+let globalErrorHandler: ((message: string, source: string) => void) | null = null;
+
+// Function to set the global error handler
+export const setGlobalErrorHandler = (handler: (message: string, source: string) => void) => {
+  globalErrorHandler = handler;
+};
 
 // CSRF token storage in memory (XSS protection)
 let csrfToken: string | null = null;
@@ -34,13 +43,13 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
       const data = await response.json();
       if (data.csrfToken) {
         csrfToken = data.csrfToken;
-        console.log('🔒 Initial CSRF token fetched successfully');
+        // Debug logging disabled for better user experience
       }
     } else {
-      console.warn('⚠️ Failed to fetch initial CSRF token:', response.status);
+      ClientLogger.csrf.warn('Failed to fetch initial CSRF token', { status: response.status }, 'fetchInitialCSRFToken', 'apollo-client');
     }
   } catch (error) {
-    console.warn('⚠️ Error fetching initial CSRF token:', error);
+    ClientLogger.csrf.error('Error fetching initial CSRF token', error, 'fetchInitialCSRFToken', 'apollo-client');
   }
 };
 
@@ -126,7 +135,7 @@ const authLink = setContext((_, { headers }) => {
     
     return { headers: requestHeaders };
   } catch (error) {
-    console.error('❌ Error setting auth context:', error);
+    ClientLogger.apollo.error('Error setting auth context', error, 'authLink', 'apollo-client');
     return { headers };
   }
 });
@@ -147,50 +156,67 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
       // Handle expected "Refresh token is required" error gracefully
       if (message === 'Refresh token is required') {
-        console.log('🔍 Expected: No refresh token available (user not logged in)');
         return; // Don't log as error or take any action
       }
       
-      console.error(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+      ClientLogger.apollo.error(
+        `GraphQL error: ${message}`,
+        { locations, path, extensions },
+        'errorLink',
+        'apollo-client'
       );
       
       // Handle authentication errors (including force logout)
       if (extensions?.code === 'UNAUTHENTICATED') {
-        console.log('🔐 Authentication error detected - attempting token refresh...');
+        // Debug logging disabled for better user experience
         
         // Check if this is a currentUser query (which should trigger refresh)
         const isCurrentUserQuery = operation.operationName === 'GetCurrentUser' || 
                                   path?.includes('currentUser');
         
         if (isCurrentUserQuery) {
-          console.log('🔐 CurrentUser query failed - this will trigger token refresh in AuthContext');
           // Don't clear tokens here - let AuthContext handle the refresh
           return;
         }
         
         // For other queries, don't immediately redirect - let AuthContext handle session expiry
-        console.log('🔐 Non-currentUser query failed - letting AuthContext handle session expiry');
         // Don't clear tokens or redirect - AuthContext will show session expiry modal
         return;
       }
 
       // Handle too many sessions error
       if (extensions?.code === 'TOO_MANY_SESSIONS') {
-        console.log('🔐 Too many sessions error detected - showing error message');
-        
         // Show error message to user (don't clear tokens, just show error)
-        alert(message || 'Maximum active sessions reached. Please log out from another device to continue.');
+        const errorMessage = message || 'Maximum active sessions reached. Please log out from another device to continue.';
+        if (globalErrorHandler) {
+          globalErrorHandler(errorMessage, 'Authentication');
+        }
+        // Removed alert() - using inline error display instead
+      } else {
+        // Show other GraphQL errors to user
+        if (globalErrorHandler) {
+          globalErrorHandler(message, 'GraphQL');
+        }
       }
     });
   }
 
   if (networkError) {
-    console.error(`[Network error]: ${networkError}`);
+    ClientLogger.network.error(
+      `Network error: ${networkError.message}`,
+      networkError,
+      'errorLink',
+      'apollo-client'
+    );
+    
+    // Show network errors to user
+    if (globalErrorHandler) {
+      globalErrorHandler(`Network error: ${networkError.message}`, 'Network');
+    }
     
     // Handle network errors that might be related to authentication
     if (networkError.message.includes('401') || networkError.message.includes('Unauthorized')) {
-      console.log('🔐 Network authentication error detected - user may have been force logged out');
+      // Debug logging disabled for better user experience
       clearTokens();
       window.location.href = ROUTE_PATHS.LOGIN;
     }
@@ -214,7 +240,7 @@ const client = new ApolloClient({
           // Cache policies for better performance
           currentUser: {
             read(existing) {
-              console.log('🔍 APOLLO CACHE - Reading currentUser from cache:', !!existing);
+              // Debug logging disabled for better user experience
               return existing;
             },
           },
@@ -238,8 +264,7 @@ const client = new ApolloClient({
   connectToDevTools: process.env.NODE_ENV === 'development',
 });
 
-// Enhanced logging for GraphQL operations
-console.log('🔧 Apollo Client initialized with enhanced debugging');
+// Enhanced logging for GraphQL operations (disabled for better user experience)
 
 // Fetch initial CSRF token (only once on startup)
 fetchInitialCSRFToken();
@@ -253,7 +278,7 @@ fetchInitialCSRFToken();
  */
 export const setCSRFToken = (token: string) => {
   csrfToken = token;
-  console.log('🔒 CSRF token set in Apollo Client');
+  // Debug logging disabled for better user experience
 };
 
 /**
@@ -265,7 +290,7 @@ export const setCSRFToken = (token: string) => {
  */
 export const clearCSRFToken = () => {
   csrfToken = null;
-  console.log('🔒 CSRF token cleared from Apollo Client');
+  // Debug logging disabled for better user experience
 };
 
 export default client; 

@@ -5,6 +5,7 @@ import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppActivityTracker } from '../../hooks/custom/useAppActivityTracker';
 import { LoginInput } from '../../types/graphql';
+import { EnhancedInput, InlineError } from '../ui';
 
 /**
  * Login Form Component
@@ -32,6 +33,10 @@ const LoginForm: React.FC = () => {
   // Error and success state for user feedback
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
 
   /**
    * Handle form input changes
@@ -44,9 +49,15 @@ const LoginForm: React.FC = () => {
       [name]: value,
     }));
 
-    // Clear error when user starts typing - immediate feedback
+    // Clear errors when user starts typing - immediate feedback
     if (error) {
       setError('');
+    }
+    if (fieldErrors[name as keyof typeof fieldErrors]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: undefined,
+      }));
     }
   };
 
@@ -75,30 +86,28 @@ const LoginForm: React.FC = () => {
    * @returns True if form is valid, false otherwise
    */
   const validateForm = (): boolean => {
+    const newFieldErrors: typeof fieldErrors = {};
+    let hasErrors = false;
+
     // Check for required fields first
     if (!formData.email.trim()) {
-      setError(ERROR_MESSAGES.EMAIL_REQUIRED);
-      return false;
+      newFieldErrors.email = ERROR_MESSAGES.EMAIL_REQUIRED;
+      hasErrors = true;
+    } else if (!VALIDATION_CONFIG.EMAIL_REGEX.test(formData.email)) {
+      newFieldErrors.email = ERROR_MESSAGES.EMAIL_INVALID;
+      hasErrors = true;
     }
 
     if (!formData.password.trim()) {
-      setError(ERROR_MESSAGES.PASSWORD_REQUIRED);
-      return false;
+      newFieldErrors.password = ERROR_MESSAGES.PASSWORD_REQUIRED;
+      hasErrors = true;
+    } else if (formData.password.length < VALIDATION_CONFIG.PASSWORD_MIN_LENGTH) {
+      newFieldErrors.password = `Password must be at least ${VALIDATION_CONFIG.PASSWORD_MIN_LENGTH} characters long`;
+      hasErrors = true;
     }
 
-    // Email format validation using centralized regex
-    if (!VALIDATION_CONFIG.EMAIL_REGEX.test(formData.email)) {
-      setError(ERROR_MESSAGES.EMAIL_INVALID);
-      return false;
-    }
-
-    // Password length validation using centralized config
-    if (formData.password.length < VALIDATION_CONFIG.PASSWORD_MIN_LENGTH) {
-      setError(`Password must be at least ${VALIDATION_CONFIG.PASSWORD_MIN_LENGTH} characters long`);
-      return false;
-    }
-
-    return true;
+    setFieldErrors(newFieldErrors);
+    return !hasErrors;
   };
 
   /**
@@ -112,6 +121,7 @@ const LoginForm: React.FC = () => {
     // Clear previous messages for clean state
     setError('');
     setSuccess('');
+    setFieldErrors({});
 
     // Client-side validation - prevents unnecessary server requests
     if (!validateForm()) {
@@ -144,68 +154,58 @@ const LoginForm: React.FC = () => {
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       {/* Email Input */}
-      <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email address
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-            </svg>
-          </div>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleInputChange}
-            disabled={loginLoading}
-          />
-          {/* Clear email button */}
-          {formData.email && (
+      <EnhancedInput
+        id="email"
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        label="Email address"
+        placeholder="Enter your email"
+        value={formData.email}
+        onChange={handleInputChange}
+        disabled={loginLoading}
+        error={fieldErrors.email}
+        leftIcon={
+          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+          </svg>
+        }
+        rightIcon={
+          formData.email ? (
             <button
               type="button"
               onClick={() => clearInput('email')}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       {/* Password Input */}
-      <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Password
-        </label>
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <input
-            id="password"
-            name="password"
-            type={showPassword ? 'text' : 'password'}
-            autoComplete="current-password"
-            required
-            className="block w-full pl-10 pr-20 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleInputChange}
-            disabled={loginLoading}
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-            {/* Clear password button */}
+      <EnhancedInput
+        id="password"
+        name="password"
+        type={showPassword ? 'text' : 'password'}
+        autoComplete="current-password"
+        required
+        label="Password"
+        placeholder="Enter your password"
+        value={formData.password}
+        onChange={handleInputChange}
+        disabled={loginLoading}
+        error={fieldErrors.password}
+        leftIcon={
+          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        }
+        rightIcon={
+          <div className="flex items-center">
             {formData.password && (
               <button
                 type="button"
@@ -217,7 +217,6 @@ const LoginForm: React.FC = () => {
                 </svg>
               </button>
             )}
-            {/* Toggle password visibility button */}
             <button
               type="button"
               onClick={togglePasswordVisibility}
@@ -235,15 +234,17 @@ const LoginForm: React.FC = () => {
               )}
             </button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Error and Success Messages */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
+      <InlineError
+        message={error}
+        type="error"
+        position="top"
+        dismissible={true}
+        onDismiss={() => setError('')}
+      />
       {success && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
           {success}

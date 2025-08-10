@@ -10,6 +10,7 @@ import { setupAssociations, testConnection } from './db';
 import { createContext } from './graphql/context';
 import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
+import { ServerLogger } from './utils/errorLogger';
 
 // Load environment variables
 dotenv.config();
@@ -90,7 +91,7 @@ const server = new ApolloServer({
   context: ({ req, res }: { req: any; res: any }) => {
     // Create unified context with authentication
     const context = createContext({ req, res });
-    console.log('🔍 APOLLO CONTEXT - Final context created:', {
+    ServerLogger.graphql.info('Apollo context created', {
       hasUser: !!context.user,
       userId: context.user?.id,
       userEmail: context.user?.email,
@@ -143,28 +144,30 @@ async function startServer() {
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://${SERVER_HOST}:${PORT}`);
-      console.log(`📊 GraphQL endpoint: http://${SERVER_HOST}:${PORT}${server.graphqlPath}`);
-      console.log(`🔍 GraphQL Playground: http://${SERVER_HOST}:${PORT}${server.graphqlPath}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🍪 Cookie handling: Enabled with httpOnly`);
+      ServerLogger.server.info('Server started successfully', {
+        host: SERVER_HOST,
+        port: PORT,
+        graphqlPath: server.graphqlPath,
+        environment: process.env.NODE_ENV || 'development',
+        cookieHandling: 'Enabled with httpOnly'
+      });
     });
 
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    ServerLogger.server.critical('Failed to start server', error);
     process.exit(1);
   }
 }
 
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 Received SIGTERM, shutting down gracefully...');
+  ServerLogger.server.info('Received SIGTERM, shutting down gracefully');
   await server.stop();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('🛑 Received SIGINT, shutting down gracefully...');
+  ServerLogger.server.info('Received SIGINT, shutting down gracefully');
   await server.stop();
   process.exit(0);
 });

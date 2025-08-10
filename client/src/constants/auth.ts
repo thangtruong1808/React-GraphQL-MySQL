@@ -98,7 +98,7 @@ export const AUTH_FEATURES = {
   ENABLE_FIRST_TIME_USER_OPTIMIZATION: true, // Enable optimizations for first-time users
   
   // Debug mode
-  ENABLE_AUTH_DEBUG_LOGGING: process.env.NODE_ENV === 'development', // Enable debug logging in development
+  ENABLE_AUTH_DEBUG_LOGGING: false, // Disabled for better user experience
 } as const;
 
 /**

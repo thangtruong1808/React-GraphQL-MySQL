@@ -1,4 +1,4 @@
-import { AUTH_CONFIG } from '../../constants';
+import { AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
 import { MemoryStorage } from './memoryStorage';
 
 /**
@@ -23,7 +23,7 @@ export class RefreshTokenManager {
     try {
       const expiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
       MemoryStorage.setRefreshTokenExpiry(expiry);
-      console.log('🔄 Refresh token expiry timer started:', new Date(expiry).toISOString());
+      // Debug logging disabled for better user experience
     } catch (error) {
       console.error('❌ Error starting refresh token expiry timer:', error);
     }
@@ -42,18 +42,13 @@ export class RefreshTokenManager {
     try {
       const refreshTokenExpiry = MemoryStorage.getRefreshTokenExpiry();
       if (!refreshTokenExpiry) {
-        console.log('❌ No refresh token expiry timestamp found');
         return false; // Not expired if timer hasn't started yet
       }
       
       const now = Date.now();
       const isExpired = now >= refreshTokenExpiry;
       
-      if (isExpired) {
-        console.log('❌ Refresh token expired at:', new Date(refreshTokenExpiry).toISOString());
-      } else {
-        console.log('✅ Refresh token valid until:', new Date(refreshTokenExpiry).toISOString());
-      }
+      // Debug logging disabled for better user experience
       
       return isExpired;
     } catch (error) {
@@ -75,7 +70,6 @@ export class RefreshTokenManager {
     try {
       const refreshTokenExpiry = MemoryStorage.getRefreshTokenExpiry();
       if (!refreshTokenExpiry) {
-        console.log('❌ No refresh token expiry timestamp found for renewal check');
         return false;
       }
       
@@ -83,10 +77,7 @@ export class RefreshTokenManager {
       const timeUntilExpiry = refreshTokenExpiry - now;
       const needsRenewal = timeUntilExpiry <= AUTH_CONFIG.REFRESH_TOKEN_RENEWAL_THRESHOLD;
       
-      if (needsRenewal) {
-        console.log('🔄 Refresh token needs renewal - expires in:', Math.round(timeUntilExpiry / 1000), 'seconds');
-        console.log('🔄 Renewal threshold:', Math.round(AUTH_CONFIG.REFRESH_TOKEN_RENEWAL_THRESHOLD / 1000), 'seconds');
-      }
+      // Debug logging disabled for better user experience
       
       return needsRenewal;
     } catch (error) {
@@ -115,9 +106,7 @@ export class RefreshTokenManager {
       const newExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
       MemoryStorage.setRefreshTokenExpiry(newExpiry);
       
-      console.log('✅ Refresh token expiry updated with NEW tokens. Old expiry:', 
-        oldExpiry ? new Date(oldExpiry).toISOString() : 'null',
-        'New expiry:', new Date(newExpiry).toISOString());
+      // Debug logging disabled for better user experience
     } catch (error) {
       console.error('❌ Error updating refresh token expiry:', error);
     }
@@ -135,8 +124,7 @@ export class RefreshTokenManager {
       const oldExpiry = MemoryStorage.getRefreshTokenExpiry();
       MemoryStorage.setRefreshTokenExpiry(null);
       
-      console.log('✅ Refresh token expiry timer cleared (logout/session reset). Previous expiry was:', 
-        oldExpiry ? new Date(oldExpiry).toISOString() : 'null');
+      // Debug logging disabled for better user experience
     } catch (error) {
       console.error('❌ Error clearing refresh token expiry:', error);
     }

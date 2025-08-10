@@ -70,7 +70,7 @@ export class TimerCalculator {
         // Only log when state changes occur - prioritize refresh token countdown
         const currentState = refreshTokenExpiry ? 'refresh' : (isActivityBasedTokenExpired ? 'transition' : 'activity');
         if (!this.lastLoggedState || this.lastLoggedState !== currentState) {
-          console.log('🔄 Timer State Change:', currentState, debugInfo);
+          // Debug logging disabled for better user experience
           this.lastLoggedState = currentState;
         }
       }

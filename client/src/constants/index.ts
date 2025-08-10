@@ -16,6 +16,12 @@ export * from './activity';
 // Export activity debugger constants
 export * from './activityDebugger';
 
+// Export debug constants
+export * from './debug';
+export * from './errorLogs';
+export * from './clientErrorLogs';
+export * from './errorDisplay';
+
 // Export navbar constants
 export * from './navbar';
 

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../db/models/user';
+import { ServerLogger } from '../utils/errorLogger';
 
 export interface GraphQLContext {
   req: Request;
@@ -13,7 +14,7 @@ export function createContext({ req, res }: { req: Request; res: Response }): Gr
   const user = (req as any).user;
   
   // Debug: Log context creation
-  console.log('🔍 GRAPHQL CONTEXT - Creating context:', {
+  ServerLogger.graphql.debug('Creating GraphQL context', {
     hasUser: !!user,
     userId: user?.id,
     userEmail: user?.email,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES } from '../../constants';
+import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES, DEBUG_CONFIG } from '../../constants';
 import { updateActivity } from '../../utils/tokenManager';
 
 /**
@@ -60,113 +60,192 @@ export const useAppFocusedActivityTracker = () => {
 
     // Activity handler for user interaction events
     const handleUserInteraction = (event: Event) => {
-      // Skip system-generated events if filtering is enabled
-      if (ACTIVITY_FEATURES.ENABLE_SYSTEM_EVENT_FILTERING && event.isTrusted === false) {
-        return;
-      }
-
-      // Check if the event target is within our application
-      const target = event.target as Element;
-      const isWithinApp = target && document.body.contains(target);
-
-      // For mouse events, also check if the mouse is within the viewport
-      let shouldTrack = isWithinApp;
-      if (event.type === 'mousemove') {
-        const mouseEvent = event as MouseEvent;
-        const isInViewport = mouseEvent.clientX >= 0 && 
-                           mouseEvent.clientX <= window.innerWidth && 
-                           mouseEvent.clientY >= 0 && 
-                           mouseEvent.clientY <= window.innerHeight;
-        shouldTrack = isWithinApp && isInViewport;
-      }
-
-      // Only process events that occur within our application
-      if (!shouldTrack) {
-        // Debug logging for ignored events
-        if (ACTIVITY_FEATURES.ENABLE_ACTIVITY_DEBUG_LOGGING && event.type === 'mousemove') {
-          console.log(`🔍 Mouse outside app - ignoring ${event.type}`);
+      try {
+        // Skip system-generated events if filtering is enabled
+        if (ACTIVITY_FEATURES.ENABLE_SYSTEM_EVENT_FILTERING && event.isTrusted === false) {
+          return;
         }
-        return;
-      }
 
-      // Handle different event types with appropriate throttling
-      if (ACTIVITY_FEATURES.ENABLE_EVENT_THROTTLING && ACTIVITY_EVENTS.THROTTLED_EVENTS.includes(event.type as any)) {
-        // Throttle high-frequency events to avoid excessive updates
-        throttledActivityUpdate();
-      } else {
-        // Immediate update for other user interactions
-        handleUserActivity();
-      }
+        // Check if the event target is within our application
+        const target = event.target;
+        
+        // Validate that target is a valid DOM Node before using contains
+        const isWithinApp = target && 
+                           target instanceof Node && 
+                           document.body && 
+                           document.body.contains(target);
 
-      // Debug logging for activity tracking
-      if (ACTIVITY_FEATURES.ENABLE_ACTIVITY_DEBUG_LOGGING) {
-        console.log(`🔍 Activity tracked: ${event.type} within app`);
+        // For mouse events, also check if the mouse is within the viewport
+        let shouldTrack = isWithinApp;
+        if (event.type === 'mousemove' && event instanceof MouseEvent) {
+          const mouseEvent = event as MouseEvent;
+          const isInViewport = mouseEvent.clientX >= 0 && 
+                             mouseEvent.clientX <= window.innerWidth && 
+                             mouseEvent.clientY >= 0 && 
+                             mouseEvent.clientY <= window.innerHeight;
+          shouldTrack = isWithinApp && isInViewport;
+        }
+
+        // Only process events that occur within our application
+        if (!shouldTrack) {
+          // Debug logging for ignored events (disabled for production)
+          if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING && event.type === 'mousemove') {
+            // Debug logging disabled for better user experience
+          }
+          return;
+        }
+
+        // Handle different event types with appropriate throttling
+        if (ACTIVITY_FEATURES.ENABLE_EVENT_THROTTLING && ACTIVITY_EVENTS.THROTTLED_EVENTS.includes(event.type as any)) {
+          // Throttle high-frequency events to avoid excessive updates
+          throttledActivityUpdate();
+        } else {
+          // Immediate update for other user interactions
+          handleUserActivity();
+        }
+
+        // Debug logging for activity tracking (disabled for production)
+        if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING) {
+          // Debug logging disabled for better user experience
+        }
+      } catch (error) {
+        // Silently handle any errors to prevent breaking the activity tracking
+        // This ensures the app continues to function even if there are DOM-related issues
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn('Activity tracking error:', error);
+        }
       }
     };
 
     // Handle focus/blur events for debugging purposes
     const handleFocusChange = () => {
-      const wasFocused = isAppFocusedRef.current;
-      isAppFocusedRef.current = document.hasFocus();
-      
-      // Log focus state changes in development
-      if (ACTIVITY_FEATURES.ENABLE_ACTIVITY_DEBUG_LOGGING) {
-        console.log(`🔍 App focus state changed: ${wasFocused} -> ${isAppFocusedRef.current}`);
+      try {
+        const wasFocused = isAppFocusedRef.current;
+        isAppFocusedRef.current = document.hasFocus();
+        
+        // Log focus state changes (disabled for production)
+        if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING) {
+          // Debug logging disabled for better user experience
+        }
+      } catch (error) {
+        // Silently handle any errors to prevent breaking the activity tracking
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn('Focus change error:', error);
+        }
       }
     };
 
     // Handle visibility change events for debugging purposes
     const handleVisibilityChange = () => {
-      const isVisible = !document.hidden;
-      
-      // Log visibility state changes in development
-      if (ACTIVITY_FEATURES.ENABLE_ACTIVITY_DEBUG_LOGGING) {
-        console.log(`🔍 App visibility state changed: ${isVisible}`);
+      try {
+        const isVisible = !document.hidden;
+        
+        // Log visibility state changes (disabled for production)
+        if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING) {
+          // Debug logging disabled for better user experience
+        }
+      } catch (error) {
+        // Silently handle any errors to prevent breaking the activity tracking
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn('Visibility change error:', error);
+        }
       }
     };
 
     // Add event listeners for user interaction events
     ACTIVITY_EVENTS.ALL_USER_INTERACTIONS.forEach(eventType => {
-      window.addEventListener(eventType, handleUserInteraction, { 
-        passive: true,  // Improve performance
-        capture: false  // Listen in bubbling phase
-      });
+      try {
+        window.addEventListener(eventType, handleUserInteraction, { 
+          passive: true,  // Improve performance
+          capture: false  // Listen in bubbling phase
+        });
+      } catch (error) {
+        // Silently handle any errors to prevent breaking the activity tracking
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn(`Failed to add event listener for ${eventType}:`, error);
+        }
+      }
     });
 
     // Add mouse enter/leave detection for better tracking
     const handleMouseEnter = () => {
-      if (ACTIVITY_FEATURES.ENABLE_ACTIVITY_DEBUG_LOGGING) {
-        console.log('🔍 Mouse entered app window');
+      try {
+        if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING) {
+          // Debug logging disabled for better user experience
+        }
+      } catch (error) {
+        // Silently handle any errors to prevent breaking the activity tracking
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn('Mouse enter error:', error);
+        }
       }
     };
 
     const handleMouseLeave = () => {
-      if (ACTIVITY_FEATURES.ENABLE_ACTIVITY_DEBUG_LOGGING) {
-        console.log('🔍 Mouse left app window');
+      try {
+        if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING) {
+          // Debug logging disabled for better user experience
+        }
+      } catch (error) {
+        // Silently handle any errors to prevent breaking the activity tracking
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn('Mouse leave error:', error);
+        }
       }
     };
 
-    document.addEventListener('mouseenter', handleMouseEnter);
-    document.addEventListener('mouseleave', handleMouseLeave);
+    // Add event listeners with error handling
+    try {
+      document.addEventListener('mouseenter', handleMouseEnter);
+      document.addEventListener('mouseleave', handleMouseLeave);
 
-    // Add focus/blur event listeners to track app focus state
-    window.addEventListener('focus', handleFocusChange);
-    window.addEventListener('blur', handleFocusChange);
-    
-    // Add visibility change event listener to track tab switching
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+      // Add focus/blur event listeners to track app focus state
+      window.addEventListener('focus', handleFocusChange);
+      window.addEventListener('blur', handleFocusChange);
+      
+      // Add visibility change event listener to track tab switching
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    } catch (error) {
+      // Silently handle any errors to prevent breaking the activity tracking
+      if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+        console.warn('Failed to add event listeners:', error);
+      }
+    }
 
     // Cleanup function to remove event listeners
     return () => {
-      ACTIVITY_EVENTS.ALL_USER_INTERACTIONS.forEach(eventType => {
-        window.removeEventListener(eventType, handleUserInteraction);
-      });
-      document.removeEventListener('mouseenter', handleMouseEnter);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('focus', handleFocusChange);
-      window.removeEventListener('blur', handleFocusChange);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      listenersSetupRef.current = false;
+      try {
+        ACTIVITY_EVENTS.ALL_USER_INTERACTIONS.forEach(eventType => {
+          try {
+            window.removeEventListener(eventType, handleUserInteraction);
+          } catch (error) {
+            // Silently handle any errors during cleanup
+            if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+              console.warn(`Failed to remove event listener for ${eventType}:`, error);
+            }
+          }
+        });
+        
+        try {
+          document.removeEventListener('mouseenter', handleMouseEnter);
+          document.removeEventListener('mouseleave', handleMouseLeave);
+          window.removeEventListener('focus', handleFocusChange);
+          window.removeEventListener('blur', handleFocusChange);
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+        } catch (error) {
+          // Silently handle any errors during cleanup
+          if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+            console.warn('Failed to remove event listeners:', error);
+          }
+        }
+        
+        listenersSetupRef.current = false;
+      } catch (error) {
+        // Silently handle any errors during cleanup
+        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
+          console.warn('Cleanup error:', error);
+        }
+      }
     };
   }, [handleUserActivity]); // Dependency on handleUserActivity
 

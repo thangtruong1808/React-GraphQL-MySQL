@@ -2,10 +2,13 @@ import React, { Suspense } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ErrorProvider, useError } from './contexts/ErrorContext';
 import { AppRoutes } from './components/routing';
 import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
-import apolloClient from './services/graphql/apollo-client';
+import { ErrorLogger } from './components/errorLogs';
+import { ClientErrorLogger } from './components/clientErrorLogs';
+import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
 import './App.css';
 
 // Lazy load components for better performance
@@ -66,6 +69,14 @@ const AppWithModals: React.FC = () => {
     notification,
     hideNotification
   } = useAuth();
+  const { showError } = useError();
+
+  // Set up global error handler for Apollo Client
+  React.useEffect(() => {
+    setGlobalErrorHandler((message: string, source: string) => {
+      showError(message, source);
+    });
+  }, [showError]);
 
   return (
     <>
@@ -101,6 +112,20 @@ const AppWithModals: React.FC = () => {
           <ActivityDebugger />
         </Suspense>
       )}
+
+      {/* Server Error Logger (development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <ErrorLogger isVisible={true} />
+        </Suspense>
+      )}
+
+      {/* Client Error Logger (development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <ClientErrorLogger isVisible={true} />
+        </Suspense>
+      )}
     </>
   );
 };
@@ -115,9 +140,11 @@ const AppWithModals: React.FC = () => {
 function App() {
   return (
     <ApolloProvider client={apolloClient}>
-      <AuthProvider>
-        <AppWithModals />
-      </AuthProvider>
+      <ErrorProvider>
+        <AuthProvider>
+          <AppWithModals />
+        </AuthProvider>
+      </ErrorProvider>
     </ApolloProvider>
   );
 }

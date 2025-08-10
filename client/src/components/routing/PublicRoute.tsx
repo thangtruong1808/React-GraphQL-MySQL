@@ -34,7 +34,7 @@ const PublicRoute: React.FC<PublicRouteProps> = ({
 
   // Redirect authenticated users to home page
   if (isAuthenticated) {
-    console.log('🔐 User already authenticated - redirecting to home');
+    // Debug logging disabled for better user experience
     return (
       <Navigate
         to={redirectPath}

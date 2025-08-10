@@ -1,5 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
-import { AUTH_CONFIG, AUTH_FEATURES, AUTH_ERROR_MESSAGES } from '../../constants';
+import { AUTH_CONFIG, AUTH_FEATURES, AUTH_ERROR_MESSAGES, DEBUG_CONFIG } from '../../constants';
 import { getTokens, isTokenExpired, isActivityBasedTokenExpired } from '../../utils/tokenManager';
 
 /**
@@ -34,8 +34,8 @@ export const useAuthInitializer = (
    */
   const initializeAuth = useCallback(async () => {
     try {
-      if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-        console.log('🔍 Starting authentication initialization...');
+      if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+        // Debug logging disabled for better user experience
       }
       
       setIsInitializing(true);
@@ -55,8 +55,8 @@ export const useAuthInitializer = (
 
         // Check if we have a valid access token in memory
         if (tokens.accessToken) {
-          if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-            console.log('🔍 Access token found in memory, checking if valid...');
+          if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+            // Debug logging disabled for better user experience
           }
 
           // Check if access token is expired (using activity-based validation if enabled)
@@ -68,48 +68,48 @@ export const useAuthInitializer = (
           }
 
           if (isExpired) {
-            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-              console.log('🔍 Access token expired, attempting token refresh...');
+            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+              // Debug logging disabled for better user experience
             }
             // Try to refresh the access token using the refresh token from httpOnly cookie
             const refreshSuccess = await refreshAccessToken();
             if (!refreshSuccess) {
-              if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-                console.log('🔍 Token refresh failed - user must login (refresh token expired or invalid)');
+              if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+                // Debug logging disabled for better user experience
               }
               await performCompleteLogout();
               return;
             }
             // refreshAccessToken already sets user data, so we're done
-            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-              console.log('✅ Authentication restored via token refresh');
+            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+              // Debug logging disabled for better user experience
             }
             return;
           } else {
-            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-              console.log('✅ Valid access token found, fetching user data...');
+            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+              // Debug logging disabled for better user experience
             }
             // Token is valid, fetch user data
             await fetchCurrentUser();
             return;
           }
         } else {
-          if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-            console.log('🔍 No access token found, attempting token refresh...');
+          if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+            // Debug logging disabled for better user experience
           }
           // Try to refresh the access token using the refresh token from httpOnly cookie
           const refreshSuccess = await refreshAccessToken();
           if (!refreshSuccess) {
-            if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-              console.log('🔍 Token refresh failed - user must login (no refresh token available)');
+            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+              // Debug logging disabled for better user experience
             }
             // For first-time users, don't call performCompleteLogout immediately
             // Let them see the login page naturally
             return;
           }
           // refreshAccessToken already sets user data, so we're done
-          if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-            console.log('✅ Authentication restored via token refresh');
+          if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+            // Debug logging disabled for better user experience
           }
           return;
         }
@@ -122,13 +122,13 @@ export const useAuthInitializer = (
       clearTimeout(loadingTimer);
       setShowLoadingSpinner(false);
 
-      if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-        console.log('✅ Authentication initialization completed successfully');
+      if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+        // Debug logging disabled for better user experience
       }
 
     } catch (error) {
-      if (AUTH_FEATURES.ENABLE_AUTH_DEBUG_LOGGING) {
-        console.error('❌ Error during authentication initialization:', error);
+      if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+        // Debug logging disabled for better user experience
       }
       setShowLoadingSpinner(false);
       

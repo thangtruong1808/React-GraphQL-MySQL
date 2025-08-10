@@ -1,4 +1,4 @@
-import { AUTH_CONFIG } from '../../constants';
+import { AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
 import { MemoryStorage } from './memoryStorage';
 import { TokenValidation } from './tokenValidation';
 import { TOKEN_DEBUG, TOKEN_ERROR_MESSAGES, TOKEN_SUCCESS_MESSAGES } from './constants';
@@ -28,9 +28,7 @@ export class TokenStorage {
    */
   static storeTokens(accessToken: string, refreshToken: string, user: any): void {
     try {
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - ${TOKEN_DEBUG.STARTING_OPERATION}`);
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Access token length:`, accessToken?.length);
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Refresh token length:`, refreshToken?.length);
+      // Debug logging disabled for better user experience
 
       // Validate access token format (should be JWT)
       if (!TokenValidation.isValidJWTFormat(accessToken)) {
@@ -46,40 +44,28 @@ export class TokenStorage {
 
       // Store access token in memory only (XSS protection)
       MemoryStorage.setAccessToken(accessToken);
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Access token stored in memory only`);
       
       // Store user data in memory only
       if (user && TokenValidation.isValidUserData(user)) {
         MemoryStorage.setUserData(user);
-        console.log(`${TOKEN_DEBUG.STORE_PREFIX} - User data stored in memory only`);
       }
 
       // Store token expiry for quick validation
       const expiry = TokenValidation.getTokenExpiration(accessToken);
       if (expiry) {
         MemoryStorage.setTokenExpiry(expiry);
-        console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Token expiry stored in memory:`, new Date(expiry).toISOString());
       }
 
       // DO NOT set refresh token expiry at login - it will be set when access token expires
       MemoryStorage.setRefreshTokenExpiry(null);
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Refresh token expiry not set yet (will be set when access token expires)`);
 
       // Initialize last activity timestamp
       const now = Date.now();
       MemoryStorage.setLastActivity(now);
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Last activity timestamp initialized:`, new Date(now).toISOString());
 
       // Initialize activity-based token expiry (1 minute from now)
       const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
       MemoryStorage.setActivityBasedExpiry(activityExpiry);
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Activity-based token expiry initialized:`, new Date(activityExpiry).toISOString());
-
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - ${TOKEN_SUCCESS_MESSAGES.TOKENS_STORED}`);
-      
-      // Verify storage
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Verification - Stored token exists:`, !!MemoryStorage.getAccessToken());
-      console.log(`${TOKEN_DEBUG.STORE_PREFIX} - Verification - Stored token length:`, MemoryStorage.getAccessToken()?.length);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.STORE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
       this.clearTokens(); // Clear any partial data
@@ -100,27 +86,20 @@ export class TokenStorage {
    */
   static getAccessToken(): string | null {
     try {
-      console.log(`${TOKEN_DEBUG.GET_PREFIX} - ${TOKEN_DEBUG.STARTING_OPERATION}`);
+      // Debug logging disabled for better user experience
       
       const token = MemoryStorage.getAccessToken();
-      console.log(`${TOKEN_DEBUG.GET_PREFIX} - Memory token exists:`, !!token);
-      console.log(`${TOKEN_DEBUG.GET_PREFIX} - Token length:`, token?.length);
-      console.log(`${TOKEN_DEBUG.GET_PREFIX} - Token preview:`, token ? `${token.substring(0, 20)}...` : 'null');
       
       if (!token) {
-        console.log(`${TOKEN_DEBUG.GET_PREFIX} - No token found in memory`);
         return null;
       }
       
       const isValidJWT = TokenValidation.isValidJWTFormat(token);
-      console.log(`${TOKEN_DEBUG.GET_PREFIX} - Is valid JWT format:`, isValidJWT);
       
       if (!isValidJWT) {
-        console.log(`${TOKEN_DEBUG.GET_PREFIX} - Token validation failed - not a valid JWT`);
         return null;
       }
       
-      console.log(`${TOKEN_DEBUG.GET_PREFIX} - ${TOKEN_SUCCESS_MESSAGES.TOKENS_RETRIEVED}`);
       return token;
     } catch (error) {
       console.error(`${TOKEN_DEBUG.GET_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
@@ -177,7 +156,7 @@ export class TokenStorage {
    */
   static updateAccessToken(accessToken: string): void {
     try {
-      console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - Updating access token...`);
+      // Debug logging disabled for better user experience
       
       // Validate access token format
       if (!TokenValidation.isValidJWTFormat(accessToken)) {
@@ -192,15 +171,11 @@ export class TokenStorage {
       const expiry = TokenValidation.getTokenExpiration(accessToken);
       if (expiry) {
         MemoryStorage.setTokenExpiry(expiry);
-        console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - Access token expiry updated:`, new Date(expiry).toISOString());
       }
 
       // Clear refresh token expiry timer since access token was refreshed
       // It will be set again when access token expires next time
       MemoryStorage.setRefreshTokenExpiry(null);
-      console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - Refresh token expiry timer cleared (access token refreshed)`);
-      
-      console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_SUCCESS_MESSAGES.TOKENS_UPDATED}`);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
     }
@@ -215,7 +190,7 @@ export class TokenStorage {
    */
   static updateTokens(accessToken: string, refreshToken: string, user?: any): void {
     try {
-      console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - Updating both access and refresh tokens...`);
+      // Debug logging disabled for better user experience
       
       // Validate access token format
       if (!TokenValidation.isValidJWTFormat(accessToken)) {
@@ -235,22 +210,17 @@ export class TokenStorage {
       // Update user data if provided
       if (user && TokenValidation.isValidUserData(user)) {
         MemoryStorage.setUserData(user);
-        console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - User data updated`);
       }
       
       // Update token expiry
       const expiry = TokenValidation.getTokenExpiration(accessToken);
       if (expiry) {
         MemoryStorage.setTokenExpiry(expiry);
-        console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - Access token expiry updated:`, new Date(expiry).toISOString());
       }
 
       // Clear refresh token expiry timer since tokens were refreshed
       // It will be set again when access token expires next time
       MemoryStorage.setRefreshTokenExpiry(null);
-      console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - Refresh token expiry timer cleared (tokens refreshed)`);
-      
-      console.log(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_SUCCESS_MESSAGES.TOKENS_UPDATED}`);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
     }
@@ -268,12 +238,10 @@ export class TokenStorage {
    */
   static clearTokens(): void {
     try {
-      console.log(`${TOKEN_DEBUG.CLEAR_PREFIX} - ${TOKEN_DEBUG.STARTING_OPERATION}`);
+      // Debug logging disabled for better user experience
       
       // Clear memory storage
       MemoryStorage.clearAll();
-      
-      console.log(`${TOKEN_DEBUG.CLEAR_PREFIX} - ${TOKEN_SUCCESS_MESSAGES.TOKENS_CLEARED}`);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.CLEAR_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
     }
