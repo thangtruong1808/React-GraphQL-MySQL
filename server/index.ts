@@ -94,11 +94,6 @@ const server = new ApolloServer({
     return context;
   },
   formatError: (error) => {
-    // Log errors in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('GraphQL Error:', error);
-    }
-    
     // Return sanitized error to client
     return {
       message: error.message,

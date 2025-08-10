@@ -173,9 +173,28 @@ export class TokenStorage {
         MemoryStorage.setTokenExpiry(expiry);
       }
 
-      // Clear refresh token expiry timer since access token was refreshed
-      // It will be set again when access token expires next time
-      MemoryStorage.setRefreshTokenExpiry(null);
+      // DO NOT clear refresh token expiry timer when only access token is refreshed
+      // This preserves the refresh token countdown for "Continue to Work" scenarios
+    } catch (error) {
+      console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
+    }
+  }
+
+  /**
+   * Update user data only
+   * Used when user data needs to be updated without affecting tokens
+   * 
+   * CALLED BY: AuthContext after successful token refresh
+   * SCENARIOS: Token refresh - updates user data without affecting token timers
+   */
+  static updateUser(user: any): void {
+    try {
+      // Debug logging disabled for better user experience
+      
+      // Validate and update user data
+      if (user && TokenValidation.isValidUserData(user)) {
+        MemoryStorage.setUserData(user);
+      }
     } catch (error) {
       console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
     }

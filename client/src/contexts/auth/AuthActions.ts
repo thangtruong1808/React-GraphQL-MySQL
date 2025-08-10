@@ -95,9 +95,17 @@ export const useAuthActions = (
   /**
    * Refresh access token using refresh token
    * Attempts to get a new access token using the httpOnly refresh token
+   * @param isSessionRestoration - Whether this is for session restoration (browser refresh) or token refresh (expired token)
    */
-  const refreshAccessToken = useCallback(async (): Promise<boolean> => {
+  const refreshAccessToken = useCallback(async (isSessionRestoration: boolean = false): Promise<boolean> => {
     try {
+      // Check if refresh token is expired before attempting refresh
+      // Only prevent refresh if token is actually expired, not when it's about to expire
+      if (TokenManager.isRefreshTokenExpired()) {
+        // Debug logging disabled for better user experience
+        return false;
+      }
+
       // Debug logging disabled for better user experience
 
       const result = await refreshTokenMutation();
@@ -112,7 +120,11 @@ export const useAuthActions = (
         // Debug logging disabled for better user experience
 
         // Store the new access token and user data in memory
-        TokenManager.updateTokens(accessToken, refreshToken || '', refreshedUser);
+        // Use updateAccessToken to avoid clearing the refresh token countdown
+        TokenManager.updateAccessToken(accessToken);
+        if (refreshedUser) {
+          TokenManager.updateUser(refreshedUser);
+        }
 
         // Set CSRF token in Apollo Client for future mutations
         if (csrfToken) {
@@ -123,6 +135,14 @@ export const useAuthActions = (
         setUser(refreshedUser);
         setIsAuthenticated(true);
 
+        // Reset activity timer when user manually refreshes (e.g., "Continue to Work")
+        // This gives the user a fresh 2-minute activity timer
+        TokenManager.updateActivity();
+        
+        // Clear refresh token expiry timer so that the activity timer is shown instead
+        // This ensures the user sees the activity timer countdown, not the refresh token countdown
+        TokenManager.clearRefreshTokenExpiry();
+
         return true;
       } else {
         return false;
@@ -130,6 +150,11 @@ export const useAuthActions = (
     } catch (error: any) {
       if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         const graphQLError = error.graphQLErrors[0];
+        console.error('❌ GraphQL Error during token refresh:', {
+          message: graphQLError.message,
+          code: graphQLError.extensions?.code,
+          path: graphQLError.path
+        });
         if (graphQLError.message === 'Refresh token is required') {
           return false;
         }
@@ -261,8 +286,6 @@ export const useAuthActions = (
    */
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
-      // Debug logging disabled for better user experience
-      
       // Clear auto logout timer when user chooses to continue working
       if (modalAutoLogoutTimer) {
         clearTimeout(modalAutoLogoutTimer);
@@ -270,7 +293,16 @@ export const useAuthActions = (
         // Debug logging disabled for better user experience
       }
       
-      const refreshSuccess = await refreshAccessToken();
+      // Check if refresh token is expired before attempting refresh
+      // Only prevent refresh if token is actually expired
+      if (TokenManager.isRefreshTokenExpired()) {
+        // Refresh token is expired - show specific message
+        setShowSessionExpiryModal(false);
+        showNotification('Session has expired. Please log in again.', 'error');
+        return false;
+      }
+      
+      const refreshSuccess = await refreshAccessToken(false); // false = token refresh, not session restoration
       if (refreshSuccess) {
         // Debug logging disabled for better user experience
         setShowSessionExpiryModal(false);

@@ -32,26 +32,13 @@ export const refreshToken = async (req: any, res: any) => {
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
   
-  // Debug: Log cookie information
-  if (AUTH_OPERATIONS_CONFIG.DEBUG.ENABLE_LOGGING) {
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Refresh token request debug:`, {
-      hasCookies: !!req.cookies,
-      cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
-      hasJidCookie: !!refreshToken,
-      jidValue: refreshToken ? 'present' : 'missing',
-      userAgent: req.headers['user-agent'],
-      origin: req.headers.origin,
-    });
-  }
+
   
-  // If no refresh token, this is expected for new users
-  if (!refreshToken) {
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Expected: No refresh token found (user not logged in)`);
-  }
+
   
   validateRefreshToken(refreshToken);
 
-  console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.REFRESH} Attempting to refresh token...`);
+
 
   // First, try to find the specific token that matches the provided refresh token
   // This is more efficient and secure than checking all tokens
@@ -59,17 +46,20 @@ export const refreshToken = async (req: any, res: any) => {
   let validUser: any = null;
 
   // Get all valid refresh tokens for all users to find the matching one
+  // Add 2-minute buffer to account for clock synchronization differences
+  const bufferTime = new Date(Date.now() - 120000); // 2 minutes buffer (allow tokens that expired within last 2 minutes)
+  
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,
       expiresAt: {
-        [require('sequelize').Op.gt]: new Date(),
+        [require('sequelize').Op.gt]: bufferTime,
       },
     },
     include: [{ model: User, as: 'refreshTokenUser' }],
   });
 
-  console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Found ${storedTokens.length} valid refresh tokens in database`);
+
 
   // Check each token to find a match with enhanced security
   for (const storedToken of storedTokens) {
@@ -78,7 +68,6 @@ export const refreshToken = async (req: any, res: any) => {
       if (isValidHash) {
         validToken = storedToken;
         validUser = storedToken.refreshTokenUser;
-        console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS} Found matching refresh token for user ID: ${validUser.id}`);
         break;
       }
     } catch (hashError) {
@@ -88,7 +77,6 @@ export const refreshToken = async (req: any, res: any) => {
   }
 
   if (!validToken || !validUser) {
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} No valid refresh token found`);
     throw new GraphQLError(AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.INVALID_REFRESH_TOKEN, {
       extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.UNAUTHENTICATED },
     });
@@ -120,7 +108,7 @@ export const refreshToken = async (req: any, res: any) => {
   await cleanupRefreshTokens(user.id);
   await limitRefreshTokens(user.id);
 
-  console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS} Successfully refreshed tokens for user ID: ${user.id}`);
+
 
   // Set new refresh token as httpOnly cookie
   res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, {
@@ -171,43 +159,32 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
   
-  // Debug: Log cookie information
-  if (AUTH_OPERATIONS_CONFIG.DEBUG.ENABLE_LOGGING) {
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Refresh token renewal request debug:`, {
-      hasCookies: !!req.cookies,
-      cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
-      hasJidCookie: !!refreshToken,
-      jidValue: refreshToken ? 'present' : 'missing',
-      userAgent: req.headers['user-agent'],
-      origin: req.headers.origin,
-    });
-  }
+
   
-  // If no refresh token, this is expected for new users
-  if (!refreshToken) {
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Expected: No refresh token found for renewal (user not logged in)`);
-  }
+
   
   validateRefreshToken(refreshToken);
 
-  console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.RENEWAL} Attempting to renew refresh token...`);
+
 
   // Find the specific token that matches the provided refresh token
   let validToken: any = null;
   let validUser: any = null;
 
   // Get all valid refresh tokens to find the matching one
+  // Add 2-minute buffer to account for clock synchronization differences
+  const bufferTime = new Date(Date.now() - 120000); // 2 minutes buffer (allow tokens that expired within last 2 minutes)
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,
       expiresAt: {
-        [require('sequelize').Op.gt]: new Date(),
+        [require('sequelize').Op.gt]: bufferTime,
       },
     },
     include: [{ model: User, as: 'refreshTokenUser' }],
   });
 
-  console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Found ${storedTokens.length} valid refresh tokens in database`);
+
 
   // Check each token to find a match
   for (const storedToken of storedTokens) {
@@ -216,7 +193,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
       if (isValidHash) {
         validToken = storedToken;
         validUser = storedToken.refreshTokenUser;
-        console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS} Found matching refresh token for user ID: ${validUser.id}`);
+
         break;
       }
     } catch (hashError) {
@@ -226,7 +203,6 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   }
 
   if (!validToken || !validUser) {
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} No valid refresh token found for renewal`);
     throw new GraphQLError(AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.INVALID_REFRESH_TOKEN, {
       extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.UNAUTHENTICATED },
     });
@@ -236,7 +212,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   const newExpiryDate = new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS);
   await validToken.update({ expiresAt: newExpiryDate });
 
-  console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS} Successfully renewed refresh token for user ID: ${validUser.id}`);
+
 
   // Return success response with user data
   return {

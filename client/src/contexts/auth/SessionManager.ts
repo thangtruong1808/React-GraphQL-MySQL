@@ -38,7 +38,7 @@ export const useSessionManager = (
   isAuthenticated: boolean,
   showSessionExpiryModal: boolean,
   lastModalShowTime: number | null,
-  refreshAccessToken: () => Promise<boolean>,
+  refreshAccessToken: (isSessionRestoration?: boolean) => Promise<boolean>,
   renewRefreshToken: () => Promise<boolean>,
   performCompleteLogout: () => Promise<void>,
   showNotification: (message: string, type: 'success' | 'error' | 'info') => void,
@@ -127,7 +127,7 @@ export const useSessionManager = (
         // Check if activity-based token is expired (when user stops being active)
         if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
           // Debug logging disabled for better user experience
-          const refreshSuccess = await refreshAccessToken();
+          const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
           if (!refreshSuccess) {
             // Debug logging disabled for better user experience
             await performCompleteLogout();
@@ -138,7 +138,7 @@ export const useSessionManager = (
         // Check if user has been inactive for too long (application-level inactivity)
         if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
           // Debug logging disabled for better user experience
-          const refreshSuccess = await refreshAccessToken();
+          const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
           if (!refreshSuccess) {
             // Debug logging disabled for better user experience
             await performCompleteLogout();
@@ -182,7 +182,7 @@ export const useSessionManager = (
         // 1. A new user (no refresh token in cookie)
         // 2. A returning user after browser refresh (has refresh token in cookie)
         // Attempt to restore session using refresh token from httpOnly cookie
-        const refreshSuccess = await refreshAccessToken();
+        const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)
         return refreshSuccess;
       }
 
@@ -190,7 +190,7 @@ export const useSessionManager = (
       if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
         const isExpired = isActivityBasedTokenExpired();
         if (isExpired) {
-          const refreshSuccess = await refreshAccessToken();
+          const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
           return refreshSuccess;
         }
         return true;
@@ -199,7 +199,7 @@ export const useSessionManager = (
       // Fallback to fixed token expiry check
       const isExpired = isTokenExpired(tokens.accessToken);
       if (isExpired) {
-        const refreshSuccess = await refreshAccessToken();
+        const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
         return refreshSuccess;
       }
       return true;
@@ -236,7 +236,7 @@ export const useSessionManager = (
 
           if (shouldRefresh) {
             // Debug logging disabled for better user experience
-            await refreshAccessToken();
+            await refreshAccessToken(false); // false = token refresh (proactive refresh)
           }
         } else {
           // Fallback to original token expiry check
@@ -247,7 +247,7 @@ export const useSessionManager = (
 
             if (shouldRefresh) {
               // Debug logging disabled for better user experience
-              await refreshAccessToken();
+              await refreshAccessToken(false); // false = token refresh (proactive refresh)
             }
           }
         }

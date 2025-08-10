@@ -103,6 +103,17 @@ export class TokenManager {
   }
 
   /**
+   * Update user data only
+   * Used when user data needs to be updated without affecting tokens
+   * 
+   * CALLED BY: AuthContext after successful token refresh
+   * SCENARIOS: Token refresh - updates user data without affecting token timers
+   */
+  static updateUser(user: any): void {
+    TokenStorage.updateUser(user);
+  }
+
+  /**
    * Update both access and refresh tokens
    * Used when tokens are refreshed from server
    * 

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { AUTH_CONFIG, AUTH_FEATURES, AUTH_ERROR_MESSAGES, DEBUG_CONFIG } from '../../constants';
-import { getTokens, isTokenExpired, isActivityBasedTokenExpired } from '../../utils/tokenManager';
+import { getTokens, isTokenExpired, isActivityBasedTokenExpired, TokenManager } from '../../utils/tokenManager';
 
 /**
  * Authentication Initializer Interface
@@ -17,7 +17,7 @@ export interface AuthInitializer {
  * Handles first-time users and returning users appropriately
  */
 export const useAuthInitializer = (
-  refreshAccessToken: () => Promise<boolean>,
+  refreshAccessToken: (isSessionRestoration?: boolean) => Promise<boolean>,
   fetchCurrentUser: () => Promise<void>,
   performCompleteLogout: () => Promise<void>,
   setIsInitializing: (isInitializing: boolean) => void,
@@ -72,7 +72,7 @@ export const useAuthInitializer = (
               // Debug logging disabled for better user experience
             }
             // Try to refresh the access token using the refresh token from httpOnly cookie
-            const refreshSuccess = await refreshAccessToken();
+            const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
             if (!refreshSuccess) {
               if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
                 // Debug logging disabled for better user experience
@@ -100,8 +100,21 @@ export const useAuthInitializer = (
           // No access token found in memory - this could be:
           // 1. A new user (no refresh token in cookie)
           // 2. A returning user after browser refresh (has refresh token in cookie)
+          
+          // Check if refresh token exists by checking if we have refresh token expiry time
+          // This prevents unnecessary GraphQL errors for new users
+          const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+          if (!refreshTokenStatus.expiry) {
+            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
+              // Debug logging disabled for better user experience
+            }
+            // No refresh token found - this is a new user
+            // Let them see the login page naturally
+            return;
+          }
+          
           // Attempt to restore session using refresh token from httpOnly cookie
-          const refreshSuccess = await refreshAccessToken();
+          const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)
           if (!refreshSuccess) {
             if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
               // Debug logging disabled for better user experience

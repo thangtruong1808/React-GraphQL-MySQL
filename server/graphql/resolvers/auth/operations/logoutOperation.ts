@@ -27,7 +27,6 @@ export const logout = async (req: any, res: any) => {
     const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
     
     if (refreshToken) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout: Found refresh token in cookie, attempting to delete from database`);
       
       // Find and delete the specific refresh token from database
       const storedTokens = await RefreshToken.findAll({
@@ -45,7 +44,7 @@ export const logout = async (req: any, res: any) => {
         try {
           const isValidHash = await verifyRefreshTokenHash(refreshToken, storedToken.tokenHash);
           if (isValidHash) {
-            console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.LOGOUT} Logout: Deleting refresh token ID: ${storedToken.id} for user ID: ${storedToken.userId}`);
+
             await storedToken.destroy();
             break;
           }
@@ -54,8 +53,6 @@ export const logout = async (req: any, res: any) => {
           continue;
         }
       }
-    } else {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout: No refresh token found in cookie`);
     }
 
     // Note: Access tokens are short-lived and will expire automatically
@@ -72,7 +69,7 @@ export const logout = async (req: any, res: any) => {
     // Clear CSRF token
     clearCSRFToken(res);
 
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS} Logout successful - refresh token deleted and cookies cleared`);
+
 
     return {
       success: true,

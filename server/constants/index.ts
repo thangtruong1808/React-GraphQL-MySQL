@@ -20,6 +20,7 @@ export const JWT_CONFIG = {
   MAX_REFRESH_TOKENS_PER_USER: 3, // Maximum refresh tokens per user (increased for multiple sessions)
   
   // JWT issuer and audience
+  
   ISSUER: 'Thang-Truong',
   AUDIENCE: 'graphql-app-users',
 } as const;
@@ -88,11 +89,6 @@ export const SERVER_CONFIG = {
   
   // CORS configuration
   CORS_ORIGINS: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
-  
-  // Logging configuration
-  ENABLE_SERVER_LOGGING: process.env.NODE_ENV === 'development',
-  ENABLE_ERROR_LOGGING: true,
-  ENABLE_DEBUG_LOGGING: process.env.NODE_ENV === 'development',
 } as const;
 
 /**
@@ -204,4 +200,6 @@ export const SUCCESS_MESSAGES = {
   // User operations
   USER_UPDATED: 'User updated successfully',
   USER_DELETED: 'User deleted successfully',
-} as const; 
+} as const;
+
+// Error constants are defined inline above 

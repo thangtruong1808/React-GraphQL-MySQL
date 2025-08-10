@@ -45,7 +45,6 @@ export const login = async (input: { email: string; password: string }, res: any
     });
 
     if (!user) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Login attempt with non-existent email: ${email}`);
       throw new GraphQLError(AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.INVALID_CREDENTIALS, {
         extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.UNAUTHENTICATED },
       });
@@ -53,7 +52,6 @@ export const login = async (input: { email: string; password: string }, res: any
 
     // Verify password with enhanced security
     if (!user.password) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} User ${user.id} has no password set`);
       throw new GraphQLError(AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.INVALID_CREDENTIALS, {
         extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.UNAUTHENTICATED },
       });
@@ -62,7 +60,6 @@ export const login = async (input: { email: string; password: string }, res: any
     const isValidPassword = await user.comparePassword(password);
     
     if (!isValidPassword) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Invalid password for user ID: ${user.id}`);
       throw new GraphQLError(AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.INVALID_CREDENTIALS, {
         extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.UNAUTHENTICATED },
       });
@@ -82,11 +79,10 @@ export const login = async (input: { email: string; password: string }, res: any
       },
     });
 
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Pre-login token check for user ID: ${user.id} - Current tokens: ${currentTokenCount}, Max allowed: ${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}`);
+
 
     // Reject login if user has reached the maximum number of active sessions
     if (currentTokenCount >= JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} User ID: ${user.id} has reached maximum active sessions (${currentTokenCount}/${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER})`);
       throw new GraphQLError(`${AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.TOO_MANY_SESSIONS} (${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}). Please log out from another device to continue.`, {
         extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.TOO_MANY_SESSIONS },
       });
@@ -99,7 +95,7 @@ export const login = async (input: { email: string; password: string }, res: any
     // Hash refresh token for storage
     const tokenHash = await hashRefreshToken(refreshToken);
 
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.LOGIN} Storing refresh token for user ID: ${user.id}`);
+
 
     // Store refresh token in database
     await RefreshToken.create({
@@ -110,7 +106,7 @@ export const login = async (input: { email: string; password: string }, res: any
       isRevoked: false,
     });
 
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS} Login successful for user ID: ${user.id}`);
+
 
     // Set refresh token as httpOnly cookie
     res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
@@ -143,17 +139,7 @@ export const login = async (input: { email: string; password: string }, res: any
       },
     };
 
-    // Debug: Log the response data
-    if (AUTH_OPERATIONS_CONFIG.DEBUG.ENABLE_LOGGING) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Login response data:`, {
-        hasAccessToken: !!responseData.accessToken,
-        hasRefreshToken: !!responseData.refreshToken,
-        hasCSRFToken: !!responseData.csrfToken,
-        hasUser: !!responseData.user,
-        userId: responseData.user.id,
-        userEmail: responseData.user.email
-      });
-    }
+
     
     // Return accessToken, refreshToken, CSRF token, and user as required by GraphQL schema
     return responseData;
