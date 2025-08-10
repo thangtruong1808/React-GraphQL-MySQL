@@ -10,7 +10,7 @@ import { setupAssociations, testConnection } from './db';
 import { createContext } from './graphql/context';
 import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
-import { ServerLogger } from './utils/errorLogger';
+
 
 // Load environment variables
 dotenv.config();
@@ -91,13 +91,6 @@ const server = new ApolloServer({
   context: ({ req, res }: { req: any; res: any }) => {
     // Create unified context with authentication
     const context = createContext({ req, res });
-    ServerLogger.graphql.info('Apollo context created', {
-      hasUser: !!context.user,
-      userId: context.user?.id,
-      userEmail: context.user?.email,
-      userRole: context.user?.role,
-      isAuthenticated: context.isAuthenticated
-    });
     return context;
   },
   formatError: (error) => {
@@ -144,30 +137,25 @@ async function startServer() {
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
     app.listen(PORT, () => {
-      ServerLogger.server.info('Server started successfully', {
-        host: SERVER_HOST,
-        port: PORT,
-        graphqlPath: server.graphqlPath,
-        environment: process.env.NODE_ENV || 'development',
-        cookieHandling: 'Enabled with httpOnly'
-      });
+      console.log(`🚀 Server started successfully on ${SERVER_HOST}:${PORT}`);
+      console.log(`📊 GraphQL endpoint: ${server.graphqlPath}`);
     });
 
   } catch (error) {
-    ServerLogger.server.critical('Failed to start server', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
 
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
-  ServerLogger.server.info('Received SIGTERM, shutting down gracefully');
+  console.log('🛑 Received SIGTERM, shutting down gracefully');
   await server.stop();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  ServerLogger.server.info('Received SIGINT, shutting down gracefully');
+  console.log('🛑 Received SIGINT, shutting down gracefully');
   await server.stop();
   process.exit(0);
 });

@@ -41,10 +41,7 @@ export const cleanupRefreshTokens = async (userId: number): Promise<void> => {
       },
     });
 
-    // Only log if tokens were actually cleaned up
-    if (expiredDeleted > 0 || revokedDeleted > 0) {
-      console.log(`🧹 Cleaned up ${expiredDeleted} expired and ${revokedDeleted} revoked tokens for user ID: ${userId}`);
-    }
+
   } catch (error) {
     console.error('❌ Error cleaning up refresh tokens:', error);
   }
@@ -71,7 +68,7 @@ export const limitRefreshTokens = async (userId: number): Promise<void> => {
       },
     });
 
-    console.log(`🔍 Token limit check for user ID: ${userId} - Current tokens: ${tokenCount}, Max allowed: ${JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER}`);
+
 
     // Only limit if we exceed the maximum
     if (tokenCount > JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER) {
@@ -88,17 +85,10 @@ export const limitRefreshTokens = async (userId: number): Promise<void> => {
         limit: tokenCount - JWT_CONFIG.MAX_REFRESH_TOKENS_PER_USER + 1,
       });
 
-      console.log(`🔍 Found ${oldestTokens.length} oldest tokens to delete for user ID: ${userId}`);
-
       // Actually delete the oldest tokens (not just mark as revoked)
       for (const token of oldestTokens) {
         await token.destroy();
-        console.log(`🗑️ Deleted token ID: ${token.id} for user ID: ${userId}`);
       }
-
-      console.log(`🔒 Limited refresh tokens for user ID: ${userId} (deleted ${oldestTokens.length} oldest tokens)`);
-    } else {
-      console.log(`✅ Token count within limit for user ID: ${userId}`);
     }
   } catch (error) {
     console.error('❌ Error limiting refresh tokens:', error);

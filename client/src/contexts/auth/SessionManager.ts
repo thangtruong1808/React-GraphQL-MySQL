@@ -178,6 +178,10 @@ export const useSessionManager = (
     try {
       const tokens = getTokens();
       if (!tokens.accessToken) {
+        // No access token found in memory - this could be:
+        // 1. A new user (no refresh token in cookie)
+        // 2. A returning user after browser refresh (has refresh token in cookie)
+        // Attempt to restore session using refresh token from httpOnly cookie
         const refreshSuccess = await refreshAccessToken();
         return refreshSuccess;
       }

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import User from '../db/models/user';
-import { ServerLogger } from '../utils/errorLogger';
 
 export interface GraphQLContext {
   req: Request;
@@ -12,15 +11,6 @@ export interface GraphQLContext {
 export function createContext({ req, res }: { req: Request; res: Response }): GraphQLContext {
   // Attach user to context if available (handled by auth middleware)
   const user = (req as any).user;
-  
-  // Debug: Log context creation
-  ServerLogger.graphql.debug('Creating GraphQL context', {
-    hasUser: !!user,
-    userId: user?.id,
-    userEmail: user?.email,
-    userRole: user?.role,
-    isAuthenticated: !!user
-  });
   
   return {
     req,

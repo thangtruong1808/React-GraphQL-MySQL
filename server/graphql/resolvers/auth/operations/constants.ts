@@ -36,7 +36,7 @@ export const AUTH_OPERATIONS_CONFIG = {
   
   // Debug logging
   DEBUG: {
-    ENABLE_LOGGING: process.env.NODE_ENV === 'development',
+    ENABLE_LOGGING: false, // Disabled to reduce console clutter
     LOG_PREFIXES: {
       LOGIN: '🔐',
       LOGOUT: '🚪',

@@ -6,8 +6,7 @@ import { ErrorProvider, useError } from './contexts/ErrorContext';
 import { AppRoutes } from './components/routing';
 import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
-import { ErrorLogger } from './components/errorLogs';
-import { ClientErrorLogger } from './components/clientErrorLogs';
+
 import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
 import './App.css';
 
@@ -113,19 +112,7 @@ const AppWithModals: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Server Error Logger (development only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <Suspense fallback={null}>
-          <ErrorLogger isVisible={true} />
-        </Suspense>
-      )}
 
-      {/* Client Error Logger (development only) */}
-      {process.env.NODE_ENV === 'development' && (
-        <Suspense fallback={null}>
-          <ClientErrorLogger isVisible={true} />
-        </Suspense>
-      )}
     </>
   );
 };

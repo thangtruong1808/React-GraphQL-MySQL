@@ -90,7 +90,7 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({
         <div className="flex justify-between">
           <span>Time Remaining:</span>
           <span className={`font-mono ${getRefreshTokenColor()}`}>
-            {formatRefreshTokenTime(timerState.refreshTokenTimeRemaining)}
+            {formatRefreshTokenTime(timerState.refreshTokenTimeRemaining || null)}
           </span>
         </div>
 

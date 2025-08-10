@@ -27,12 +27,10 @@ export const validateCSRFToken = (req: any): boolean => {
     // Get CSRF token from cookie
     const cookieToken = req.cookies?.[CSRF_CONFIG.CSRF_COOKIE_NAME];
     
-    console.log('🔒 CSRF VALIDATION - Header token exists:', !!headerToken);
-    console.log('🔒 CSRF VALIDATION - Cookie token exists:', !!cookieToken);
+
     
     // Check if both tokens exist
     if (!headerToken || !cookieToken) {
-      console.log('❌ CSRF VALIDATION - Missing token (header or cookie)');
       return false;
     }
     
@@ -41,7 +39,6 @@ export const validateCSRFToken = (req: any): boolean => {
     const isValidCookieFormat = /^[0-9a-fA-F]+$/.test(cookieToken);
     
     if (!isValidHeaderFormat || !isValidCookieFormat) {
-      console.log('❌ CSRF VALIDATION - Invalid token format');
       return false;
     }
     
@@ -51,7 +48,6 @@ export const validateCSRFToken = (req: any): boolean => {
       Buffer.from(cookieToken, 'hex')
     );
     
-    console.log('🔒 CSRF VALIDATION - Token comparison result:', isValid);
     return isValid;
     
   } catch (error) {
@@ -81,16 +77,12 @@ export const csrfProtection = (req: any, res: any, next: any) => {
         );
         
         if (isExcludedMutation) {
-          console.log('🔒 CSRF PROTECTION - Excluded mutation detected, skipping CSRF validation');
           return next();
         }
-        
-        console.log('🔒 CSRF PROTECTION - Protected mutation detected, validating CSRF token');
         
         const isValidCSRF = validateCSRFToken(req);
         
         if (!isValidCSRF) {
-          console.log('❌ CSRF PROTECTION - CSRF validation failed');
           return res.status(403).json({
             errors: [{
               message: ERROR_MESSAGES.CSRF_TOKEN_INVALID,
@@ -98,8 +90,6 @@ export const csrfProtection = (req: any, res: any, next: any) => {
             }]
           });
         }
-        
-        console.log('✅ CSRF PROTECTION - CSRF validation passed');
       }
     }
     
@@ -125,7 +115,6 @@ export const validateCSRFInContext = (context: any): boolean => {
     const { req } = context;
     
     if (!req) {
-      console.log('❌ CSRF CONTEXT - No request object in context');
       return false;
     }
     
@@ -148,7 +137,7 @@ export const setCSRFToken = (res: any): string => {
     // Set CSRF token as cookie
     res.cookie(CSRF_CONFIG.CSRF_COOKIE_NAME, csrfToken, CSRF_CONFIG.CSRF_COOKIE_OPTIONS);
     
-    console.log('✅ CSRF TOKEN - Generated and set CSRF token');
+
     return csrfToken;
   } catch (error) {
     console.error('❌ CSRF TOKEN - Error setting CSRF token:', error);
@@ -168,7 +157,7 @@ export const clearCSRFToken = (res: any): void => {
       sameSite: CSRF_CONFIG.CSRF_COOKIE_OPTIONS.sameSite,
     });
     
-    console.log('✅ CSRF TOKEN - Cleared CSRF token');
+
   } catch (error) {
     console.error('❌ CSRF TOKEN - Error clearing CSRF token:', error);
   }

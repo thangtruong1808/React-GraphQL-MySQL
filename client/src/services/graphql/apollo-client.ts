@@ -10,7 +10,7 @@ import {
   isActivityBasedTokenExpired,
   isTokenExpired
 } from '../../utils/tokenManager';
-import { ClientLogger } from '../../utils/errorLogger';
+
 
 // Global error handler - will be set by App.tsx
 let globalErrorHandler: ((message: string, source: string) => void) | null = null;
@@ -46,10 +46,10 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
         // Debug logging disabled for better user experience
       }
     } else {
-      ClientLogger.csrf.warn('Failed to fetch initial CSRF token', { status: response.status }, 'fetchInitialCSRFToken', 'apollo-client');
+      console.warn('Failed to fetch initial CSRF token:', response.status);
     }
   } catch (error) {
-    ClientLogger.csrf.error('Error fetching initial CSRF token', error, 'fetchInitialCSRFToken', 'apollo-client');
+    console.error('Error fetching initial CSRF token:', error);
   }
 };
 
@@ -135,7 +135,7 @@ const authLink = setContext((_, { headers }) => {
     
     return { headers: requestHeaders };
   } catch (error) {
-    ClientLogger.apollo.error('Error setting auth context', error, 'authLink', 'apollo-client');
+    console.error('Error setting auth context:', error);
     return { headers };
   }
 });
@@ -159,12 +159,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
         return; // Don't log as error or take any action
       }
       
-      ClientLogger.apollo.error(
-        `GraphQL error: ${message}`,
-        { locations, path, extensions },
-        'errorLink',
-        'apollo-client'
-      );
+      console.error(`GraphQL error: ${message}`, { locations, path, extensions });
       
       // Handle authentication errors (including force logout)
       if (extensions?.code === 'UNAUTHENTICATED') {
@@ -202,12 +197,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   }
 
   if (networkError) {
-    ClientLogger.network.error(
-      `Network error: ${networkError.message}`,
-      networkError,
-      'errorLink',
-      'apollo-client'
-    );
+    console.error(`Network error: ${networkError.message}`, networkError);
     
     // Show network errors to user
     if (globalErrorHandler) {

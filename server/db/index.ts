@@ -29,7 +29,6 @@ export const setupAssociations = (): void => {
   User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
   // RefreshToken associations are already defined in the model file
   // No need to redefine them here
-  console.log('✅ Associations setup completed (authentication functionality).');
 };
 
 // Don't setup associations automatically to avoid conflicts

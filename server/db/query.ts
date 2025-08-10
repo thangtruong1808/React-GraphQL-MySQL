@@ -10,12 +10,8 @@ export type QueryResult<T = any> = T[];
 export async function transaction<T>(
   callback: (client: TransactionClient) => Promise<T>
 ): Promise<T> {
-  console.log("Starting transaction");
-
   try {
-    console.log("Beginning transaction");
     const result = await sequelize.transaction(callback);
-    console.log("Transaction completed successfully");
     return result;
   } catch (error) {
     console.error("Transaction error:", error);

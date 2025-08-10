@@ -97,13 +97,16 @@ export const useAuthInitializer = (
           if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
             // Debug logging disabled for better user experience
           }
-          // Try to refresh the access token using the refresh token from httpOnly cookie
+          // No access token found in memory - this could be:
+          // 1. A new user (no refresh token in cookie)
+          // 2. A returning user after browser refresh (has refresh token in cookie)
+          // Attempt to restore session using refresh token from httpOnly cookie
           const refreshSuccess = await refreshAccessToken();
           if (!refreshSuccess) {
             if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
               // Debug logging disabled for better user experience
             }
-            // For first-time users, don't call performCompleteLogout immediately
+            // No valid refresh token found - this is a new user
             // Let them see the login page naturally
             return;
           }
