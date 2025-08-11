@@ -75,21 +75,21 @@ export class TimerCalculator {
         }
       }
 
-      // FIXED LOGIC: Refresh token countdown takes PRIORITY over activity status
-      // This ensures refresh countdown continues regardless of user activity
+      // FIXED LOGIC: Activity-based token takes PRIORITY over refresh token countdown
+      // This ensures users see the access token timer after refresh operations
       
-      // Priority 1: If refresh token countdown is active, ALWAYS show it (ignore activity)
-      if (refreshTokenExpiry) {
-        // Refresh token timer is active - show countdown regardless of user activity
-        // This ensures the countdown continues even if user moves mouse
-        return this.calculateRefreshTokenTimer(now, refreshTokenStatus);
-      }
-      
-      // Priority 2: No refresh timer active - check activity-based logic
+      // Priority 1: If activity-based token is still valid, show it (even if refresh token exists)
       if (!isActivityBasedTokenExpired) {
         // Activity-based token is still valid - show activity timer
-        // This covers normal operation before any expiry
+        // This covers normal operation and post-refresh scenarios
         return this.calculateAccessTokenTimer(now, refreshTokenStatus);
+      }
+      
+      // Priority 2: Activity-based token expired - check if refresh token countdown is active
+      if (refreshTokenExpiry) {
+        // Refresh token timer is active - show countdown
+        // This ensures the countdown continues even if user moves mouse
+        return this.calculateRefreshTokenTimer(now, refreshTokenStatus);
       } else {
         // Activity-based token expired AND no refresh timer yet - transition state
         // This is the brief period between activity expiry and modal appearance

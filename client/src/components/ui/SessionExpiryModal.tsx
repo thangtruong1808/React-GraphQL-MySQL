@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { AUTH_CONFIG } from '../../constants/auth';
 
 interface SessionExpiryModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface SessionExpiryModalProps {
  * Session Expiry Modal Component
  * Displays when access token expires but refresh token is still valid
  * Gives users options to continue working or logout
+ * Enhanced with progress bar for better user experience
  * 
  * CALLED BY: AuthContext when access token expires
  * SCENARIOS: Access token expiry with valid refresh token
@@ -24,13 +26,36 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
 }) => {
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
+
+  // Progress bar animation during refresh
+  React.useEffect(() => {
+    if (isRefreshing) {
+      setProgress(0);
+      const interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) return prev; // Stop at 90% until operation completes
+          // Use buffer time to calculate progress duration
+          const progressDuration = AUTH_CONFIG.PROGRESS_BAR_DURATION + AUTH_CONFIG.SERVER_OPERATION_BUFFER;
+          return prev + (90 / (progressDuration / 100)); // Animate over buffer time + progress duration
+        });
+      }, 100);
+      return () => clearInterval(interval);
+    } else {
+      setProgress(0);
+    }
+  }, [isRefreshing]);
 
   // Handle continue working button click
   const handleContinueWorking = async () => {
     setIsRefreshing(true);
     try {
       const success = await onRefresh();
-      if (!success) {
+      if (success) {
+        setProgress(100); // Complete the progress bar
+        // Small delay to show completion
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } else {
         // If refresh fails, logout
         await handleLogout();
       }
@@ -79,6 +104,21 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
         <div className="mb-6">
           <p className="text-sm text-gray-600">{message}</p>
         </div>
+
+        {/* Progress Bar (only show during refresh) */}
+        {isRefreshing && (
+          <div className="mb-4">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-green-600 h-2 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1 text-center">
+              Refreshing session... {Math.round(progress)}%
+            </p>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3">

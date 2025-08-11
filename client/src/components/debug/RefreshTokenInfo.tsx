@@ -1,10 +1,10 @@
 import React from 'react';
+import { TimerState } from './TimerCalculator';
 import {
   ACTIVITY_DEBUGGER_LAYOUT,
   ACTIVITY_DEBUGGER_MESSAGES,
-  ACTIVITY_DEBUGGER_COLORS
+  ACTIVITY_DEBUGGER_COLORS,
 } from '../../constants/activityDebugger';
-import { TimerState } from './TimerCalculator';
 
 /**
  * Refresh Token Info Props Interface
@@ -12,92 +12,113 @@ import { TimerState } from './TimerCalculator';
  */
 interface RefreshTokenInfoProps {
   timerState: TimerState;
-  className?: string;
 }
 
 /**
- * Refresh Token Information Component
- * Displays refresh token expiry information unaffected by user activity
- * Shows fixed countdown timer when refresh token is active
- * 
- * Features:
- * - Fixed refresh token expiry display
- * - Not affected by user activity
- * - Shows time remaining until auto-logout
- * - Color-coded status indicators
+ * Refresh Token Info Component
+ * Displays detailed refresh token information for debugging
+ * Shows timing information and status for refresh token operations
  */
-const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({
-  timerState,
-  className = ''
-}) => {
-  // Format refresh token time remaining
-  const formatRefreshTokenTime = (timeRemaining: number | null): string => {
+const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
+  const { refreshTokenExpiry, refreshTokenTimeRemaining } = timerState;
+
+  // Format time remaining for display
+  const formatTimeRemaining = (timeRemaining: number | null): string => {
+    if (!timeRemaining || timeRemaining <= 0) {
+      return '0m 0s';
+    }
+    const minutes = Math.floor(timeRemaining / 60000);
+    const seconds = Math.floor((timeRemaining % 60000) / 1000);
+    return `${minutes}m ${seconds}s`;
+  };
+
+  // Format expiry timestamp for display
+  const formatExpiryTime = (expiry: number | null): string => {
+    if (!expiry) {
+      return ACTIVITY_DEBUGGER_MESSAGES.NOT_AVAILABLE;
+    }
+    return new Date(expiry).toLocaleTimeString();
+  };
+
+  // Determine status color based on time remaining
+  const getStatusColor = (timeRemaining: number | null): string => {
+    if (!timeRemaining || timeRemaining <= 0) {
+      return ACTIVITY_DEBUGGER_COLORS.DANGER;
+    }
+    if (timeRemaining < 10 * 1000) { // Less than 10 seconds
+      return ACTIVITY_DEBUGGER_COLORS.DANGER;
+    }
+    if (timeRemaining < 30 * 1000) { // Less than 30 seconds
+      return ACTIVITY_DEBUGGER_COLORS.WARNING;
+    }
+    return ACTIVITY_DEBUGGER_COLORS.SUCCESS;
+  };
+
+  // Get status message based on time remaining
+  const getStatusMessage = (timeRemaining: number | null): string => {
     if (!timeRemaining || timeRemaining <= 0) {
       return 'Expired';
     }
-
-    const seconds = Math.ceil(timeRemaining / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-
-    return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${seconds}s`;
-  };
-
-  // Get refresh token status color
-  const getRefreshTokenColor = (): string => {
-    if (!timerState.refreshTokenTimeRemaining || timerState.refreshTokenTimeRemaining <= 0) {
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
+    if (timeRemaining < 10 * 1000) {
+      return 'Critical - Too close to expiry';
     }
-
-    const seconds = Math.ceil(timerState.refreshTokenTimeRemaining / 1000);
-    if (seconds <= 60) { // Last minute
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
-    } else if (seconds <= 120) { // Last 2 minutes
-      return ACTIVITY_DEBUGGER_COLORS.WARNING;
+    if (timeRemaining < 30 * 1000) {
+      return 'Warning - Close to expiry';
     }
-
-    return ACTIVITY_DEBUGGER_COLORS.NEUTRAL;
+    return 'Valid';
   };
-
-  // Only show if we have refresh token information
-  if (!timerState.refreshTokenExpiry && !timerState.refreshTokenTimeRemaining) {
-    return null;
-  }
 
   return (
-    <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} ${className}`}>
-      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-1`}>
-        🔄 REFRESH TOKEN INFO
+    <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
+      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
+        Refresh Token Debug Info
       </div>
 
-      <div className={`space-y-1 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
-        <div className="flex justify-between">
-          <span>Refresh Token Status:</span>
-          <span className={`font-mono ${getRefreshTokenColor()}`}>
-            {timerState.refreshTokenExpiry ? 'Active' : 'Not Set'}
-          </span>
-        </div>
-
-        {timerState.refreshTokenExpiry && (
-          <div className="flex justify-between">
-            <span>Expires At:</span>
-            <span className="font-mono text-gray-600">
-              {new Date(timerState.refreshTokenExpiry).toLocaleTimeString()}
-            </span>
-          </div>
-        )}
-
+      <div className={`space-y-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
+        {/* Time Remaining */}
         <div className="flex justify-between">
           <span>Time Remaining:</span>
-          <span className={`font-mono ${getRefreshTokenColor()}`}>
-            {formatRefreshTokenTime(timerState.refreshTokenTimeRemaining || null)}
+          <span className={`font-mono ${getStatusColor(refreshTokenTimeRemaining)}`}>
+            {formatTimeRemaining(refreshTokenTimeRemaining)}
           </span>
         </div>
 
-        <div className={`mt-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT} ${ACTIVITY_DEBUGGER_COLORS.NEUTRAL}`}>
-          <div>⚠️ Not affected by user activity</div>
-          <div>Fixed countdown until auto-logout</div>
+        {/* Status */}
+        <div className="flex justify-between">
+          <span>Status:</span>
+          <span className={`font-mono ${getStatusColor(refreshTokenTimeRemaining)}`}>
+            {getStatusMessage(refreshTokenTimeRemaining)}
+          </span>
         </div>
+
+        {/* Expiry Time */}
+        <div className="flex justify-between">
+          <span>Expires At:</span>
+          <span className="font-mono">
+            {formatExpiryTime(refreshTokenExpiry)}
+          </span>
+        </div>
+
+        {/* Current Time */}
+        <div className="flex justify-between">
+          <span>Current Time:</span>
+          <span className="font-mono">
+            {new Date().toLocaleTimeString()}
+          </span>
+        </div>
+
+        {/* Debug Information */}
+        {refreshTokenTimeRemaining && refreshTokenTimeRemaining < 30 * 1000 && (
+          <div className={`mt-3 p-2 rounded ${ACTIVITY_DEBUGGER_COLORS.WARNING_BACKGROUND} ${ACTIVITY_DEBUGGER_COLORS.WARNING_TEXT}`}>
+            <div className="text-xs font-medium mb-1">⚠️ Debug Info:</div>
+            <div className="text-xs space-y-1">
+              <div>• Time remaining: {Math.ceil(refreshTokenTimeRemaining / 1000)}s</div>
+              <div>• Minimum refresh time: 10s</div>
+              <div>• Can refresh: {refreshTokenTimeRemaining >= 10 * 1000 ? 'Yes' : 'No'}</div>
+              <div>• Status: {getStatusMessage(refreshTokenTimeRemaining)}</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

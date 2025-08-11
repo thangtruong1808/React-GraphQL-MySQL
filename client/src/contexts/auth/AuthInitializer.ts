@@ -101,17 +101,9 @@ export const useAuthInitializer = (
           // 1. A new user (no refresh token in cookie)
           // 2. A returning user after browser refresh (has refresh token in cookie)
           
-          // Check if refresh token exists by checking if we have refresh token expiry time
-          // This prevents unnecessary GraphQL errors for new users
-          const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
-          if (!refreshTokenStatus.expiry) {
-            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-              // Debug logging disabled for better user experience
-            }
-            // No refresh token found - this is a new user
-            // Let them see the login page naturally
-            return;
-          }
+          // FIXED: Always attempt session restoration when no access token in memory
+          // The refresh token is stored in httpOnly cookies, not in memory
+          // So we can't check memory for refresh token expiry - we need to try the server
           
           // Attempt to restore session using refresh token from httpOnly cookie
           const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)

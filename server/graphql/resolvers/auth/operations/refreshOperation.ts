@@ -46,8 +46,8 @@ export const refreshToken = async (req: any, res: any) => {
   let validUser: any = null;
 
   // Get all valid refresh tokens for all users to find the matching one
-  // Add 2-minute buffer to account for clock synchronization differences
-  const bufferTime = new Date(Date.now() - 120000); // 2 minutes buffer (allow tokens that expired within last 2 minutes)
+  // Add buffer time to account for clock synchronization differences
+  const bufferTime = new Date(Date.now() - JWT_CONFIG.CLOCK_SYNC_BUFFER);
   
   const storedTokens = await RefreshToken.findAll({
     where: {
@@ -172,8 +172,8 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   let validUser: any = null;
 
   // Get all valid refresh tokens to find the matching one
-  // Add 2-minute buffer to account for clock synchronization differences
-  const bufferTime = new Date(Date.now() - 120000); // 2 minutes buffer (allow tokens that expired within last 2 minutes)
+  // Add buffer time to account for clock synchronization differences
+  const bufferTime = new Date(Date.now() - JWT_CONFIG.CLOCK_SYNC_BUFFER);
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,

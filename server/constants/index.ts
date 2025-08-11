@@ -20,9 +20,20 @@ export const JWT_CONFIG = {
   MAX_REFRESH_TOKENS_PER_USER: 3, // Maximum refresh tokens per user (increased for multiple sessions)
   
   // JWT issuer and audience
-  
   ISSUER: 'Thang-Truong',
   AUDIENCE: 'graphql-app-users',
+  
+  // Token refresh timeout configuration
+  MINIMUM_REFRESH_TIME: 10 * 1000, // 10 seconds minimum time for refresh operations
+  MINIMUM_RENEWAL_TIME: 10 * 1000, // 10 seconds minimum time for renewal operations
+  REFRESH_OPERATION_TIMEOUT: 15000, // 15 seconds timeout for refresh operations
+  RENEWAL_OPERATION_TIMEOUT: 15000, // 15 seconds timeout for renewal operations
+  DB_OPERATION_TIMEOUT: 10000, // 10 seconds timeout for database operations
+  CLOCK_SYNC_BUFFER: 30000, // 30 seconds buffer for clock synchronization (reduced from 2 minutes)
+  
+  // Buffer time for server operations (improves reliability)
+  SERVER_OPERATION_BUFFER: 5000, // 5 seconds buffer for server operations
+  REQUEST_PROCESSING_BUFFER: 3000, // 3 seconds buffer for request processing
 } as const;
 
 /**
@@ -89,6 +100,10 @@ export const SERVER_CONFIG = {
   
   // CORS configuration
   CORS_ORIGINS: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
+  
+  // Request timeout configuration
+  REQUEST_TIMEOUT: 30000, // 30 seconds for server requests
+  GRAPHQL_TIMEOUT: 15000, // 15 seconds for GraphQL operations
 } as const;
 
 /**

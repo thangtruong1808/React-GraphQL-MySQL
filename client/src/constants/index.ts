@@ -39,8 +39,6 @@ export const API_CONFIG = {
   RETRY_DELAY: 1000, // 1 second
 } as const;
 
-
-
 /**
  * Validation Configuration Constants
  * Defines validation rules and patterns for form inputs

@@ -43,6 +43,22 @@ export const AUTH_CONFIG = {
   
   // First-time user experience
   FIRST_TIME_USER_DELAY: 500, // 500ms delay for first-time users to avoid flash
+  
+  // Token refresh timeout configuration
+  MINIMUM_REFRESH_TIME: 10 * 1000, // 10 seconds minimum time for refresh operations
+  MINIMUM_RENEWAL_TIME: 10 * 1000, // 10 seconds minimum time for renewal operations
+  REFRESH_OPERATION_TIMEOUT: 15000, // 15 seconds timeout for refresh operations
+  RENEWAL_OPERATION_TIMEOUT: 15000, // 15 seconds timeout for renewal operations
+  REFRESH_RETRY_DELAY: 2000, // 2 seconds delay between retries
+  MAX_REFRESH_RETRIES: 2, // Maximum 2 retries for refresh operations
+  
+  // Buffer time for server operations (improves reliability)
+  SERVER_OPERATION_BUFFER: 5000, // 5 seconds buffer for server operations
+  CLOCK_SYNC_BUFFER: 30000, // 30 seconds buffer for clock synchronization (reduced from 2 minutes)
+  
+  // Loading state configuration
+  LOADING_STATE_DELAY: 1000, // 1 second delay before showing loading state
+  PROGRESS_BAR_DURATION: 3000, // 3 seconds for progress bar animation
 } as const;
 
 /**

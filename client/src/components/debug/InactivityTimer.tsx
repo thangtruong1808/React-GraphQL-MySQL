@@ -173,6 +173,11 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
         </div>
 
       </div>
+
+      {/* Show RefreshTokenInfo only when timer type is refresh */}
+      {timerState.timerType === 'refresh' && (
+        <RefreshTokenInfo timerState={timerState} />
+      )}
     </>
   );
 };

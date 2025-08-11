@@ -6,8 +6,9 @@ import { LoginInput, User } from '../../types/graphql';
 import { clearCSRFToken as clearApolloCSRFToken, setCSRFToken as setApolloCSRFToken } from '../../services/graphql/apollo-client';
 import { clearTokens, saveTokens, TokenManager } from '../../utils/tokenManager';
 import { useApolloClient } from '@apollo/client';
-import { DEBUG_CONFIG } from '../../constants';
+import { DEBUG_CONFIG, AUTH_CONFIG } from '../../constants';
 import { useError } from '../ErrorContext';
+import { logTokenRefreshTiming, logSessionState } from '../../utils/debugLogger';
 
 /**
  * Authentication Actions Interface
@@ -100,27 +101,45 @@ export const useAuthActions = (
   const refreshAccessToken = useCallback(async (isSessionRestoration: boolean = false): Promise<boolean> => {
     try {
       // Check if refresh token is expired before attempting refresh
-      // Only prevent refresh if token is actually expired, not when it's about to expire
-      if (TokenManager.isRefreshTokenExpired()) {
-        // Debug logging disabled for better user experience
+      // SKIP this check for session restoration since refresh token is in httpOnly cookies
+      if (!isSessionRestoration && TokenManager.isRefreshTokenExpired()) {
+        logTokenRefreshTiming('refresh_access_token', null, { 
+          error: 'refresh_token_expired',
+          isSessionRestoration 
+        });
         return false;
       }
 
-      // Debug logging disabled for better user experience
+      // Get refresh token status for logging
+      const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+      logTokenRefreshTiming('refresh_access_token_start', refreshTokenStatus.timeRemaining, { 
+        isSessionRestoration,
+        isExpired: refreshTokenStatus.isExpired,
+        needsRenewal: refreshTokenStatus.needsRenewal 
+      });
 
       const result = await refreshTokenMutation();
 
       if (!result.data || !result.data.refreshToken) {
+        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+          error: 'no_data_response',
+          isSessionRestoration 
+        });
         return false;
       }
 
       const { accessToken, refreshToken, csrfToken, user: refreshedUser } = result.data.refreshToken;
 
       if (accessToken && refreshedUser) {
-        // Debug logging disabled for better user experience
+        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+          success: true,
+          isSessionRestoration,
+          hasAccessToken: !!accessToken,
+          hasUser: !!refreshedUser,
+          hasCSRFToken: !!csrfToken 
+        });
 
         // Store the new access token and user data in memory
-        // Use updateAccessToken to avoid clearing the refresh token countdown
         TokenManager.updateAccessToken(accessToken);
         if (refreshedUser) {
           TokenManager.updateUser(refreshedUser);
@@ -135,16 +154,34 @@ export const useAuthActions = (
         setUser(refreshedUser);
         setIsAuthenticated(true);
 
-        // Reset activity timer when user manually refreshes (e.g., "Continue to Work")
-        // This gives the user a fresh 2-minute activity timer
+        // Reset activity timer
         TokenManager.updateActivity();
         
-        // Clear refresh token expiry timer so that the activity timer is shown instead
-        // This ensures the user sees the activity timer countdown, not the refresh token countdown
-        TokenManager.clearRefreshTokenExpiry();
+        // Handle session restoration vs manual refresh differently
+        if (isSessionRestoration) {
+          // For browser refresh: Reset ALL timers including refresh token expiry
+          // The server returned a new refresh token, so we need to update the expiry timer
+          // This ensures a fresh start after browser refresh
+          TokenManager.updateRefreshTokenExpiry();
+          logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+            action: 'session_restoration_reset_all_timers' 
+          });
+        } else {
+          // For manual refresh (Continue to Work): Keep refresh token countdown visible
+          // This shows users the actual remaining time on their refresh token
+          logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+            action: 'manual_refresh_keep_refresh_timer' 
+          });
+        }
 
         return true;
       } else {
+        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+          error: 'missing_tokens_or_user',
+          isSessionRestoration,
+          hasAccessToken: !!accessToken,
+          hasUser: !!refreshedUser 
+        });
         return false;
       }
     } catch (error: any) {
@@ -156,11 +193,24 @@ export const useAuthActions = (
           path: graphQLError.path
         });
         if (graphQLError.message === 'Refresh token is required') {
+          logTokenRefreshTiming('refresh_access_token', null, { 
+            error: 'refresh_token_required',
+            isSessionRestoration 
+          });
           return false;
         }
-        // Debug logging disabled for better user experience
+        logTokenRefreshTiming('refresh_access_token', null, { 
+          error: 'graphql_error',
+          isSessionRestoration,
+          graphQLError: graphQLError.message 
+        });
       } else {
         console.error('❌ Error refreshing access token:', error);
+        logTokenRefreshTiming('refresh_access_token', null, { 
+          error: 'network_error',
+          isSessionRestoration,
+          errorMessage: error.message 
+        });
       }
       return false;
     }
@@ -172,27 +222,74 @@ export const useAuthActions = (
    */
   const renewRefreshToken = useCallback(async (): Promise<boolean> => {
     try {
+      // Check if refresh token is too close to expiry before attempting renewal
+      const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+      const timeRemaining = refreshTokenStatus.timeRemaining;
+      
+      // Log timing information for debugging
+      logTokenRefreshTiming('renew_refresh_token_start', timeRemaining, { 
+        isExpired: refreshTokenStatus.isExpired,
+        needsRenewal: refreshTokenStatus.needsRenewal 
+      });
+      
+      // Check if refresh token is too close to expiry (less than 10 seconds)
+      // This prevents race conditions where the token expires during the renewal operation
+      const MINIMUM_RENEWAL_TIME = AUTH_CONFIG.MINIMUM_RENEWAL_TIME;
+      if (timeRemaining && timeRemaining < MINIMUM_RENEWAL_TIME) {
+        // Debug logging disabled for better user experience
+        logTokenRefreshTiming('renew_refresh_token', timeRemaining, { 
+          error: 'too_close_to_expiry_for_renewal',
+          minimumTime: MINIMUM_RENEWAL_TIME 
+        });
+        return false;
+      }
+
       // Debug logging disabled for better user experience
 
       const result = await refreshTokenRenewalMutation();
+      
+      // Check if the mutation result is null or undefined
+      if (!result || !result.data) {
+        logTokenRefreshTiming('renew_refresh_token', timeRemaining, { 
+          error: 'no_mutation_result',
+          hasResult: !!result,
+          hasData: !!(result && result.data)
+        });
+        return false;
+      }
+
       const { success, user: renewedUser } = result.data.refreshTokenRenewal;
 
       if (success && renewedUser) {
         // Debug logging disabled for better user experience
+        logTokenRefreshTiming('renew_refresh_token', timeRemaining, { 
+          success: true,
+          userUpdated: !!renewedUser 
+        });
 
         // Update user data
         setUser(renewedUser);
         
-        // DO NOT update refresh token expiry here!
-        // The refresh token timer should remain FIXED and unaffected by user activity
-        // Only reset refresh token timer on initial login or complete session reset
+        // Reset refresh token expiry timer to reflect the renewed token
+        // This ensures the client-side timer matches the server-side renewal
+        TokenManager.updateRefreshTokenExpiry();
 
         return true;
       } else {
+        logTokenRefreshTiming('renew_refresh_token', timeRemaining, { 
+          error: 'server_response_failed',
+          success: success,
+          hasUser: !!renewedUser 
+        });
         return false;
       }
     } catch (error) {
       console.error('❌ Error renewing refresh token:', error);
+      logTokenRefreshTiming('renew_refresh_token', null, { 
+        error: 'exception',
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorType: error instanceof Error ? error.constructor.name : typeof error
+      });
       return false;
     }
   }, [refreshTokenRenewalMutation, setUser]);
@@ -281,8 +378,9 @@ export const useAuthActions = (
   }, [logoutMutation, performCompleteLogout, setLogoutLoading]);
 
   /**
-   * Refresh session manually
-   * Attempts to refresh the access token using the refresh token
+   * Refresh session when user clicks "Continue to Work"
+   * Handles both access token refresh and refresh token renewal
+   * Enhanced with buffer time support for better reliability
    */
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
@@ -290,33 +388,78 @@ export const useAuthActions = (
       if (modalAutoLogoutTimer) {
         clearTimeout(modalAutoLogoutTimer);
         setModalAutoLogoutTimer(null);
-        // Debug logging disabled for better user experience
       }
       
       // Check if refresh token is expired before attempting refresh
-      // Only prevent refresh if token is actually expired
       if (TokenManager.isRefreshTokenExpired()) {
-        // Refresh token is expired - show specific message
+        logTokenRefreshTiming('refresh_session', null, { error: 'refresh_token_expired' });
         setShowSessionExpiryModal(false);
         showNotification('Session has expired. Please log in again.', 'error');
         return false;
       }
       
-      const refreshSuccess = await refreshAccessToken(false); // false = token refresh, not session restoration
+      // Get refresh token status to check timing
+      const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+      const timeRemaining = refreshTokenStatus.timeRemaining;
+      
+      // Log timing information for debugging
+      logTokenRefreshTiming('refresh_session_start', timeRemaining, { 
+        isExpired: refreshTokenStatus.isExpired,
+        needsRenewal: refreshTokenStatus.needsRenewal 
+      });
+      
+      // Add buffer time check to prevent race conditions
+      // Ensure there's enough time for the server operation to complete
+      // Very flexible buffer time to allow users to continue working
+      const bufferTime = Math.min(AUTH_CONFIG.SERVER_OPERATION_BUFFER, 1000); // Use 1 second max
+      if (timeRemaining && timeRemaining < bufferTime) {
+        logTokenRefreshTiming('refresh_session', timeRemaining, { 
+          error: 'insufficient_time_for_operation',
+          bufferTime: bufferTime 
+        });
+        setShowSessionExpiryModal(false);
+        showNotification('Session is about to expire. Please log in again.', 'error');
+        return false;
+      }
+      
+      // SIMPLIFIED LOGIC: Just refresh the access token directly
+      // This is more reliable than trying to renew the refresh token first
+      logTokenRefreshTiming('refresh_access_token_direct', timeRemaining, { 
+        reason: 'simplified_refresh_logic' 
+      });
+      
+      const refreshSuccess = await refreshAccessToken(false);
+      
       if (refreshSuccess) {
-        // Debug logging disabled for better user experience
+        // Success - clear modal and show success message
+        // IMPORTANT: Reset ALL timers for "Continue to Work" functionality
+        // This gives users a fresh start with both activity and refresh token timers
+        TokenManager.updateRefreshTokenExpiry();
+        
+        logTokenRefreshTiming('refresh_session', timeRemaining, { 
+          success: true,
+          operation: 'direct_refresh_reset_all_timers' 
+        });
         setShowSessionExpiryModal(false);
         setLastModalShowTime(null);
         showNotification('You can continue working now!', 'success');
         return true;
       } else {
-        // Debug logging disabled for better user experience
+        // Refresh failed - show error message
+        logTokenRefreshTiming('refresh_session', timeRemaining, { 
+          error: 'refresh_failed',
+          operation: 'direct_refresh' 
+        });
         setShowSessionExpiryModal(false);
         showNotification('Failed to refresh session. Please log in again.', 'error');
         return false;
       }
     } catch (error) {
-      console.error('❌ Error refreshing session manually:', error);
+      console.error('❌ Error in refreshSession:', error);
+      logTokenRefreshTiming('refresh_session', null, { 
+        error: 'exception',
+        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      });
       setShowSessionExpiryModal(false);
       showNotification('Failed to refresh session. Please log in again.', 'error');
       return false;
