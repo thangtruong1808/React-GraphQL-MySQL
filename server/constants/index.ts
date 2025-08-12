@@ -12,8 +12,8 @@ export const JWT_CONFIG = {
   // Access token configuration - short-lived for security
   ACCESS_TOKEN_EXPIRY: '2m', // 2 minutes
   
-  // Refresh token configuration - shorter-lived for testing timeline (3 minutes to achieve 5 minutes total)
-  REFRESH_TOKEN_EXPIRY: '4m', // 4 minutes (2m access + 4m refresh = 6m total)
+  // Refresh token configuration - 4 minutes total from login (2m access + 2m refresh)
+  REFRESH_TOKEN_EXPIRY: '4m', // 4 minutes total from login (2m access + 2m refresh = 4m total)
   REFRESH_TOKEN_EXPIRY_MS: 4 * 60 * 1000, // 4 minutes in milliseconds
 
   // Token limits
@@ -29,7 +29,7 @@ export const JWT_CONFIG = {
   REFRESH_OPERATION_TIMEOUT: 15000, // 15 seconds timeout for refresh operations
   RENEWAL_OPERATION_TIMEOUT: 15000, // 15 seconds timeout for renewal operations
   DB_OPERATION_TIMEOUT: 10000, // 10 seconds timeout for database operations
-  CLOCK_SYNC_BUFFER: 30000, // 30 seconds buffer for clock synchronization (reduced from 2 minutes)
+  CLOCK_SYNC_BUFFER: 10000, // 10 seconds buffer for clock synchronization (reduced from 30 seconds)
   
   // Buffer time for server operations (improves reliability)
   SERVER_OPERATION_BUFFER: 5000, // 5 seconds buffer for server operations

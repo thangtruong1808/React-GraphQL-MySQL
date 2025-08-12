@@ -68,10 +68,15 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
     return 'Valid';
   };
 
+  // Only show refresh token info if there's actually a refresh token timer active
+  if (!refreshTokenExpiry || !refreshTokenTimeRemaining || refreshTokenTimeRemaining <= 0) {
+    return null;
+  }
+
   return (
     <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
       <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
-        Refresh Token Debug Info
+        Refresh Token Debug Info (2min countdown)
       </div>
 
       <div className={`space-y-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>

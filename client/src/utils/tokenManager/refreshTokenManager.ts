@@ -14,14 +14,17 @@ import { MemoryStorage } from './memoryStorage';
 export class RefreshTokenManager {
   /**
    * Start refresh token expiry timer
-   * Called when access token expires to start the 4-minute countdown
+   * Called when access token expires to start the refresh token countdown
    * 
    * CALLED BY: AuthContext when access token expires
    * SCENARIOS: Access token expiry - starts refresh token countdown
    */
   static startRefreshTokenExpiryTimer(): void {
     try {
-      const expiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
+      // Calculate refresh token expiry - should be 4 minutes from login time
+      // This ensures refresh token countdown shows 4 minutes total from login
+      const loginTime = Date.now() - AUTH_CONFIG.ACCESS_TOKEN_EXPIRY; // 2 minutes ago (when access token expires)
+      const expiry = loginTime + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS; // 4 minutes from login
       MemoryStorage.setRefreshTokenExpiry(expiry);
       // Debug logging disabled for better user experience
     } catch (error) {
@@ -42,7 +45,7 @@ export class RefreshTokenManager {
     try {
       const refreshTokenExpiry = MemoryStorage.getRefreshTokenExpiry();
       if (!refreshTokenExpiry) {
-        return false; // Not expired if timer hasn't started yet
+        return false; // Not expired if timer hasn't started yet (access token still valid)
       }
       
       const now = Date.now();
@@ -98,11 +101,8 @@ export class RefreshTokenManager {
     try {
       const oldExpiry = MemoryStorage.getRefreshTokenExpiry();
       
-      // Only clear if we got NEW refresh tokens from server
-      // For "Continue to Work" scenarios, we should NOT clear the timer
-      // The refresh token countdown should remain FIXED and unaffected by user activity
-      
-      // Start new refresh token timer with fresh duration
+      // Calculate refresh token expiry - should be 4 minutes from NOW (when tokens are refreshed)
+      // This ensures refresh token countdown shows 4 minutes from the moment tokens are refreshed
       const newExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
       MemoryStorage.setRefreshTokenExpiry(newExpiry);
       

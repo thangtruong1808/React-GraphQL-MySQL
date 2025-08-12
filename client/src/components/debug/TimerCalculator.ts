@@ -75,24 +75,24 @@ export class TimerCalculator {
         }
       }
 
-      // FIXED LOGIC: Activity-based token takes PRIORITY over refresh token countdown
-      // This ensures users see the access token timer after refresh operations
+      // BUSINESS LOGIC: Refresh token timer should only show AFTER access token expires
+      // This matches the business requirement: 2min access + 2min refresh = 4min total
       
-      // Priority 1: If activity-based token is still valid, show it (even if refresh token exists)
+      // Priority 1: If access token is still valid, show access token timer (regardless of refresh token)
       if (!isActivityBasedTokenExpired) {
-        // Activity-based token is still valid - show activity timer
-        // This covers normal operation and post-refresh scenarios
+        // Access token is still valid - show access token timer
+        // Hide refresh token timer during access token period
         return this.calculateAccessTokenTimer(now, refreshTokenStatus);
       }
       
-      // Priority 2: Activity-based token expired - check if refresh token countdown is active
+      // Priority 2: Access token expired - check if refresh token countdown is active
       if (refreshTokenExpiry) {
         // Refresh token timer is active - show countdown
-        // This ensures the countdown continues even if user moves mouse
+        // This is the 2-minute period after access token expires
         return this.calculateRefreshTokenTimer(now, refreshTokenStatus);
       } else {
-        // Activity-based token expired AND no refresh timer yet - transition state
-        // This is the brief period between activity expiry and modal appearance
+        // Access token expired AND no refresh timer yet - transition state
+        // This is the brief period between access token expiry and modal appearance
         return this.calculateTransitionState(now, refreshTokenStatus);
       }
     } catch (error) {
@@ -214,7 +214,7 @@ export class TimerCalculator {
     const seconds = countdownSeconds % 60;
     const timeDisplay = `${minutes}m ${seconds}s`;
 
-    // Progress based on refresh token duration (4 minutes) - countdown style
+    // Progress based on refresh token duration (2 minutes) - countdown style
     const totalCountdown = AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS / 1000;
     const progressPercentage = Math.min(100, ((totalCountdown - countdownSeconds) / totalCountdown) * 100);
 

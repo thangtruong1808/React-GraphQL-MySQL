@@ -237,9 +237,10 @@ export class TokenStorage {
         MemoryStorage.setTokenExpiry(expiry);
       }
 
-      // Clear refresh token expiry timer since tokens were refreshed
-      // It will be set again when access token expires next time
-      MemoryStorage.setRefreshTokenExpiry(null);
+      // Set refresh token expiry - should be 4 minutes from NOW (when tokens are refreshed)
+      // This ensures refresh token countdown shows 4 minutes from the moment tokens are refreshed
+      const refreshTokenExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
+      MemoryStorage.setRefreshTokenExpiry(refreshTokenExpiry);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
     }

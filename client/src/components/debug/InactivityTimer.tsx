@@ -107,7 +107,7 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
     return (
       <>
         <TransitionProgressBar className={className} />
-        <RefreshTokenInfo timerState={timerState} />
+        {/* Don't show RefreshTokenInfo during transition - wait for refresh timer to start */}
       </>
     );
   }

@@ -54,7 +54,7 @@ export const AUTH_CONFIG = {
   
   // Buffer time for server operations (improves reliability)
   SERVER_OPERATION_BUFFER: 5000, // 5 seconds buffer for server operations
-  CLOCK_SYNC_BUFFER: 30000, // 30 seconds buffer for clock synchronization (reduced from 2 minutes)
+  CLOCK_SYNC_BUFFER: 10000, // 10 seconds buffer for clock synchronization (reduced from 30 seconds)
   
   // Loading state configuration
   LOADING_STATE_DELAY: 1000, // 1 second delay before showing loading state
@@ -89,7 +89,7 @@ export const AUTH_TIMING = {
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
   
   // Session expiry modal
-  MODAL_AUTO_LOGOUT_DELAY: 4 * 60 * 1000, // 4 minutes after modal appears
+  MODAL_AUTO_LOGOUT_DELAY: 2 * 60 * 1000, // 2 minutes after modal appears
   
   // Loading states
   AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)

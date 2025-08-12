@@ -20,7 +20,7 @@ export const ACTIVITY_DEBUGGER_UI = {
   MIN_TIME_BETWEEN_MODAL_SHOWS: 5000, // 5 seconds minimum between modal shows
   
   // Countdown display
-  COUNTDOWN_TOTAL_SECONDS: 4 * 60, // 4 minutes countdown
+  COUNTDOWN_TOTAL_SECONDS: 4 * 60, // 4 minutes countdown (matches business logic)
   
   // Component sizing
   DEBUG_PANEL_WIDTH: 'w-80', // Panel width class
@@ -57,11 +57,11 @@ export const ACTIVITY_DEBUGGER_MESSAGES = {
   INACTIVE_STATUS: '🔴 INACTIVE',
   
   // Timer states
-  ACCESS_TOKEN_VALID: 'Access token is valid',
+  ACCESS_TOKEN_VALID: 'Access token is valid (2min)',
   ACCESS_TOKEN_EXPIRED: 'Access token expired',
-  COUNTDOWN_WARNING: 'Logout countdown active',
+  COUNTDOWN_WARNING: 'Refresh token countdown (2min)',
   TRANSITION_STATE: 'Waiting for session modal...',
-  REFRESH_TOKEN_COUNTDOWN: 'Refresh token countdown',
+  REFRESH_TOKEN_COUNTDOWN: 'Refresh token countdown (2min)',
   REFRESH_TIMER_FIXED: 'Fixed countdown - not affected by activity',
   
   // Help text

@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES, DEBUG_CONFIG } from '../../constants';
+import { useCallback, useEffect, useRef } from 'react';
 import { updateActivity } from '../../utils/tokenManager';
+import { TokenManager } from '../../utils/tokenManager/TokenManager';
+import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES } from '../../constants/activity';
+import { DEBUG_CONFIG } from '../../constants/debug';
 
 /**
  * App-Focused Activity Tracker Hook
@@ -30,7 +32,17 @@ export const useAppFocusedActivityTracker = () => {
 
   // Handle user activity - called when any user interaction is detected
   const handleUserActivity = useCallback(() => {
-    // Update activity for any user interaction within the app
+    // Check if refresh token timer is active
+    // If refresh token timer is active, access token has already expired
+    // User activity should NOT reset access token timer in this case
+    const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+    if (refreshTokenStatus.expiry && !refreshTokenStatus.isExpired) {
+      // Refresh token timer is active - don't update activity
+      // This prevents access token timer from being reset when it has already expired
+      return;
+    }
+    
+    // Normal case: Update activity for access token timer
     // Focus check is handled at the event level, not here
     updateActivity();
   }, []);
