@@ -16,6 +16,10 @@ import { TokenManager } from './TokenManager';
  */
 export const saveTokens = (accessToken: string, refreshToken: string): void => {
   TokenManager.storeTokens(accessToken, refreshToken, null);
+  
+  // Store token creation time for dynamic buffer calculation
+  // This enables the "Continue to Work" functionality with dynamic buffer based on session duration
+  TokenManager.setTokenCreationTime(Date.now());
 };
 
 /**

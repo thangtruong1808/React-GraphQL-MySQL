@@ -82,7 +82,8 @@ export const typeDefs = gql`
     logout: LogoutResponse!
     
     # Refresh access token using refresh token from httpOnly cookie
-    refreshToken: AuthResponse!
+    # dynamicBuffer: Optional buffer time in milliseconds for cookie expiry calculation
+    refreshToken(dynamicBuffer: Int): AuthResponse!
     
     # Renew refresh token to extend session - for active users
     refreshTokenRenewal: RefreshTokenRenewalResponse!

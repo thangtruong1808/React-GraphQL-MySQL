@@ -28,7 +28,7 @@ import { AUTH_OPERATIONS_CONFIG, AUTH_OPERATIONS_TYPES } from './constants';
  * 
  * FLOW: Read cookie → Find token in DB → Verify hash → Generate new tokens → Store new token → Set cookie → Response
  */
-export const refreshToken = async (req: any, res: any) => {
+export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) => {
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
   
@@ -104,15 +104,16 @@ export const refreshToken = async (req: any, res: any) => {
 
 
   // Set new refresh token as httpOnly cookie
-  // Extend cookie expiry to allow "Continue to Work" functionality
-  // Cookie should last longer than the client-side timer to provide buffer time
-  const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS + (30 * 1000); // Add 30 seconds buffer
+  // Use dynamic buffer time for cookie expiry based on user's session duration
+  // This provides better user experience by allowing appropriate buffer time for "Continue to Work"
+  const bufferTime = dynamicBuffer || 30000; // Default to 30 seconds if no dynamic buffer provided
+  const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS + bufferTime;
   res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, {
     httpOnly: true,
     secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,
     sameSite: AUTH_OPERATIONS_CONFIG.COOKIE_SAME_SITE,
     path: AUTH_OPERATIONS_CONFIG.COOKIE_PATH,
-    maxAge: cookieMaxAge, // Extended expiry to allow "Continue to Work"
+    maxAge: cookieMaxAge, // Dynamic buffer-based expiry for "Continue to Work"
   });
 
   // Set new CSRF token for future mutations

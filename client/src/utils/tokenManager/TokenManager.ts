@@ -348,4 +348,38 @@ export class TokenManager {
   static setContinueToWorkTransition(isTransitioning: boolean): void {
     RefreshTokenManager.setContinueToWorkTransition(isTransitioning);
   }
+
+  /**
+   * Store token creation timestamp for dynamic buffer calculation
+   * @param timestamp - Token creation timestamp in milliseconds
+   * 
+   * CALLED BY: AuthActions after successful login/refresh
+   * SCENARIOS: New token creation for dynamic buffer calculation
+   */
+  static setTokenCreationTime(timestamp: number | null): void {
+    TokenStorage.setTokenCreationTime(timestamp);
+  }
+
+  /**
+   * Get token creation timestamp for dynamic buffer calculation
+   * @returns Token creation timestamp or null if not available
+   * 
+   * CALLED BY: Dynamic buffer calculation
+   * SCENARIOS: "Continue to Work" functionality
+   */
+  static getTokenCreationTime(): number | null {
+    return TokenStorage.getTokenCreationTime();
+  }
+
+  /**
+   * Calculate dynamic buffer time based on token creation time
+   * Buffer = Current time - Token creation time
+   * @returns Buffer time in milliseconds or null if creation time not available
+   * 
+   * CALLED BY: Server-side refresh operation for cookie expiry
+   * SCENARIOS: "Continue to Work" functionality with dynamic buffer
+   */
+  static calculateDynamicBuffer(): number | null {
+    return TokenStorage.calculateDynamicBuffer();
+  }
 }

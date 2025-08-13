@@ -99,8 +99,8 @@ export const authResolvers = {
      * 
      * FLOW: Read cookie → Find token in DB → Verify hash → Generate new tokens → Store new token → Set cookie → Response
      */
-    refreshToken: async (_: any, __: any, { req, res }: { req: any; res: any }) => {
-      return await refreshToken(req, res);
+    refreshToken: async (_: any, { dynamicBuffer }: { dynamicBuffer?: number }, { req, res }: { req: any; res: any }) => {
+      return await refreshToken(req, res, dynamicBuffer);
     },
 
     /**

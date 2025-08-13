@@ -119,7 +119,15 @@ export const useAuthActions = (
         needsRenewal: refreshTokenStatus.needsRenewal 
       });
 
-      const result = await refreshTokenMutation();
+      // Calculate dynamic buffer time based on token creation time
+      // This enables the server to set appropriate cookie expiry based on session duration
+      const dynamicBuffer = TokenManager.calculateDynamicBuffer();
+      
+      const result = await refreshTokenMutation({
+        variables: {
+          dynamicBuffer: dynamicBuffer || 0
+        }
+      });
 
       if (!result.data || !result.data.refreshToken) {
         logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
@@ -148,6 +156,10 @@ export const useAuthActions = (
         if (refreshedUser) {
           TokenManager.updateUser(refreshedUser);
         }
+
+        // Store token creation time for dynamic buffer calculation
+        // This enables the "Continue to Work" functionality with dynamic buffer based on session duration
+        TokenManager.setTokenCreationTime(Date.now());
 
         // Set CSRF token in Apollo Client for future mutations
         if (csrfToken) {

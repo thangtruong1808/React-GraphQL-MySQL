@@ -14,6 +14,7 @@ let memoryRefreshTokenExpiry: number | null = null;
 let memoryLastActivity: number | null = null;
 let memoryActivityBasedExpiry: number | null = null;
 let memoryContinueToWorkTransition: boolean = false;
+let memoryTokenCreationTime: number | null = null; // NEW: Track token creation time for dynamic buffer
 
 /**
  * Memory Storage Class
@@ -133,6 +134,37 @@ export class MemoryStorage {
   }
 
   /**
+   * Store token creation timestamp in memory
+   * Used for calculating dynamic buffer time based on session duration
+   * @param timestamp - Token creation timestamp in milliseconds
+   */
+  static setTokenCreationTime(timestamp: number | null): void {
+    memoryTokenCreationTime = timestamp;
+  }
+
+  /**
+   * Get token creation timestamp from memory
+   * @returns Token creation timestamp or null if not stored
+   */
+  static getTokenCreationTime(): number | null {
+    return memoryTokenCreationTime;
+  }
+
+  /**
+   * Calculate dynamic buffer time based on token creation time
+   * Buffer = Current time - Token creation time
+   * @returns Buffer time in milliseconds or null if creation time not available
+   */
+  static calculateDynamicBuffer(): number | null {
+    if (!memoryTokenCreationTime) {
+      return null;
+    }
+    const currentTime = Date.now();
+    const bufferTime = currentTime - memoryTokenCreationTime;
+    return Math.max(bufferTime, 0); // Ensure non-negative buffer
+  }
+
+  /**
    * Clear all memory storage data
    * Used for secure cleanup during logout or errors
    */
@@ -144,6 +176,7 @@ export class MemoryStorage {
     memoryLastActivity = null;
     memoryActivityBasedExpiry = null;
     memoryContinueToWorkTransition = false;
+    memoryTokenCreationTime = null; // NEW: Clear token creation time
   }
 
   /**
@@ -152,7 +185,8 @@ export class MemoryStorage {
    */
   static hasData(): boolean {
     return !!(memoryAccessToken || memoryUserData || memoryTokenExpiry || 
-              memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || memoryContinueToWorkTransition);
+              memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || 
+              memoryContinueToWorkTransition || memoryTokenCreationTime); // UPDATED
   }
 
   /**
@@ -167,6 +201,7 @@ export class MemoryStorage {
     hasLastActivity: boolean;
     hasActivityBasedExpiry: boolean;
     hasContinueToWorkTransition: boolean;
+    hasTokenCreationTime: boolean; // NEW
   } {
     return {
       hasAccessToken: !!memoryAccessToken,
@@ -176,6 +211,7 @@ export class MemoryStorage {
       hasLastActivity: !!memoryLastActivity,
       hasActivityBasedExpiry: !!memoryActivityBasedExpiry,
       hasContinueToWorkTransition: !!memoryContinueToWorkTransition,
+      hasTokenCreationTime: !!memoryTokenCreationTime, // NEW
     };
   }
 }

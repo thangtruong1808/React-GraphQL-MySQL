@@ -30,8 +30,8 @@ export const LOGIN = gql`
 
 // Mutation for refreshing access token
 export const REFRESH_TOKEN = gql`
-  mutation RefreshToken {
-    refreshToken {
+  mutation RefreshToken($dynamicBuffer: Int) {
+    refreshToken(dynamicBuffer: $dynamicBuffer) {
       accessToken
       refreshToken
       csrfToken
