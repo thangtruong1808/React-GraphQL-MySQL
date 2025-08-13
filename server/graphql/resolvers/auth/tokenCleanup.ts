@@ -23,12 +23,14 @@ import { JWT_CONFIG } from '../../../constants';
  */
 export const cleanupRefreshTokens = async (userId: number): Promise<void> => {
   try {
-    // Remove expired tokens
+    // Remove expired tokens (but be more lenient to allow refresh operations)
+    // Add a small buffer to prevent removing tokens that are being refreshed
+    const bufferTime = new Date(Date.now() - 30 * 1000); // 30 second buffer
     const expiredDeleted = await RefreshToken.destroy({
       where: {
         userId,
         expiresAt: {
-          [require('sequelize').Op.lt]: new Date(),
+          [require('sequelize').Op.lt]: bufferTime, // Only remove tokens expired more than 30 seconds ago
         },
       },
     });
@@ -41,7 +43,7 @@ export const cleanupRefreshTokens = async (userId: number): Promise<void> => {
       },
     });
 
-
+    // Debug logging disabled for better user experience
   } catch (error) {
     console.error('❌ Error cleaning up refresh tokens:', error);
   }

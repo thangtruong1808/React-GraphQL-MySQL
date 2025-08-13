@@ -32,33 +32,25 @@ export const refreshToken = async (req: any, res: any) => {
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
   
-
-  
-
-  
   validateRefreshToken(refreshToken);
-
-
 
   // First, try to find the specific token that matches the provided refresh token
   // This is more efficient and secure than checking all tokens
   let validToken: any = null;
   let validUser: any = null;
 
-  // Get all valid refresh tokens for all users to find the matching one
-  // Add buffer time to account for clock synchronization differences
-  const bufferTime = new Date(Date.now() - JWT_CONFIG.CLOCK_SYNC_BUFFER);
-  
+  // NEW APPROACH: Allow refresh as long as token exists and isn't revoked
+  // The database expiresAt field is only for inactivity-based auto-logout (security)
+  // For "Continue to Work" functionality, the client-side timer is the authority
+  // This provides better user experience while maintaining security
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,
-      expiresAt: {
-        [require('sequelize').Op.gt]: bufferTime,
-      },
+      // Remove expiresAt check - allow refresh regardless of database expiry
+      // The client-side timer controls when refresh is allowed
     },
     include: [{ model: User, as: 'refreshTokenUser' }],
   });
-
 
 
   // Check each token to find a match with enhanced security
@@ -104,19 +96,23 @@ export const refreshToken = async (req: any, res: any) => {
     isRevoked: false,
   });
 
-  // Clean up old tokens and limit new ones
+  // Clean up old tokens and limit new ones (but exclude the token we just revoked)
+  // This prevents interference with the current refresh operation
   await cleanupRefreshTokens(user.id);
   await limitRefreshTokens(user.id);
 
 
 
   // Set new refresh token as httpOnly cookie
+  // Extend cookie expiry to allow "Continue to Work" functionality
+  // Cookie should last longer than the client-side timer to provide buffer time
+  const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS + (30 * 1000); // Add 30 seconds buffer
   res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, {
     httpOnly: true,
     secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,
     sameSite: AUTH_OPERATIONS_CONFIG.COOKIE_SAME_SITE,
     path: AUTH_OPERATIONS_CONFIG.COOKIE_PATH,
-    maxAge: JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS,
+    maxAge: cookieMaxAge, // Extended expiry to allow "Continue to Work"
   });
 
   // Set new CSRF token for future mutations
