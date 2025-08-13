@@ -76,17 +76,10 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
   return (
     <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
       <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
-        Refresh Token Debug Info (2min countdown)
+        Refresh Token Debug Info (1min countdown)
       </div>
 
       <div className={`space-y-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
-        {/* Time Remaining */}
-        <div className="flex justify-between">
-          <span>Time Remaining:</span>
-          <span className={`font-mono ${getStatusColor(refreshTokenTimeRemaining)}`}>
-            {formatTimeRemaining(refreshTokenTimeRemaining)}
-          </span>
-        </div>
 
         {/* Status */}
         <div className="flex justify-between">
@@ -112,18 +105,6 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
           </span>
         </div>
 
-        {/* Debug Information */}
-        {refreshTokenTimeRemaining && refreshTokenTimeRemaining < 30 * 1000 && (
-          <div className={`mt-3 p-2 rounded ${ACTIVITY_DEBUGGER_COLORS.WARNING_BACKGROUND} ${ACTIVITY_DEBUGGER_COLORS.WARNING_TEXT}`}>
-            <div className="text-xs font-medium mb-1">⚠️ Debug Info:</div>
-            <div className="text-xs space-y-1">
-              <div>• Time remaining: {Math.ceil(refreshTokenTimeRemaining / 1000)}s</div>
-              <div>• Minimum refresh time: 10s</div>
-              <div>• Can refresh: {refreshTokenTimeRemaining >= 10 * 1000 ? 'Yes' : 'No'}</div>
-              <div>• Status: {getStatusMessage(refreshTokenTimeRemaining)}</div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

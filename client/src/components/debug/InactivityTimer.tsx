@@ -137,39 +137,28 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
           ></div>
         </div>
 
-        {/* Status Message */}
-        {timerState.isCountingDown && (
+        {/* Status Message - Only show for refresh token countdown */}
+        {timerState.isCountingDown && timerState.timerType === 'refresh' && (
           <div className={`text-center mb-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT} ${ACTIVITY_DEBUGGER_COLORS.DANGER}`}>
             <div className="font-medium">
               {timerState.statusMessage}
             </div>
-            <div className="mt-1">
-              Click "Continue to Work" to extend session
-            </div>
           </div>
         )}
 
-        {/* Timer Details */}
+        {/* Essential Timer Details - Simplified */}
         <div className={`space-y-1 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
           <div className="flex justify-between">
-            <span>Timer Type:</span>
+            <span>Type:</span>
             <span className="font-mono">
-              {timerState.timerType === 'access' ? 'Access Token (Activity-Based)' :
+              {timerState.timerType === 'access' ? 'Access Token' :
                 timerState.timerType === 'refresh' ? 'Refresh Token' : 'Transition'}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Status:</span>
-            <span className="font-mono">
-              {timerState.timerType === 'refresh' ? 'Fixed Countdown' :
-                timerState.isAccessTokenExpired ? 'Token Expired' : 'Token Valid'}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Progress:</span>
             <span className="font-mono">{Math.round(timerState.progressPercentage)}%</span>
           </div>
-
         </div>
 
       </div>

@@ -178,12 +178,14 @@ export class RefreshTokenManager {
     needsRenewal: boolean;
     timeRemaining: number | null;
     isContinueToWorkTransition: boolean;
+    isLogoutTransition: boolean; // NEW: Logout transition state
   } {
     const expiry = this.getRefreshTokenExpiry();
     const isExpired = this.isRefreshTokenExpired();
     const needsRenewal = this.isRefreshTokenNeedsRenewal();
     const timeRemaining = this.getRefreshTokenTimeRemaining();
     const isContinueToWorkTransition = MemoryStorage.getContinueToWorkTransition();
+    const isLogoutTransition = MemoryStorage.getLogoutTransition(); // NEW
 
     return {
       expiry,
@@ -191,6 +193,7 @@ export class RefreshTokenManager {
       needsRenewal,
       timeRemaining,
       isContinueToWorkTransition,
+      isLogoutTransition, // NEW
     };
   }
 
@@ -206,6 +209,21 @@ export class RefreshTokenManager {
       MemoryStorage.setContinueToWorkTransition(isTransitioning);
     } catch (error) {
       console.error('❌ Error setting continue to work transition:', error);
+    }
+  }
+
+  /**
+   * Set transition state for logout operation
+   * @param isTransitioning - Whether the logout transition is active
+   * 
+   * CALLED BY: AuthActions during logout from modal
+   * SCENARIOS: "Logout" button clicked from session expiry modal
+   */
+  static setLogoutTransition(isTransitioning: boolean): void {
+    try {
+      MemoryStorage.setLogoutTransition(isTransitioning);
+    } catch (error) {
+      console.error('❌ Error setting logout transition:', error);
     }
   }
 }

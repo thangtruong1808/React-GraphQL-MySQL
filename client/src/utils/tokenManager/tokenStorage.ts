@@ -300,4 +300,37 @@ export class TokenStorage {
   static calculateDynamicBuffer(): number | null {
     return MemoryStorage.calculateDynamicBuffer();
   }
+
+  /**
+   * Clear token creation time specifically
+   * Used when a complete logout is performed and new tokens will be created
+   * 
+   * CALLED BY: AuthActions during complete logout
+   * SCENARIOS: User logout, session termination
+   */
+  static clearTokenCreationTime(): void {
+    MemoryStorage.clearTokenCreationTime();
+  }
+
+  /**
+   * Store logout transition state for logout operation
+   * @param isTransitioning - Whether the logout transition is active
+   * 
+   * CALLED BY: AuthActions during logout from modal
+   * SCENARIOS: "Logout" button clicked from session expiry modal
+   */
+  static setLogoutTransition(isTransitioning: boolean): void {
+    MemoryStorage.setLogoutTransition(isTransitioning);
+  }
+
+  /**
+   * Get logout transition state
+   * @returns Boolean indicating if logout transition is active
+   * 
+   * CALLED BY: TimerCalculator for transition state detection
+   * SCENARIOS: Logout transition state display
+   */
+  static getLogoutTransition(): boolean {
+    return MemoryStorage.getLogoutTransition();
+  }
 }

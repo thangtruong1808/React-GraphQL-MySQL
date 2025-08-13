@@ -7,9 +7,9 @@
  * Debug configuration
  */
 const DEBUG_CONFIG = {
-  ENABLE_TOKEN_REFRESH_LOGGING: import.meta.env.DEV,
-  ENABLE_TIMING_LOGGING: import.meta.env.DEV,
-  ENABLE_SESSION_LOGGING: import.meta.env.DEV,
+  ENABLE_TOKEN_REFRESH_LOGGING: false, // DISABLED: Dynamic buffer issue fixed
+  ENABLE_TIMING_LOGGING: false, // DISABLED: Remove console.log from browser
+  ENABLE_SESSION_LOGGING: false, // DISABLED: Remove console.log from browser
 };
 
 /**

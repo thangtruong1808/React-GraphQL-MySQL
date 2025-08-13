@@ -25,15 +25,6 @@ const HelpInfoSection: React.FC = () => {
           <div>• "Continue to Work" refreshes session</div>
         </div>
 
-        {/* Debug Information */}
-        <div className="mt-3 pt-2 border-t border-gray-200">
-          <div className="font-medium mb-1">Debug Info:</div>
-          <div className="text-xs space-y-1">
-            <div>• Check browser console for detailed logs</div>
-            <div>• Look for 🔄 Token Refresh Timing logs</div>
-            <div>• Monitor timing information in debug panel</div>
-          </div>
-        </div>
       </div>
     </div>
   );

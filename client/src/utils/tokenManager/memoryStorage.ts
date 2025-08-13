@@ -15,6 +15,7 @@ let memoryLastActivity: number | null = null;
 let memoryActivityBasedExpiry: number | null = null;
 let memoryContinueToWorkTransition: boolean = false;
 let memoryTokenCreationTime: number | null = null; // NEW: Track token creation time for dynamic buffer
+let memoryLogoutTransition: boolean = false; // NEW: Track logout transition state
 
 /**
  * Memory Storage Class
@@ -161,12 +162,32 @@ export class MemoryStorage {
     }
     const currentTime = Date.now();
     const bufferTime = currentTime - memoryTokenCreationTime;
-    return Math.max(bufferTime, 0); // Ensure non-negative buffer
+    const result = Math.max(bufferTime, 0); // Ensure non-negative buffer
+    
+    return result;
+  }
+
+  /**
+   * Store logout transition state in memory
+   * Used for tracking when user clicks logout from modal
+   * @param state - Boolean indicating if logout transition is active
+   */
+  static setLogoutTransition(state: boolean): void {
+    memoryLogoutTransition = state;
+  }
+
+  /**
+   * Get logout transition state from memory
+   * @returns Boolean indicating if logout transition is active
+   */
+  static getLogoutTransition(): boolean {
+    return memoryLogoutTransition;
   }
 
   /**
    * Clear all memory storage data
    * Used for secure cleanup during logout or errors
+   * NOTE: Token creation time is preserved for dynamic buffer calculation
    */
   static clearAll(): void {
     memoryAccessToken = null;
@@ -176,7 +197,16 @@ export class MemoryStorage {
     memoryLastActivity = null;
     memoryActivityBasedExpiry = null;
     memoryContinueToWorkTransition = false;
-    memoryTokenCreationTime = null; // NEW: Clear token creation time
+    // memoryTokenCreationTime = null; // PRESERVED: Keep token creation time for dynamic buffer calculation
+    memoryLogoutTransition = false; // NEW: Clear logout transition state
+  }
+
+  /**
+   * Clear token creation time specifically
+   * Used when a complete logout is performed and new tokens will be created
+   */
+  static clearTokenCreationTime(): void {
+    memoryTokenCreationTime = null;
   }
 
   /**
@@ -186,7 +216,7 @@ export class MemoryStorage {
   static hasData(): boolean {
     return !!(memoryAccessToken || memoryUserData || memoryTokenExpiry || 
               memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || 
-              memoryContinueToWorkTransition || memoryTokenCreationTime); // UPDATED
+              memoryContinueToWorkTransition || memoryTokenCreationTime || memoryLogoutTransition); // UPDATED
   }
 
   /**
@@ -202,6 +232,7 @@ export class MemoryStorage {
     hasActivityBasedExpiry: boolean;
     hasContinueToWorkTransition: boolean;
     hasTokenCreationTime: boolean; // NEW
+    hasLogoutTransition: boolean; // NEW
   } {
     return {
       hasAccessToken: !!memoryAccessToken,
@@ -212,6 +243,7 @@ export class MemoryStorage {
       hasActivityBasedExpiry: !!memoryActivityBasedExpiry,
       hasContinueToWorkTransition: !!memoryContinueToWorkTransition,
       hasTokenCreationTime: !!memoryTokenCreationTime, // NEW
+      hasLogoutTransition: !!memoryLogoutTransition, // NEW
     };
   }
 }

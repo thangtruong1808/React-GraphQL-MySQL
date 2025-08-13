@@ -22,6 +22,19 @@ export interface TimerState {
 }
 
 /**
+ * Refresh Token Status Interface
+ * Defines the structure of refresh token status information
+ */
+interface RefreshTokenStatus {
+  expiry: number | null;
+  isExpired: boolean;
+  needsRenewal: boolean;
+  timeRemaining: number | null;
+  isContinueToWorkTransition: boolean;
+  isLogoutTransition: boolean;
+}
+
+/**
  * Timer Calculator Utility
  * Calculates timer states for both access and refresh tokens
  * Handles activity-based token reset for access tokens
@@ -38,7 +51,7 @@ export class TimerCalculator {
       const now = Date.now();
 
       // Get refresh token status for display
-      const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+      const refreshTokenStatus = TokenManager.getRefreshTokenStatus() as RefreshTokenStatus;
 
       // Check if we have access token
       if (!tokens.accessToken) {
@@ -78,14 +91,20 @@ export class TimerCalculator {
       // BUSINESS LOGIC: Refresh token timer should only show AFTER access token expires
       // This matches the business requirement: 2min access + 2min refresh = 4min total
       
-      // Priority 1: If access token is still valid, show access token timer (regardless of refresh token)
+      // Priority 1: Check for transition states first (Continue to Work or Logout)
+      // This provides better user experience by showing animated progress bar during operations
+      if (refreshTokenStatus.isContinueToWorkTransition || refreshTokenStatus.isLogoutTransition) {
+        return this.calculateTransitionState(now, refreshTokenStatus);
+      }
+      
+      // Priority 2: If access token is still valid, show access token timer (regardless of refresh token)
       if (!isActivityBasedTokenExpired) {
         // Access token is still valid - show access token timer
         // Hide refresh token timer during access token period
         return this.calculateAccessTokenTimer(now, refreshTokenStatus);
       }
       
-      // Priority 2: Access token expired - check if refresh token countdown is active
+      // Priority 3: Access token expired - check if refresh token countdown is active
       if (refreshTokenExpiry) {
         // Refresh token timer is active - show countdown
         // This is the 2-minute period after access token expires
@@ -110,7 +129,7 @@ export class TimerCalculator {
    * @param refreshTokenStatus - Refresh token status information
    * @returns TimerState for access token
    */
-  private static calculateAccessTokenTimer(now: number, refreshTokenStatus: any): TimerState {
+  private static calculateAccessTokenTimer(now: number, refreshTokenStatus: RefreshTokenStatus): TimerState {
     // Get activity-based token expiry (this resets when user is active)
     const activityStatus = ActivityManager.getActivityStatus();
     const activityExpiry = activityStatus.activityExpiry;
@@ -155,10 +174,12 @@ export class TimerCalculator {
    * 2. Refresh token timer hasn't started yet (modal preparing to show)
    * 3. This is the brief gap between token expiry detection and modal appearance
    * 4. User clicked "Continue to Work" and refresh operation is in progress
+   * 5. User clicked "Logout" and logout operation is in progress
    */
-  private static calculateTransitionState(now: number, refreshTokenStatus: any): TimerState {
+  private static calculateTransitionState(now: number, refreshTokenStatus: RefreshTokenStatus): TimerState {
     // Check if we're in a "Continue to Work" transition state
     const isContinueToWorkTransition = refreshTokenStatus.isContinueToWorkTransition;
+    const isLogoutTransition = refreshTokenStatus.isLogoutTransition;
     
     if (isContinueToWorkTransition) {
       // Transition state during "Continue to Work" refresh operation
@@ -166,6 +187,23 @@ export class TimerCalculator {
         timeDisplay: 'Refreshing...',
         statusMessage: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_CONTINUE_TO_WORK,
         progressPercentage: 50, // Show progress during refresh
+        isAccessTokenExpired: true,
+        isCountingDown: false,
+        remainingCountdownSeconds: 0,
+        timerType: 'transition',
+        sectionTitle: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_HEADER,
+        isTransitionState: true,
+        refreshTokenExpiry: refreshTokenStatus.expiry,
+        refreshTokenTimeRemaining: refreshTokenStatus.timeRemaining,
+      };
+    }
+    
+    if (isLogoutTransition) {
+      // Transition state during logout operation
+      return {
+        timeDisplay: 'Logging out...',
+        statusMessage: 'Logging out of session...',
+        progressPercentage: 50, // Show progress during logout
         isAccessTokenExpired: true,
         isCountingDown: false,
         remainingCountdownSeconds: 0,
@@ -201,8 +239,11 @@ export class TimerCalculator {
    * 
    * IMPORTANT: This method IGNORES all user activity and shows fixed countdown
    * The refresh token countdown should NEVER be affected by mouse movement or user actions
+   * 
+   * NEW: Progress bar now shows 0% to 100% over the 1-minute refresh token duration
+   * This provides a clearer visual representation of the refresh token countdown
    */
-  private static calculateRefreshTokenTimer(now: number, refreshTokenStatus: any): TimerState {
+  private static calculateRefreshTokenTimer(now: number, refreshTokenStatus: RefreshTokenStatus): TimerState {
     const refreshTokenExpiry = refreshTokenStatus.expiry;
     const timeRemaining = refreshTokenStatus.timeRemaining;
 
@@ -227,9 +268,11 @@ export class TimerCalculator {
     const seconds = countdownSeconds % 60;
     const timeDisplay = `${minutes}m ${seconds}s`;
 
-    // Progress based on refresh token duration (2 minutes) - countdown style
-    const totalCountdown = AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS / 1000;
-    const progressPercentage = Math.min(100, ((totalCountdown - countdownSeconds) / totalCountdown) * 100);
+    // NEW: Progress based on 1-minute refresh token duration (0% to 100%)
+    // This provides a clearer visual representation of the refresh token countdown
+    const refreshTokenDurationSeconds = 60; // 1 minute in seconds
+    const elapsedSeconds = refreshTokenDurationSeconds - countdownSeconds;
+    const progressPercentage = Math.min(100, Math.max(0, (elapsedSeconds / refreshTokenDurationSeconds) * 100));
 
     return {
       timeDisplay,
@@ -252,7 +295,7 @@ export class TimerCalculator {
    * @param refreshTokenStatus - Refresh token status information
    * @returns TimerState for error condition
    */
-  private static createErrorState(message: string, refreshTokenStatus?: any): TimerState {
+  private static createErrorState(message: string, refreshTokenStatus?: RefreshTokenStatus): TimerState {
     return {
       timeDisplay: ACTIVITY_DEBUGGER_MESSAGES.NOT_AVAILABLE,
       statusMessage: message,

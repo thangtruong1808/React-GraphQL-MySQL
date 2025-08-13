@@ -108,6 +108,7 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   // This provides better user experience by allowing appropriate buffer time for "Continue to Work"
   const bufferTime = dynamicBuffer || 30000; // Default to 30 seconds if no dynamic buffer provided
   const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS + bufferTime;
+  
   res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, {
     httpOnly: true,
     secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,

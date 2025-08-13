@@ -18,6 +18,7 @@ export interface AuthActions {
   // Core actions
   login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => Promise<void>;
+  logoutFromModal: () => Promise<void>; // NEW: Logout from modal with transition state
   refreshSession: () => Promise<boolean>;
   
   // Token management
@@ -73,8 +74,12 @@ export const useAuthActions = (
     setSessionExpiryMessage('');
     setLastModalShowTime(null);
 
-    // Clear all authentication data
+    // Clear all authentication data (preserves token creation time for dynamic buffer)
     clearTokens();
+    
+    // Clear token creation time specifically for complete logout
+    // This ensures new tokens will have fresh creation time for dynamic buffer calculation
+    TokenManager.clearTokenCreationTime();
     
     // Clear refresh token expiry timer
     TokenManager.clearRefreshTokenExpiry();
@@ -398,6 +403,28 @@ export const useAuthActions = (
   }, [logoutMutation, performCompleteLogout, setLogoutLoading]);
 
   /**
+   * Logout from modal with transition state
+   * Provides better user experience by showing transition state during logout
+   */
+  const logoutFromModal = useCallback(async () => {
+    try {
+      // Set logout transition state for visual feedback
+      TokenManager.setLogoutTransition(true);
+      
+      // Perform logout operation
+      await logout();
+      
+      // Clear logout transition state
+      TokenManager.setLogoutTransition(false);
+    } catch (error) {
+      console.error('❌ Error during logout from modal:', error);
+      // Clear logout transition state on error
+      TokenManager.setLogoutTransition(false);
+      throw error;
+    }
+  }, [logout]);
+
+  /**
    * Refresh session when user clicks "Continue to Work"
    * Handles both access token refresh and refresh token renewal
    * Enhanced with buffer time support for better reliability
@@ -483,6 +510,7 @@ export const useAuthActions = (
   return {
     login,
     logout,
+    logoutFromModal, // NEW: Logout from modal with transition state
     refreshSession,
     refreshAccessToken,
     renewRefreshToken,
