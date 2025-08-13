@@ -177,17 +177,35 @@ export class RefreshTokenManager {
     isExpired: boolean;
     needsRenewal: boolean;
     timeRemaining: number | null;
+    isContinueToWorkTransition: boolean;
   } {
     const expiry = this.getRefreshTokenExpiry();
     const isExpired = this.isRefreshTokenExpired();
     const needsRenewal = this.isRefreshTokenNeedsRenewal();
     const timeRemaining = this.getRefreshTokenTimeRemaining();
+    const isContinueToWorkTransition = MemoryStorage.getContinueToWorkTransition();
 
     return {
       expiry,
       isExpired,
       needsRenewal,
       timeRemaining,
+      isContinueToWorkTransition,
     };
+  }
+
+  /**
+   * Set transition state for "Continue to Work" operation
+   * @param isTransitioning - Whether the transition is active
+   * 
+   * CALLED BY: AuthActions during refreshSession
+   * SCENARIOS: "Continue to Work" button clicked
+   */
+  static setContinueToWorkTransition(isTransitioning: boolean): void {
+    try {
+      MemoryStorage.setContinueToWorkTransition(isTransitioning);
+    } catch (error) {
+      console.error('❌ Error setting continue to work transition:', error);
+    }
   }
 }

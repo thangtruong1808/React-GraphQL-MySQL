@@ -150,30 +150,43 @@ export class TimerCalculator {
    * @param refreshTokenStatus - Refresh token status information
    * @returns TimerState for transition period
    * 
-   * NOTE: This state only appears when:
-   * 1. Activity-based token has expired (user was inactive for 2 minutes)
+   * NOTE: This state appears in two scenarios:
+   * 1. Activity-based token has expired (user was inactive for 1 minute)
    * 2. Refresh token timer hasn't started yet (modal preparing to show)
    * 3. This is the brief gap between token expiry detection and modal appearance
+   * 4. User clicked "Continue to Work" and refresh operation is in progress
    */
   private static calculateTransitionState(now: number, refreshTokenStatus: any): TimerState {
-    // Show a loading/transition state with progress bar
-    // This represents the brief time between activity-based token expiry and session modal appearance
+    // Check if we're in a "Continue to Work" transition state
+    const isContinueToWorkTransition = refreshTokenStatus.isContinueToWorkTransition;
     
-    // Use a simple animated progress that cycles between 20% and 80%
-    // This avoids timing-based calculations that could be inconsistent
-    const cycleTime = 1000; // 1 second cycle
-    const phase = (now % cycleTime) / cycleTime; // 0 to 1
-    const baseProgress = 20 + (Math.sin(phase * Math.PI * 2) + 1) * 30; // 20% to 80%
+    if (isContinueToWorkTransition) {
+      // Transition state during "Continue to Work" refresh operation
+      return {
+        timeDisplay: 'Refreshing...',
+        statusMessage: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_CONTINUE_TO_WORK,
+        progressPercentage: 50, // Show progress during refresh
+        isAccessTokenExpired: true,
+        isCountingDown: false,
+        remainingCountdownSeconds: 0,
+        timerType: 'transition',
+        sectionTitle: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_HEADER,
+        isTransitionState: true,
+        refreshTokenExpiry: refreshTokenStatus.expiry,
+        refreshTokenTimeRemaining: refreshTokenStatus.timeRemaining,
+      };
+    }
     
+    // Normal transition state (waiting for modal)
     return {
-      timeDisplay: 'Loading...',
-      statusMessage: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_STATE,
-      progressPercentage: Math.round(baseProgress),
+      timeDisplay: 'Preparing...',
+      statusMessage: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_WAITING,
+      progressPercentage: 100, // Full progress - waiting for modal
       isAccessTokenExpired: true,
       isCountingDown: false,
       remainingCountdownSeconds: 0,
       timerType: 'transition',
-      sectionTitle: ACTIVITY_DEBUGGER_MESSAGES.INACTIVITY_TIMER_HEADER,
+      sectionTitle: ACTIVITY_DEBUGGER_MESSAGES.TRANSITION_HEADER,
       isTransitionState: true,
       refreshTokenExpiry: refreshTokenStatus.expiry,
       refreshTokenTimeRemaining: refreshTokenStatus.timeRemaining,

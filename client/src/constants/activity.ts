@@ -14,28 +14,28 @@ export const ACTIVITY_CONFIG = {
   ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events to 1 second
   
   // Session management
-  SESSION_DURATION: 60 * 60 * 1000, // 1 hour session duration
-  INACTIVITY_THRESHOLD: 2 * 60 * 1000, // 2 minutes of inactivity before logout
+  SESSION_DURATION: 2 * 60 * 1000, // 2 minutes session duration
+  INACTIVITY_THRESHOLD: 1 * 60 * 1000, // 1 minute of inactivity before logout
   
   // Token configuration
-  ACCESS_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes access token expiry
-  REFRESH_TOKEN_EXPIRY_MS: 4 * 60 * 1000, // 4 minutes refresh token expiry (matches server-side)
-  ACTIVITY_TOKEN_EXPIRY: 2 * 60 * 1000, // 2 minutes activity-based token expiry
+  ACCESS_TOKEN_EXPIRY: 1 * 60 * 1000, // 1 minute access token expiry
+  REFRESH_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 2 minutes refresh token expiry (matches server-side)
+  ACTIVITY_TOKEN_EXPIRY: 1 * 60 * 1000, // 1 minute activity-based token expiry
   
   // Activity-based token management
   ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
   
   // Token refresh thresholds
-  TOKEN_REFRESH_WARNING_THRESHOLD: 60 * 1000, // 60 seconds warning threshold
-  TOKEN_REFRESH_CAUTION_THRESHOLD: 120 * 1000, // 120 seconds caution threshold
-  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 60 * 1000, // 60 seconds activity refresh threshold
+  TOKEN_REFRESH_WARNING_THRESHOLD: 15 * 1000, // 15 seconds warning threshold
+  TOKEN_REFRESH_CAUTION_THRESHOLD: 30 * 1000, // 30 seconds caution threshold
+  ACTIVITY_TOKEN_REFRESH_THRESHOLD: 15 * 1000, // 15 seconds activity refresh threshold
   
   // Refresh token management
-  REFRESH_TOKEN_RENEWAL_THRESHOLD: 30 * 1000, // 30 seconds renewal threshold
+  REFRESH_TOKEN_RENEWAL_THRESHOLD: 15 * 1000, // 15 seconds renewal threshold
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
   
   // Session expiry modal
-  MODAL_AUTO_LOGOUT_DELAY: 4 * 60 * 1000, // 4 minutes after modal appears
+  MODAL_AUTO_LOGOUT_DELAY: 2 * 60 * 1000, // 2 minutes after modal appears
   
   // Loading states
   AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)
@@ -141,7 +141,7 @@ export const ACTIVITY_VALIDATION = {
   MIN_ACTIVITY_INTERVAL: 100, // 100ms minimum between activity updates
   
   // Maximum activity interval
-  MAX_ACTIVITY_INTERVAL: 60000, // 60 seconds maximum between activity updates
+  MAX_ACTIVITY_INTERVAL: 30000, // 30 seconds maximum between activity updates
   
   // Valid event types
   VALID_EVENT_TYPES: ACTIVITY_EVENTS.ALL_USER_INTERACTIONS,

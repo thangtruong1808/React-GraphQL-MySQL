@@ -337,4 +337,15 @@ export class TokenManager {
   static decodeToken(token: string): any {
     return TokenValidation.decodeToken(token);
   }
+
+  /**
+   * Set transition state for "Continue to Work" operation
+   * @param isTransitioning - Whether the transition is active
+   * 
+   * CALLED BY: AuthActions during refreshSession
+   * SCENARIOS: "Continue to Work" button clicked
+   */
+  static setContinueToWorkTransition(isTransitioning: boolean): void {
+    RefreshTokenManager.setContinueToWorkTransition(isTransitioning);
+  }
 }

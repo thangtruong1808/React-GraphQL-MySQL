@@ -155,10 +155,12 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
       // Handle expected "Refresh token is required" error gracefully
+      // This is normal for new users who haven't logged in yet
       // Don't log it as an error, but let it propagate to the mutation
       if (message === 'Refresh token is required') {
-        // Don't log as error, but let the error propagate to the mutation
+        // Don't log as error - this is expected for new users
         // Continue to the next error or let it propagate
+        return;
       }
       
       console.error(`GraphQL error: ${message}`, { locations, path, extensions });

@@ -13,6 +13,7 @@ let memoryTokenExpiry: number | null = null;
 let memoryRefreshTokenExpiry: number | null = null;
 let memoryLastActivity: number | null = null;
 let memoryActivityBasedExpiry: number | null = null;
+let memoryContinueToWorkTransition: boolean = false;
 
 /**
  * Memory Storage Class
@@ -116,6 +117,22 @@ export class MemoryStorage {
   }
 
   /**
+   * Store continue to work transition state in memory
+   * @param state - Boolean indicating if transition is active
+   */
+  static setContinueToWorkTransition(state: boolean): void {
+    memoryContinueToWorkTransition = state;
+  }
+
+  /**
+   * Get continue to work transition state from memory
+   * @returns Boolean indicating if transition is active
+   */
+  static getContinueToWorkTransition(): boolean {
+    return memoryContinueToWorkTransition;
+  }
+
+  /**
    * Clear all memory storage data
    * Used for secure cleanup during logout or errors
    */
@@ -126,6 +143,7 @@ export class MemoryStorage {
     memoryRefreshTokenExpiry = null;
     memoryLastActivity = null;
     memoryActivityBasedExpiry = null;
+    memoryContinueToWorkTransition = false;
   }
 
   /**
@@ -134,7 +152,7 @@ export class MemoryStorage {
    */
   static hasData(): boolean {
     return !!(memoryAccessToken || memoryUserData || memoryTokenExpiry || 
-              memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry);
+              memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || memoryContinueToWorkTransition);
   }
 
   /**
@@ -148,6 +166,7 @@ export class MemoryStorage {
     hasRefreshTokenExpiry: boolean;
     hasLastActivity: boolean;
     hasActivityBasedExpiry: boolean;
+    hasContinueToWorkTransition: boolean;
   } {
     return {
       hasAccessToken: !!memoryAccessToken,
@@ -156,6 +175,7 @@ export class MemoryStorage {
       hasRefreshTokenExpiry: !!memoryRefreshTokenExpiry,
       hasLastActivity: !!memoryLastActivity,
       hasActivityBasedExpiry: !!memoryActivityBasedExpiry,
+      hasContinueToWorkTransition: !!memoryContinueToWorkTransition,
     };
   }
 }

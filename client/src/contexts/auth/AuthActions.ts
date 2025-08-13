@@ -104,8 +104,9 @@ export const useAuthActions = (
       const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
       
       // Check if refresh token is expired before attempting refresh
-      // Allow refresh if timer hasn't started yet (access token just expired) or if timer is still valid
-      if (refreshTokenStatus.isExpired) {
+      // NEW APPROACH: Allow refresh as long as refresh token timer is still valid (even with 2 seconds remaining)
+      // This provides better user experience and matches the business logic requirement
+      if (!isSessionRestoration && (refreshTokenStatus.isExpired || (refreshTokenStatus.timeRemaining !== null && refreshTokenStatus.timeRemaining <= 0))) {
         logTokenRefreshTiming('refresh_access_token', null, { 
           error: 'refresh_token_expired',
           isSessionRestoration 
@@ -162,12 +163,11 @@ export const useAuthActions = (
         
         // Handle session restoration vs manual refresh differently
         if (isSessionRestoration) {
-          // For browser refresh: Reset ALL timers including refresh token expiry
-          // The server returned a new refresh token, so we need to update the expiry timer
-          // This ensures a fresh start after browser refresh
-          TokenManager.updateRefreshTokenExpiry();
+          // For browser refresh: DO NOT set refresh token timer
+          // This allows the access token timer to work normally and reset on user activity
+          // The refresh token timer should only start when access token expires due to inactivity
           logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
-            action: 'session_restoration_reset_all_timers' 
+            action: 'session_restoration_no_refresh_timer' 
           });
         } else {
           // For manual refresh (Continue to Work): Keep refresh token countdown visible
@@ -409,13 +409,17 @@ export const useAuthActions = (
       });
       
       // Check if refresh token is expired before attempting refresh
-      // Allow refresh if timer hasn't started yet (access token just expired) or if timer is still valid
-      if (refreshTokenStatus.isExpired) {
+      // NEW APPROACH: Allow refresh as long as refresh token timer is still valid (even with 2 seconds remaining)
+      // This provides better user experience and matches the business logic requirement
+      if (refreshTokenStatus.isExpired || (refreshTokenStatus.timeRemaining !== null && refreshTokenStatus.timeRemaining <= 0)) {
         logTokenRefreshTiming('refresh_session', timeRemaining, { error: 'refresh_token_expired' });
         setShowSessionExpiryModal(false);
         showNotification('Session has expired. Please log in again.', 'error');
         return false;
       }
+      
+      // Set transition state for visual feedback
+      TokenManager.setContinueToWorkTransition(true);
       
       // SIMPLIFIED LOGIC: Just refresh the access token directly
       // This is more reliable than trying to renew the refresh token first
@@ -425,15 +429,18 @@ export const useAuthActions = (
       
       const refreshSuccess = await refreshAccessToken(false);
       
+      // Clear transition state
+      TokenManager.setContinueToWorkTransition(false);
+      
       if (refreshSuccess) {
         // Success - clear modal and show success message
-        // IMPORTANT: Reset ALL timers for "Continue to Work" functionality
-        // This gives users a fresh start with both activity and refresh token timers
-        TokenManager.updateRefreshTokenExpiry();
+        // IMPORTANT: Clear refresh token timer for "Continue to Work" functionality
+        // This switches back to access token timer display and allows activity updates
+        TokenManager.clearRefreshTokenExpiry();
         
         logTokenRefreshTiming('refresh_session', timeRemaining, { 
           success: true,
-          operation: 'direct_refresh_reset_all_timers' 
+          operation: 'direct_refresh_clear_refresh_timer' 
         });
         setShowSessionExpiryModal(false);
         setLastModalShowTime(null);
