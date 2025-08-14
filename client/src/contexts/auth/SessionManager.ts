@@ -64,8 +64,10 @@ export const useSessionManager = (
       
       // Check if refresh token is expired (absolute timeout) - ALWAYS CHECK FIRST
       const refreshTokenExpired = await isRefreshTokenExpired();
+      console.log('🔄 SessionManager: refreshTokenExpired =', refreshTokenExpired);
 
       if (refreshTokenExpired) {
+        console.log('🔄 SessionManager: Refresh token expired, performing complete logout');
         setShowSessionExpiryModal(false);
         showNotification('Your session has expired due to inactivity. Please log in again.', 'info');
         await performCompleteLogout();
@@ -122,7 +124,6 @@ export const useSessionManager = (
         // If modal is already showing, don't run additional checks that could hide it
         // Also check if user is in "Continue to Work" transition to avoid interference
         if (showSessionExpiryModal || TokenManager.getContinueToWorkTransition()) {
-          console.log('🔄 SessionManager: Skipping session check due to modal or transition state');
           // Debug logging disabled for better user experience
           return;
         }
@@ -139,6 +140,15 @@ export const useSessionManager = (
         }
         
         if (isAccessTokenStillValid) {
+          // Check if total session time has exceeded maximum duration (2 minutes)
+          const dynamicBuffer = TokenManager.calculateDynamicBuffer();
+          const maxSessionDuration = 2 * 60 * 1000; // 2 minutes
+          
+          if (dynamicBuffer && dynamicBuffer > maxSessionDuration) {
+            console.log('🔄 SessionManager: Skipping refresh token renewal - session duration exceeded 2 minutes');
+            return;
+          }
+          
           // Check if refresh token needs renewal (proactive renewal for active users)
           if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && await isRefreshTokenNeedsRenewal()) {
             // Debug logging disabled for better user experience

@@ -111,7 +111,8 @@ export const login = async (input: { email: string; password: string }, res: any
     // Set refresh token as httpOnly cookie
     // Extend cookie expiry to allow "Continue to Work" functionality
     // Cookie should last longer than the client-side timer to provide buffer time
-    const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS + (30 * 1000); // Add 30 seconds buffer
+    // Set cookie expiry to 2 minutes to match the total session duration
+    const cookieMaxAge = 2 * 60 * 1000; // 2 minutes to match total session duration
     res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
       secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,

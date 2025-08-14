@@ -47,9 +47,19 @@ export const useActivityTracker = () => {
           !refreshTokenStatus.isContinueToWorkTransition) {
         // Refresh token timer is actively counting down and not in transition - don't update activity
         // This prevents access token timer from being reset when it has already expired
-        console.log('🔄 Activity tracker: Skipping activity update due to active refresh token timer');
+        console.log('🔄 Activity tracker: Skipping activity update - refresh token timer active');
         return;
       }
+      
+      console.log('🔄 Activity tracker: Updating activity timestamp');
+      
+      // Debug: Check refresh token cookie before updating activity
+      const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
+      console.log('🔄 Activity tracker: Refresh token cookie exists before update:', !!cookies.jid);
       
       // Normal case: Update activity for access token timer
       // This includes:
@@ -57,6 +67,14 @@ export const useActivityTracker = () => {
       // 2. Refresh token timer cleared (after "Continue to Work")
       // 3. Refresh token timer expired (should allow activity updates)
       updateActivity();
+      
+      // Debug: Check refresh token cookie after updating activity
+      const cookiesAfter = document.cookie.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
+      console.log('🔄 Activity tracker: Refresh token cookie exists after update:', !!cookiesAfter.jid);
     }
   }, []);
 

@@ -108,11 +108,8 @@ export const useAuthActions = (
    */
   const refreshAccessToken = useCallback(async (isSessionRestoration: boolean = false): Promise<boolean> => {
     try {
-      console.log('🔄 refreshAccessToken called with isSessionRestoration:', isSessionRestoration);
-      
       // Get refresh token status for logging (async)
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
-      console.log('🔄 Refresh token status:', refreshTokenStatus);
       
       // For session restoration, use original expiry check
       // For manual refresh (Continue to Work), use operational expiry only if dual token system is active
@@ -137,7 +134,6 @@ export const useAuthActions = (
       }
       
       if (!shouldProceed) {
-        console.log('🔄 Should not proceed, reason:', expiryCheckReason);
         logTokenRefreshTiming('refresh_access_token', null, { 
           error: expiryCheckReason,
           isSessionRestoration,
@@ -156,18 +152,31 @@ export const useAuthActions = (
       // Calculate dynamic buffer time based on token creation time
       // This enables the server to set appropriate cookie expiry based on session duration
       const dynamicBuffer = TokenManager.calculateDynamicBuffer();
-      console.log('🔄 Dynamic buffer:', dynamicBuffer);
+      console.log('🔄 Dynamic buffer time:', dynamicBuffer, 'ms (', dynamicBuffer ? Math.round(dynamicBuffer / 1000) : 'null', 'seconds)');
       
-      console.log('🔄 Calling refreshTokenMutation...');
+      // Debug: Check if refresh token cookie exists
+      console.log('🔄 Checking refresh token cookie before mutation...');
+      const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
+      console.log('🔄 Available cookies:', Object.keys(cookies));
+      console.log('🔄 Refresh token cookie exists:', !!cookies.jid);
+      
       const result = await refreshTokenMutation({
         variables: {
           dynamicBuffer: dynamicBuffer || 0
         }
       });
-      console.log('🔄 refreshTokenMutation result:', result);
+      
+      // Log any GraphQL errors
+      if (result.errors) {
+        console.log('🔄 GraphQL errors:', result.errors);
+      }
 
       if (!result.data || !result.data.refreshToken) {
-        console.log('🔄 No data or refresh token in response');
+        console.log('🔄 Refresh failed: No data or refresh token in response');
         logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
           error: 'no_data_response',
           isSessionRestoration,
@@ -502,6 +511,12 @@ export const useAuthActions = (
    * Enhanced with improved timing logic for better reliability
    */
   const refreshSession = useCallback(async (): Promise<boolean> => {
+    // Prevent multiple simultaneous refresh attempts
+    if (TokenManager.getContinueToWorkTransition()) {
+      console.log('🔄 Refresh already in progress, skipping duplicate call');
+      return false;
+    }
+    
     try {
       // Clear auto logout timer when user chooses to continue working
       if (modalAutoLogoutTimer) {
@@ -558,10 +573,6 @@ export const useAuthActions = (
       });
       
       console.log('🔄 Starting refresh access token...');
-      
-      // Ensure we're not in a race condition by waiting a bit
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       const refreshSuccess = await refreshAccessToken(false);
       console.log('🔄 Refresh access token result:', refreshSuccess);
       
@@ -569,6 +580,8 @@ export const useAuthActions = (
       TokenManager.setContinueToWorkTransition(false);
       
       if (refreshSuccess) {
+        console.log('🔄 Refresh success - proceeding with success flow');
+        
         // Success - clear modal and show success message
         // Clear refresh token timer after successful refresh to allow normal activity tracking
         // This prevents the activity tracker from being blocked by the refresh token timer
@@ -578,22 +591,26 @@ export const useAuthActions = (
           operation: 'direct_refresh_clear_refresh_timer' 
         });
         
-        // Clear refresh token timer to allow normal activity tracking
-        await TokenManager.clearRefreshTokenExpiry();
-        
-        // Force restart of activity tracking by updating user state
-        // This ensures the session manager restarts activity tracking
-        // Get current user from TokenManager to trigger useEffect in SessionManager
-        const currentUser = TokenManager.getUser();
-        if (currentUser) {
-          setUser({ ...currentUser }); // Trigger useEffect in SessionManager
+        try {
+          // Clear refresh token timer to allow normal activity tracking
+          await TokenManager.clearRefreshTokenExpiry();
+          console.log('🔄 Refresh token expiry cleared successfully');
+          
+          // Don't update user state immediately to prevent SessionManager from triggering another refresh
+          // The SessionManager will naturally detect the refreshed tokens on its next check
+          console.log('🔄 Skipping user state update to prevent duplicate refresh');
+          
+          setShowSessionExpiryModal(false);
+          setLastModalShowTime(null);
+          showNotification('You can continue working now!', 'success');
+          console.log('🔄 Success flow completed - returning true');
+          return true;
+        } catch (successError) {
+          console.error('❌ Error in success flow:', successError);
+          throw successError; // Re-throw to be caught by outer catch block
         }
-        
-        setShowSessionExpiryModal(false);
-        setLastModalShowTime(null);
-        showNotification('You can continue working now!', 'success');
-        return true;
       } else {
+        console.log('🔄 Refresh failed - proceeding with error flow');
         // Refresh failed - show error message with detailed logging
         logTokenRefreshTiming('refresh_session', timeRemaining, { 
           error: 'refresh_failed',
