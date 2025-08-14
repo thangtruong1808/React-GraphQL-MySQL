@@ -27,25 +27,27 @@ export const useActivityTracker = () => {
   const isAppFocusedRef = useRef(true);
 
   // Handle user activity - called when any user interaction is detected
-  const handleUserActivity = useCallback(() => {
+  const handleUserActivity = useCallback(async () => {
     // Only update activity if the app is focused and user is interacting with it
     if (isAppFocusedRef.current) {
       // Check if refresh token timer is actively counting down
       // If refresh token timer is actively counting down, access token has already expired
       // User activity should NOT reset access token timer in this case
-      const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+      const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       
       // Allow activity updates if:
       // 1. No refresh token timer active (normal operation)
       // 2. Refresh token timer cleared (after "Continue to Work")
       // 3. Refresh token timer expired (should allow activity updates)
       // 4. User is in "Continue to Work" transition (allow activity to resume)
+      // 5. Refresh token timer is being cleared (allow activity to resume)
       if (refreshTokenStatus.expiry && 
           refreshTokenStatus.timeRemaining && 
           refreshTokenStatus.timeRemaining > 0 && 
           !refreshTokenStatus.isContinueToWorkTransition) {
         // Refresh token timer is actively counting down and not in transition - don't update activity
         // This prevents access token timer from being reset when it has already expired
+        console.log('🔄 Activity tracker: Skipping activity update due to active refresh token timer');
         return;
       }
       
@@ -75,10 +77,10 @@ export const useActivityTracker = () => {
     // Throttle function to limit activity updates frequency
     let lastActivityUpdate = 0;
 
-    const throttledActivityUpdate = () => {
+    const throttledActivityUpdate = async () => {
       const now = Date.now();
       if (now - lastActivityUpdate >= ACTIVITY_CONFIG.ACTIVITY_THROTTLE_DELAY) {
-        handleUserActivity();
+        await handleUserActivity();
         lastActivityUpdate = now;
       }
     };
@@ -87,7 +89,7 @@ export const useActivityTracker = () => {
     const userInteractionEvents = ACTIVITY_EVENTS.ALL_USER_INTERACTIONS;
 
     // Activity handler for user interaction events
-    const handleUserInteraction = (event: Event) => {
+    const handleUserInteraction = async (event: Event) => {
       // Skip system-generated events if filtering is enabled
       if (ACTIVITY_FEATURES.ENABLE_SYSTEM_EVENT_FILTERING && event.isTrusted === false) {
         return;
@@ -96,10 +98,10 @@ export const useActivityTracker = () => {
       // Handle different event types with appropriate throttling
       if (ACTIVITY_FEATURES.ENABLE_EVENT_THROTTLING && ACTIVITY_EVENTS.THROTTLED_EVENTS.includes(event.type as any)) {
         // Throttle high-frequency events to avoid excessive updates
-        throttledActivityUpdate();
+        await throttledActivityUpdate();
       } else {
         // Immediate update for other user interactions
-        handleUserActivity();
+        await handleUserActivity();
       }
     };
 

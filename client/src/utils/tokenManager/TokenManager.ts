@@ -156,8 +156,8 @@ export class TokenManager {
    * CALLED BY: AuthContext when access token expires
    * SCENARIOS: Access token expiry - starts refresh token countdown
    */
-  static startRefreshTokenExpiryTimer(): void {
-    RefreshTokenManager.startRefreshTokenExpiryTimer();
+  static async startRefreshTokenExpiryTimer(): Promise<void> {
+    await RefreshTokenManager.startRefreshTokenExpiryTimer();
   }
 
   /**
@@ -169,8 +169,8 @@ export class TokenManager {
    * CALLED BY: AuthContext for session management
    * SCENARIOS: All scenarios - checks absolute session timeout
    */
-  static isRefreshTokenExpired(): boolean {
-    return RefreshTokenManager.isRefreshTokenExpired();
+  static async isRefreshTokenExpired(): Promise<boolean> {
+    return await RefreshTokenManager.isRefreshTokenExpired();
   }
 
   /**
@@ -182,8 +182,8 @@ export class TokenManager {
    * CALLED BY: AuthContext for proactive token renewal
    * SCENARIOS: All scenarios - checks if refresh token is about to expire
    */
-  static isRefreshTokenNeedsRenewal(): boolean {
-    return RefreshTokenManager.isRefreshTokenNeedsRenewal();
+  static async isRefreshTokenNeedsRenewal(): Promise<boolean> {
+    return await RefreshTokenManager.isRefreshTokenNeedsRenewal();
   }
 
   /**
@@ -194,8 +194,8 @@ export class TokenManager {
    * CALLED BY: AuthContext after successful token refresh with NEW tokens
    * SCENARIOS: Full session refresh with new refresh token from server
    */
-  static updateRefreshTokenExpiry(): void {
-    RefreshTokenManager.updateRefreshTokenExpiry();
+  static async updateRefreshTokenExpiry(): Promise<void> {
+    await RefreshTokenManager.updateRefreshTokenExpiry();
   }
 
   /**
@@ -205,8 +205,8 @@ export class TokenManager {
    * CALLED BY: AuthContext during logout operations
    * SCENARIOS: User logout, forced logout, session termination
    */
-  static clearRefreshTokenExpiry(): void {
-    RefreshTokenManager.clearRefreshTokenExpiry();
+  static async clearRefreshTokenExpiry(): Promise<void> {
+    await RefreshTokenManager.clearRefreshTokenExpiry();
   }
 
   /**
@@ -216,24 +216,26 @@ export class TokenManager {
    * CALLED BY: Debug components for displaying refresh token information
    * SCENARIOS: Debugging and monitoring refresh token expiry
    */
-  static getRefreshTokenExpiry(): number | null {
-    return RefreshTokenManager.getRefreshTokenExpiry();
+  static async getRefreshTokenExpiry(): Promise<number | null> {
+    return await RefreshTokenManager.getRefreshTokenExpiry();
   }
 
   /**
-   * Get refresh token status information for debugging
+   * Get refresh token status information for debugging (async)
    * @returns Object with refresh token status information
    * 
    * CALLED BY: Debug components for displaying comprehensive refresh token information
    * SCENARIOS: Debugging and monitoring refresh token status
    */
-  static getRefreshTokenStatus(): {
+  static async getRefreshTokenStatus(): Promise<{
     expiry: number | null;
     isExpired: boolean;
     needsRenewal: boolean;
     timeRemaining: number | null;
-  } {
-    return RefreshTokenManager.getRefreshTokenStatus();
+    isContinueToWorkTransition: boolean;
+    isLogoutTransition: boolean;
+  }> {
+    return await RefreshTokenManager.getRefreshTokenStatus();
   }
 
   /**
@@ -347,6 +349,17 @@ export class TokenManager {
    */
   static setContinueToWorkTransition(isTransitioning: boolean): void {
     RefreshTokenManager.setContinueToWorkTransition(isTransitioning);
+  }
+
+  /**
+   * Get transition state for "Continue to Work" operation
+   * @returns Whether the transition is active
+   * 
+   * CALLED BY: SessionManager to avoid interference during transitions
+   * SCENARIOS: Session checking during "Continue to Work" operation
+   */
+  static getContinueToWorkTransition(): boolean {
+    return RefreshTokenManager.getContinueToWorkTransition();
   }
 
   /**

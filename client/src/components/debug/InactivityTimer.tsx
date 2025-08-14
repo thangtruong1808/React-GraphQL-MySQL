@@ -44,9 +44,25 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
 
   // Update timer state every second
   useEffect(() => {
-    // Update timer state using the TimerCalculator utility
-    const updateTimer = () => {
-      setTimerState(TimerCalculator.calculateTimerState());
+    // Update timer state using the TimerCalculator utility (async)
+    const updateTimer = async () => {
+      try {
+        const newTimerState = await TimerCalculator.calculateTimerState();
+        setTimerState(newTimerState);
+      } catch (error) {
+        console.error('Error updating timer state:', error);
+        // Set fallback state on error
+        setTimerState({
+          timeDisplay: ACTIVITY_DEBUGGER_MESSAGES.NOT_AVAILABLE,
+          statusMessage: 'Error updating timer',
+          progressPercentage: 0,
+          isAccessTokenExpired: false,
+          isCountingDown: false,
+          remainingCountdownSeconds: 0,
+          timerType: 'access',
+          sectionTitle: ACTIVITY_DEBUGGER_MESSAGES.INACTIVITY_TIMER_HEADER,
+        });
+      }
     };
 
     // Update immediately

@@ -11,6 +11,7 @@ let memoryAccessToken: string | null = null;
 let memoryUserData: any | null = null;
 let memoryTokenExpiry: number | null = null;
 let memoryRefreshTokenExpiry: number | null = null;
+
 let memoryLastActivity: number | null = null;
 let memoryActivityBasedExpiry: number | null = null;
 let memoryContinueToWorkTransition: boolean = false;
@@ -71,20 +72,22 @@ export class MemoryStorage {
   }
 
   /**
-   * Store refresh token expiry timestamp in memory
+   * Store refresh token expiry timestamp in memory (async)
    * @param expiry - Expiry timestamp in milliseconds
    */
-  static setRefreshTokenExpiry(expiry: number | null): void {
+  static async setRefreshTokenExpiry(expiry: number | null): Promise<void> {
     memoryRefreshTokenExpiry = expiry;
   }
 
   /**
-   * Get refresh token expiry timestamp from memory
+   * Get refresh token expiry timestamp from memory (async)
    * @returns Expiry timestamp or null if not stored
    */
-  static getRefreshTokenExpiry(): number | null {
+  static async getRefreshTokenExpiry(): Promise<number | null> {
     return memoryRefreshTokenExpiry;
   }
+
+
 
   /**
    * Store last activity timestamp in memory
@@ -194,6 +197,7 @@ export class MemoryStorage {
     memoryUserData = null;
     memoryTokenExpiry = null;
     memoryRefreshTokenExpiry = null;
+
     memoryLastActivity = null;
     memoryActivityBasedExpiry = null;
     memoryContinueToWorkTransition = false;
@@ -216,7 +220,7 @@ export class MemoryStorage {
   static hasData(): boolean {
     return !!(memoryAccessToken || memoryUserData || memoryTokenExpiry || 
               memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || 
-              memoryContinueToWorkTransition || memoryTokenCreationTime || memoryLogoutTransition); // UPDATED
+              memoryContinueToWorkTransition || memoryTokenCreationTime || memoryLogoutTransition);
   }
 
   /**
@@ -228,6 +232,7 @@ export class MemoryStorage {
     hasUserData: boolean;
     hasTokenExpiry: boolean;
     hasRefreshTokenExpiry: boolean;
+
     hasLastActivity: boolean;
     hasActivityBasedExpiry: boolean;
     hasContinueToWorkTransition: boolean;
@@ -239,6 +244,7 @@ export class MemoryStorage {
       hasUserData: !!memoryUserData,
       hasTokenExpiry: !!memoryTokenExpiry,
       hasRefreshTokenExpiry: !!memoryRefreshTokenExpiry,
+
       hasLastActivity: !!memoryLastActivity,
       hasActivityBasedExpiry: !!memoryActivityBasedExpiry,
       hasContinueToWorkTransition: !!memoryContinueToWorkTransition,

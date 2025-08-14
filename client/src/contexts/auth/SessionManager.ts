@@ -11,6 +11,7 @@ import {
   TokenManager,
   updateActivity,
 } from '../../utils/tokenManager';
+import { RefreshTokenManager } from '../../utils/tokenManager/refreshTokenManager';
 
 /**
  * Session Manager Interface
@@ -62,7 +63,7 @@ export const useSessionManager = (
       }
       
       // Check if refresh token is expired (absolute timeout) - ALWAYS CHECK FIRST
-      const refreshTokenExpired = isRefreshTokenExpired();
+      const refreshTokenExpired = await isRefreshTokenExpired();
 
       if (refreshTokenExpired) {
         setShowSessionExpiryModal(false);
@@ -70,6 +71,9 @@ export const useSessionManager = (
         await performCompleteLogout();
         return;
       }
+
+      // Get refresh token status for session management
+      const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
 
       // Check if access token is expired but refresh token is still valid
       const tokens = getTokens();
@@ -95,15 +99,19 @@ export const useSessionManager = (
           setLastModalShowTime(now);
 
           // Start the refresh token expiry timer when access token expires
-          TokenManager.startRefreshTokenExpiryTimer();
+          await TokenManager.startRefreshTokenExpiryTimer();
 
-          // Start automatic logout timer (1 minute after modal appears)
+          // Start automatic logout timer based on original refresh token timer
+          // This ensures auto-logout is based on the original timer, not the extended timer
+          const originalTimeRemaining = refreshTokenStatus.timeRemaining;
+          const autoLogoutDelay = originalTimeRemaining || AUTH_CONFIG.MODAL_AUTO_LOGOUT_DELAY;
+          
           const autoLogoutTimer = setTimeout(async () => {
             // Debug logging disabled for better user experience
             setShowSessionExpiryModal(false);
             showNotification('Session expired due to inactivity. Please log in again.', 'info');
             await performCompleteLogout();
-          }, AUTH_CONFIG.MODAL_AUTO_LOGOUT_DELAY);
+          }, autoLogoutDelay);
 
           setModalAutoLogoutTimer(autoLogoutTimer);
 
@@ -112,7 +120,9 @@ export const useSessionManager = (
         }
 
         // If modal is already showing, don't run additional checks that could hide it
-        if (showSessionExpiryModal) {
+        // Also check if user is in "Continue to Work" transition to avoid interference
+        if (showSessionExpiryModal || TokenManager.getContinueToWorkTransition()) {
+          console.log('🔄 SessionManager: Skipping session check due to modal or transition state');
           // Debug logging disabled for better user experience
           return;
         }
@@ -130,7 +140,7 @@ export const useSessionManager = (
         
         if (isAccessTokenStillValid) {
           // Check if refresh token needs renewal (proactive renewal for active users)
-          if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && isRefreshTokenNeedsRenewal()) {
+          if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && await isRefreshTokenNeedsRenewal()) {
             // Debug logging disabled for better user experience
             const renewalSuccess = await renewRefreshToken();
             if (!renewalSuccess) {

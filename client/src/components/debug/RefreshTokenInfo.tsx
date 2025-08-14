@@ -20,7 +20,10 @@ interface RefreshTokenInfoProps {
  * Shows timing information and status for refresh token operations
  */
 const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
-  const { refreshTokenExpiry, refreshTokenTimeRemaining } = timerState;
+  const {
+    refreshTokenExpiry,
+    refreshTokenTimeRemaining
+  } = timerState;
 
   // Format time remaining for display
   const formatTimeRemaining = (timeRemaining: number | null): string => {
@@ -73,6 +76,8 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
     return null;
   }
 
+
+
   return (
     <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
       <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
@@ -104,6 +109,8 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
             {new Date().toLocaleTimeString()}
           </span>
         </div>
+
+
 
       </div>
     </div>

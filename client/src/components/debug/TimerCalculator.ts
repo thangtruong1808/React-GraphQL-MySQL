@@ -42,16 +42,16 @@ interface RefreshTokenStatus {
  */
 export class TimerCalculator {
   /**
-   * Calculate the current timer state based on token status
+   * Calculate the current timer state based on token status (async)
    * @returns TimerState object with all timer information
    */
-  static calculateTimerState(): TimerState {
+  static async calculateTimerState(): Promise<TimerState> {
     try {
       const tokens = getTokens();
       const now = Date.now();
 
       // Get refresh token status for display
-      const refreshTokenStatus = TokenManager.getRefreshTokenStatus() as RefreshTokenStatus;
+      const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
 
       // Check if we have access token
       if (!tokens.accessToken) {

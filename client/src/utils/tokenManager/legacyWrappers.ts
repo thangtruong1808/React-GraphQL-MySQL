@@ -78,29 +78,29 @@ export const updateActivity = (): void => {
 };
 
 /**
- * Check if refresh token is expired (absolute session timeout)
+ * Check if refresh token is expired (absolute session timeout) - async
  * @returns Boolean indicating if refresh token is expired
  * 
  * CALLED BY: AuthContext for session management
  * SCENARIOS: All scenarios - checks absolute session timeout
  */
-export const isRefreshTokenExpired = (): boolean => {
-  return TokenManager.isRefreshTokenExpired();
+export const isRefreshTokenExpired = async (): Promise<boolean> => {
+  return await TokenManager.isRefreshTokenExpired();
 };
 
 /**
- * Check if refresh token needs renewal (proactive renewal)
+ * Check if refresh token needs renewal (proactive renewal) - async
  * @returns Boolean indicating if refresh token needs renewal
  * 
  * CALLED BY: AuthContext for proactive token renewal
  * SCENARIOS: All scenarios - checks if refresh token is about to expire
  */
-export const isRefreshTokenNeedsRenewal = (): boolean => {
-  return TokenManager.isRefreshTokenNeedsRenewal();
+export const isRefreshTokenNeedsRenewal = async (): Promise<boolean> => {
+  return await TokenManager.isRefreshTokenNeedsRenewal();
 };
 
 /**
- * Update refresh token expiry after renewal
+ * Update refresh token expiry after renewal - async
  * Extends the refresh token expiry time when token is renewed with NEW tokens
  * IMPORTANT: Should only be called when getting NEW refresh tokens from server
  * @returns void
@@ -108,20 +108,20 @@ export const isRefreshTokenNeedsRenewal = (): boolean => {
  * CALLED BY: AuthContext after successful token refresh with NEW tokens
  * SCENARIOS: Full session refresh with new refresh token from server
  */
-export const updateRefreshTokenExpiry = (): void => {
-  TokenManager.updateRefreshTokenExpiry();
+export const updateRefreshTokenExpiry = async (): Promise<void> => {
+  await TokenManager.updateRefreshTokenExpiry();
 };
 
 /**
- * Clear refresh token expiry timer
+ * Clear refresh token expiry timer - async
  * ONLY used when user logs out or session is completely reset
  * @returns void
  * 
  * CALLED BY: AuthContext during logout operations
  * SCENARIOS: User logout, forced logout, session termination
  */
-export const clearRefreshTokenExpiry = (): void => {
-  TokenManager.clearRefreshTokenExpiry();
+export const clearRefreshTokenExpiry = async (): Promise<void> => {
+  await TokenManager.clearRefreshTokenExpiry();
 };
 
 /**

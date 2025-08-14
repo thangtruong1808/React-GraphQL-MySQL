@@ -31,17 +31,18 @@ export const useAppFocusedActivityTracker = () => {
   const lastActivityUpdateRef = useRef(0);
 
   // Handle user activity - called when any user interaction is detected
-  const handleUserActivity = useCallback(() => {
+  const handleUserActivity = useCallback(async () => {
     // Check if refresh token timer is actively counting down
     // If refresh token timer is actively counting down, access token has already expired
     // User activity should NOT reset access token timer in this case
-    const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
+    const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
     
     // Allow activity updates if:
     // 1. No refresh token timer active (normal operation)
     // 2. Refresh token timer cleared (after "Continue to Work")
     // 3. Refresh token timer expired (should allow activity updates)
     // 4. User is in "Continue to Work" transition (allow activity to resume)
+    // 5. Refresh token timer is being cleared (allow activity to resume)
     if (refreshTokenStatus.expiry && 
         refreshTokenStatus.timeRemaining && 
         refreshTokenStatus.timeRemaining > 0 && 
@@ -71,16 +72,16 @@ export const useAppFocusedActivityTracker = () => {
     listenersSetupRef.current = true;
 
     // Throttle function to limit activity updates frequency
-    const throttledActivityUpdate = () => {
+    const throttledActivityUpdate = async () => {
       const now = Date.now();
       if (now - lastActivityUpdateRef.current >= ACTIVITY_CONFIG.ACTIVITY_THROTTLE_DELAY) {
-        handleUserActivity();
+        await handleUserActivity();
         lastActivityUpdateRef.current = now;
       }
     };
 
     // Activity handler for user interaction events
-    const handleUserInteraction = (event: Event) => {
+    const handleUserInteraction = async (event: Event) => {
       try {
         // Skip system-generated events if filtering is enabled
         if (ACTIVITY_FEATURES.ENABLE_SYSTEM_EVENT_FILTERING && event.isTrusted === false) {
@@ -119,10 +120,10 @@ export const useAppFocusedActivityTracker = () => {
         // Handle different event types with appropriate throttling
         if (ACTIVITY_FEATURES.ENABLE_EVENT_THROTTLING && ACTIVITY_EVENTS.THROTTLED_EVENTS.includes(event.type as any)) {
           // Throttle high-frequency events to avoid excessive updates
-          throttledActivityUpdate();
+          await throttledActivityUpdate();
         } else {
           // Immediate update for other user interactions
-          handleUserActivity();
+          await handleUserActivity();
         }
 
         // Debug logging for activity tracking (disabled for production)
