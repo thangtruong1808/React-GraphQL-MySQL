@@ -270,7 +270,7 @@ export class TimerCalculator {
 
     // NEW: Progress based on 1-minute refresh token duration (0% to 100%)
     // This provides a clearer visual representation of the refresh token countdown
-    const refreshTokenDurationSeconds = 60; // 1 minute in seconds
+    const refreshTokenDurationSeconds = AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS / 1000; // 1 minute in seconds
     const elapsedSeconds = refreshTokenDurationSeconds - countdownSeconds;
     const progressPercentage = Math.min(100, Math.max(0, (elapsedSeconds / refreshTokenDurationSeconds) * 100));
 

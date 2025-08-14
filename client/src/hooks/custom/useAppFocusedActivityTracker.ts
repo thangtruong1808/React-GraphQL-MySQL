@@ -36,17 +36,22 @@ export const useAppFocusedActivityTracker = () => {
     // If refresh token timer is actively counting down, access token has already expired
     // User activity should NOT reset access token timer in this case
     const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
-    if (refreshTokenStatus.expiry && refreshTokenStatus.timeRemaining && refreshTokenStatus.timeRemaining > 0) {
-      // Refresh token timer is actively counting down - don't update activity
+    
+    // Allow activity updates if:
+    // 1. No refresh token timer active (normal operation)
+    // 2. Refresh token timer cleared (after "Continue to Work")
+    // 3. Refresh token timer expired (should allow activity updates)
+    // 4. User is in "Continue to Work" transition (allow activity to resume)
+    if (refreshTokenStatus.expiry && 
+        refreshTokenStatus.timeRemaining && 
+        refreshTokenStatus.timeRemaining > 0 && 
+        !refreshTokenStatus.isContinueToWorkTransition) {
+      // Refresh token timer is actively counting down and not in transition - don't update activity
       // This prevents access token timer from being reset when it has already expired
       return;
     }
     
     // Normal case: Update activity for access token timer
-    // This includes:
-    // 1. No refresh token timer active (normal operation)
-    // 2. Refresh token timer cleared (after "Continue to Work")
-    // 3. Refresh token timer expired (should allow activity updates)
     // Focus check is handled at the event level, not here
     updateActivity();
   }, []);

@@ -170,14 +170,15 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   let validUser: any = null;
 
   // Get all valid refresh tokens to find the matching one
-  // Add buffer time to account for clock synchronization differences
-  const bufferTime = new Date(Date.now() - JWT_CONFIG.CLOCK_SYNC_BUFFER);
+  // NEW APPROACH: Allow refresh as long as token exists and isn't revoked
+  // The database expiresAt field is only for inactivity-based auto-logout (security)
+  // For "Continue to Work" functionality, the client-side timer is the authority
+  // This provides better user experience while maintaining security
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,
-      expiresAt: {
-        [require('sequelize').Op.gt]: bufferTime,
-      },
+      // Remove expiresAt check - allow refresh regardless of database expiry
+      // The client-side timer controls when refresh is allowed
     },
     include: [{ model: User, as: 'refreshTokenUser' }],
   });

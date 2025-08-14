@@ -35,8 +35,8 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
       const interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) return prev; // Stop at 90% until operation completes
-          // Use buffer time to calculate progress duration
-          const progressDuration = AUTH_CONFIG.PROGRESS_BAR_DURATION + AUTH_CONFIG.SERVER_OPERATION_BUFFER;
+          // Use progress bar duration for animation (reduced buffer time for better UX)
+          const progressDuration = AUTH_CONFIG.PROGRESS_BAR_DURATION + 2000; // 2 seconds buffer for animation
           return prev + (90 / (progressDuration / 100)); // Animate over buffer time + progress duration
         });
       }, 100);
@@ -73,7 +73,7 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
     try {
       await onLogout();
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('❌ Error during logout:', error);
     } finally {
       setIsLoggingOut(false);
     }

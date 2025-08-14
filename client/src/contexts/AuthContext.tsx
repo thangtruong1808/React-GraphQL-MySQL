@@ -32,6 +32,7 @@ interface AuthContextType {
   // Actions
   login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => Promise<void>;
+  logoutFromModal: () => Promise<void>; // Add logoutFromModal to interface
   refreshSession: () => Promise<boolean>;
 
   // Session management
@@ -163,6 +164,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Actions
     login: authActions.login,
     logout: authActions.logout,
+    logoutFromModal: authActions.logoutFromModal, // Add logoutFromModal to context
     refreshSession: authActions.refreshSession,
 
     // Session management

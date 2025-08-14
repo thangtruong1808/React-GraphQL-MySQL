@@ -13,8 +13,8 @@ export const JWT_CONFIG = {
   ACCESS_TOKEN_EXPIRY: '1m', // 1 minute
   
   // Refresh token configuration - 1 minutes total from login (1m access + 1m refresh)
-  REFRESH_TOKEN_EXPIRY: '2m', // 1 minutes total from login (1m access + 1m refresh = 1m total)
-  REFRESH_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 2 minutes in milliseconds
+  REFRESH_TOKEN_EXPIRY: '1m', // 1 minute refresh token expiry (matches user requirement: 1m access + 1m refresh = 2m total)
+  REFRESH_TOKEN_EXPIRY_MS: 1 * 60 * 1000, // 1 minute in milliseconds
 
   // Token limits
   MAX_REFRESH_TOKENS_PER_USER: 3, // Maximum refresh tokens per user (increased for multiple sessions)
@@ -32,7 +32,7 @@ export const JWT_CONFIG = {
   CLOCK_SYNC_BUFFER: 10000, // 10 seconds buffer for clock synchronization (reduced from 30 seconds)
   
   // Buffer time for server operations (improves reliability)
-  SERVER_OPERATION_BUFFER: 5000, // 5 seconds buffer for server operations
+  SERVER_OPERATION_BUFFER: 15000, // 15 seconds buffer for server operations (increased from 5 seconds for better "Continue to Work" reliability)
   REQUEST_PROCESSING_BUFFER: 3000, // 3 seconds buffer for request processing
 } as const;
 

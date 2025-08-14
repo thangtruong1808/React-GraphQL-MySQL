@@ -21,10 +21,9 @@ export class RefreshTokenManager {
    */
   static startRefreshTokenExpiryTimer(): void {
     try {
-      // Calculate refresh token expiry - should be 4 minutes from login time
-      // This ensures refresh token countdown shows 4 minutes total from login
-      const loginTime = Date.now() - AUTH_CONFIG.ACCESS_TOKEN_EXPIRY; // 2 minutes ago (when access token expires)
-      const expiry = loginTime + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS; // 4 minutes from login
+      // Calculate refresh token expiry - should be 1 minute from NOW (when modal appears)
+      // This ensures refresh token countdown shows 1 minute from when the modal appears
+      const expiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS; // 1 minute from now
       MemoryStorage.setRefreshTokenExpiry(expiry);
       // Debug logging disabled for better user experience
     } catch (error) {
@@ -101,8 +100,8 @@ export class RefreshTokenManager {
     try {
       const oldExpiry = MemoryStorage.getRefreshTokenExpiry();
       
-      // Calculate refresh token expiry - should be 4 minutes from NOW (when tokens are refreshed)
-      // This ensures refresh token countdown shows 4 minutes from the moment tokens are refreshed
+      // Calculate refresh token expiry - should be 1 minute from NOW (when tokens are refreshed)
+      // This ensures refresh token countdown shows 1 minute from the moment tokens are refreshed
       const newExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
       MemoryStorage.setRefreshTokenExpiry(newExpiry);
       

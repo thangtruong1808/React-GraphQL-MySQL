@@ -19,7 +19,7 @@ export const AUTH_CONFIG = {
   
   // Token configuration
   ACCESS_TOKEN_EXPIRY: 1 * 60 * 1000, // 1 minute access token expiry
-  REFRESH_TOKEN_EXPIRY_MS: 2 * 60 * 1000, // 2 minutes refresh token expiry (matches server-side)
+  REFRESH_TOKEN_EXPIRY_MS: 1 * 60 * 1000, // 1 minute refresh token expiry (matches user requirement: 1m access + 1m refresh = 2m total)
   ACTIVITY_TOKEN_EXPIRY: 1 * 60 * 1000, // 1 minute activity-based token expiry
   
   // Activity-based token management
@@ -35,7 +35,7 @@ export const AUTH_CONFIG = {
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
   
   // Session expiry modal
-  MODAL_AUTO_LOGOUT_DELAY: 2 * 60 * 1000, // 2 minutes after modal appears
+  MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches refresh token expiry)
   
   // Loading states
   AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)
@@ -53,7 +53,7 @@ export const AUTH_CONFIG = {
   MAX_REFRESH_RETRIES: 2, // Maximum 2 retries for refresh operations
   
   // Buffer time for server operations (improves reliability)
-  SERVER_OPERATION_BUFFER: 5000, // 5 seconds buffer for server operations
+  SERVER_OPERATION_BUFFER: 15000, // 15 seconds buffer for server operations (increased from 5 seconds for better "Continue to Work" reliability)
   CLOCK_SYNC_BUFFER: 10000, // 10 seconds buffer for clock synchronization (reduced from 30 seconds)
   
   // Loading state configuration
@@ -89,7 +89,7 @@ export const AUTH_TIMING = {
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
   
   // Session expiry modal
-  MODAL_AUTO_LOGOUT_DELAY: 2 * 60 * 1000, // 2 minutes after modal appears
+  MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches refresh token expiry)
   
   // Loading states
   AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)

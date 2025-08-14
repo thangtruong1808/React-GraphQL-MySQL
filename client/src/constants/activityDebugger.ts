@@ -20,7 +20,7 @@ export const ACTIVITY_DEBUGGER_UI = {
   MIN_TIME_BETWEEN_MODAL_SHOWS: 5000, // 5 seconds minimum between modal shows
   
   // Countdown display
-  COUNTDOWN_TOTAL_SECONDS: 2 * 60, // 2 minutes countdown (matches business logic)
+  COUNTDOWN_TOTAL_SECONDS: 1 * 60, // 1 minute countdown (matches business logic)
   
   // Component sizing
   DEBUG_PANEL_WIDTH: 'w-80', // Panel width class

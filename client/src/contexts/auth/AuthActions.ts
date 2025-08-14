@@ -109,12 +109,15 @@ export const useAuthActions = (
       const refreshTokenStatus = TokenManager.getRefreshTokenStatus();
       
       // Check if refresh token is expired before attempting refresh
-      // NEW APPROACH: Allow refresh as long as refresh token timer is still valid (even with 2 seconds remaining)
-      // This provides better user experience and matches the business logic requirement
-      if (!isSessionRestoration && (refreshTokenStatus.isExpired || (refreshTokenStatus.timeRemaining !== null && refreshTokenStatus.timeRemaining <= 0))) {
+      // ENHANCED APPROACH: Allow refresh as long as there's at least 1 second remaining
+      // This provides better user experience for "Continue to Work" functionality
+      const minimumBufferTime = 1000; // 1 second minimum buffer (reduced from 15 seconds)
+      if (!isSessionRestoration && (refreshTokenStatus.isExpired || (refreshTokenStatus.timeRemaining !== null && refreshTokenStatus.timeRemaining <= minimumBufferTime))) {
         logTokenRefreshTiming('refresh_access_token', null, { 
-          error: 'refresh_token_expired',
-          isSessionRestoration 
+          error: 'refresh_token_expired_or_insufficient_buffer',
+          isSessionRestoration,
+          timeRemaining: refreshTokenStatus.timeRemaining,
+          minimumBufferTime
         });
         return false;
       }
@@ -411,8 +414,36 @@ export const useAuthActions = (
       // Set logout transition state for visual feedback
       TokenManager.setLogoutTransition(true);
       
-      // Perform logout operation
-      await logout();
+      // Clear modal auto-logout timer immediately
+      if (modalAutoLogoutTimer) {
+        clearTimeout(modalAutoLogoutTimer);
+        setModalAutoLogoutTimer(null);
+      }
+      
+      // Close session expiry modal immediately for instant feedback
+      setShowSessionExpiryModal(false);
+      setSessionExpiryMessage('');
+      setLastModalShowTime(null);
+      
+      // Clear authentication state immediately for instant logout
+      setUser(null);
+      setIsAuthenticated(false);
+      
+      // Clear tokens and timers immediately
+      clearTokens();
+      TokenManager.clearTokenCreationTime();
+      TokenManager.clearRefreshTokenExpiry();
+      
+      // Clear CSRF token immediately
+      clearApolloCSRFToken();
+      
+      // Clear Apollo cache in background (non-blocking)
+      client.clearStore().catch(cacheError => {
+        console.warn('⚠️ Error clearing Apollo cache:', cacheError);
+      });
+      
+      // Small delay to ensure state changes are processed
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       // Clear logout transition state
       TokenManager.setLogoutTransition(false);
@@ -422,12 +453,12 @@ export const useAuthActions = (
       TokenManager.setLogoutTransition(false);
       throw error;
     }
-  }, [logout]);
+  }, [modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated, client]);
 
   /**
    * Refresh session when user clicks "Continue to Work"
    * Handles both access token refresh and refresh token renewal
-   * Enhanced with buffer time support for better reliability
+   * Enhanced with minimal buffer time support for better reliability
    */
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
@@ -448,10 +479,15 @@ export const useAuthActions = (
       });
       
       // Check if refresh token is expired before attempting refresh
-      // NEW APPROACH: Allow refresh as long as refresh token timer is still valid (even with 2 seconds remaining)
-      // This provides better user experience and matches the business logic requirement
-      if (refreshTokenStatus.isExpired || (refreshTokenStatus.timeRemaining !== null && refreshTokenStatus.timeRemaining <= 0)) {
-        logTokenRefreshTiming('refresh_session', timeRemaining, { error: 'refresh_token_expired' });
+      // ENHANCED APPROACH: Allow refresh as long as there's at least 1 second remaining
+      // This provides better user experience for "Continue to Work" functionality
+      const minimumBufferTime = 1000; // 1 second minimum buffer (reduced from 15 seconds)
+      if (refreshTokenStatus.isExpired || (refreshTokenStatus.timeRemaining !== null && refreshTokenStatus.timeRemaining <= minimumBufferTime)) {
+        logTokenRefreshTiming('refresh_session', timeRemaining, { 
+          error: 'refresh_token_expired_or_insufficient_buffer',
+          timeRemaining: refreshTokenStatus.timeRemaining,
+          minimumBufferTime
+        });
         setShowSessionExpiryModal(false);
         showNotification('Session has expired. Please log in again.', 'error');
         return false;
@@ -473,14 +509,25 @@ export const useAuthActions = (
       
       if (refreshSuccess) {
         // Success - clear modal and show success message
-        // IMPORTANT: Clear refresh token timer for "Continue to Work" functionality
-        // This switches back to access token timer display and allows activity updates
-        TokenManager.clearRefreshTokenExpiry();
+        // Clear refresh token timer after successful refresh to allow normal activity tracking
+        // This prevents the activity tracker from being blocked by the refresh token timer
         
         logTokenRefreshTiming('refresh_session', timeRemaining, { 
           success: true,
           operation: 'direct_refresh_clear_refresh_timer' 
         });
+        
+        // Clear refresh token timer to allow normal activity tracking
+        TokenManager.clearRefreshTokenExpiry();
+        
+        // Force restart of activity tracking by updating user state
+        // This ensures the session manager restarts activity tracking
+        // Get current user from TokenManager to trigger useEffect in SessionManager
+        const currentUser = TokenManager.getUser();
+        if (currentUser) {
+          setUser({ ...currentUser }); // Trigger useEffect in SessionManager
+        }
+        
         setShowSessionExpiryModal(false);
         setLastModalShowTime(null);
         showNotification('You can continue working now!', 'success');

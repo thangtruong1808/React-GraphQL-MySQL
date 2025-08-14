@@ -11,7 +11,7 @@
 export const SESSION_MODAL_CONFIG = {
   // Modal timing
   MIN_TIME_BETWEEN_SHOWS: 3000, // 3 seconds minimum between modal shows
-  AUTO_LOGOUT_DELAY: 4 * 60 * 1000, // 4 minutes after modal appears
+  AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches refresh token expiry)
   
   // Modal messages
   DEFAULT_MESSAGE: 'Your session has expired. Click "Continue to Work" to refresh your session or "Logout" to sign in again.',

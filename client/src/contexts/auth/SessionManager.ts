@@ -1,15 +1,15 @@
-import { useCallback, useRef, useEffect } from 'react';
-import { AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
+import { useCallback, useEffect, useRef } from 'react';
+import { AUTH_CONFIG } from '../../constants';
 import {
-  getTokens,
-  isTokenExpired,
-  updateActivity,
-  isRefreshTokenExpired,
-  isUserInactive,
   getActivityBasedTokenExpiry,
+  getTokens,
   isActivityBasedTokenExpired,
-  TokenManager,
+  isRefreshTokenExpired,
   isRefreshTokenNeedsRenewal,
+  isTokenExpired,
+  isUserInactive,
+  TokenManager,
+  updateActivity,
 } from '../../utils/tokenManager';
 
 /**
@@ -56,6 +56,11 @@ export const useSessionManager = (
    */
   const checkSessionAndActivity = useCallback(async () => {
     try {
+      // Don't run session checks if user is not authenticated (prevents interference during logout)
+      if (!isAuthenticated) {
+        return;
+      }
+      
       // Check if refresh token is expired (absolute timeout) - ALWAYS CHECK FIRST
       const refreshTokenExpired = isRefreshTokenExpired();
 
@@ -92,7 +97,7 @@ export const useSessionManager = (
           // Start the refresh token expiry timer when access token expires
           TokenManager.startRefreshTokenExpiryTimer();
 
-          // Start automatic logout timer (3 minutes after modal appears)
+          // Start automatic logout timer (1 minute after modal appears)
           const autoLogoutTimer = setTimeout(async () => {
             // Debug logging disabled for better user experience
             setShowSessionExpiryModal(false);
@@ -113,36 +118,24 @@ export const useSessionManager = (
         }
       }
 
-      // Only run these checks if modal is not showing to prevent auto-hiding
-      if (!showSessionExpiryModal) {
-        // Check if refresh token needs renewal (proactive renewal for active users)
-        if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && isRefreshTokenNeedsRenewal()) {
-          // Debug logging disabled for better user experience
-          const renewalSuccess = await renewRefreshToken();
-          if (!renewalSuccess) {
-            // Debug logging disabled for better user experience
-          }
+      // Only run proactive renewal if modal is not showing and access token is still valid
+      if (!showSessionExpiryModal && tokens.accessToken) {
+        // Check if access token is still valid before running proactive renewal
+        let isAccessTokenStillValid = false;
+        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+          isAccessTokenStillValid = !isActivityBasedTokenExpired();
+        } else {
+          isAccessTokenStillValid = !isTokenExpired(tokens.accessToken);
         }
-
-        // Check if activity-based token is expired (when user stops being active)
-        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED && isActivityBasedTokenExpired()) {
-          // Debug logging disabled for better user experience
-          const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
-          if (!refreshSuccess) {
+        
+        if (isAccessTokenStillValid) {
+          // Check if refresh token needs renewal (proactive renewal for active users)
+          if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && isRefreshTokenNeedsRenewal()) {
             // Debug logging disabled for better user experience
-            await performCompleteLogout();
-            return;
-          }
-        }
-
-        // Check if user has been inactive for too long (application-level inactivity)
-        if (isUserInactive(AUTH_CONFIG.INACTIVITY_THRESHOLD)) {
-          // Debug logging disabled for better user experience
-          const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
-          if (!refreshSuccess) {
-            // Debug logging disabled for better user experience
-            await performCompleteLogout();
-            return;
+            const renewalSuccess = await renewRefreshToken();
+            if (!renewalSuccess) {
+              // Debug logging disabled for better user experience
+            }
           }
         }
       }
@@ -153,7 +146,7 @@ export const useSessionManager = (
       console.error('❌ Error checking session and activity:', error);
       await performCompleteLogout();
     }
-  }, [performCompleteLogout, refreshAccessToken, renewRefreshToken, showNotification, showSessionExpiryModal, lastModalShowTime, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setModalAutoLogoutTimer]);
+  }, [performCompleteLogout, refreshAccessToken, renewRefreshToken, showNotification, showSessionExpiryModal, lastModalShowTime, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setModalAutoLogoutTimer, isAuthenticated]);
 
   /**
    * Set up activity tracking
@@ -269,6 +262,12 @@ export const useSessionManager = (
   useEffect(() => {
     if (isAuthenticated && user) {
       setupActivityTracking();
+    } else {
+      // Clear activity timer when user is not authenticated (logout)
+      if (activityTimerRef.current) {
+        clearInterval(activityTimerRef.current);
+        activityTimerRef.current = null;
+      }
     }
   }, [isAuthenticated, user, setupActivityTracking]);
 
