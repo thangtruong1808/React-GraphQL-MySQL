@@ -81,8 +81,8 @@ export const authResolvers = {
      * 
      * FLOW: Input validation → User lookup → Password verification → Token generation → DB storage → Cookie setting → Response
      */
-    login: async (_: any, { input }: { input: { email: string; password: string } }, { res }: { res: any }) => {
-      return await login(input, res);
+    login: async (_: any, { input }: { input: { email: string; password: string } }, { req, res }: { req: any; res: any }) => {
+      return await login(input, res, req);
     },
 
     /**

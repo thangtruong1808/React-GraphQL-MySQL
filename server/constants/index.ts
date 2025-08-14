@@ -12,9 +12,10 @@ export const JWT_CONFIG = {
   // Access token configuration - short-lived for security
   ACCESS_TOKEN_EXPIRY: '1m', // 1 minute
   
-  // Refresh token configuration - 1 minutes total from login (1m access + 1m refresh)
-  REFRESH_TOKEN_EXPIRY: '1m', // 1 minute refresh token expiry (matches user requirement: 1m access + 1m refresh = 2m total)
-  REFRESH_TOKEN_EXPIRY_MS: 1 * 60 * 1000, // 1 minute in milliseconds
+  // Refresh token configuration - 8 hours for database expires_at field
+  // This allows users to work for 8 hours without needing to re-login
+  REFRESH_TOKEN_EXPIRY: '8h', // 8 hours
+  REFRESH_TOKEN_EXPIRY_MS: 8 * 60 * 60 * 1000, // 8 hours in milliseconds (for database expires_at)
 
   // Token limits
   MAX_REFRESH_TOKENS_PER_USER: 3, // Maximum refresh tokens per user (increased for multiple sessions)
@@ -55,7 +56,7 @@ export const AUTH_CONFIG = {
   COOKIE_OPTIONS: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
+    sameSite: 'lax' as const, // Use 'lax' for cross-port development
     path: '/',
   },
 } as const;
@@ -81,7 +82,7 @@ export const CSRF_CONFIG = {
   CSRF_COOKIE_OPTIONS: {
     httpOnly: false, // Must be accessible by JavaScript
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
+    sameSite: 'lax' as const, // Use 'lax' for cross-port development
     path: '/',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   },

@@ -28,7 +28,8 @@ import { AUTH_OPERATIONS_CONFIG, AUTH_OPERATIONS_TYPES } from './constants';
  * 
  * FLOW: Input validation → User lookup → Password verification → Token generation → DB storage → Cookie setting → Response
  */
-export const login = async (input: { email: string; password: string }, res: any) => {
+export const login = async (input: { email: string; password: string }, res: any, req: any) => {
+  console.log('🔄 Server: Login operation called with email:', input.email);
   try {
     const { email, password } = input;
 
@@ -97,28 +98,69 @@ export const login = async (input: { email: string; password: string }, res: any
 
 
 
-    // Store refresh token in database
+    // Store refresh token in database with 8-hour expiry
     await RefreshToken.create({
       id: uuidv4(),
       userId: user.id,
       tokenHash,
-      expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS),
+      expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 8 hours for database
       isRevoked: false,
     });
 
 
 
     // Set refresh token as httpOnly cookie
-    // Extend cookie expiry to allow "Continue to Work" functionality
-    // Cookie should last longer than the client-side timer to provide buffer time
-    // Set cookie expiry to 2 minutes to match the total session duration
-    const cookieMaxAge = 2 * 60 * 1000; // 2 minutes to match total session duration
-    res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
+    // Cookie expiry remains at 2 minutes for client-side functionality
+    // The database expires_at field is 8 hours for long-term session management
+    const cookieMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds for cookie
+    
+    // Debug: Log request details to understand cookie domain/path issues
+    console.log('🔄 Server: Request details for cookie setting:', {
+      host: req.headers.host,
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      userAgent: req.headers['user-agent']
+    });
+    
+    // Use consistent cookie configuration from constants
+    const cookieConfig = {
       httpOnly: true,
-      secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,
-      sameSite: AUTH_OPERATIONS_CONFIG.COOKIE_SAME_SITE,
-      path: AUTH_OPERATIONS_CONFIG.COOKIE_PATH,
+      secure: false, // Must be false for localhost development
+      sameSite: 'lax' as const, // Use 'lax' for cross-port development
+      path: '/',
       maxAge: cookieMaxAge, // Extended expiry to allow "Continue to Work"
+      // No domain setting - allows cross-port cookie sharing in development
+    };
+    
+    console.log('🔄 Server: Setting refresh token cookie with config:', {
+      name: AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME,
+      ...cookieConfig
+    });
+    
+    res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieConfig);
+    
+    console.log('🔄 Server: Refresh token cookie set successfully');
+    
+    // Debug: Check if cookie was actually set in response headers
+    console.log('🔄 Server: Response headers after setting cookie:', {
+      'set-cookie': res.getHeaders()['set-cookie']
+    });
+    
+    // Debug: Check if cookie was actually set in response
+    const setCookieHeader = res.getHeaders()['set-cookie'];
+    console.log('🔄 Server: Set-Cookie header value:', setCookieHeader);
+    console.log('🔄 Server: Set-Cookie header type:', typeof setCookieHeader);
+    console.log('🔄 Server: Set-Cookie header length:', Array.isArray(setCookieHeader) ? setCookieHeader.length : 'not array');
+    
+    // Debug: Log the actual cookie that was set
+    console.log('🔄 Server: Cookie details set:', {
+      name: AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME,
+      value: refreshToken ? `${refreshToken.substring(0, 10)}...` : 'null',
+      maxAge: cookieMaxAge,
+      path: cookieConfig.path,
+      httpOnly: cookieConfig.httpOnly,
+      secure: cookieConfig.secure,
+      sameSite: cookieConfig.sameSite
     });
 
     // Set CSRF token for future mutations

@@ -428,4 +428,26 @@ export class TokenManager {
   static getLogoutTransition(): boolean {
     return TokenStorage.getLogoutTransition();
   }
+
+  /**
+   * Check if session expiry modal is showing
+   * @returns Boolean indicating if session expiry modal is visible
+   * 
+   * CALLED BY: Activity tracker to prevent activity updates when modal is showing
+   * SCENARIOS: Preventing activity interference during modal display
+   */
+  static isSessionExpiryModalShowing(): boolean {
+    return TokenStorage.isSessionExpiryModalShowing();
+  }
+
+  /**
+   * Set session expiry modal state
+   * @param isShowing - Whether the session expiry modal is visible
+   * 
+   * CALLED BY: AuthContext when modal state changes
+   * SCENARIOS: Modal show/hide state management
+   */
+  static setSessionExpiryModalShowing(isShowing: boolean): void {
+    TokenStorage.setSessionExpiryModalShowing(isShowing);
+  }
 }

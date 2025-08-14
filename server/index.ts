@@ -44,7 +44,10 @@ app.use(cors({
 }));
 
 // Cookie parser middleware for httpOnly cookies
-app.use(cookieParser());
+app.use(cookieParser(undefined, {
+  // Enable cookie parsing for all requests
+  decode: (val) => val, // Don't decode cookies (keep as-is)
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

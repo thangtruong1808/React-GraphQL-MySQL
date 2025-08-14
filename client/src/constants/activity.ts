@@ -19,7 +19,8 @@ export const ACTIVITY_CONFIG = {
   
   // Token configuration
   ACCESS_TOKEN_EXPIRY: 1 * 60 * 1000, // 1 minute access token expiry
-  REFRESH_TOKEN_EXPIRY_MS: 1 * 60 * 1000, // 1 minute refresh token expiry (matches user requirement: 1m access + 1m refresh = 2m total)
+  REFRESH_TOKEN_EXPIRY_MS: 8 * 60 * 60 * 1000, // 8 hours refresh token expiry (for database expires_at field)
+  MODAL_COUNTDOWN_DURATION: 1 * 60 * 1000, // 1 minute modal countdown timer
   ACTIVITY_TOKEN_EXPIRY: 1 * 60 * 1000, // 1 minute activity-based token expiry
   
   // Activity-based token management
@@ -35,7 +36,7 @@ export const ACTIVITY_CONFIG = {
   REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
   
   // Session expiry modal
-  MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches refresh token expiry)
+  MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches modal countdown duration)
   
   // Loading states
   AUTH_INITIALIZATION_TIMEOUT: 5000, // 5 seconds auth initialization timeout (increased for better UX)

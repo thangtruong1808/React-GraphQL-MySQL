@@ -17,6 +17,7 @@ let memoryActivityBasedExpiry: number | null = null;
 let memoryContinueToWorkTransition: boolean = false;
 let memoryTokenCreationTime: number | null = null; // NEW: Track token creation time for dynamic buffer
 let memoryLogoutTransition: boolean = false; // NEW: Track logout transition state
+let memorySessionExpiryModalShowing: boolean = false; // NEW: Track session expiry modal state
 
 /**
  * Memory Storage Class
@@ -188,6 +189,22 @@ export class MemoryStorage {
   }
 
   /**
+   * Store session expiry modal showing state in memory
+   * @param state - Boolean indicating if modal is showing
+   */
+  static setSessionExpiryModalShowing(state: boolean): void {
+    memorySessionExpiryModalShowing = state;
+  }
+
+  /**
+   * Get session expiry modal showing state from memory
+   * @returns Boolean indicating if modal is showing
+   */
+  static getSessionExpiryModalShowing(): boolean {
+    return memorySessionExpiryModalShowing;
+  }
+
+  /**
    * Clear all memory storage data
    * Used for secure cleanup during logout or errors
    * NOTE: Token creation time is preserved for dynamic buffer calculation
@@ -203,6 +220,7 @@ export class MemoryStorage {
     memoryContinueToWorkTransition = false;
     // memoryTokenCreationTime = null; // PRESERVED: Keep token creation time for dynamic buffer calculation
     memoryLogoutTransition = false; // NEW: Clear logout transition state
+    memorySessionExpiryModalShowing = false; // NEW: Clear session expiry modal state
   }
 
   /**
@@ -220,7 +238,8 @@ export class MemoryStorage {
   static hasData(): boolean {
     return !!(memoryAccessToken || memoryUserData || memoryTokenExpiry || 
               memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || 
-              memoryContinueToWorkTransition || memoryTokenCreationTime || memoryLogoutTransition);
+              memoryContinueToWorkTransition || memoryTokenCreationTime || memoryLogoutTransition || 
+              memorySessionExpiryModalShowing);
   }
 
   /**
@@ -238,6 +257,7 @@ export class MemoryStorage {
     hasContinueToWorkTransition: boolean;
     hasTokenCreationTime: boolean; // NEW
     hasLogoutTransition: boolean; // NEW
+    hasSessionExpiryModalShowing: boolean; // NEW
   } {
     return {
       hasAccessToken: !!memoryAccessToken,
@@ -250,6 +270,7 @@ export class MemoryStorage {
       hasContinueToWorkTransition: !!memoryContinueToWorkTransition,
       hasTokenCreationTime: !!memoryTokenCreationTime, // NEW
       hasLogoutTransition: !!memoryLogoutTransition, // NEW
+      hasSessionExpiryModalShowing: !!memorySessionExpiryModalShowing, // NEW
     };
   }
 }

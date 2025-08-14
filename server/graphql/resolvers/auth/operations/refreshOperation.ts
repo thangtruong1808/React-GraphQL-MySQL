@@ -29,8 +29,23 @@ import { AUTH_OPERATIONS_CONFIG, AUTH_OPERATIONS_TYPES } from './constants';
  * FLOW: Read cookie → Find token in DB → Verify hash → Generate new tokens → Store new token → Set cookie → Response
  */
 export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) => {
+  // Debug: Log cookie information for troubleshooting
+  console.log('🔄 Server: Refresh operation - Request details:', {
+    host: req.headers.host,
+    origin: req.headers.origin,
+    referer: req.headers.referer,
+    userAgent: req.headers['user-agent']
+  });
+  console.log('🔄 Server: Refresh operation - Available cookies:', req.cookies ? Object.keys(req.cookies) : 'No cookies');
+  console.log('🔄 Server: Refresh operation - All cookies:', req.cookies);
+  console.log('🔄 Server: Refresh operation - Cookie name being looked for:', AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME);
+  console.log('🔄 Server: Refresh operation - Raw cookie header:', req.headers.cookie);
+  
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
+  
+  console.log('🔄 Server: Refresh operation - Refresh token found:', !!refreshToken);
+  console.log('🔄 Server: Refresh operation - Refresh token value:', refreshToken ? `${refreshToken.substring(0, 10)}...` : 'null');
   
   validateRefreshToken(refreshToken);
 
@@ -40,8 +55,8 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   let validUser: any = null;
 
   // NEW APPROACH: Allow refresh as long as token exists and isn't revoked
-  // The database expiresAt field is only for inactivity-based auto-logout (security)
-  // For "Continue to Work" functionality, the client-side timer is the authority
+  // The database expiresAt field is for long-term session management (8 hours)
+  // For "Continue to Work" functionality, the client-side timer (1 minute) is the authority
   // This provides better user experience while maintaining security
   const storedTokens = await RefreshToken.findAll({
     where: {
@@ -52,6 +67,18 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
     include: [{ model: User, as: 'refreshTokenUser' }],
   });
 
+  // Debug: Log token information for troubleshooting
+  console.log('🔄 Server: Found', storedTokens.length, 'non-revoked tokens');
+  storedTokens.forEach((token, index) => {
+    console.log(`🔄 Server: Token ${index + 1}:`, {
+      id: token.id,
+      userId: token.userId,
+      expiresAt: token.expiresAt,
+      createdAt: token.createdAt,
+      isExpired: token.expiresAt < new Date(),
+      timeUntilExpiry: token.expiresAt.getTime() - Date.now()
+    });
+  });
 
   // Check each token to find a match with enhanced security
   for (const storedToken of storedTokens) {
@@ -60,6 +87,13 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
       if (isValidHash) {
         validToken = storedToken;
         validUser = storedToken.refreshTokenUser;
+        console.log('🔄 Server: Valid token found:', {
+          id: storedToken.id,
+          userId: storedToken.userId,
+          expiresAt: storedToken.expiresAt,
+          isExpired: storedToken.expiresAt < new Date(),
+          timeUntilExpiry: storedToken.expiresAt.getTime() - Date.now()
+        });
         break;
       }
     } catch (hashError) {
@@ -87,12 +121,12 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   // Hash new refresh token
   const newTokenHash = await hashRefreshToken(newRefreshToken);
 
-  // Store new refresh token
+  // Store new refresh token with 8-hour expiry
   await RefreshToken.create({
     id: uuidv4(),
     userId: user.id,
     tokenHash: newTokenHash,
-    expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS),
+    expiresAt: new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS), // 8 hours for database
     isRevoked: false,
   });
 
@@ -111,9 +145,9 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   
   res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, {
     httpOnly: true,
-    secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,
-    sameSite: AUTH_OPERATIONS_CONFIG.COOKIE_SAME_SITE,
-    path: AUTH_OPERATIONS_CONFIG.COOKIE_PATH,
+    secure: false, // Must be false for localhost development
+    sameSite: 'lax', // Use 'lax' for cross-port development
+    path: '/',
     maxAge: cookieMaxAge, // Dynamic buffer-based expiry for "Continue to Work"
   });
 
@@ -171,8 +205,8 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
 
   // Get all valid refresh tokens to find the matching one
   // NEW APPROACH: Allow refresh as long as token exists and isn't revoked
-  // The database expiresAt field is only for inactivity-based auto-logout (security)
-  // For "Continue to Work" functionality, the client-side timer is the authority
+  // The database expiresAt field is for long-term session management (8 hours)
+  // For "Continue to Work" functionality, the client-side timer (1 minute) is the authority
   // This provides better user experience while maintaining security
   const storedTokens = await RefreshToken.findAll({
     where: {
@@ -207,7 +241,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
     });
   }
 
-  // Extend the refresh token expiry
+  // Extend the refresh token expiry by 8 hours
   const newExpiryDate = new Date(Date.now() + JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS);
   await validToken.update({ expiresAt: newExpiryDate });
 

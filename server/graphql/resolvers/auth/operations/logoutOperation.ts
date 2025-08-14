@@ -61,9 +61,9 @@ export const logout = async (req: any, res: any) => {
     // Clear the refresh token cookie
     res.clearCookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, {
       httpOnly: true,
-      secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,
-      sameSite: AUTH_OPERATIONS_CONFIG.COOKIE_SAME_SITE,
-      path: AUTH_OPERATIONS_CONFIG.COOKIE_PATH, // Use root path to match the cookie setting
+      secure: false, // Must be false for localhost development
+      sameSite: 'lax', // Use 'lax' for cross-port development
+      path: '/', // Use root path to match the cookie setting
     });
 
     // Clear CSRF token
@@ -81,9 +81,9 @@ export const logout = async (req: any, res: any) => {
     // Even if there's an error, try to clear the cookie
     res.clearCookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, {
       httpOnly: true,
-      secure: AUTH_OPERATIONS_CONFIG.COOKIE_SECURE,
-      sameSite: AUTH_OPERATIONS_CONFIG.COOKIE_SAME_SITE,
-      path: AUTH_OPERATIONS_CONFIG.COOKIE_PATH,
+      secure: false, // Must be false for localhost development
+      sameSite: 'lax', // Use 'lax' for cross-port development
+      path: '/',
     });
 
     return {

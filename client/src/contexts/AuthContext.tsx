@@ -1,6 +1,7 @@
-import React, { createContext, ReactNode, useContext } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect } from 'react';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
+import { TokenManager } from '../utils/tokenManager/TokenManager';
 
 /**
  * Authentication Context Interface
@@ -140,6 +141,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authState.setShowLoadingSpinner,
     authState.setIsLoading,
   );
+
+  // Sync session expiry modal state with TokenManager
+  useEffect(() => {
+    TokenManager.setSessionExpiryModalShowing(authState.showSessionExpiryModal);
+  }, [authState.showSessionExpiryModal]);
 
   // Context value with all authentication state and functions
   const contextValue: AuthContextType = {

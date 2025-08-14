@@ -13,7 +13,7 @@ export const AUTH_OPERATIONS_CONFIG = {
   REFRESH_TOKEN_COOKIE_NAME: 'jid',
   COOKIE_PATH: '/',
   COOKIE_SECURE: process.env.NODE_ENV === 'production',
-  COOKIE_SAME_SITE: 'lax' as const,
+  COOKIE_SAME_SITE: 'lax' as const, // Use 'lax' for cross-port development
   
   // Response messages
   SUCCESS_MESSAGES: {

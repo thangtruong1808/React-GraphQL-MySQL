@@ -268,11 +268,11 @@ export class TimerCalculator {
     const seconds = countdownSeconds % 60;
     const timeDisplay = `${minutes}m ${seconds}s`;
 
-    // NEW: Progress based on 1-minute refresh token duration (0% to 100%)
-    // This provides a clearer visual representation of the refresh token countdown
-    const refreshTokenDurationSeconds = AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS / 1000; // 1 minute in seconds
-    const elapsedSeconds = refreshTokenDurationSeconds - countdownSeconds;
-    const progressPercentage = Math.min(100, Math.max(0, (elapsedSeconds / refreshTokenDurationSeconds) * 100));
+    // NEW: Progress based on 1-minute modal countdown duration (0% to 100%)
+    // This provides a clearer visual representation of the modal countdown
+    const modalCountdownDurationSeconds = AUTH_CONFIG.MODAL_COUNTDOWN_DURATION / 1000; // 1 minute in seconds
+    const elapsedSeconds = modalCountdownDurationSeconds - countdownSeconds;
+    const progressPercentage = Math.min(100, Math.max(0, (elapsedSeconds / modalCountdownDurationSeconds) * 100));
 
     return {
       timeDisplay,

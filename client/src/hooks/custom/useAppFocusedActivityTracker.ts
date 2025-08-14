@@ -2,6 +2,8 @@ import { useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useRef } from 'react';
 import { updateActivity } from '../../utils/tokenManager';
 import { TokenManager } from '../../utils/tokenManager/TokenManager';
+import { getTokens, isActivityBasedTokenExpired, isTokenExpired } from '../../utils/tokenManager/legacyWrappers';
+import { AUTH_CONFIG } from '../../constants/auth';
 import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES } from '../../constants/activity';
 import { DEBUG_CONFIG } from '../../constants/debug';
 
@@ -32,29 +34,69 @@ export const useAppFocusedActivityTracker = () => {
 
   // Handle user activity - called when any user interaction is detected
   const handleUserActivity = useCallback(async () => {
-    // Check if refresh token timer is actively counting down
-    // If refresh token timer is actively counting down, access token has already expired
-    // User activity should NOT reset access token timer in this case
-    const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
-    
-    // Allow activity updates if:
-    // 1. No refresh token timer active (normal operation)
-    // 2. Refresh token timer cleared (after "Continue to Work")
-    // 3. Refresh token timer expired (should allow activity updates)
-    // 4. User is in "Continue to Work" transition (allow activity to resume)
-    // 5. Refresh token timer is being cleared (allow activity to resume)
-    if (refreshTokenStatus.expiry && 
-        refreshTokenStatus.timeRemaining && 
-        refreshTokenStatus.timeRemaining > 0 && 
-        !refreshTokenStatus.isContinueToWorkTransition) {
-      // Refresh token timer is actively counting down and not in transition - don't update activity
-      // This prevents access token timer from being reset when it has already expired
-      return;
+    try {
+      // Step 1: Check if session expiry modal is showing
+      // If modal is showing, skip activity updates to prevent interference
+      const isModalShowing = TokenManager.isSessionExpiryModalShowing();
+      if (isModalShowing) {
+        console.log('🔄 App focused activity tracker: Session expiry modal showing - skipping activity update');
+        return;
+      }
+
+      // Step 2: Get refresh token status asynchronously to avoid race conditions
+      const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
+      
+      // Step 3: Check if refresh token timer is actively counting down
+      // If refresh token timer is actively counting down, access token has already expired
+      // User activity should NOT reset access token timer in this case
+      const isRefreshTokenActive = refreshTokenStatus.expiry &&
+                                  refreshTokenStatus.timeRemaining &&
+                                  refreshTokenStatus.timeRemaining > 0;
+
+      const isInTransition = refreshTokenStatus.isContinueToWorkTransition;
+
+      // Step 4: Determine if activity update should be skipped
+      // Skip activity update if:
+      // 1. Refresh token timer is actively counting down AND not in transition, OR
+      // 2. User is in "Continue to Work" transition, OR
+      // 3. User is in logout transition
+      // This prevents activity updates from interfering with the refresh token flow
+      if ((isRefreshTokenActive && !isInTransition) || 
+          isInTransition || 
+          refreshTokenStatus.isLogoutTransition) {
+        // Skip activity update to preserve refresh token timer and prevent interference
+        return;
+      }
+      
+      // Step 5: Additional check - if refresh token timer hasn't started yet, allow activity updates
+      // This ensures normal activity tracking continues until the modal appears
+      if (!refreshTokenStatus.expiry) {
+        console.log('🔄 App focused activity tracker: No refresh token timer active - allowing activity update');
+      }
+      
+      // Step 6: Additional safety check - only allow activity updates if access token is still valid
+      // This prevents activity updates from interfering with expired tokens
+      const tokens = getTokens();
+      if (tokens.accessToken) {
+        let isAccessTokenStillValid = false;
+        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+          isAccessTokenStillValid = !isActivityBasedTokenExpired();
+        } else {
+          isAccessTokenStillValid = !isTokenExpired(tokens.accessToken);
+        }
+        
+        if (!isAccessTokenStillValid) {
+          console.log('🔄 App focused activity tracker: Access token expired - skipping activity update');
+          return;
+        }
+      }
+      
+      // Step 7: Update activity for access token timer asynchronously
+      // Focus check is handled at the event level, not here
+      await updateActivity();
+    } catch (error) {
+      console.error('❌ Error in handleUserActivity:', error);
     }
-    
-    // Normal case: Update activity for access token timer
-    // Focus check is handled at the event level, not here
-    updateActivity();
   }, []);
 
   // Track navigation changes

@@ -156,6 +156,7 @@ export const useAuthActions = (
       
       // Debug: Check if refresh token cookie exists
       console.log('🔄 Checking refresh token cookie before mutation...');
+      console.log('🔄 Raw document.cookie:', document.cookie);
       const cookies = document.cookie.split(';').reduce((acc, cookie) => {
         const [key, value] = cookie.trim().split('=');
         acc[key] = value;
@@ -163,6 +164,8 @@ export const useAuthActions = (
       }, {} as Record<string, string>);
       console.log('🔄 Available cookies:', Object.keys(cookies));
       console.log('🔄 Refresh token cookie exists:', !!cookies.jid);
+      console.log('🔄 All cookies:', cookies);
+      console.log('🔄 Cookie parsing result:', cookies);
       
       const result = await refreshTokenMutation({
         variables: {
@@ -428,6 +431,15 @@ export const useAuthActions = (
       if (loginData.csrfToken) {
         setApolloCSRFToken(loginData.csrfToken);
       }
+
+      // Debug: Check cookies after login
+      console.log('🔄 After login - checking cookies...');
+      const cookiesAfterLogin = document.cookie.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
+      console.log('🔄 Cookies after login:', cookiesAfterLogin);
 
       return { success: true, user: loginData.user };
     } catch (error: any) {

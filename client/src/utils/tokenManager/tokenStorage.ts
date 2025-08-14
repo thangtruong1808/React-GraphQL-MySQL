@@ -237,9 +237,9 @@ export class TokenStorage {
         MemoryStorage.setTokenExpiry(expiry);
       }
 
-      // Set refresh token expiry - should be 4 minutes from NOW (when tokens are refreshed)
-      // This ensures refresh token countdown shows 4 minutes from the moment tokens are refreshed
-      const refreshTokenExpiry = Date.now() + AUTH_CONFIG.REFRESH_TOKEN_EXPIRY_MS;
+      // Set refresh token expiry - should be 1 minute from NOW (when tokens are refreshed)
+      // This ensures refresh token countdown shows 1 minute from the moment tokens are refreshed
+      const refreshTokenExpiry = Date.now() + AUTH_CONFIG.MODAL_COUNTDOWN_DURATION;
       MemoryStorage.setRefreshTokenExpiry(refreshTokenExpiry);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
@@ -332,5 +332,27 @@ export class TokenStorage {
    */
   static getLogoutTransition(): boolean {
     return MemoryStorage.getLogoutTransition();
+  }
+
+  /**
+   * Check if session expiry modal is showing
+   * @returns Boolean indicating if session expiry modal is visible
+   * 
+   * CALLED BY: Activity tracker to prevent activity updates when modal is showing
+   * SCENARIOS: Preventing activity interference during modal display
+   */
+  static isSessionExpiryModalShowing(): boolean {
+    return MemoryStorage.getSessionExpiryModalShowing();
+  }
+
+  /**
+   * Set session expiry modal state
+   * @param isShowing - Whether the session expiry modal is visible
+   * 
+   * CALLED BY: AuthContext when modal state changes
+   * SCENARIOS: Modal show/hide state management
+   */
+  static setSessionExpiryModalShowing(isShowing: boolean): void {
+    MemoryStorage.setSessionExpiryModalShowing(isShowing);
   }
 }

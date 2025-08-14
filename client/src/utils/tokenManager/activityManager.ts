@@ -19,16 +19,22 @@ export class ActivityManager {
    * CALLED BY: AuthContext when user is active
    * SCENARIOS: All user interactions - updates last activity time
    */
-  static updateActivity(): void {
+  static async updateActivity(): Promise<void> {
     try {
       const now = Date.now();
+      
+      // Step 1: Update last activity timestamp
       MemoryStorage.setLastActivity(now);
       
-      // Reset activity-based token expiry (1 minute from now)
+      // Step 2: Reset activity-based token expiry (1 minute from now)
       const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
       MemoryStorage.setActivityBasedExpiry(activityExpiry);
+      
+      // Step 3: Ensure all operations are completed before returning
+      await new Promise(resolve => setTimeout(resolve, 0));
     } catch (error) {
       console.error('❌ Error updating activity:', error);
+      throw error; // Re-throw to allow proper error handling
     }
   }
 
