@@ -50,6 +50,7 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
   const handleContinueWorking = async () => {
     setIsRefreshing(true);
     try {
+      // Immediately show loading state to prevent user confusion
       const success = await onRefresh();
       if (success) {
         setProgress(100); // Complete the progress bar
@@ -60,7 +61,7 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
         await handleLogout();
       }
     } catch (error) {
-      console.error('Error refreshing session:', error);
+      // Error refreshing session - show error and logout
       await handleLogout();
     } finally {
       setIsRefreshing(false);

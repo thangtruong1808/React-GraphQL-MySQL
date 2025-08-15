@@ -26,6 +26,8 @@ export const useAuthInitializer = (
 ) => {
   // Ref to track if auth has been initialized (prevents duplicate initialization)
   const isInitializedRef = useRef(false);
+  
+
 
   /**
    * Initialize authentication state
@@ -34,10 +36,6 @@ export const useAuthInitializer = (
    */
   const initializeAuth = useCallback(async () => {
     try {
-      if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-        // Debug logging disabled for better user experience
-      }
-      
       setIsInitializing(true);
 
       // Start delayed loading spinner timer
@@ -55,10 +53,6 @@ export const useAuthInitializer = (
 
         // Check if we have a valid access token in memory
         if (tokens.accessToken) {
-          if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-            // Debug logging disabled for better user experience
-          }
-
           // Check if access token is expired (using activity-based validation if enabled)
           let isExpired = false;
           if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
@@ -68,57 +62,42 @@ export const useAuthInitializer = (
           }
 
           if (isExpired) {
-            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-              // Debug logging disabled for better user experience
-            }
             // Try to refresh the access token using the refresh token from httpOnly cookie
             const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
             if (!refreshSuccess) {
-              if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-                // Debug logging disabled for better user experience
-              }
               await performCompleteLogout();
               return;
             }
             // refreshAccessToken already sets user data, so we're done
-            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-              // Debug logging disabled for better user experience
-            }
             return;
           } else {
-            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-              // Debug logging disabled for better user experience
-            }
             // Token is valid, fetch user data
             await fetchCurrentUser();
             return;
           }
         } else {
-          if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-            // Debug logging disabled for better user experience
-          }
           // No access token found in memory - this could be:
           // 1. A new user (no refresh token in cookie)
           // 2. A returning user after browser refresh (has refresh token in cookie)
           
-          // FIXED: Always attempt session restoration when no access token in memory
-          // The refresh token is stored in httpOnly cookies, not in memory
-          // So we can't check memory for refresh token expiry - we need to try the server
+          // Always attempt session restoration - let server handle HttpOnly cookie validation
+          // HttpOnly cookies are not accessible via JavaScript, so we can't check them client-side
+          console.log('🔍 AuthInitializer - No access token found, attempting session restoration...');
           
-          // Attempt to restore session using refresh token from httpOnly cookie
+          // Attempt to restore session using refresh token from HttpOnly cookie
+          // The browser will automatically send the HttpOnly cookie with this request
           const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)
+          console.log('🔍 AuthInitializer - Session restoration result:', refreshSuccess);
+          
           if (!refreshSuccess) {
-            if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-              // Debug logging disabled for better user experience
-            }
+            console.log('🔍 AuthInitializer - Session restoration failed, new user');
             // No valid refresh token found - this is a new user
             // Let them see the login page naturally
             return;
           }
+          
           // refreshAccessToken already sets user data, so we're done
-          if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-            // Debug logging disabled for better user experience
-          }
+          console.log('🔍 AuthInitializer - Session restoration successful');
           return;
         }
       })();
@@ -130,14 +109,7 @@ export const useAuthInitializer = (
       clearTimeout(loadingTimer);
       setShowLoadingSpinner(false);
 
-      if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-        // Debug logging disabled for better user experience
-      }
-
     } catch (error) {
-      if (DEBUG_CONFIG.ENABLE_AUTH_DEBUG_LOGGING) {
-        // Debug logging disabled for better user experience
-      }
       setShowLoadingSpinner(false);
       
       // Only perform logout if it's not a timeout error (first-time users)
@@ -152,11 +124,20 @@ export const useAuthInitializer = (
 
   // Initialize authentication on mount (only once)
   useEffect(() => {
+    // Check if we have tokens to determine if we should initialize
+    const tokens = getTokens();
+    const hasTokens = !!tokens.accessToken;
+    
+    // Reset initialization state if no tokens are present (fresh start or browser refresh)
+    if (!hasTokens && isInitializedRef.current) {
+      isInitializedRef.current = false;
+    }
+    
     if (!isInitializedRef.current) {
       isInitializedRef.current = true;
       initializeAuth();
     }
-  }, [initializeAuth]);
+  }, []); // Empty dependency array to prevent infinite loops
 
   return {
     initializeAuth,

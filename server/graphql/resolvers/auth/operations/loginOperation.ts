@@ -6,7 +6,7 @@
 
 import { GraphQLError } from 'graphql';
 import { v4 as uuidv4 } from 'uuid';
-import { JWT_CONFIG } from '../../../../constants';
+import { JWT_CONFIG, AUTH_CONFIG } from '../../../../constants';
 import { RefreshToken, User } from '../../../../db';
 import { setCSRFToken } from '../../../../auth/csrf';
 import { generateAccessToken, generateRefreshToken, hashRefreshToken } from '../tokenManager';
@@ -110,41 +110,19 @@ export const login = async (input: { email: string; password: string }, res: any
 
 
     // Set refresh token as httpOnly cookie
-    // Cookie expiry remains at 2 minutes for client-side functionality
-    // The database expires_at field is 8 hours for long-term session management
-    const cookieMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds for cookie
-    
-    // Debug: Log request details to understand cookie domain/path issues
-    // Request details for cookie setting
+    // Cookie expiry should match database expiry (8 hours) to ensure session persistence across browser refreshes
+    // The client-side timer (1 minute) is for UI countdown, not cookie expiry
+    const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS; // 8 hours to match database expiry
     
     // Use consistent cookie configuration from constants
     const cookieConfig = {
-      httpOnly: true,
-      secure: false, // Must be false for localhost development
-      sameSite: 'lax' as const, // Use 'lax' for cross-port development
-      path: '/',
-      maxAge: cookieMaxAge, // Extended expiry to allow "Continue to Work"
-      // No domain setting - allows cross-port cookie sharing in development
+      ...AUTH_CONFIG.COOKIE_OPTIONS,
+      maxAge: cookieMaxAge, // 8 hours to ensure session persistence
     };
     
     // Setting refresh token cookie with config
-    
     res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieConfig);
     
-    // Refresh token cookie set successfully
-    
-    // Debug: Check if cookie was actually set in response headers
-    // Response headers after setting cookie
-    
-    // Debug: Check if cookie was actually set in response
-    const setCookieHeader = res.getHeaders()['set-cookie'];
-    // Set-Cookie header value
-    // Set-Cookie header type
-    // Set-Cookie header length
-    
-    // Debug: Log the actual cookie that was set
-    // Cookie details set
-
     // Set CSRF token for future mutations
     const csrfToken = setCSRFToken(res);
     

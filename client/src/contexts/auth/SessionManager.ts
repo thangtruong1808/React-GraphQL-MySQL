@@ -50,7 +50,7 @@ export const useSessionManager = (
 ) => {
   // Timer ref for activity and session checking
   const activityTimerRef = useRef<NodeJS.Timeout | null>(null);
-
+  
   /**
    * Check session and user activity
    * Runs periodically to manage session based on activity and timeouts
@@ -78,10 +78,18 @@ export const useSessionManager = (
       const refreshTokenExpired = await isRefreshTokenExpired();
 
       if (refreshTokenExpired) {
-        setShowSessionExpiryModal(false);
-        showNotification('Your session has expired due to inactivity. Please log in again.', 'info');
-        await performCompleteLogout();
-        return;
+        // Check if "Continue to Work" has been clicked or refresh operation is in progress
+        // This prevents showing timeout message during refresh operations
+        if (TokenManager.getContinueToWorkTransition() || TokenManager.getRefreshOperationInProgress()) {
+          // User clicked "Continue to Work" or refresh is in progress - don't show timeout message
+          return;
+        } else {
+          // No transition in progress - proceed with timeout message
+          setShowSessionExpiryModal(false);
+          showNotification('Your session has expired due to inactivity. Please log in again.', 'info');
+          await performCompleteLogout();
+          return;
+        }
       }
 
       // Get refresh token status for session management
@@ -120,10 +128,19 @@ export const useSessionManager = (
           const autoLogoutDelay = AUTH_CONFIG.MODAL_AUTO_LOGOUT_DELAY;
           
           const autoLogoutTimer = setTimeout(async () => {
-            // Debug logging disabled for better user experience
-            setShowSessionExpiryModal(false);
-            showNotification('Session expired due to inactivity. Please log in again.', 'info');
-            await performCompleteLogout();
+            // Check if "Continue to Work" has been clicked or refresh operation is in progress
+            // This prevents race conditions where auto-logout fires while refresh is processing
+            if (TokenManager.getContinueToWorkTransition() || TokenManager.getRefreshOperationInProgress()) {
+              // User clicked "Continue to Work" or refresh is in progress - cancel auto-logout
+              setModalAutoLogoutTimer(null);
+              return;
+            } else {
+              // No transition in progress - proceed with auto-logout
+              setModalAutoLogoutTimer(null);
+              setShowSessionExpiryModal(false);
+              showNotification('Session expired due to inactivity. Please log in again.', 'info');
+              await performCompleteLogout();
+            }
           }, autoLogoutDelay);
 
           setModalAutoLogoutTimer(autoLogoutTimer);
@@ -212,7 +229,9 @@ export const useSessionManager = (
         // No access token found in memory - this could be:
         // 1. A new user (no refresh token in cookie)
         // 2. A returning user after browser refresh (has refresh token in cookie)
-        // Attempt to restore session using refresh token from httpOnly cookie
+        
+        // Always attempt session restoration - let server handle HttpOnly cookie validation
+        // HttpOnly cookies are not accessible via JavaScript, so we can't check them client-side
         const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)
         return refreshSuccess;
       }
@@ -235,7 +254,7 @@ export const useSessionManager = (
       }
       return true;
     } catch (error) {
-      console.error('❌ Error in validateSession:', error);
+      // Error in validateSession
       return false;
     }
   }, [refreshAccessToken]);
@@ -284,7 +303,7 @@ export const useSessionManager = (
         }
       }
     } catch (error) {
-      console.error('❌ Error handling user activity:', error);
+      // Error handling user activity
     }
   }, [refreshAccessToken, showSessionExpiryModal]);
 
@@ -295,6 +314,22 @@ export const useSessionManager = (
   const hasRole = useCallback((role: string): boolean => {
     return user?.role === role;
   }, [user]);
+
+  /**
+   * Pause auto-logout timer during refresh operations
+   * Prevents auto-logout from interfering with refresh operations
+   */
+  const pauseAutoLogoutForRefresh = useCallback(() => {
+    TokenManager.setRefreshOperationInProgress(true);
+  }, []);
+
+  /**
+   * Resume auto-logout timer after refresh operations
+   * Allows auto-logout to continue after refresh completes
+   */
+  const resumeAutoLogoutAfterRefresh = useCallback(() => {
+    TokenManager.setRefreshOperationInProgress(false);
+  }, []);
 
   // Set up activity tracking when user becomes authenticated
   useEffect(() => {
@@ -315,5 +350,7 @@ export const useSessionManager = (
     checkSessionAndActivity,
     setupActivityTracking,
     hasRole,
+    pauseAutoLogoutForRefresh,
+    resumeAutoLogoutAfterRefresh,
   };
 }; 

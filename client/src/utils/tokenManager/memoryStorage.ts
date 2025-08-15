@@ -18,6 +18,7 @@ let memoryContinueToWorkTransition: boolean = false;
 let memoryTokenCreationTime: number | null = null; // NEW: Track token creation time for dynamic buffer
 let memoryLogoutTransition: boolean = false; // NEW: Track logout transition state
 let memorySessionExpiryModalShowing: boolean = false; // NEW: Track session expiry modal state
+let memoryRefreshOperationInProgress: boolean = false; // NEW: Track refresh operation state
 
 /**
  * Memory Storage Class
@@ -204,12 +205,21 @@ export class MemoryStorage {
     return memorySessionExpiryModalShowing;
   }
 
+  // NEW: Refresh operation state management
+  static setRefreshOperationInProgress(isInProgress: boolean): void {
+    memoryRefreshOperationInProgress = isInProgress;
+  }
+  static getRefreshOperationInProgress(): boolean {
+    return memoryRefreshOperationInProgress;
+  }
+
   /**
    * Clear all memory storage data
    * Used for secure cleanup during logout or errors
    * NOTE: Token creation time is preserved for dynamic buffer calculation
    */
   static clearAll(): void {
+    // Clear all memory storage
     memoryAccessToken = null;
     memoryUserData = null;
     memoryTokenExpiry = null;
@@ -217,10 +227,11 @@ export class MemoryStorage {
 
     memoryLastActivity = null;
     memoryActivityBasedExpiry = null;
-    memoryContinueToWorkTransition = false;
-    // memoryTokenCreationTime = null; // PRESERVED: Keep token creation time for dynamic buffer calculation
+    memoryContinueToWorkTransition = false; // NEW: Clear continue to work transition state
+    memoryTokenCreationTime = null;
     memoryLogoutTransition = false; // NEW: Clear logout transition state
     memorySessionExpiryModalShowing = false; // NEW: Clear session expiry modal state
+    memoryRefreshOperationInProgress = false; // NEW: Clear refresh operation state
   }
 
   /**
@@ -236,10 +247,19 @@ export class MemoryStorage {
    * @returns Boolean indicating if any data exists
    */
   static hasData(): boolean {
-    return !!(memoryAccessToken || memoryUserData || memoryTokenExpiry || 
-              memoryRefreshTokenExpiry || memoryLastActivity || memoryActivityBasedExpiry || 
-              memoryContinueToWorkTransition || memoryTokenCreationTime || memoryLogoutTransition || 
-              memorySessionExpiryModalShowing);
+    return !!(
+      memoryAccessToken ||
+      memoryUserData ||
+      memoryTokenExpiry ||
+      memoryRefreshTokenExpiry ||
+      memoryLastActivity ||
+      memoryActivityBasedExpiry ||
+      memoryContinueToWorkTransition ||
+      memoryTokenCreationTime ||
+      memoryLogoutTransition ||
+      memorySessionExpiryModalShowing ||
+      memoryRefreshOperationInProgress
+    );
   }
 
   /**
@@ -258,6 +278,7 @@ export class MemoryStorage {
     hasTokenCreationTime: boolean; // NEW
     hasLogoutTransition: boolean; // NEW
     hasSessionExpiryModalShowing: boolean; // NEW
+    hasRefreshOperationInProgress: boolean; // NEW
   } {
     return {
       hasAccessToken: !!memoryAccessToken,
@@ -271,6 +292,7 @@ export class MemoryStorage {
       hasTokenCreationTime: !!memoryTokenCreationTime, // NEW
       hasLogoutTransition: !!memoryLogoutTransition, // NEW
       hasSessionExpiryModalShowing: !!memorySessionExpiryModalShowing, // NEW
+      hasRefreshOperationInProgress: !!memoryRefreshOperationInProgress, // NEW
     };
   }
 }

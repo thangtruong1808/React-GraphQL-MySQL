@@ -94,34 +94,7 @@ export const useActivityTracker = () => {
       // 2. Refresh token timer cleared (after "Continue to Work")
       // 3. Refresh token timer expired (should allow activity updates)
       // 4. User is in "Continue to Work" transition (allow activity to resume)
-      // Activity tracker: Updating activity timestamp
-      // Activity tracker: Refresh token status before update
-      
-      // Debug - Check refresh token cookie before updating activity
-      const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-      // Activity tracker: Refresh token cookie exists before update
-      // Activity tracker: All cookies before update
-      
-      // Step 5: Update activity for access token timer asynchronously
-      // This includes:
-      // 1. No refresh token timer active (normal operation)
-      // 2. Refresh token timer cleared (after "Continue to Work")
-      // 3. Refresh token timer expired (should allow activity updates)
-      // 4. User is in "Continue to Work" transition (allow activity to resume)
       await updateActivity();
-      
-      // Step 6: Debug - Check refresh token cookie after updating activity
-      const cookiesAfter = document.cookie.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-      // Activity tracker: Refresh token cookie exists after update
-      // Activity tracker: All cookies after update
     } catch (error) {
       // Error in handleUserActivity
     }

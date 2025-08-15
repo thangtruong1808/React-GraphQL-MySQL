@@ -1,10 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { LOGIN, LOGOUT, REFRESH_TOKEN, REFRESH_TOKEN_RENEWAL } from '../../services/graphql/mutations';
 import { GET_CURRENT_USER } from '../../services/graphql/queries';
 import { LoginInput, User } from '../../types/graphql';
 import { clearCSRFToken as clearApolloCSRFToken, setCSRFToken as setApolloCSRFToken } from '../../services/graphql/apollo-client';
-import { clearTokens, saveTokens, TokenManager } from '../../utils/tokenManager';
+import { getTokens, clearTokens, saveTokens, TokenManager } from '../../utils/tokenManager';
 import { RefreshTokenManager } from '../../utils/tokenManager/refreshTokenManager';
 import { useApolloClient } from '@apollo/client';
 import { DEBUG_CONFIG, AUTH_CONFIG } from '../../constants';
@@ -48,6 +48,8 @@ export const useAuthActions = (
   setLastModalShowTime: (time: number | null) => void,
   setModalAutoLogoutTimer: (timer: NodeJS.Timeout | null) => void,
   modalAutoLogoutTimer: NodeJS.Timeout | null,
+  pauseAutoLogoutForRefresh?: () => void,
+  resumeAutoLogoutAfterRefresh?: () => void,
 ) => {
   const client = useApolloClient();
   const { showError } = useError();
@@ -60,11 +62,11 @@ export const useAuthActions = (
   const [refreshTokenRenewalMutation] = useMutation(REFRESH_TOKEN_RENEWAL);
 
   /**
-   * Perform complete logout - clears all authentication data
+   * Perform complete logout - Clears all authentication data
    * Used for both manual logout and automatic logout scenarios
    */
   const performCompleteLogout = useCallback(async () => {
-    // Clear modal auto-logout timer
+    // Clear modal auto-logout timer using ref for immediate access
     if (modalAutoLogoutTimer) {
       clearTimeout(modalAutoLogoutTimer);
       setModalAutoLogoutTimer(null);
@@ -83,9 +85,11 @@ export const useAuthActions = (
     TokenManager.clearTokenCreationTime();
     
     // Clear refresh token expiry timer
-    await TokenManager.clearRefreshTokenExpiry();
-    
-
+    try {
+      await TokenManager.clearRefreshTokenExpiry();
+    } catch (error) {
+      // Refresh token expiry clearing failed - not critical for logout
+    }
     
     setUser(null);
     setIsAuthenticated(false);
@@ -97,7 +101,7 @@ export const useAuthActions = (
     try {
       await client.clearStore();
     } catch (cacheError) {
-      console.warn('⚠️ Error clearing Apollo cache:', cacheError);
+      // Cache clearing failed - this is not critical for logout
     }
   }, [client, modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated]);
 
@@ -120,33 +124,26 @@ export const useAuthActions = (
       });
       
       // Check if refresh token has sufficient time remaining
-      if (timeRemaining && timeRemaining <= 0) {
-        // Refresh token is already expired
+      // Allow refresh even with 0 time remaining - server will validate
+      // This prevents the client-side timer from blocking legitimate refresh attempts
+      if (timeRemaining === null) {
+        // No refresh token timer set - this is unusual but allow the attempt
         logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
-          error: 'refresh_token_expired',
+          info: 'no_refresh_timer_set_allowing_attempt',
           isSessionRestoration 
         });
-        return false;
+      } else if (timeRemaining <= 0) {
+        // Time remaining is 0 or negative, but still allow the attempt
+        // The server-side validation will be the authority on whether the refresh token is still valid
+        logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
+          info: 'time_remaining_zero_allowing_attempt',
+          isSessionRestoration 
+        });
       }
       
       // Calculate dynamic buffer time for server-side cookie expiry
       const dynamicBuffer = TokenManager.calculateDynamicBuffer();
       // Dynamic buffer time
-      
-      // Debug: Check refresh token cookie before mutation
-      // Checking refresh token cookie before mutation...
-      // Raw document.cookie
-      
-      const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-      
-      // Available cookies
-      // Refresh token cookie exists
-      // All cookies
-      // Cookie parsing result
       
       // Call refresh token mutation with dynamic buffer
       const result = await refreshTokenMutation({
@@ -330,6 +327,15 @@ export const useAuthActions = (
    */
   const fetchCurrentUser = useCallback(async () => {
     try {
+      // Check if we have tokens before making the GraphQL call
+      const tokens = getTokens();
+      if (!tokens.accessToken) {
+        // No access token - don't make GraphQL call
+        setUser(null);
+        setIsAuthenticated(false);
+        return;
+      }
+      
       const { data } = await getCurrentUser();
       if (data?.currentUser) {
         setUser(data.currentUser);
@@ -381,15 +387,6 @@ export const useAuthActions = (
         setApolloCSRFToken(loginData.csrfToken);
       }
 
-      // Debug: Check cookies after login
-      // After login - checking cookies...
-      const cookiesAfterLogin = document.cookie.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-      // Cookies after login
-
       return { success: true, user: loginData.user };
     } catch (error: any) {
       const errorMessage = error.message || 'Login failed';
@@ -407,9 +404,19 @@ export const useAuthActions = (
   const logout = useCallback(async () => {
     try {
       setLogoutLoading(true);
-      await logoutMutation();
+      
+      // Try to call server logout, but don't fail if it errors
+      // This prevents CSRF errors from showing to the user
+      try {
+        await logoutMutation();
+      } catch (serverError) {
+        // Server logout failed (likely due to CSRF or network issues)
+        // This is expected during logout, so we don't show errors to user
+        // Continue with local cleanup regardless
+      }
     } catch (error) {
-      console.warn('⚠️ Server logout failed, but continuing with local cleanup:', error);
+      // Any other unexpected errors during logout
+      // Don't show errors to user during logout process
     } finally {
       await performCompleteLogout();
       setLogoutLoading(false);
@@ -450,7 +457,7 @@ export const useAuthActions = (
       
       // Clear Apollo cache in background (non-blocking)
       client.clearStore().catch(cacheError => {
-        console.warn('⚠️ Error clearing Apollo cache:', cacheError);
+        // Cache clearing failed - this is not critical for logout
       });
       
       // Small delay to ensure state changes are processed
@@ -459,19 +466,20 @@ export const useAuthActions = (
       // Clear logout transition state
       TokenManager.setLogoutTransition(false);
     } catch (error) {
-      console.error('❌ Error during logout from modal:', error);
+      // Error during logout from modal - ensure cleanup still happens
       // Clear logout transition state on error
       TokenManager.setLogoutTransition(false);
-      throw error;
+      
+      // Don't throw error to prevent error messages during logout
+      // Logout should always succeed from user perspective
     }
   }, [modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated, client]);
 
   /**
-   * Refresh session when user clicks "Continue to Work"
-   * Handles both access token refresh and refresh token renewal
-   * Enhanced with improved timing logic for better reliability
+   * Wrapper function for refresh session with auto-logout pause/resume
+   * Prevents auto-logout from interfering with refresh operations
    */
-  const refreshSession = useCallback(async (): Promise<boolean> => {
+  const refreshSessionWithAutoLogoutControl = useCallback(async (): Promise<boolean> => {
     // Prevent multiple simultaneous refresh attempts
     if (TokenManager.getContinueToWorkTransition()) {
       // Refresh already in progress, skipping duplicate call
@@ -479,31 +487,28 @@ export const useAuthActions = (
     }
     
     try {
-      // Clear auto logout timer when user chooses to continue working
-      if (modalAutoLogoutTimer) {
-        clearTimeout(modalAutoLogoutTimer);
-        setModalAutoLogoutTimer(null);
-      }
-      
       // Get refresh token status to check timing
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       const timeRemaining = refreshTokenStatus.timeRemaining;
       
-      // For manual refresh (Continue to Work), use improved timing logic with async/await
+      // For manual refresh (Continue to Work), allow refresh even with 0 time remaining
+      // The server-side validation will be the authority on whether the refresh token is still valid
+      // This prevents the client-side timer from blocking legitimate refresh attempts
       let shouldProceed = true;
       let expiryCheckReason = '';
       
       const originalTimeRemaining = refreshTokenStatus.timeRemaining;
       
-      // Check if refresh token has sufficient time remaining
-      if (originalTimeRemaining && originalTimeRemaining <= 0) {
-        // Refresh token is already expired
-        shouldProceed = false;
-        expiryCheckReason = 'refresh_token_expired';
+      // Allow refresh as long as refresh token exists (even with 0 time remaining)
+      // The server will handle the actual validation and timing
+      if (originalTimeRemaining === null) {
+        // No refresh token timer set - this is unusual but allow the attempt
+        shouldProceed = true;
+        expiryCheckReason = 'no_refresh_timer_set';
       } else {
-        // Allow refresh as long as token is not expired
-        // The server-side validation will handle any timing issues
-        expiryCheckReason = 'refresh_token_sufficient_time';
+        // Allow refresh even with 0 time remaining - server will validate
+        shouldProceed = true;
+        expiryCheckReason = 'allow_refresh_attempt';
       }
       
       // Log timing information for debugging
@@ -528,6 +533,9 @@ export const useAuthActions = (
       // Set transition state for visual feedback
       TokenManager.setContinueToWorkTransition(true);
       
+      // Set refresh operation in progress to prevent auto-logout
+      TokenManager.setRefreshOperationInProgress(true);
+      
       // IMPROVED LOGIC: Use direct access token refresh with better error handling
       logTokenRefreshTiming('refresh_access_token_direct', timeRemaining, { 
         reason: 'improved_refresh_logic' 
@@ -539,6 +547,9 @@ export const useAuthActions = (
       
       // Clear transition state
       TokenManager.setContinueToWorkTransition(false);
+      
+      // Clear refresh operation state
+      TokenManager.setRefreshOperationInProgress(false);
       
       if (refreshSuccess) {
         // Refresh success - proceeding with success flow
@@ -597,7 +608,7 @@ export const useAuthActions = (
     login,
     logout,
     logoutFromModal, // NEW: Logout from modal with transition state
-    refreshSession,
+    refreshSession: refreshSessionWithAutoLogoutControl,
     refreshAccessToken,
     renewRefreshToken,
     fetchCurrentUser,

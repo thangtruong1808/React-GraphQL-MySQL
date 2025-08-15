@@ -450,4 +450,12 @@ export class TokenManager {
   static setSessionExpiryModalShowing(isShowing: boolean): void {
     TokenStorage.setSessionExpiryModalShowing(isShowing);
   }
+
+  // NEW: Refresh operation state management
+  static setRefreshOperationInProgress(isInProgress: boolean): void {
+    TokenStorage.setRefreshOperationInProgress(isInProgress);
+  }
+  static getRefreshOperationInProgress(): boolean {
+    return TokenStorage.getRefreshOperationInProgress();
+  }
 }

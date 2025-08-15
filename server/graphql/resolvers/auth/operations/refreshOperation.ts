@@ -6,7 +6,7 @@
 
 import { GraphQLError } from 'graphql';
 import { v4 as uuidv4 } from 'uuid';
-import { JWT_CONFIG } from '../../../../constants';
+import { JWT_CONFIG, AUTH_CONFIG } from '../../../../constants';
 import { RefreshToken, User } from '../../../../db';
 import { setCSRFToken } from '../../../../auth/csrf';
 import { generateAccessToken, generateRefreshToken, hashRefreshToken, verifyRefreshTokenHash } from '../tokenManager';
@@ -117,17 +117,13 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
 
 
   // Set new refresh token as httpOnly cookie
-  // Use dynamic buffer time for cookie expiry based on user's session duration
-  // This provides better user experience by allowing appropriate buffer time for "Continue to Work"
-  const bufferTime = dynamicBuffer || 30000; // Default to 30 seconds if no dynamic buffer provided
-  const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS + bufferTime;
+  // Cookie expiry should match database expiry (8 hours) to ensure session persistence across browser refreshes
+  // The client-side timer (1 minute) is for UI countdown, not cookie expiry
+  const cookieMaxAge = JWT_CONFIG.REFRESH_TOKEN_EXPIRY_MS; // 8 hours to match database expiry
   
   res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, newRefreshToken, {
-    httpOnly: true,
-    secure: false, // Must be false for localhost development
-    sameSite: 'lax', // Use 'lax' for cross-port development
-    path: '/',
-    maxAge: cookieMaxAge, // Dynamic buffer-based expiry for "Continue to Work"
+    ...AUTH_CONFIG.COOKIE_OPTIONS,
+    maxAge: cookieMaxAge, // 8 hours to ensure session persistence
   });
 
   // Set new CSRF token for future mutations

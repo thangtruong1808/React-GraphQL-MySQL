@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Authentication state management
   const authState = useAuthState();
 
-  // Authentication actions management
+  // Authentication actions management (initial version without pause/resume)
   const authActions = useAuthActions(
     authState.setUser,
     authState.setIsAuthenticated,

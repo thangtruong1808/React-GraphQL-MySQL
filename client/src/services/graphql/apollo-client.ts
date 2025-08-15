@@ -154,45 +154,18 @@ const authLink = setContext((_, { headers }) => {
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path, extensions }) => {
-      // Handle expected "Refresh token is required" error gracefully
-      // This is normal for new users who haven't logged in yet
-      // Don't log it as an error, but let it propagate to the mutation
-      if (message === 'Refresh token is required') {
-        // Don't log as error - this is expected for new users
-        // Continue to the next error or let it propagate
-        return;
-      }
-      
-      console.error(`GraphQL error: ${message}`, { locations, path, extensions });
-      
-      // Handle authentication errors (including force logout)
+      // Handle GraphQL errors
       if (extensions?.code === 'UNAUTHENTICATED') {
-        // Debug logging disabled for better user experience
-        
-        // Check if this is a currentUser query (which should trigger refresh)
-        const isCurrentUserQuery = operation.operationName === 'GetCurrentUser' || 
-                                  path?.includes('currentUser');
-        
-        if (isCurrentUserQuery) {
-          // Don't clear tokens here - let AuthContext handle the refresh
-          return;
-        }
-        
-        // For other queries, don't immediately redirect - let AuthContext handle session expiry
-        // Don't clear tokens or redirect - AuthContext will show session expiry modal
-        return;
-      }
-
-      // Handle too many sessions error
-      if (extensions?.code === 'TOO_MANY_SESSIONS') {
-        // Show error message to user (don't clear tokens, just show error)
-        const errorMessage = message || 'Maximum active sessions reached. Please log out from another device to continue.';
+        // Clear tokens on authentication error
+        clearTokens();
         if (globalErrorHandler) {
-          globalErrorHandler(errorMessage, 'Authentication');
+          globalErrorHandler('Authentication error. Please log in again.', 'GraphQL');
         }
-        // Removed alert() - using inline error display instead
+      } else if (extensions?.code === 'CSRF_TOKEN_INVALID' || message.includes('CSRF')) {
+        // Handle CSRF errors gracefully - don't show to user during logout
+        // This prevents CSRF error messages during logout operations
       } else {
-        // Show other GraphQL errors to user
+        // Show other GraphQL errors to user (but not CSRF errors)
         if (globalErrorHandler) {
           globalErrorHandler(message, 'GraphQL');
         }
@@ -201,17 +174,20 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   }
 
   if (networkError) {
-    console.error(`Network error: ${networkError.message}`, networkError);
-    
-    // Show network errors to user
-    if (globalErrorHandler) {
-      globalErrorHandler(`Network error: ${networkError.message}`, 'Network');
-    }
-    
     // Handle network errors that might be related to authentication
     if (networkError.message.includes('401') || networkError.message.includes('Unauthorized')) {
+      // Clear tokens on 401/Unauthorized
       clearTokens();
       window.location.href = ROUTE_PATHS.LOGIN;
+    } else if (networkError.message.includes('403') || networkError.message.includes('Forbidden') || networkError.message.includes('CSRF')) {
+      // Handle CSRF/403 errors gracefully - don't show to user during logout
+      // This prevents CSRF error messages during logout operations
+    } else {
+      // Only show non-authentication network errors to user
+      // This prevents CSRF errors during logout from showing
+      if (globalErrorHandler) {
+        globalErrorHandler(`Network error: ${networkError.message}`, 'Network');
+      }
     }
   }
 });

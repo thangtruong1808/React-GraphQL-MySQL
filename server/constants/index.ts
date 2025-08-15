@@ -18,7 +18,7 @@ export const JWT_CONFIG = {
   REFRESH_TOKEN_EXPIRY_MS: 8 * 60 * 60 * 1000, // 8 hours in milliseconds (for database expires_at)
 
   // Token limits
-  MAX_REFRESH_TOKENS_PER_USER: 10, // Maximum refresh tokens per user (increased for multiple sessions)
+  MAX_REFRESH_TOKENS_PER_USER: 50, // Maximum refresh tokens per user (increased for multiple sessions)
   
   // JWT issuer and audience
   ISSUER: 'Thang-Truong',
