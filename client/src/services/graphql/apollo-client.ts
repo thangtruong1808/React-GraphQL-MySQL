@@ -15,9 +15,25 @@ import {
 // Global error handler - will be set by App.tsx
 let globalErrorHandler: ((message: string, source: string) => void) | null = null;
 
+// Authentication initialization flag - prevents error messages during auth init
+let isAuthInitializing = false;
+
+// App initialization flag - prevents error messages during initial app load
+let isAppInitializing = true;
+
 // Function to set the global error handler
 export const setGlobalErrorHandler = (handler: (message: string, source: string) => void) => {
   globalErrorHandler = handler;
+};
+
+// Function to set authentication initialization state
+export const setAuthInitializing = (initializing: boolean) => {
+  isAuthInitializing = initializing;
+};
+
+// Function to mark app as fully initialized
+export const setAppInitialized = () => {
+  isAppInitializing = false;
 };
 
 // CSRF token storage in memory (XSS protection)
@@ -158,6 +174,27 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
       if (extensions?.code === 'UNAUTHENTICATED') {
         // Clear tokens on authentication error
         clearTokens();
+        
+        // Don't show authentication errors during initialization or for new users
+        // These are expected for users without refresh tokens
+        const isAuthOperation = operation.operationName === 'RefreshToken' || 
+                               operation.operationName === 'RefreshTokenRenewal' ||
+                               operation.operationName === 'GetCurrentUser';
+        
+        // Don't show "Refresh token is required" errors for new users or after logout
+        const isRefreshTokenRequiredError = message === 'Refresh token is required' || 
+                                          message === 'Invalid refresh token' ||
+                                          message.includes('Refresh token') ||
+                                          message.includes('refresh token');
+        
+        // Completely suppress authentication errors during initialization and after logout
+        if (isAuthOperation || isRefreshTokenRequiredError || isAuthInitializing || isAppInitializing) {
+          // Don't show any error messages for authentication operations
+          // These are expected for new users, during initialization, or after logout
+          return;
+        }
+        
+        // Only show other authentication errors
         if (globalErrorHandler) {
           globalErrorHandler('Authentication error. Please log in again.', 'GraphQL');
         }
@@ -178,14 +215,28 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     if (networkError.message.includes('401') || networkError.message.includes('Unauthorized')) {
       // Clear tokens on 401/Unauthorized
       clearTokens();
-      window.location.href = ROUTE_PATHS.LOGIN;
+      
+      // Don't redirect to login for authentication operations during initialization
+      const isAuthOperation = operation.operationName === 'RefreshToken' || 
+                             operation.operationName === 'RefreshTokenRenewal' ||
+                             operation.operationName === 'GetCurrentUser';
+      
+      if (!isAuthOperation && !isAuthInitializing && !isAppInitializing) {
+        window.location.href = ROUTE_PATHS.LOGIN;
+      }
     } else if (networkError.message.includes('403') || networkError.message.includes('Forbidden') || networkError.message.includes('CSRF')) {
       // Handle CSRF/403 errors gracefully - don't show to user during logout
       // This prevents CSRF error messages during logout operations
+      // 403 errors during logout are expected when access token is expired
+      const isLogoutOperation = operation.operationName === 'Logout';
+      if (isLogoutOperation) {
+        // Don't show 403 errors during logout - this is expected behavior
+        return;
+      }
     } else {
       // Only show non-authentication network errors to user
       // This prevents CSRF errors during logout from showing
-      if (globalErrorHandler) {
+      if (globalErrorHandler && !isAuthInitializing && !isAppInitializing) {
         globalErrorHandler(`Network error: ${networkError.message}`, 'Network');
       }
     }

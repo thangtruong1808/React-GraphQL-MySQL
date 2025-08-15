@@ -10,6 +10,7 @@ const LoginPage = React.lazy(() => import('../../pages/auth/LoginPage'));
 /**
  * App Routes Component
  * Defines all application routes and their protection levels
+ * Authentication loading is handled at component level to prevent flicker
  * 
  * CALLED BY: App component
  * SCENARIOS: All application routing scenarios

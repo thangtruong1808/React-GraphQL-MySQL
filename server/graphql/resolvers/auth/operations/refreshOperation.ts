@@ -42,7 +42,17 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   // Refresh operation - Refresh token found
   // Refresh operation - Refresh token value
   
-  validateRefreshToken(refreshToken);
+  // Check if refresh token exists - if not, return unauthenticated state gracefully
+  if (!validateRefreshToken(refreshToken)) {
+    // No refresh token present - this is normal for new users or logged out users
+    // Return successful response with no user data instead of throwing an error
+    return {
+      accessToken: null,
+      refreshToken: null,
+      csrfToken: null,
+      user: null,
+    };
+  }
 
   // First, try to find the specific token that matches the provided refresh token
   // This is more efficient and secure than checking all tokens
@@ -56,8 +66,10 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,
-      // Remove expiresAt check - allow refresh regardless of database expiry
-      // The client-side timer controls when refresh is allowed
+      // Check expiresAt to ensure token is still valid
+      expiresAt: {
+        [require('sequelize').Op.gt]: new Date(),
+      },
     },
     include: [{ model: User, as: 'refreshTokenUser' }],
   });
@@ -166,13 +178,16 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
   
-
-  
-
-  
-  validateRefreshToken(refreshToken);
-
-
+  // Check if refresh token exists - if not, return unauthenticated state gracefully
+  if (!validateRefreshToken(refreshToken)) {
+    // No refresh token present - this is normal for new users or logged out users
+    // Return successful response with no user data instead of throwing an error
+    return {
+      success: false,
+      message: AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+      user: null,
+    };
+  }
 
   // Find the specific token that matches the provided refresh token
   let validToken: any = null;
@@ -186,8 +201,10 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
   const storedTokens = await RefreshToken.findAll({
     where: {
       isRevoked: false,
-      // Remove expiresAt check - allow refresh regardless of database expiry
-      // The client-side timer controls when refresh is allowed
+      // Check expiresAt to ensure token is still valid
+      expiresAt: {
+        [require('sequelize').Op.gt]: new Date(),
+      },
     },
     include: [{ model: User, as: 'refreshTokenUser' }],
   });

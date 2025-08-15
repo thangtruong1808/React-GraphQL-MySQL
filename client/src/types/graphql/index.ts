@@ -26,16 +26,23 @@ export interface User {
 
 // Authentication Response Type
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  csrfToken: string;
-  user: User;
+  accessToken: string | null;
+  refreshToken: string | null;
+  csrfToken: string | null;
+  user: User | null;
 }
 
 // Logout Response Type
 export interface LogoutResponse {
   success: boolean;
   message: string;
+}
+
+// Refresh Token Renewal Response Type
+export interface RefreshTokenRenewalResponse {
+  success: boolean;
+  message: string;
+  user: User | null;
 }
 
 // Login Input Type
@@ -76,6 +83,10 @@ export interface LoginMutation {
 
 export interface LogoutMutation {
   logout: LogoutResponse;
+}
+
+export interface RefreshTokenRenewalMutation {
+  refreshTokenRenewal: RefreshTokenRenewalResponse;
 }
 
 export interface ForceLogoutUserMutation {

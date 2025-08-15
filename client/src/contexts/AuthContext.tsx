@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect } from 'react';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
+import { AuthenticatedSkeleton } from '../pages/home/HomePage';
 
 /**
  * Authentication Context Interface
@@ -114,6 +115,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authState.setLastModalShowTime,
     authState.setModalAutoLogoutTimer,
     authState.modalAutoLogoutTimer,
+    undefined, // pauseAutoLogoutForRefresh
+    undefined, // resumeAutoLogoutAfterRefresh
   );
 
   // Session management
@@ -189,7 +192,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {children}
+      {(() => {
+        console.log("🔒 AuthProvider - Rendering children? isInitializing =", authState.isInitializing);
+        return authState.isInitializing ? <AuthenticatedSkeleton /> : children;
+      })()}
     </AuthContext.Provider>
   );
 }; 

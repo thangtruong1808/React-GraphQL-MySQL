@@ -41,18 +41,16 @@ export const validateLoginCredentials = (email: string, password: string): void 
 /**
  * Validate refresh token presence
  * @param refreshToken - Refresh token from cookie
- * @throws GraphQLError if token is missing
+ * @returns boolean indicating if token is present
  * 
  * CALLED BY: refreshToken(), logout()
  * SCENARIOS: Token operations - validates token presence before processing
- * FEATURES: Required token validation, consistent error handling
+ * FEATURES: Graceful handling of missing tokens, consistent error handling
  */
-export const validateRefreshToken = (refreshToken: string): void => {
-  if (!refreshToken) {
-    throw new GraphQLError('Refresh token is required', {
-      extensions: { code: 'BAD_USER_INPUT' },
-    });
-  }
+export const validateRefreshToken = (refreshToken: string): boolean => {
+  // Return false if no refresh token instead of throwing error
+  // This allows graceful handling of missing tokens
+  return !!refreshToken;
 };
 
 /**

@@ -38,10 +38,10 @@ export const typeDefs = gql`
 
   # Authentication Response Type - includes all tokens returned by login/refresh
   type AuthResponse {
-    accessToken: String!
-    refreshToken: String!
-    csrfToken: String!
-    user: User!
+    accessToken: String
+    refreshToken: String
+    csrfToken: String
+    user: User
   }
 
   # Logout Response Type - simple success/error response
@@ -54,7 +54,7 @@ export const typeDefs = gql`
   type RefreshTokenRenewalResponse {
     success: Boolean!
     message: String!
-    user: User!
+    user: User
   }
 
 

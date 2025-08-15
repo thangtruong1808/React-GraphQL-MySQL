@@ -7,6 +7,7 @@ import { ROUTE_CONFIG } from '../../constants/routingConstants';
  * Protected Route Component
  * Wraps routes that require authentication
  * Redirects unauthenticated users to login page
+ * Authentication loading is handled at routing level to prevent flicker
  * 
  * CALLED BY: App.tsx for protected routes
  * SCENARIOS: All protected route access attempts
@@ -23,8 +24,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
   const location = useLocation();
 
-  // Let the HomePage handle its own loading state with skeleton
-  // Only redirect if not authenticated and not loading
+  // Authentication loading is handled at routing level (AppRoutes)
+  // This component only handles the redirect logic after authentication is determined
   if (!isLoading && !isInitializing && !isAuthenticated) {
     // Debug logging disabled for better user experience
     return (
@@ -36,7 +37,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Render protected content if authenticated or still loading
+  // Render protected content if authenticated
+  // Loading states are handled at routing level to prevent flicker
   return <>{children}</>;
 };
 

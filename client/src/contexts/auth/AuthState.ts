@@ -35,14 +35,14 @@ export interface AuthState {
 /**
  * Initial authentication state
  * Provides default values for all authentication state properties
- * Optimized for first-time user experience
+ * Starts with loading states as true to prevent authentication flicker
  */
 export const initialAuthState: AuthState = {
   // Core authentication state
   user: null,
   isAuthenticated: false,
-  isLoading: AUTH_FEATURES.ENABLE_FIRST_TIME_USER_OPTIMIZATION ? false : true, // Start as false for better UX
-  isInitializing: AUTH_FEATURES.ENABLE_FIRST_TIME_USER_OPTIMIZATION ? false : true, // Start as false for better UX
+  isLoading: true, // Start as true to prevent flicker during auth initialization
+  isInitializing: true, // Start as true to prevent flicker during auth initialization
   showLoadingSpinner: false,
 
   // Session expiry state
@@ -118,56 +118,49 @@ export const useAuthState = () => {
   };
 
   // Notification state setters
-  const setNotification = (notification: AuthState['notification']) => {
+  const setNotification = (notification: { message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }) => {
     setState(prev => ({ ...prev, notification }));
   };
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
     setState(prev => ({
       ...prev,
-      notification: { message, type, isVisible: true }
+      notification: {
+        message,
+        type,
+        isVisible: true,
+      },
     }));
   };
 
   const hideNotification = () => {
     setState(prev => ({
       ...prev,
-      notification: { ...prev.notification, isVisible: false }
+      notification: {
+        ...prev.notification,
+        isVisible: false,
+      },
     }));
-  };
-
-  // Reset state to initial values
-  const resetAuthState = () => {
-    setState(initialAuthState);
   };
 
   return {
     // State
     ...state,
-    
-    // Core setters
+
+    // Setters
     setUser,
     setIsAuthenticated,
     setIsLoading,
     setIsInitializing,
     setShowLoadingSpinner,
-    
-    // Session setters
     setShowSessionExpiryModal,
     setSessionExpiryMessage,
     setLastModalShowTime,
     setModalAutoLogoutTimer,
-    
-    // Loading setters
     setLoginLoading,
     setLogoutLoading,
-    
-    // Notification setters
     setNotification,
     showNotification,
     hideNotification,
-    
-    // Utility
-    resetAuthState,
   };
 }; 

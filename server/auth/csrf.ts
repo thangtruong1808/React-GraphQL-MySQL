@@ -71,7 +71,7 @@ export const csrfProtection = (req: any, res: any, next: any) => {
       
       if (isMutation) {
         // Define mutations that should be excluded from CSRF protection
-        const excludedMutations = ['login', 'refreshToken'];
+        const excludedMutations = ['login', 'refreshToken', 'logout'];
         const isExcludedMutation = excludedMutations.some(mutation => 
           query.toLowerCase().includes(mutation.toLowerCase())
         );

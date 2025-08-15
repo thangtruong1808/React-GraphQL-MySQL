@@ -1,6 +1,7 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { AUTH_CONFIG, AUTH_FEATURES, AUTH_ERROR_MESSAGES, DEBUG_CONFIG } from '../../constants';
 import { getTokens, isTokenExpired, isActivityBasedTokenExpired, TokenManager } from '../../utils/tokenManager';
+import { setAuthInitializing, setAppInitialized } from '../../services/graphql/apollo-client';
 
 /**
  * Authentication Initializer Interface
@@ -14,7 +15,13 @@ export interface AuthInitializer {
 /**
  * Authentication Initializer Hook
  * Manages authentication initialization on app startup
- * Handles first-time users and returning users appropriately
+ * Implements simple authentication flow to prevent flicker and handle errors gracefully
+ * 
+ * SIMPLE APPROACH: 
+ * 1. Always attempt refresh token first (httpOnly cookie is secure and server will validate)
+ * 2. If successful, user data is set by refreshAccessToken
+ * 3. If failed, set user to null and isAuthenticated to false
+ * 4. Handle errors gracefully without showing error messages for new users
  */
 export const useAuthInitializer = (
   refreshAccessToken: (isSessionRestoration?: boolean) => Promise<boolean>,
@@ -28,18 +35,20 @@ export const useAuthInitializer = (
 ) => {
   // Ref to track if auth has been initialized (prevents duplicate initialization)
   const isInitializedRef = useRef(false);
-  
-
 
   /**
-   * Initialize authentication state
-   * Only runs once on app startup
-   * Handles first-time users and returning users appropriately
+   * Initialize authentication state with proper error handling
+   * Attempts refresh token first, then sets appropriate state based on result
+   * Handles missing refresh tokens gracefully for new users
    */
   const initializeAuth = useCallback(async () => {
     try {
-      // Always set loading states to true immediately to show skeleton
-      // This ensures consistent behavior regardless of optimization settings
+      console.log("🔍 1. Starting auth initialization...");
+      
+      // Set authentication initialization flag to prevent error messages
+      setAuthInitializing(true);
+      
+      // Set loading states immediately to show skeleton
       setIsInitializing(true);
       setIsLoading(true);
 
@@ -54,54 +63,53 @@ export const useAuthInitializer = (
       });
 
       const authPromise = (async () => {
-        const tokens = getTokens();
-
-        // Check if we have a valid access token in memory
-        if (tokens.accessToken) {
-          // Check if access token is expired (using activity-based validation if enabled)
-          let isExpired = false;
-          if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
-            isExpired = isActivityBasedTokenExpired();
-          } else {
-            isExpired = isTokenExpired(tokens.accessToken);
-          }
-
-          if (isExpired) {
-            // Try to refresh the access token using the refresh token from httpOnly cookie
-            const refreshSuccess = await refreshAccessToken(false); // false = token refresh (expired token)
-            if (!refreshSuccess) {
-              await performCompleteLogout();
-              return;
-            }
-            // refreshAccessToken already sets user data, so we're done
-            return;
-          } else {
-            // Token is valid, fetch user data
-            await fetchCurrentUser();
-            return;
-          }
-        } else {
-          // No access token found in memory - this could be:
-          // 1. A new user (no refresh token in cookie)
-          // 2. A returning user after browser refresh (has refresh token in cookie)
-          
-          // Always attempt session restoration - let server handle HttpOnly cookie validation
-          // HttpOnly cookies are not accessible via JavaScript, so we can't check them client-side
-          
-          // Attempt to restore session using refresh token from HttpOnly cookie
-          // The browser will automatically send the HttpOnly cookie with this request
-          const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)
+        // Step 1: Always attempt to refresh access token
+        // The httpOnly cookie will be sent automatically by the browser
+        // Server will validate the refresh token and return appropriate response
+        console.log("🔍 2. Refreshing access token...");
+        
+        try {
+          const refreshSuccess = await refreshAccessToken(true); // true = session restoration
+          console.log('🔍 Auth Initializer - Refresh success:', refreshSuccess);
           
           if (!refreshSuccess) {
-            // No valid refresh token found - this is a new user
-            // Explicitly set authentication state to false to prevent showing unauthenticated state during loading
+            // Refresh failed - user is not authenticated
+            console.log('🔍 Auth Initializer - Refresh failed, user not authenticated');
             setUser(null);
             setIsAuthenticated(false);
-            return;
+          } else {
+            // Refresh successful - user data is already set by refreshAccessToken
+            console.log('🔍 Auth Initializer - Refresh successful, user authenticated');
+            // Ensure authentication state is properly set
+            setIsAuthenticated(true);
+          }
+        } catch (error: any) {
+          console.error('🔍 Auth Initializer - Refresh error:', error);
+          
+          // Handle specific GraphQL errors gracefully
+          if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+            const graphQLError = error.graphQLErrors[0];
+            
+            // Handle "Refresh token is required" or "Invalid refresh token" errors
+            if (graphQLError.message === 'Refresh token is required' || 
+                graphQLError.message === 'Invalid refresh token') {
+              // This is normal for new users or expired tokens - no error display needed
+              setUser(null);
+              setIsAuthenticated(false);
+              return;
+            }
+            
+            // Handle other GraphQL errors
+            if (graphQLError.extensions?.code === 'UNAUTHENTICATED') {
+              // User is not authenticated - clear state
+              setUser(null);
+              setIsAuthenticated(false);
+              return;
+            }
           }
           
-          // refreshAccessToken already sets user data, so we're done
-          return;
+          // For other errors, perform logout to ensure clean state
+          await performCompleteLogout();
         }
       })();
 
@@ -115,11 +123,24 @@ export const useAuthInitializer = (
     } catch (error) {
       setShowLoadingSpinner(false);
       
-      // Only perform logout if it's not a timeout error (first-time users)
-      if (error instanceof Error && error.message !== AUTH_ERROR_MESSAGES.INITIALIZATION_TIMEOUT) {
+      // Handle timeout errors gracefully
+      if (error instanceof Error && error.message === AUTH_ERROR_MESSAGES.INITIALIZATION_TIMEOUT) {
+        // Set unauthenticated state for timeout
+        setUser(null);
+        setIsAuthenticated(false);
+      } else {
+        // For other errors, perform logout to ensure clean state
         await performCompleteLogout();
       }
     } finally {
+      console.log("🔍 4. Initialization complete.");
+      
+      // Clear authentication initialization flag
+      setAuthInitializing(false);
+      
+      // Mark app as initialized to allow error messages for future operations
+      setAppInitialized();
+      
       // Set loading states to false after authentication process is complete
       setIsLoading(false);
       setIsInitializing(false);
