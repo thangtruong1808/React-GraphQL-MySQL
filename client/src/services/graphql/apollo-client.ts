@@ -210,7 +210,6 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     
     // Handle network errors that might be related to authentication
     if (networkError.message.includes('401') || networkError.message.includes('Unauthorized')) {
-      console.log('🔄 Apollo client: Clearing tokens due to 401/Unauthorized network error');
       clearTokens();
       window.location.href = ROUTE_PATHS.LOGIN;
     }

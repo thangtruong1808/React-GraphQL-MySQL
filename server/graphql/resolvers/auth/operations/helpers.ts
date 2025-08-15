@@ -29,31 +29,24 @@ export const formatUserForResponse = (user: any) => {
 };
 
 /**
- * Log debug information for authentication operations
- * Only logs when debug mode is enabled
- * 
- * @param operation - Operation type (login, logout, refresh, renewal)
- * @param message - Debug message
+ * Log operation with prefix and optional data
+ * @param prefix - Log prefix
+ * @param message - Log message
  * @param data - Optional data to log
  */
-export const logDebug = (operation: string, message: string, data?: any) => {
-  if (AUTH_OPERATIONS_CONFIG.DEBUG.ENABLE_LOGGING) {
-    const prefix = AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES[operation.toUpperCase() as keyof typeof AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES] || AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO;
-    console.log(`${prefix} ${message}`, data || '');
-  }
+export const logOperation = (prefix: string, message: string, data?: any): void => {
+  // Log operation with prefix and message
 };
 
 /**
- * Log error information for authentication operations
- * Always logs errors regardless of debug mode
- * 
- * @param operation - Operation type (login, logout, refresh, renewal)
+ * Log error with prefix and optional data
+ * @param prefix - Log prefix
+ * @param operation - Operation name
  * @param message - Error message
- * @param error - Error object
+ * @param data - Optional error data
  */
-export const logError = (operation: string, message: string, error?: any) => {
-  const prefix = AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR;
-  console.error(`${prefix} ${operation}: ${message}`, error || '');
+export const logError = (prefix: string, operation: string, message: string, data?: any): void => {
+  // Log error with prefix and operation
 };
 
 /**

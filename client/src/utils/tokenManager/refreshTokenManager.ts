@@ -24,12 +24,12 @@ export class RefreshTokenManager {
       // Calculate refresh token expiry - should be 1 minute from NOW (when modal appears)
       // This ensures refresh token countdown shows 1 minute from when the modal appears
       const expiry = Date.now() + AUTH_CONFIG.MODAL_COUNTDOWN_DURATION; // 1 minute from now
-      console.log('🔄 RefreshTokenManager: Setting refresh token expiry to:', expiry);
+      // RefreshTokenManager: Setting refresh token expiry to
       await MemoryStorage.setRefreshTokenExpiry(expiry);
-      console.log('🔄 RefreshTokenManager: Refresh token expiry set successfully');
+      // RefreshTokenManager: Refresh token expiry set successfully
       // Debug logging disabled for better user experience
     } catch (error) {
-      console.error('❌ Error starting refresh token expiry timer:', error);
+      // Error starting refresh token expiry timer
     }
   }
 
@@ -56,7 +56,7 @@ export class RefreshTokenManager {
       
       return isExpired;
     } catch (error) {
-      console.error('❌ Error checking refresh token expiry:', error);
+      // Error checking refresh token expiry
       return false; // Not expired on error
     }
   }
@@ -75,7 +75,7 @@ export class RefreshTokenManager {
       const refreshTokenExpiry = await MemoryStorage.getRefreshTokenExpiry();
       if (!refreshTokenExpiry) {
         if (import.meta.env.DEV) {
-          console.log('🔍 No refresh token expiry available');
+          // No refresh token expiry available
         }
         return true; // Expired if no expiry available
       }
@@ -86,17 +86,12 @@ export class RefreshTokenManager {
       
       // Debug logging for refresh token expiry check
       if (import.meta.env.DEV) {
-        console.log('🔍 Refresh token expiry check:', {
-          refreshTokenExpiry,
-          now,
-          timeRemaining,
-          isExpired
-        });
+        // Refresh token expiry check
       }
       
       return isExpired;
     } catch (error) {
-      console.error('❌ Error checking refresh token expiry for operations:', error);
+      // Error checking refresh token expiry for operations
       return true; // Expired on error
     }
   }
@@ -125,7 +120,7 @@ export class RefreshTokenManager {
       
       return needsRenewal;
     } catch (error) {
-      console.error('❌ Error checking refresh token renewal:', error);
+      // Error checking refresh token renewal
       return false;
     }
   }
@@ -149,7 +144,7 @@ export class RefreshTokenManager {
       
       // Debug logging disabled for better user experience
     } catch (error) {
-      console.error('❌ Error updating refresh token expiry:', error);
+      // Error updating refresh token expiry
     }
   }
 
@@ -166,7 +161,7 @@ export class RefreshTokenManager {
       await MemoryStorage.setRefreshTokenExpiry(null);
       // Debug logging disabled for better user experience
     } catch (error) {
-      console.error('❌ Error clearing refresh token expiry:', error);
+      // Error clearing refresh token expiry
     }
   }
 
@@ -200,7 +195,7 @@ export class RefreshTokenManager {
       
       return timeRemaining > 0 ? timeRemaining : 0;
     } catch (error) {
-      console.error('❌ Error calculating refresh token time remaining:', error);
+      // Error calculating refresh token time remaining
       return null;
     }
   }
@@ -250,7 +245,7 @@ export class RefreshTokenManager {
     try {
       MemoryStorage.setContinueToWorkTransition(isTransitioning);
     } catch (error) {
-      console.error('❌ Error setting continue to work transition:', error);
+      // Error setting continue to work transition
     }
   }
 
@@ -265,7 +260,7 @@ export class RefreshTokenManager {
     try {
       return MemoryStorage.getContinueToWorkTransition();
     } catch (error) {
-      console.error('❌ Error getting continue to work transition:', error);
+      // Error getting continue to work transition
       return false;
     }
   }
@@ -281,7 +276,7 @@ export class RefreshTokenManager {
     try {
       MemoryStorage.setLogoutTransition(isTransitioning);
     } catch (error) {
-      console.error('❌ Error setting logout transition:', error);
+      // Error setting logout transition
     }
   }
 

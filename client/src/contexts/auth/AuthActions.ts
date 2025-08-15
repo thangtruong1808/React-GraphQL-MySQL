@@ -108,157 +108,107 @@ export const useAuthActions = (
    */
   const refreshAccessToken = useCallback(async (isSessionRestoration: boolean = false): Promise<boolean> => {
     try {
-      // Get refresh token status for logging (async)
+      // Get refresh token status to check timing
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
+      const timeRemaining = refreshTokenStatus.timeRemaining;
       
-      // For session restoration, use original expiry check
-      // For manual refresh (Continue to Work), use operational expiry only if dual token system is active
-      let shouldProceed = true;
-      let expiryCheckReason = '';
+      // Log timing information for debugging
+      logTokenRefreshTiming('refresh_access_token_start', timeRemaining, { 
+        isSessionRestoration,
+        isExpired: refreshTokenStatus.isExpired,
+        needsRenewal: refreshTokenStatus.needsRenewal 
+      });
       
-      if (!isSessionRestoration) {
-        const originalTimeRemaining = refreshTokenStatus.timeRemaining;
-        
-        // Check if refresh token has sufficient time remaining
-        if (originalTimeRemaining && originalTimeRemaining <= 0) {
-          // Refresh token is already expired
-          shouldProceed = false;
-          expiryCheckReason = 'refresh_token_expired';
-        } else {
-          // Allow refresh as long as token is not expired
-          // The server-side validation will handle any timing issues
-          expiryCheckReason = 'refresh_token_sufficient_time';
-        }
-      } else {
-        expiryCheckReason = 'session_restoration';
-      }
-      
-      if (!shouldProceed) {
-        logTokenRefreshTiming('refresh_access_token', null, { 
-          error: expiryCheckReason,
-          isSessionRestoration,
-          originalTimeRemaining: refreshTokenStatus.timeRemaining
+      // Check if refresh token has sufficient time remaining
+      if (timeRemaining && timeRemaining <= 0) {
+        // Refresh token is already expired
+        logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
+          error: 'refresh_token_expired',
+          isSessionRestoration 
         });
         return false;
       }
-      logTokenRefreshTiming('refresh_access_token_start', refreshTokenStatus.timeRemaining, { 
-        isSessionRestoration,
-        isExpired: refreshTokenStatus.isExpired,
-        needsRenewal: refreshTokenStatus.needsRenewal
-      });
-
-
-
-      // Calculate dynamic buffer time based on token creation time
-      // This enables the server to set appropriate cookie expiry based on session duration
-      const dynamicBuffer = TokenManager.calculateDynamicBuffer();
-      console.log('🔄 Dynamic buffer time:', dynamicBuffer, 'ms (', dynamicBuffer ? Math.round(dynamicBuffer / 1000) : 'null', 'seconds)');
       
-      // Debug: Check if refresh token cookie exists
-      console.log('🔄 Checking refresh token cookie before mutation...');
-      console.log('🔄 Raw document.cookie:', document.cookie);
+      // Calculate dynamic buffer time for server-side cookie expiry
+      const dynamicBuffer = TokenManager.calculateDynamicBuffer();
+      // Dynamic buffer time
+      
+      // Debug: Check refresh token cookie before mutation
+      // Checking refresh token cookie before mutation...
+      // Raw document.cookie
+      
       const cookies = document.cookie.split(';').reduce((acc, cookie) => {
         const [key, value] = cookie.trim().split('=');
         acc[key] = value;
         return acc;
       }, {} as Record<string, string>);
-      console.log('🔄 Available cookies:', Object.keys(cookies));
-      console.log('🔄 Refresh token cookie exists:', !!cookies.jid);
-      console.log('🔄 All cookies:', cookies);
-      console.log('🔄 Cookie parsing result:', cookies);
       
+      // Available cookies
+      // Refresh token cookie exists
+      // All cookies
+      // Cookie parsing result
+      
+      // Call refresh token mutation with dynamic buffer
       const result = await refreshTokenMutation({
         variables: {
-          dynamicBuffer: dynamicBuffer || 0
+          dynamicBuffer: dynamicBuffer || undefined
         }
       });
       
-      // Log any GraphQL errors
-      if (result.errors) {
-        console.log('🔄 GraphQL errors:', result.errors);
-      }
-
-      if (!result.data || !result.data.refreshToken) {
-        console.log('🔄 Refresh failed: No data or refresh token in response');
-        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
-          error: 'no_data_response',
+      if (result.errors && result.errors.length > 0) {
+        // GraphQL errors
+        logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
+          error: 'graphql_errors',
           isSessionRestoration,
-          hasResult: !!result,
-          hasData: !!(result && result.data),
-          hasRefreshToken: !!(result && result.data && result.data.refreshToken)
+          errors: result.errors.map(e => e.message)
         });
         return false;
       }
-
-      const { accessToken, refreshToken, csrfToken, user: refreshedUser } = result.data.refreshToken;
-
-      if (accessToken && refreshedUser) {
-        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
-          success: true,
-          isSessionRestoration,
-          hasAccessToken: !!accessToken,
-          hasUser: !!refreshedUser,
-          hasCSRFToken: !!csrfToken 
-        });
-
-        // Store the new access token and user data in memory
-        TokenManager.updateAccessToken(accessToken);
-        if (refreshedUser) {
-          TokenManager.updateUser(refreshedUser);
-        }
-
-        // Store token creation time for dynamic buffer calculation
-        // This enables the "Continue to Work" functionality with dynamic buffer based on session duration
-        TokenManager.setTokenCreationTime(Date.now());
-
-        // Set CSRF token in Apollo Client for future mutations
-        if (csrfToken) {
-          setApolloCSRFToken(csrfToken);
-        }
-
-        // Update authentication state
-        setUser(refreshedUser);
-        setIsAuthenticated(true);
-
-        // Reset activity timer
-        TokenManager.updateActivity();
-        
-        // Handle session restoration vs manual refresh differently
-        if (isSessionRestoration) {
-          // For browser refresh: DO NOT set refresh token timer
-          // This allows the access token timer to work normally and reset on user activity
-          // The refresh token timer should only start when access token expires due to inactivity
-          logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
-            action: 'session_restoration_no_refresh_timer' 
-          });
-        } else {
-          // For manual refresh (Continue to Work): Keep refresh token countdown visible
-          // This shows users the actual remaining time on their refresh token
-          logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
-            action: 'manual_refresh_keep_refresh_timer' 
-          });
-        }
-
-        return true;
-      } else {
-        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+      
+      const { refreshToken: refreshData } = result.data || {};
+      if (!refreshData?.accessToken || !refreshData?.refreshToken || !refreshData?.user) {
+        // Refresh failed: No data or refresh token in response
+        logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
           error: 'missing_tokens_or_user',
           isSessionRestoration,
-          hasAccessToken: !!accessToken,
-          hasUser: !!refreshedUser 
+          hasAccessToken: !!refreshData?.accessToken,
+          hasRefreshToken: !!refreshData?.refreshToken,
+          hasUser: !!refreshData?.user 
         });
         return false;
       }
-    } catch (error: any) {
-      console.error('❌ Error refreshing access token:', error);
       
+      // Store new tokens and update authentication state
+      const { accessToken, refreshToken, csrfToken, user: refreshedUser } = refreshData;
+      
+      // Save tokens and update authentication state
+      saveTokens(accessToken, refreshToken);
+      setUser(refreshedUser);
+      setIsAuthenticated(true);
+
+      // Reset activity timer
+      TokenManager.updateActivity();
+      
+      // Handle session restoration vs manual refresh differently
+      if (isSessionRestoration) {
+        // For browser refresh: DO NOT set refresh token timer
+        // This allows the access token timer to work normally and reset on user activity
+        // The refresh token timer should only start when access token expires due to inactivity
+        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+          action: 'session_restoration_no_refresh_timer' 
+        });
+      } else {
+        // For manual refresh (Continue to Work): Keep refresh token countdown visible
+        // This shows users the actual remaining time on their refresh token
+        logTokenRefreshTiming('refresh_access_token', refreshTokenStatus.timeRemaining, { 
+          action: 'manual_refresh_keep_refresh_timer' 
+        });
+      }
+
+      return true;
+    } catch (error: any) {
       if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         const graphQLError = error.graphQLErrors[0];
-        console.error('❌ GraphQL Error during token refresh:', {
-          message: graphQLError.message,
-          code: graphQLError.extensions?.code,
-          path: graphQLError.path
-        });
         
         if (graphQLError.message === 'Refresh token is required') {
           logTokenRefreshTiming('refresh_access_token', null, { 
@@ -282,7 +232,6 @@ export const useAuthActions = (
         return false;
       } else if (error.networkError) {
         // Handle network errors
-        console.error('❌ Network Error during token refresh:', error.networkError);
         logTokenRefreshTiming('refresh_access_token', null, { 
           error: 'network_error',
           isSessionRestoration,
@@ -433,13 +382,13 @@ export const useAuthActions = (
       }
 
       // Debug: Check cookies after login
-      console.log('🔄 After login - checking cookies...');
+      // After login - checking cookies...
       const cookiesAfterLogin = document.cookie.split(';').reduce((acc, cookie) => {
         const [key, value] = cookie.trim().split('=');
         acc[key] = value;
         return acc;
       }, {} as Record<string, string>);
-      console.log('🔄 Cookies after login:', cookiesAfterLogin);
+      // Cookies after login
 
       return { success: true, user: loginData.user };
     } catch (error: any) {
@@ -525,7 +474,7 @@ export const useAuthActions = (
   const refreshSession = useCallback(async (): Promise<boolean> => {
     // Prevent multiple simultaneous refresh attempts
     if (TokenManager.getContinueToWorkTransition()) {
-      console.log('🔄 Refresh already in progress, skipping duplicate call');
+      // Refresh already in progress, skipping duplicate call
       return false;
     }
     
@@ -584,15 +533,15 @@ export const useAuthActions = (
         reason: 'improved_refresh_logic' 
       });
       
-      console.log('🔄 Starting refresh access token...');
+      // Starting refresh access token...
       const refreshSuccess = await refreshAccessToken(false);
-      console.log('🔄 Refresh access token result:', refreshSuccess);
+      // Refresh access token result
       
       // Clear transition state
       TokenManager.setContinueToWorkTransition(false);
       
       if (refreshSuccess) {
-        console.log('🔄 Refresh success - proceeding with success flow');
+        // Refresh success - proceeding with success flow
         
         // Success - clear modal and show success message
         // Clear refresh token timer after successful refresh to allow normal activity tracking
@@ -606,23 +555,22 @@ export const useAuthActions = (
         try {
           // Clear refresh token timer to allow normal activity tracking
           await TokenManager.clearRefreshTokenExpiry();
-          console.log('🔄 Refresh token expiry cleared successfully');
+          // Refresh token expiry cleared successfully
           
           // Don't update user state immediately to prevent SessionManager from triggering another refresh
           // The SessionManager will naturally detect the refreshed tokens on its next check
-          console.log('🔄 Skipping user state update to prevent duplicate refresh');
+          // Skipping user state update to prevent duplicate refresh
           
           setShowSessionExpiryModal(false);
           setLastModalShowTime(null);
           showNotification('You can continue working now!', 'success');
-          console.log('🔄 Success flow completed - returning true');
+          // Success flow completed - returning true
           return true;
         } catch (successError) {
-          console.error('❌ Error in success flow:', successError);
           throw successError; // Re-throw to be caught by outer catch block
         }
       } else {
-        console.log('🔄 Refresh failed - proceeding with error flow');
+        // Refresh failed - proceeding with error flow
         // Refresh failed - show error message with detailed logging
         logTokenRefreshTiming('refresh_session', timeRemaining, { 
           error: 'refresh_failed',
@@ -635,7 +583,6 @@ export const useAuthActions = (
         return false;
       }
     } catch (error) {
-      console.error('❌ Error in refreshSession:', error);
       logTokenRefreshTiming('refresh_session', null, { 
         error: 'exception',
         errorMessage: error instanceof Error ? error.message : 'Unknown error'

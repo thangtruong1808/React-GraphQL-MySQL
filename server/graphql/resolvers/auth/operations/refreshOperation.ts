@@ -30,22 +30,17 @@ import { AUTH_OPERATIONS_CONFIG, AUTH_OPERATIONS_TYPES } from './constants';
  */
 export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) => {
   // Debug: Log cookie information for troubleshooting
-  console.log('🔄 Server: Refresh operation - Request details:', {
-    host: req.headers.host,
-    origin: req.headers.origin,
-    referer: req.headers.referer,
-    userAgent: req.headers['user-agent']
-  });
-  console.log('🔄 Server: Refresh operation - Available cookies:', req.cookies ? Object.keys(req.cookies) : 'No cookies');
-  console.log('🔄 Server: Refresh operation - All cookies:', req.cookies);
-  console.log('🔄 Server: Refresh operation - Cookie name being looked for:', AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME);
-  console.log('🔄 Server: Refresh operation - Raw cookie header:', req.headers.cookie);
+  // Refresh operation - Request details
+  // Refresh operation - Available cookies
+  // Refresh operation - All cookies
+  // Refresh operation - Cookie name being looked for
+  // Refresh operation - Raw cookie header
   
   // Get refresh token from httpOnly cookie
   const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
   
-  console.log('🔄 Server: Refresh operation - Refresh token found:', !!refreshToken);
-  console.log('🔄 Server: Refresh operation - Refresh token value:', refreshToken ? `${refreshToken.substring(0, 10)}...` : 'null');
+  // Refresh operation - Refresh token found
+  // Refresh operation - Refresh token value
   
   validateRefreshToken(refreshToken);
 
@@ -68,17 +63,8 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
   });
 
   // Debug: Log token information for troubleshooting
-  console.log('🔄 Server: Found', storedTokens.length, 'non-revoked tokens');
-  storedTokens.forEach((token, index) => {
-    console.log(`🔄 Server: Token ${index + 1}:`, {
-      id: token.id,
-      userId: token.userId,
-      expiresAt: token.expiresAt,
-      createdAt: token.createdAt,
-      isExpired: token.expiresAt < new Date(),
-      timeUntilExpiry: token.expiresAt.getTime() - Date.now()
-    });
-  });
+  // Found non-revoked tokens
+  // Token details
 
   // Check each token to find a match with enhanced security
   for (const storedToken of storedTokens) {
@@ -87,17 +73,10 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
       if (isValidHash) {
         validToken = storedToken;
         validUser = storedToken.refreshTokenUser;
-        console.log('🔄 Server: Valid token found:', {
-          id: storedToken.id,
-          userId: storedToken.userId,
-          expiresAt: storedToken.expiresAt,
-          isExpired: storedToken.expiresAt < new Date(),
-          timeUntilExpiry: storedToken.expiresAt.getTime() - Date.now()
-        });
+        // Valid token found
         break;
       }
     } catch (hashError) {
-      console.error(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Hash verification error:`, hashError);
       continue;
     }
   }

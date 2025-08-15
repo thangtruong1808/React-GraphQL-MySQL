@@ -39,7 +39,7 @@ export const useAppFocusedActivityTracker = () => {
       // If modal is showing, skip activity updates to prevent interference
       const isModalShowing = TokenManager.isSessionExpiryModalShowing();
       if (isModalShowing) {
-        console.log('🔄 App focused activity tracker: Session expiry modal showing - skipping activity update');
+        // App focused activity tracker: Session expiry modal showing - skipping activity update
         return;
       }
 
@@ -71,7 +71,7 @@ export const useAppFocusedActivityTracker = () => {
       // Step 5: Additional check - if refresh token timer hasn't started yet, allow activity updates
       // This ensures normal activity tracking continues until the modal appears
       if (!refreshTokenStatus.expiry) {
-        console.log('🔄 App focused activity tracker: No refresh token timer active - allowing activity update');
+        // App focused activity tracker: No refresh token timer active - allowing activity update
       }
       
       // Step 6: Additional safety check - only allow activity updates if access token is still valid
@@ -86,7 +86,7 @@ export const useAppFocusedActivityTracker = () => {
         }
         
         if (!isAccessTokenStillValid) {
-          console.log('🔄 App focused activity tracker: Access token expired - skipping activity update');
+          // App focused activity tracker: Access token expired - skipping activity update
           return;
         }
       }
@@ -95,7 +95,7 @@ export const useAppFocusedActivityTracker = () => {
       // Focus check is handled at the event level, not here
       await updateActivity();
     } catch (error) {
-      console.error('❌ Error in handleUserActivity:', error);
+      // Error in handleUserActivity
     }
   }, []);
 

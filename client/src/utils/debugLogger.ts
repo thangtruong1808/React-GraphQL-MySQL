@@ -1,79 +1,46 @@
 /**
- * Debug Logger Utility
- * Provides centralized debug logging for development and troubleshooting
+ * Debug Logger Configuration
+ * Controls debug logging behavior for development and production
  */
-
-/**
- * Debug configuration
- */
-const DEBUG_CONFIG = {
-  ENABLE_TOKEN_REFRESH_LOGGING: false, // DISABLED: Dynamic buffer issue fixed
+export const DEBUG_LOGGER_CONFIG = {
   ENABLE_TIMING_LOGGING: false, // DISABLED: Remove console.log from browser
   ENABLE_SESSION_LOGGING: false, // DISABLED: Remove console.log from browser
-};
+  ENABLE_ERROR_LOGGING: false, // DISABLED: Remove console.log from browser
+} as const;
 
 /**
  * Log token refresh timing information
- * @param operation - The operation being performed
- * @param timeRemaining - Time remaining on refresh token
- * @param additionalInfo - Additional information to log
+ * Only logs when timing logging is enabled
+ * @param operation - Operation type
+ * @param timeRemaining - Time remaining in milliseconds
+ * @param info - Additional information
  */
-export const logTokenRefreshTiming = (
-  operation: string,
-  timeRemaining: number | null,
-  additionalInfo?: Record<string, any>
-) => {
-  if (!DEBUG_CONFIG.ENABLE_TOKEN_REFRESH_LOGGING) return;
-
-  const info = {
-    operation,
-    timeRemaining: timeRemaining ? `${Math.ceil(timeRemaining / 1000)}s` : 'null',
-    timestamp: new Date().toISOString(),
-    ...additionalInfo,
-  };
-
-  console.log('🔄 Token Refresh Timing:', info);
+export const logTokenRefreshTiming = (operation: string, timeRemaining: number | null, info: any = {}): void => {
+  if (DEBUG_LOGGER_CONFIG.ENABLE_TIMING_LOGGING) {
+    // Token Refresh Timing
+  }
 };
 
 /**
  * Log session state information
- * @param state - The session state
- * @param additionalInfo - Additional information to log
+ * Only logs when session logging is enabled
+ * @param operation - Operation type
+ * @param info - Session information
  */
-export const logSessionState = (
-  state: string,
-  additionalInfo?: Record<string, any>
-) => {
-  if (!DEBUG_CONFIG.ENABLE_SESSION_LOGGING) return;
-
-  const info = {
-    state,
-    timestamp: new Date().toISOString(),
-    ...additionalInfo,
-  };
-
-  console.log('📊 Session State:', info);
+export const logSessionState = (operation: string, info: any = {}): void => {
+  if (DEBUG_LOGGER_CONFIG.ENABLE_SESSION_LOGGING) {
+    // Session State
+  }
 };
 
 /**
  * Log timing information
- * @param context - The timing context
- * @param value - The timing value
- * @param additionalInfo - Additional information to log
+ * Only logs when timing logging is enabled
+ * @param operation - Operation type
+ * @param info - Timing information
  */
-export const logTiming = (
-  context: string,
-  value: number | string,
-  additionalInfo?: Record<string, any>
-) => {
-  if (!DEBUG_CONFIG.ENABLE_TIMING_LOGGING) return;
-
-  const info = {
-    context,
-    value,
-    timestamp: new Date().toISOString(),
-    ...additionalInfo,
-  };
-
-  console.log('⏱️ Timing:', info);
+export const logTiming = (operation: string, info: any = {}): void => {
+  if (DEBUG_LOGGER_CONFIG.ENABLE_TIMING_LOGGING) {
+    // Timing
+  }
 };

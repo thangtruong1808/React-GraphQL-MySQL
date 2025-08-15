@@ -31,49 +31,47 @@ export const useActivityTracker = () => {
   // Handle user activity - called when any user interaction is detected
   const handleUserActivity = useCallback(async () => {
     try {
-      console.log('🔄 Activity tracker: handleUserActivity called');
+      // Activity tracker: handleUserActivity called
       
-      // Only update activity if the app is focused and user is interacting with it
+      // Step 1: Check if app is focused
       if (!isAppFocusedRef.current) {
-        console.log('🔄 Activity tracker: App not focused, skipping');
+        // Activity tracker: App not focused, skipping
         return;
       }
 
-      // Step 1: Get refresh token status asynchronously to avoid race conditions
+      // Step 2: Get refresh token status asynchronously to avoid race conditions
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       
-      // Step 2: Check if refresh token timer is actively counting down
+      // Step 3: Check if refresh token timer is actively counting down
       // If refresh token timer is actively counting down, access token has already expired
       // User activity should NOT reset access token timer in this case
-      const isRefreshTokenActive = refreshTokenStatus.expiry && 
-                                  refreshTokenStatus.timeRemaining && 
+      const isRefreshTokenActive = refreshTokenStatus.expiry &&
+                                  refreshTokenStatus.timeRemaining &&
                                   refreshTokenStatus.timeRemaining > 0;
-      
+
       const isInTransition = refreshTokenStatus.isContinueToWorkTransition;
-      
-      // Step 3: Determine if activity update should be skipped
-      // Only skip if refresh token timer is actively counting down AND not in transition
+
+      // Step 4: Determine if activity update should be skipped
+      // Skip activity update if:
+      // 1. Refresh token timer is actively counting down AND not in transition, OR
+      // 2. User is in "Continue to Work" transition, OR
+      // 3. User is in logout transition
       // This prevents activity updates from interfering with the refresh token flow
-      if (isRefreshTokenActive && !isInTransition) {
-        // Refresh token timer is actively counting down and not in transition - skip activity update
-        // This prevents access token timer from being reset when it has already expired
-        console.log('🔄 Activity tracker: Skipping activity update - refresh token timer active');
-        console.log('🔄 Activity tracker: Refresh token status:', {
-          expiry: refreshTokenStatus.expiry,
-          timeRemaining: refreshTokenStatus.timeRemaining,
-          isExpired: refreshTokenStatus.isExpired,
-          isContinueToWorkTransition: refreshTokenStatus.isContinueToWorkTransition
-        });
+      if ((isRefreshTokenActive && !isInTransition) || 
+          isInTransition || 
+          refreshTokenStatus.isLogoutTransition) {
+        // Activity tracker: Skipping activity update - refresh token timer active
+        // Activity tracker: Refresh token status
         return;
       }
       
-      // Step 3.5: Additional check - if refresh token timer hasn't started yet, allow activity updates
+      // Step 5: Additional check - if refresh token timer hasn't started yet, allow activity updates
       // This ensures normal activity tracking continues until the modal appears
       if (!refreshTokenStatus.expiry) {
-        console.log('🔄 Activity tracker: No refresh token timer active - allowing activity update');
+        // Activity tracker: No refresh token timer active - allowing activity update
       }
       
-      // Step 3.6: Additional safety check - only allow activity updates if access token is still valid
+      // Step 6: Additional safety check - only allow activity updates if access token is still valid
       // This prevents activity updates from interfering with expired tokens
       const tokens = getTokens();
       if (tokens.accessToken) {
@@ -85,27 +83,28 @@ export const useActivityTracker = () => {
         }
         
         if (!isAccessTokenStillValid) {
-          console.log('🔄 Activity tracker: Access token expired - skipping activity update');
+          // Activity tracker: Access token expired - skipping activity update
           return;
         }
       }
       
-      console.log('🔄 Activity tracker: Updating activity timestamp');
-      console.log('🔄 Activity tracker: Refresh token status before update:', {
-        expiry: refreshTokenStatus.expiry,
-        timeRemaining: refreshTokenStatus.timeRemaining,
-        isExpired: refreshTokenStatus.isExpired,
-        isContinueToWorkTransition: refreshTokenStatus.isContinueToWorkTransition
-      });
+      // Step 7: Update activity for access token timer asynchronously
+      // This includes:
+      // 1. No refresh token timer active (normal operation)
+      // 2. Refresh token timer cleared (after "Continue to Work")
+      // 3. Refresh token timer expired (should allow activity updates)
+      // 4. User is in "Continue to Work" transition (allow activity to resume)
+      // Activity tracker: Updating activity timestamp
+      // Activity tracker: Refresh token status before update
       
-      // Step 4: Debug - Check refresh token cookie before updating activity
+      // Debug - Check refresh token cookie before updating activity
       const cookies = document.cookie.split(';').reduce((acc, cookie) => {
         const [key, value] = cookie.trim().split('=');
         acc[key] = value;
         return acc;
       }, {} as Record<string, string>);
-      console.log('🔄 Activity tracker: Refresh token cookie exists before update:', !!cookies.jid);
-      console.log('🔄 Activity tracker: All cookies before update:', cookies);
+      // Activity tracker: Refresh token cookie exists before update
+      // Activity tracker: All cookies before update
       
       // Step 5: Update activity for access token timer asynchronously
       // This includes:
@@ -121,10 +120,10 @@ export const useActivityTracker = () => {
         acc[key] = value;
         return acc;
       }, {} as Record<string, string>);
-      console.log('🔄 Activity tracker: Refresh token cookie exists after update:', !!cookiesAfter.jid);
-      console.log('🔄 Activity tracker: All cookies after update:', cookiesAfter);
+      // Activity tracker: Refresh token cookie exists after update
+      // Activity tracker: All cookies after update
     } catch (error) {
-      console.error('❌ Error in handleUserActivity:', error);
+      // Error in handleUserActivity
     }
   }, []);
 

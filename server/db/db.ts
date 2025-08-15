@@ -59,14 +59,19 @@ const sequelize = new Sequelize({
   timezone: '+00:00',
 });
 
+// Log database connection status
+const logMessage = (msg: string) => {
+  // Database connection message
+};
+
 // Test database connection
 export const testConnection = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connection established successfully.');
+    logMessage('✅ Database connection established successfully.');
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
-    process.exit(1);
+    logMessage(`❌ Database connection failed: ${error}`);
+    throw error;
   }
 };
 

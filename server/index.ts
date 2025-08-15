@@ -135,8 +135,20 @@ async function startServer() {
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
     app.listen(PORT, () => {
-      console.log(`🚀 Server started successfully on ${SERVER_HOST}:${PORT}`);
-      console.log(`📊 GraphQL endpoint: ${server.graphqlPath}`);
+      // Server started successfully
+    });
+
+    // Graceful shutdown handling
+    process.on('SIGTERM', async () => {
+      // Received SIGTERM, shutting down gracefully
+      await server.stop();
+      process.exit(0);
+    });
+
+    process.on('SIGINT', async () => {
+      // Received SIGINT, shutting down gracefully
+      await server.stop();
+      process.exit(0);
     });
 
   } catch (error) {
@@ -144,19 +156,6 @@ async function startServer() {
     process.exit(1);
   }
 }
-
-// Handle graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('🛑 Received SIGTERM, shutting down gracefully');
-  await server.stop();
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  console.log('🛑 Received SIGINT, shutting down gracefully');
-  await server.stop();
-  process.exit(0);
-});
 
 // Start the server
 startServer(); 

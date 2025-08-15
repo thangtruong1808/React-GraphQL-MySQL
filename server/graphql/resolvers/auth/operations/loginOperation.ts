@@ -29,7 +29,7 @@ import { AUTH_OPERATIONS_CONFIG, AUTH_OPERATIONS_TYPES } from './constants';
  * FLOW: Input validation → User lookup → Password verification → Token generation → DB storage → Cookie setting → Response
  */
 export const login = async (input: { email: string; password: string }, res: any, req: any) => {
-  console.log('🔄 Server: Login operation called with email:', input.email);
+  // Server: Login operation called
   try {
     const { email, password } = input;
 
@@ -115,12 +115,7 @@ export const login = async (input: { email: string; password: string }, res: any
     const cookieMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds for cookie
     
     // Debug: Log request details to understand cookie domain/path issues
-    console.log('🔄 Server: Request details for cookie setting:', {
-      host: req.headers.host,
-      origin: req.headers.origin,
-      referer: req.headers.referer,
-      userAgent: req.headers['user-agent']
-    });
+    // Request details for cookie setting
     
     // Use consistent cookie configuration from constants
     const cookieConfig = {
@@ -132,36 +127,23 @@ export const login = async (input: { email: string; password: string }, res: any
       // No domain setting - allows cross-port cookie sharing in development
     };
     
-    console.log('🔄 Server: Setting refresh token cookie with config:', {
-      name: AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME,
-      ...cookieConfig
-    });
+    // Setting refresh token cookie with config
     
     res.cookie(AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieConfig);
     
-    console.log('🔄 Server: Refresh token cookie set successfully');
+    // Refresh token cookie set successfully
     
     // Debug: Check if cookie was actually set in response headers
-    console.log('🔄 Server: Response headers after setting cookie:', {
-      'set-cookie': res.getHeaders()['set-cookie']
-    });
+    // Response headers after setting cookie
     
     // Debug: Check if cookie was actually set in response
     const setCookieHeader = res.getHeaders()['set-cookie'];
-    console.log('🔄 Server: Set-Cookie header value:', setCookieHeader);
-    console.log('🔄 Server: Set-Cookie header type:', typeof setCookieHeader);
-    console.log('🔄 Server: Set-Cookie header length:', Array.isArray(setCookieHeader) ? setCookieHeader.length : 'not array');
+    // Set-Cookie header value
+    // Set-Cookie header type
+    // Set-Cookie header length
     
     // Debug: Log the actual cookie that was set
-    console.log('🔄 Server: Cookie details set:', {
-      name: AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME,
-      value: refreshToken ? `${refreshToken.substring(0, 10)}...` : 'null',
-      maxAge: cookieMaxAge,
-      path: cookieConfig.path,
-      httpOnly: cookieConfig.httpOnly,
-      secure: cookieConfig.secure,
-      sameSite: cookieConfig.sameSite
-    });
+    // Cookie details set
 
     // Set CSRF token for future mutations
     const csrfToken = setCSRFToken(res);
@@ -193,7 +175,6 @@ export const login = async (input: { email: string; password: string }, res: any
     if (error instanceof GraphQLError) {
       throw error;
     }
-    console.error(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Login error:`, error);
     throw new GraphQLError(AUTH_OPERATIONS_CONFIG.ERROR_MESSAGES.LOGIN_FAILED, {
       extensions: { code: AUTH_OPERATIONS_TYPES.ERROR_CODES.INTERNAL_SERVER_ERROR },
     });

@@ -61,11 +61,11 @@ export const useSessionManager = (
   const checkSessionAndActivity = useCallback(async () => {
     // Prevent multiple simultaneous session checks
     if (isSessionCheckRunningRef.current) {
-      console.log('🔄 SessionManager: Session check already running, skipping...');
+      // SessionManager: Session check already running, skipping...
       return;
     }
     
-    console.log('🔄 SessionManager: checkSessionAndActivity called');
+    // SessionManager: checkSessionAndActivity called
     isSessionCheckRunningRef.current = true;
     
     try {
@@ -111,9 +111,9 @@ export const useSessionManager = (
           setLastModalShowTime(now);
 
           // Start the refresh token expiry timer when access token expires
-          console.log('🔄 SessionManager: Starting refresh token expiry timer');
+          // SessionManager: Starting refresh token expiry timer
           await TokenManager.startRefreshTokenExpiryTimer();
-          console.log('🔄 SessionManager: Refresh token expiry timer started');
+          // SessionManager: Refresh token expiry timer started
 
           // Start automatic logout timer based on modal countdown duration
           // This ensures auto-logout is based on the 1-minute modal countdown
@@ -157,21 +157,21 @@ export const useSessionManager = (
           
           // Debug: Log session duration for monitoring
           const dynamicBuffer = TokenManager.calculateDynamicBuffer();
-          console.log('🔄 SessionManager: Session duration:', dynamicBuffer ? Math.round(dynamicBuffer / 1000) : 'null', 'seconds');
+          // SessionManager: Session duration
           
           if (!refreshTokenExpired) {
             const needsRenewal = await isRefreshTokenNeedsRenewal();
             if (AUTH_CONFIG.REFRESH_TOKEN_AUTO_RENEWAL_ENABLED && needsRenewal) {
-              console.log('🔄 SessionManager: Attempting refresh token renewal');
+              // SessionManager: Attempting refresh token renewal
               const renewalSuccess = await renewRefreshToken();
               if (!renewalSuccess) {
-                console.log('🔄 SessionManager: Refresh token renewal failed');
+                // SessionManager: Refresh token renewal failed
               } else {
-                console.log('🔄 SessionManager: Refresh token renewal successful');
+                // SessionManager: Refresh token renewal successful
               }
             }
           } else {
-            console.log('🔄 SessionManager: Skipping refresh token renewal - refresh token expired');
+            // SessionManager: Skipping refresh token renewal - refresh token expired
           }
         }
       }
@@ -179,7 +179,6 @@ export const useSessionManager = (
       // User session is still valid and active - NO TOKEN REFRESH HERE
       // Token refresh is handled by handleUserActivity when actual user activity is detected
     } catch (error) {
-      console.error('❌ Error checking session and activity:', error);
       await performCompleteLogout();
     } finally {
       // Reset the running flag
