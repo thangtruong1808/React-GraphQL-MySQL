@@ -23,17 +23,9 @@ const PublicRoute: React.FC<PublicRouteProps> = ({
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
   const location = useLocation();
 
-  // Show loading spinner during authentication check
-  if (isLoading || isInitializing) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-      </div>
-    );
-  }
-
-  // Redirect authenticated users to home page
-  if (isAuthenticated) {
+  // Let the HomePage handle its own loading state with skeleton
+  // Only redirect if authenticated and not loading
+  if (!isLoading && !isInitializing && isAuthenticated) {
     // Debug logging disabled for better user experience
     return (
       <Navigate
@@ -43,7 +35,7 @@ const PublicRoute: React.FC<PublicRouteProps> = ({
     );
   }
 
-  // Render public content if not authenticated
+  // Render public content if not authenticated or still loading
   return <>{children}</>;
 };
 

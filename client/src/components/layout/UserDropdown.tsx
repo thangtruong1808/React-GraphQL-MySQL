@@ -29,10 +29,10 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
       {/* User Avatar and Dropdown Trigger - Horizontal Layout */}
       <button
         onClick={onToggleDropdown}
-        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+        className="flex items-center space-x-2 p-2 rounded-xl hover:bg-emerald-50 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
       >
         {/* User Avatar */}
-        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-yellow-500 rounded-full flex items-center justify-center">
+        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
           <span className="text-sm font-semibold text-white">
             {getUserInitials()}
           </span>
@@ -40,7 +40,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
 
         {/* Dropdown Icon */}
         <svg
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''
+          className={`w-4 h-4 text-gray-500 transition-all duration-300 ${isDropdownOpen ? 'rotate-180 text-emerald-600' : ''
             }`}
           fill="none"
           stroke="currentColor"
@@ -52,25 +52,25 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
+        <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl z-50 border border-gray-100 backdrop-blur-sm bg-opacity-95 animate-in slide-in-from-top-2 duration-300">
           {/* User Profile Section */}
-          <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
-            <div className="flex items-center space-x-3">
+          <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-t-2xl">
+            <div className="flex items-center space-x-4">
               {/* User Avatar in Dropdown */}
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-yellow-500 rounded-full flex items-center justify-center">
-                <span className="text-sm font-semibold text-white">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-lg font-bold text-white">
                   {getUserInitials()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-gray-900 truncate">
+                <div className="text-base font-bold text-gray-900 truncate">
                   {user?.firstName} {user?.lastName}
                 </div>
-                <div className="text-xs text-gray-600 truncate">
+                <div className="text-sm text-gray-600 truncate mt-1">
                   {user?.email}
                 </div>
-                <div className="flex items-center mt-1">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                <div className="flex items-center mt-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 shadow-sm">
                     {user?.role}
                   </span>
                 </div>
@@ -79,16 +79,16 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
           </div>
 
           {/* Menu Items */}
-          <div className="py-1">
+          <div className="py-2">
             {/* No additional menu items for minimal login feature */}
           </div>
 
           {/* Logout Section */}
-          <div className="border-t border-gray-100 pt-0">
+          <div className="border-t border-gray-100 pt-2 rounded-b-2xl">
             <button
               onClick={onLogout}
               disabled={logoutLoading}
-              className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors duration-200"
+              className="w-full flex items-center px-6 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 transition-all duration-300 hover:shadow-inner rounded-b-2xl"
             >
               {logoutLoading ? (
                 <>

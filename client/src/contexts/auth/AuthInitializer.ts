@@ -23,6 +23,8 @@ export const useAuthInitializer = (
   setIsInitializing: (isInitializing: boolean) => void,
   setShowLoadingSpinner: (showLoadingSpinner: boolean) => void,
   setIsLoading: (isLoading: boolean) => void,
+  setUser: (user: any) => void,
+  setIsAuthenticated: (isAuthenticated: boolean) => void,
 ) => {
   // Ref to track if auth has been initialized (prevents duplicate initialization)
   const isInitializedRef = useRef(false);
@@ -36,7 +38,10 @@ export const useAuthInitializer = (
    */
   const initializeAuth = useCallback(async () => {
     try {
+      // Always set loading states to true immediately to show skeleton
+      // This ensures consistent behavior regardless of optimization settings
       setIsInitializing(true);
+      setIsLoading(true);
 
       // Start delayed loading spinner timer
       const loadingTimer = setTimeout(() => {
@@ -82,27 +87,25 @@ export const useAuthInitializer = (
           
           // Always attempt session restoration - let server handle HttpOnly cookie validation
           // HttpOnly cookies are not accessible via JavaScript, so we can't check them client-side
-          console.log('🔍 AuthInitializer - No access token found, attempting session restoration...');
           
           // Attempt to restore session using refresh token from HttpOnly cookie
           // The browser will automatically send the HttpOnly cookie with this request
           const refreshSuccess = await refreshAccessToken(true); // true = session restoration (browser refresh)
-          console.log('🔍 AuthInitializer - Session restoration result:', refreshSuccess);
           
           if (!refreshSuccess) {
-            console.log('🔍 AuthInitializer - Session restoration failed, new user');
             // No valid refresh token found - this is a new user
-            // Let them see the login page naturally
+            // Explicitly set authentication state to false to prevent showing unauthenticated state during loading
+            setUser(null);
+            setIsAuthenticated(false);
             return;
           }
           
           // refreshAccessToken already sets user data, so we're done
-          console.log('🔍 AuthInitializer - Session restoration successful');
           return;
         }
       })();
 
-      // Race between auth initialization and timeout
+      // Wait for authentication to complete with timeout
       await Promise.race([authPromise, timeoutPromise]);
 
       // Clear loading timer if auth completed quickly
@@ -117,27 +120,26 @@ export const useAuthInitializer = (
         await performCompleteLogout();
       }
     } finally {
+      // Set loading states to false after authentication process is complete
       setIsLoading(false);
       setIsInitializing(false);
     }
-  }, [refreshAccessToken, fetchCurrentUser, performCompleteLogout, setIsInitializing, setShowLoadingSpinner, setIsLoading]);
+  }, [refreshAccessToken, fetchCurrentUser, performCompleteLogout, setIsInitializing, setShowLoadingSpinner, setIsLoading, setUser, setIsAuthenticated]);
 
   // Initialize authentication on mount (only once)
   useEffect(() => {
-    // Check if we have tokens to determine if we should initialize
-    const tokens = getTokens();
-    const hasTokens = !!tokens.accessToken;
-    
-    // Reset initialization state if no tokens are present (fresh start or browser refresh)
-    if (!hasTokens && isInitializedRef.current) {
-      isInitializedRef.current = false;
-    }
-    
+    // Always initialize authentication on mount
+    // This ensures consistent behavior for both first-time users and returning users
     if (!isInitializedRef.current) {
       isInitializedRef.current = true;
-      initializeAuth();
+      initializeAuth().catch((error) => {
+        // Handle any errors during initialization
+        console.error('Auth initialization failed:', error);
+        // Reset initialization state on error
+        isInitializedRef.current = false;
+      });
     }
-  }, []); // Empty dependency array to prevent infinite loops
+  }, [initializeAuth]); // Include initializeAuth in dependencies
 
   return {
     initializeAuth,

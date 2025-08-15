@@ -30,22 +30,16 @@ const LoadingSpinner = () => (
  * SCENARIOS: All application scenarios
  */
 const AppContent: React.FC = () => {
-  const { isLoading, isInitializing } = useAuth();
-
-  // Show loading spinner only during initial authentication check
-  if (isLoading && isInitializing) {
-    return <LoadingSpinner />;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Global navigation bar - show for all users */}
       <NavBar />
 
       {/* Activity tracker - handles user activity monitoring */}
       <ActivityTracker />
 
-      <main>
+      {/* Main content area - flex-1 to take remaining space */}
+      <main className="flex-1">
         <AppRoutes />
       </main>
     </div>

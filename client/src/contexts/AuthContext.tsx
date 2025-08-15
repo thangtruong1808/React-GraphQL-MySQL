@@ -140,6 +140,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authState.setIsInitializing,
     authState.setShowLoadingSpinner,
     authState.setIsLoading,
+    authState.setUser,
+    authState.setIsAuthenticated,
   );
 
   // Sync session expiry modal state with TokenManager

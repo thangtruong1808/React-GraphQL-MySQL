@@ -15,7 +15,7 @@ const MobileMenuButton: React.FC<MobileMenuButtonProps> = ({ isOpen, onToggle })
     <div className="lg:hidden">
       <button
         onClick={onToggle}
-        className="text-gray-500 hover:text-yellow-600 p-2 rounded-lg border border-gray-300 hover:border-yellow-400 transition-all duration-300 ease-in-out hover:bg-yellow-50 hover:shadow-md transform hover:scale-105"
+        className="text-gray-600 hover:text-emerald-600 p-3 rounded-xl border border-gray-200 hover:border-emerald-300 transition-all duration-300 ease-in-out hover:bg-emerald-50 hover:shadow-lg transform hover:scale-105 hover:-translate-y-0.5"
         aria-label="Toggle mobile menu"
       >
         <svg
