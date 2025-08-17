@@ -47,24 +47,16 @@ export const useAppFocusedActivityTracker = () => {
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       
       // Step 3: Check if refresh token timer is actively counting down
-      // If refresh token timer is actively counting down, access token has already expired
-      // User activity should NOT reset access token timer in this case
+      // Only skip activity updates when refresh token timer is active AND not in transition
       const isRefreshTokenActive = refreshTokenStatus.expiry &&
                                   refreshTokenStatus.timeRemaining &&
                                   refreshTokenStatus.timeRemaining > 0;
 
       const isInTransition = refreshTokenStatus.isContinueToWorkTransition;
 
-      // Step 4: Determine if activity update should be skipped
-      // Skip activity update if:
-      // 1. Refresh token timer is actively counting down AND not in transition, OR
-      // 2. User is in "Continue to Work" transition, OR
-      // 3. User is in logout transition
-      // This prevents activity updates from interfering with the refresh token flow
-      if ((isRefreshTokenActive && !isInTransition) || 
-          isInTransition || 
-          refreshTokenStatus.isLogoutTransition) {
-        // Skip activity update to preserve refresh token timer and prevent interference
+      // Step 4: Skip activity updates only during refresh token countdown (not during transitions)
+      if (isRefreshTokenActive && !isInTransition) {
+        console.log('🔍 AppFocusedActivityTracker - Skipping activity update - refresh token timer active');
         return;
       }
       

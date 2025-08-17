@@ -237,9 +237,18 @@ export class TokenStorage {
         MemoryStorage.setTokenExpiry(expiry);
       }
 
-      // Set refresh token expiry - should be 1 minute from NOW (when tokens are refreshed)
-      // This ensures refresh token countdown shows 1 minute from the moment tokens are refreshed
-      const refreshTokenExpiry = Date.now() + AUTH_CONFIG.MODAL_COUNTDOWN_DURATION;
+      // SIMPLE FIX: Reset all timers to original 1-minute values
+      const now = Date.now();
+      
+      // Reset activity-based token expiry to 1 minute from now
+      const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
+      MemoryStorage.setActivityBasedExpiry(activityExpiry);
+      
+      // Reset last activity timestamp
+      MemoryStorage.setLastActivity(now);
+
+      // Reset refresh token expiry to 1 minute from now
+      const refreshTokenExpiry = now + AUTH_CONFIG.MODAL_COUNTDOWN_DURATION;
       MemoryStorage.setRefreshTokenExpiry(refreshTokenExpiry);
     } catch (error) {
       console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);

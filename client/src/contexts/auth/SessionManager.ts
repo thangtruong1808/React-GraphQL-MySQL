@@ -81,6 +81,21 @@ export const useSessionManager = (
         return;
       }
 
+      // ADDITIONAL CHECK: If session expiry modal was recently closed, skip checks for a longer period
+      // This prevents immediate session expiry detection after successful refresh (reset to first-time login state)
+      const now = Date.now();
+      const timeSinceLastModalClose = lastModalShowTime ? now - lastModalShowTime : Infinity;
+      const modalCloseCooldown = 5000; // 5 seconds cooldown after modal closes (increased for reset state)
+      
+      if (timeSinceLastModalClose < modalCloseCooldown && !showSessionExpiryModal) {
+        // Modal was recently closed - skip session checks to prevent immediate re-triggering
+        console.log('🔍 SessionManager - Modal recently closed, skipping session checks (reset state):', {
+          timeSinceLastModalClose,
+          modalCloseCooldown
+        });
+        return;
+      }
+
       // Check if access token is expired first - this is the primary check
       const tokens = getTokens();
       if (tokens.accessToken) {
@@ -90,6 +105,14 @@ export const useSessionManager = (
         } else {
           isAccessTokenExpired = isTokenExpired(tokens.accessToken);
         }
+
+        // Debug logging for access token expiry check
+        console.log('🔍 SessionManager - Access token expiry check:', {
+          isAccessTokenExpired,
+          activityBasedEnabled: AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED,
+          hasAccessToken: !!tokens.accessToken,
+          timeSinceLastModalClose: timeSinceLastModalClose < modalCloseCooldown ? timeSinceLastModalClose : null
+        });
 
         // If access token is still valid, no need to check refresh token
         if (!isAccessTokenExpired) {
@@ -102,6 +125,7 @@ export const useSessionManager = (
         const refreshTokenExpired = await isRefreshTokenExpired();
 
         // Show modal only if access token is expired, refresh token is valid, modal is not already showing, and enough time has passed since last show
+        // RESET TO FIRST-TIME LOGIN STATE: When refresh token timer shows, access token is reset and all components are notified
         const now = Date.now();
         const timeSinceLastShow = lastModalShowTime ? now - lastModalShowTime : Infinity;
         const minTimeBetweenShows = 5000; // 5 seconds minimum between modal shows
@@ -121,9 +145,9 @@ export const useSessionManager = (
           setLastModalShowTime(now);
 
           // Start the refresh token expiry timer when access token expires
-          // SessionManager: Starting refresh token expiry timer
+          console.log('🔍 SessionManager - Starting refresh token expiry timer');
           await TokenManager.startRefreshTokenExpiryTimer();
-          // SessionManager: Refresh token expiry timer started
+          console.log('🔍 SessionManager - Refresh token expiry timer started');
 
           // Start automatic logout timer based on modal countdown duration
           // This ensures auto-logout is based on the 1-minute modal countdown

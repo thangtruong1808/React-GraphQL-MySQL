@@ -215,15 +215,20 @@ export const useAuthActions = (
       
       console.log('🔄 Refresh Access Token - Storing tokens and updating state...');
       
-      // Save tokens and update authentication state
+      // Store tokens (this resets access token to 1 minute like first-time login)
       saveTokens(accessToken, refreshToken);
       setUser(refreshedUser);
       setIsAuthenticated(true);
       
-      // Reset activity timer - this is critical for preventing immediate session expiry
+      // Reset activity timer to ensure proper synchronization (like first-time login)
       await TokenManager.updateActivity();
       
-      console.log('🔄 Refresh Access Token - Refresh successful, user authenticated');
+      // Reset Auth state to first-time login state
+      setShowSessionExpiryModal(false);
+      setLastModalShowTime(null);
+      setSessionExpiryMessage('');
+      
+      console.log('🔄 Refresh Access Token - Refresh successful, user authenticated (first-time login state)');
       
       // Handle session restoration vs manual refresh differently
       if (isSessionRestoration) {
@@ -630,38 +635,38 @@ export const useAuthActions = (
       if (refreshSuccess) {
         // Refresh success - proceeding with success flow
         
-        // Success - clear modal and show success message
-        // Clear refresh token timer after successful refresh to allow normal activity tracking
-        // This prevents the activity tracker from being blocked by the refresh token timer
-        
         logTokenRefreshTiming('refresh_session', timeRemaining, { 
           success: true,
-          operation: 'direct_refresh_clear_refresh_timer' 
+          operation: 'direct_refresh_success' 
         });
         
         try {
-          // Clear refresh token timer to allow normal activity tracking
-          await TokenManager.clearRefreshTokenExpiry();
-          // Refresh token expiry cleared successfully
+          console.log('🔄 Refresh Session - Refresh successful, resetting to first-time login state...');
           
-          // Update activity after clearing refresh token timer to ensure proper reset
-          // This is critical to prevent immediate session expiry after refresh
+          // STEP 1: Reset activity timer to 1 minute (like first-time login)
           await TokenManager.updateActivity();
           
-          // Small delay to ensure activity update is processed before SessionManager runs its next check
-          // This prevents the immediate session expiry issue
-          await new Promise(resolve => setTimeout(resolve, 100));
+          // STEP 2: Clear refresh token timer (like first-time login)
+          await TokenManager.clearRefreshTokenExpiry();
           
-          // Don't update user state immediately to prevent SessionManager from triggering another refresh
-          // The SessionManager will naturally detect the refreshed tokens on its next check
-          // Skipping user state update to prevent duplicate refresh
-          
+          // STEP 3: Reset Auth state to first-time login state
           setShowSessionExpiryModal(false);
           setLastModalShowTime(null);
+          setSessionExpiryMessage('');
+          
+          // STEP 4: Clear any auto-logout timer (like first-time login)
+          if (modalAutoLogoutTimer) {
+            clearTimeout(modalAutoLogoutTimer);
+            setModalAutoLogoutTimer(null);
+          }
+          
+          // STEP 5: Show success message
           showNotification('You can continue working now!', 'success');
-          // Success flow completed - returning true
+          
+          console.log('🔄 Refresh Session - Reset to first-time login state completed');
           return true;
         } catch (successError) {
+          console.error('🔄 Refresh Session - Error in success flow:', successError);
           throw successError; // Re-throw to be caught by outer catch block
         }
       } else {

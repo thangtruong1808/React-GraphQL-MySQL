@@ -38,7 +38,8 @@ export class ActivityManager {
       });
       
       // Step 3: Ensure all operations are completed before returning
-      await new Promise(resolve => setTimeout(resolve, 0));
+      // Small delay to ensure memory operations are fully processed
+      await new Promise(resolve => setTimeout(resolve, 10));
     } catch (error) {
       console.error('❌ Error updating activity:', error);
       throw error; // Re-throw to allow proper error handling

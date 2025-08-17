@@ -130,7 +130,12 @@ export class RefreshTokenManager {
         oldTimeRemaining: oldExpiry ? oldExpiry - Date.now() : null
       });
       
+      // Clear the refresh token expiry
       await MemoryStorage.setRefreshTokenExpiry(null);
+      
+      // Small delay to ensure the clearing operation is fully processed
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       console.log('🔍 RefreshTokenManager - Refresh token expiry cleared successfully');
       // Debug logging disabled for better user experience
     } catch (error) {
