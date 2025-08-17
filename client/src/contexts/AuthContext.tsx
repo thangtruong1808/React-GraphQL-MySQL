@@ -192,10 +192,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {(() => {
-        console.log("🔒 AuthProvider - Rendering children? isInitializing =", authState.isInitializing);
-        return authState.isInitializing ? <AuthenticatedSkeleton /> : children;
-      })()}
+      {authState.isInitializing ? <AuthenticatedSkeleton /> : children}
     </AuthContext.Provider>
   );
 }; 

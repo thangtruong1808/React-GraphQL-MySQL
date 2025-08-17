@@ -125,10 +125,6 @@ export class RefreshTokenManager {
   static async clearRefreshTokenExpiry(): Promise<void> {
     try {
       const oldExpiry = await MemoryStorage.getRefreshTokenExpiry();
-      console.log('🔍 RefreshTokenManager - Clearing refresh token expiry:', {
-        oldExpiry,
-        oldTimeRemaining: oldExpiry ? oldExpiry - Date.now() : null
-      });
       
       // Clear the refresh token expiry
       await MemoryStorage.setRefreshTokenExpiry(null);
@@ -136,10 +132,8 @@ export class RefreshTokenManager {
       // Small delay to ensure the clearing operation is fully processed
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      console.log('🔍 RefreshTokenManager - Refresh token expiry cleared successfully');
       // Debug logging disabled for better user experience
     } catch (error) {
-      console.error('❌ RefreshTokenManager - Error clearing refresh token expiry:', error);
       // Error clearing refresh token expiry
     }
   }

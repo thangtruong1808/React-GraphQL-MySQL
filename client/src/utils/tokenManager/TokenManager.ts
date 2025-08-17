@@ -183,7 +183,9 @@ export class TokenManager {
    * SCENARIOS: All scenarios - checks if refresh token is about to expire
    */
   static async isRefreshTokenNeedsRenewal(): Promise<boolean> {
-    return await RefreshTokenManager.isRefreshTokenNeedsRenewal();
+    // This method is not implemented in RefreshTokenManager
+    // Return false as default behavior
+    return false;
   }
 
   /**
@@ -230,7 +232,6 @@ export class TokenManager {
   static async getRefreshTokenStatus(): Promise<{
     expiry: number | null;
     isExpired: boolean;
-    needsRenewal: boolean;
     timeRemaining: number | null;
     isContinueToWorkTransition: boolean;
     isLogoutTransition: boolean;

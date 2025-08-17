@@ -99,7 +99,6 @@ export class TokenValidation {
       const decoded = atob(payload);
       return JSON.parse(decoded);
     } catch (error) {
-      console.error('❌ Error decoding token:', error);
       return null;
     }
   }
@@ -122,7 +121,6 @@ export class TokenValidation {
       // Convert to milliseconds
       return decoded.exp * 1000;
     } catch (error) {
-      console.error('❌ Error getting token expiration:', error);
       return null;
     }
   }

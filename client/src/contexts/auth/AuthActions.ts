@@ -66,8 +66,6 @@ export const useAuthActions = (
    * Used for both manual logout and automatic logout scenarios
    */
   const performCompleteLogout = useCallback(async () => {
-    console.log('🧹 Perform Complete Logout - Starting cleanup...');
-    
     // Clear modal auto-logout timer using ref for immediate access
     if (modalAutoLogoutTimer) {
       clearTimeout(modalAutoLogoutTimer);
@@ -81,7 +79,6 @@ export const useAuthActions = (
 
     // Clear all authentication data (preserves token creation time for dynamic buffer)
     clearTokens();
-    console.log('🧹 Perform Complete Logout - Tokens cleared');
     
     // Clear token creation time specifically for complete logout
     // This ensures new tokens will have fresh creation time for dynamic buffer calculation
@@ -97,7 +94,6 @@ export const useAuthActions = (
     // Clear user data and authentication state immediately
     setUser(null);
     setIsAuthenticated(false);
-    console.log('🧹 Perform Complete Logout - User state cleared');
     
     // Clear CSRF token from Apollo Client
     clearApolloCSRFToken();
@@ -105,7 +101,6 @@ export const useAuthActions = (
     // Clear Apollo cache to ensure clean state
     try {
       await client.clearStore();
-      console.log('🧹 Perform Complete Logout - Apollo cache cleared');
     } catch (cacheError) {
       // Cache clearing failed - this is not critical for logout
     }
@@ -113,7 +108,6 @@ export const useAuthActions = (
     // Force a small delay to ensure all state changes are processed
     // This prevents race conditions during logout
     await new Promise(resolve => setTimeout(resolve, 100));
-    console.log('🧹 Perform Complete Logout - Cleanup completed');
   }, [client, modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated]);
 
   /**
@@ -123,13 +117,9 @@ export const useAuthActions = (
    */
   const refreshAccessToken = useCallback(async (isSessionRestoration: boolean = false): Promise<boolean> => {
     try {
-      console.log('🔄 Refresh Access Token - Starting refresh, isSessionRestoration:', isSessionRestoration);
-      
       // Get refresh token status to check timing
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       const timeRemaining = refreshTokenStatus.timeRemaining;
-      
-      console.log('🔄 Refresh Access Token - Token status:', { timeRemaining, isExpired: refreshTokenStatus.isExpired });
       
       // Log timing information for debugging
       logTokenRefreshTiming('refresh_access_token_start', timeRemaining, { 
@@ -142,7 +132,6 @@ export const useAuthActions = (
       // This prevents the client-side timer from blocking legitimate refresh attempts
       if (timeRemaining === null) {
         // No refresh token timer set - this is unusual but allow the attempt
-        console.log('🔄 Refresh Access Token - No refresh timer set, allowing attempt');
         logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
           info: 'no_refresh_timer_set_allowing_attempt',
           isSessionRestoration 
@@ -150,7 +139,6 @@ export const useAuthActions = (
       } else if (timeRemaining <= 0) {
         // Time remaining is 0 or negative, but still allow the attempt
         // The server-side validation will be the authority on whether the refresh token is still valid
-        console.log('🔄 Refresh Access Token - Time remaining <= 0, allowing attempt');
         logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
           info: 'time_remaining_zero_allowing_attempt',
           isSessionRestoration 
@@ -159,25 +147,16 @@ export const useAuthActions = (
       
       // Calculate dynamic buffer time for server-side cookie expiry
       const dynamicBuffer = TokenManager.calculateDynamicBuffer();
-      console.log('🔄 Refresh Access Token - Dynamic buffer:', dynamicBuffer);
       
       // Call refresh token mutation with dynamic buffer
-      console.log('🔄 Refresh Access Token - Calling refresh token mutation...');
       const result = await refreshTokenMutation({
         variables: {
           dynamicBuffer: dynamicBuffer || undefined
         }
       });
       
-      console.log('🔄 Refresh Access Token - Mutation result:', { 
-        hasErrors: !!result.errors, 
-        hasData: !!result.data,
-        errors: result.errors?.map(e => e.message)
-      });
-      
       if (result.errors && result.errors.length > 0) {
         // GraphQL errors
-        console.error('🔄 Refresh Access Token - GraphQL errors:', result.errors);
         logTokenRefreshTiming('refresh_access_token', timeRemaining, { 
           error: 'graphql_errors',
           isSessionRestoration,
@@ -187,16 +166,10 @@ export const useAuthActions = (
       }
       
       const { refreshToken: refreshData } = result.data || {};
-      console.log('🔄 Refresh Access Token - Refresh data:', { 
-        hasAccessToken: !!refreshData?.accessToken,
-        hasRefreshToken: !!refreshData?.refreshToken,
-        hasUser: !!refreshData?.user
-      });
       
       // Validate response data
       if (!refreshData || !refreshData.accessToken || !refreshData.refreshToken || !refreshData.user) {
         // No valid tokens or user data returned - user is not authenticated
-        console.log('🔄 Refresh Access Token - No valid tokens or user data returned');
         setUser(null);
         setIsAuthenticated(false);
         
@@ -213,8 +186,6 @@ export const useAuthActions = (
       // Store new tokens and update authentication state
       const { accessToken, refreshToken, csrfToken, user: refreshedUser } = refreshData;
       
-      console.log('🔄 Refresh Access Token - Storing tokens and updating state...');
-      
       // Store tokens (this resets access token to 1 minute like first-time login)
       saveTokens(accessToken, refreshToken);
       setUser(refreshedUser);
@@ -227,8 +198,6 @@ export const useAuthActions = (
       setShowSessionExpiryModal(false);
       setLastModalShowTime(null);
       setSessionExpiryMessage('');
-      
-      console.log('🔄 Refresh Access Token - Refresh successful, user authenticated (first-time login state)');
       
       // Handle session restoration vs manual refresh differently
       if (isSessionRestoration) {
@@ -248,13 +217,10 @@ export const useAuthActions = (
 
       return true;
     } catch (error: any) {
-      console.error('🔄 Refresh Access Token - Error:', error);
-      
       if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         const graphQLError = error.graphQLErrors[0];
         
         if (graphQLError.message === 'Refresh token is required') {
-          console.log('🔄 Refresh Access Token - Refresh token is required error');
           logTokenRefreshTiming('refresh_access_token', null, { 
             error: 'refresh_token_required',
             isSessionRestoration 
@@ -269,7 +235,6 @@ export const useAuthActions = (
         });
       } else if (error.message && error.message.includes('Refresh token is required')) {
         // Handle case where error is not in graphQLErrors but in error.message
-        console.log('🔄 Refresh Access Token - Refresh token is required error (from message)');
         logTokenRefreshTiming('refresh_access_token', null, { 
           error: 'refresh_token_required_from_message',
           isSessionRestoration 
@@ -277,7 +242,6 @@ export const useAuthActions = (
         return false;
       } else if (error.networkError) {
         // Handle network errors
-        console.error('🔄 Refresh Access Token - Network error:', error.networkError);
         logTokenRefreshTiming('refresh_access_token', null, { 
           error: 'network_error',
           isSessionRestoration,
@@ -306,8 +270,7 @@ export const useAuthActions = (
       
       // Log timing information for debugging
       logTokenRefreshTiming('renew_refresh_token_start', timeRemaining, { 
-        isExpired: refreshTokenStatus.isExpired,
-        needsRenewal: refreshTokenStatus.needsRenewal 
+        isExpired: refreshTokenStatus.isExpired
       });
       
       // Allow renewal as long as refresh token is valid (even with 1 second remaining)
@@ -360,7 +323,6 @@ export const useAuthActions = (
         return false;
       }
     } catch (error) {
-      console.error('❌ Error renewing refresh token:', error);
       logTokenRefreshTiming('renew_refresh_token', null, { 
         error: 'exception',
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
@@ -453,31 +415,27 @@ export const useAuthActions = (
    */
   const logout = useCallback(async () => {
     try {
-      console.log('🚪 Logout - Starting logout process...');
       setLogoutLoading(true);
       
       // Call server logout first to clear refresh token from database
       // This is critical for proper session termination
       try {
-        console.log('🚪 Logout - Calling server logout mutation...');
         const result = await logoutMutation();
-        console.log('🚪 Logout - Server logout successful:', result);
       } catch (serverError: any) {
         // Server logout failed - this could be due to:
         // 1. Expired access token (403 Forbidden) - this is expected during logout
         // 2. Network issues
         // 3. Server errors
-        console.log('🚪 Logout - Server logout failed:', serverError);
         
         // Check if it's a 403 error (Forbidden) - this usually means expired tokens
         // This is expected behavior during logout, so we continue with local cleanup
         if (serverError.networkError?.statusCode === 403 || 
             serverError.message?.includes('403') ||
             serverError.message?.includes('Forbidden')) {
-          console.log('🚪 Logout - Server logout failed with 403 - tokens likely expired, continuing with local cleanup');
+          // Tokens likely expired, continuing with local cleanup
         } else {
-          // For other errors, log them but continue with local cleanup
-          console.error('🚪 Logout - Server logout failed with unexpected error:', serverError);
+          // For other errors, continue with local cleanup
+          // This ensures the user is logged out locally even if server logout fails
         }
         
         // Continue with local cleanup regardless of server error
@@ -485,13 +443,10 @@ export const useAuthActions = (
       }
     } catch (error) {
       // Any other unexpected errors during logout
-      console.error('🚪 Logout - Unexpected logout error:', error);
       // Don't show errors to user during logout process
     } finally {
       // Always perform local cleanup to ensure user is logged out
-      console.log('🚪 Logout - Performing local cleanup...');
       await performCompleteLogout();
-      console.log('🚪 Logout - Logout process completed');
       setLogoutLoading(false);
     }
   }, [logoutMutation, performCompleteLogout, setLogoutLoading]);
@@ -567,11 +522,6 @@ export const useAuthActions = (
       const timeRemaining = refreshTokenStatus.timeRemaining;
       
       // Debug logging to understand refresh token timer behavior
-      console.log('🔄 Refresh Session - Refresh token status:', {
-        timeRemaining,
-        isExpired: refreshTokenStatus.isExpired,
-        hasMoreThan5Seconds: timeRemaining && timeRemaining > 5000
-      });
       
       // For manual refresh (Continue to Work), allow refresh even with 0 time remaining
       // The server-side validation will be the authority on whether the refresh token is still valid
@@ -641,8 +591,6 @@ export const useAuthActions = (
         });
         
         try {
-          console.log('🔄 Refresh Session - Refresh successful, resetting to first-time login state...');
-          
           // STEP 1: Reset activity timer to 1 minute (like first-time login)
           await TokenManager.updateActivity();
           
@@ -663,10 +611,8 @@ export const useAuthActions = (
           // STEP 5: Show success message
           showNotification('You can continue working now!', 'success');
           
-          console.log('🔄 Refresh Session - Reset to first-time login state completed');
           return true;
         } catch (successError) {
-          console.error('🔄 Refresh Session - Error in success flow:', successError);
           throw successError; // Re-throw to be caught by outer catch block
         }
       } else {

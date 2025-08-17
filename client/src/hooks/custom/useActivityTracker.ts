@@ -52,7 +52,6 @@ export const useActivityTracker = () => {
 
       // Step 4: Skip activity updates only during refresh token countdown (not during transitions)
       if (isRefreshTokenActive && !isInTransition) {
-        console.log('🔍 ActivityTracker - Skipping activity update - refresh token timer active');
         return;
       }
       

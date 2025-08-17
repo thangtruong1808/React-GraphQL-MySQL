@@ -50,7 +50,6 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
         const newTimerState = await TimerCalculator.calculateTimerState();
         setTimerState(newTimerState);
       } catch (error) {
-        console.error('Error updating timer state:', error);
         // Set fallback state on error
         setTimerState({
           timeDisplay: ACTIVITY_DEBUGGER_MESSAGES.NOT_AVAILABLE,

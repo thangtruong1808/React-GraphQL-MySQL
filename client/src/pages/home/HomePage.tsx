@@ -283,18 +283,13 @@ const AuthenticatedContent: React.FC = () => {
 const HomePage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
 
-  // Debug logs to track state
-  console.log('🏠 HomePage - State:', { user: !!user, isAuthenticated });
-
   // AuthProvider handles gating - we only render here after initialization is complete
   if (!user || !isAuthenticated) {
     // We're sure user is not logged in (either no user data or not authenticated)
-    console.log('🏠 HomePage - User not authenticated, showing UnauthenticatedContent');
     return <UnauthenticatedContent />;
   }
 
   // User is authenticated and ready
-  console.log('🏠 HomePage - User authenticated, showing AuthenticatedContent');
   return <AuthenticatedContent />;
 };
 

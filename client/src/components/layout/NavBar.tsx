@@ -49,7 +49,7 @@ const NavBar: React.FC = () => {
       await logout();
       navigate(ROUTE_PATHS.LOGIN, { replace: true });
     } catch (error) {
-      console.error('Logout error:', error);
+      // Logout error handled silently
     }
   };
 

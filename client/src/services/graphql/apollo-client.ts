@@ -62,10 +62,10 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
         // Debug logging disabled for better user experience
       }
     } else {
-      console.warn('Failed to fetch initial CSRF token:', response.status);
+      // Failed to fetch initial CSRF token
     }
   } catch (error) {
-    console.error('Error fetching initial CSRF token:', error);
+    // Error fetching initial CSRF token handled silently
   }
 };
 
@@ -151,7 +151,6 @@ const authLink = setContext((_, { headers }) => {
     
     return { headers: requestHeaders };
   } catch (error) {
-    console.error('Error setting auth context:', error);
     return { headers };
   }
 });

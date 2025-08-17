@@ -32,13 +32,11 @@ export class TokenStorage {
 
       // Validate access token format (should be JWT)
       if (!TokenValidation.isValidJWTFormat(accessToken)) {
-        console.error(`${TOKEN_DEBUG.STORE_PREFIX} - Invalid access token format:`, accessToken ? `${accessToken.substring(0, 20)}...` : 'null');
         throw new Error(TOKEN_ERROR_MESSAGES.INVALID_JWT_FORMAT);
       }
 
       // Validate refresh token format (should be hex string)
       if (!TokenValidation.isValidHexFormat(refreshToken)) {
-        console.error(`${TOKEN_DEBUG.STORE_PREFIX} - Invalid refresh token format:`, refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null');
         throw new Error(TOKEN_ERROR_MESSAGES.INVALID_HEX_FORMAT);
       }
 
@@ -67,7 +65,6 @@ export class TokenStorage {
       const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
       MemoryStorage.setActivityBasedExpiry(activityExpiry);
     } catch (error) {
-      console.error(`${TOKEN_DEBUG.STORE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
       this.clearTokens(); // Clear any partial data
       throw error;
     }
@@ -102,7 +99,6 @@ export class TokenStorage {
       
       return token;
     } catch (error) {
-      console.error(`${TOKEN_DEBUG.GET_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
       return null;
     }
   }
@@ -142,7 +138,6 @@ export class TokenStorage {
       }
       return userData;
     } catch (error) {
-      console.error('❌ Error getting user data:', error);
       return null;
     }
   }
@@ -160,7 +155,6 @@ export class TokenStorage {
       
       // Validate access token format
       if (!TokenValidation.isValidJWTFormat(accessToken)) {
-        console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - Invalid access token format`);
         throw new Error(TOKEN_ERROR_MESSAGES.INVALID_JWT_FORMAT);
       }
 
@@ -176,7 +170,7 @@ export class TokenStorage {
       // DO NOT clear refresh token expiry timer when only access token is refreshed
       // This preserves the refresh token countdown for "Continue to Work" scenarios
     } catch (error) {
-      console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
+      // Error updating access token handled silently
     }
   }
 
@@ -196,7 +190,7 @@ export class TokenStorage {
         MemoryStorage.setUserData(user);
       }
     } catch (error) {
-      console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
+      // Error updating user data handled silently
     }
   }
 
@@ -213,13 +207,11 @@ export class TokenStorage {
       
       // Validate access token format
       if (!TokenValidation.isValidJWTFormat(accessToken)) {
-        console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - Invalid access token format`);
         throw new Error(TOKEN_ERROR_MESSAGES.INVALID_JWT_FORMAT);
       }
 
       // Validate refresh token format
       if (!TokenValidation.isValidHexFormat(refreshToken)) {
-        console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - Invalid refresh token format`);
         throw new Error(TOKEN_ERROR_MESSAGES.INVALID_HEX_FORMAT);
       }
 
@@ -251,7 +243,7 @@ export class TokenStorage {
       const refreshTokenExpiry = now + AUTH_CONFIG.MODAL_COUNTDOWN_DURATION;
       MemoryStorage.setRefreshTokenExpiry(refreshTokenExpiry);
     } catch (error) {
-      console.error(`${TOKEN_DEBUG.UPDATE_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
+      // Error updating tokens handled silently
     }
   }
 
@@ -272,7 +264,7 @@ export class TokenStorage {
       // Clear memory storage
       MemoryStorage.clearAll();
     } catch (error) {
-      console.error(`${TOKEN_DEBUG.CLEAR_PREFIX} - ${TOKEN_DEBUG.OPERATION_FAILED}:`, error);
+      // Error clearing tokens handled silently
     }
   }
 

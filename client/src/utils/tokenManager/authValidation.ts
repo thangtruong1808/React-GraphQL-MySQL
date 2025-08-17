@@ -40,7 +40,6 @@ export class AuthValidation {
       // Fallback to original token expiry check
       return !this.isAccessTokenExpired();
     } catch (error) {
-      console.error('❌ Error checking authentication:', error);
       return false;
     }
   }
@@ -69,7 +68,6 @@ export class AuthValidation {
       
       return isExpired;
     } catch (error) {
-      console.error('❌ Error checking access token expiry:', error);
       return true; // Assume expired on error
     }
   }
@@ -99,7 +97,6 @@ export class AuthValidation {
       
       return token;
     } catch (error) {
-      console.error('❌ Error getting access token:', error);
       return null;
     }
   }
@@ -125,7 +122,6 @@ export class AuthValidation {
       }
       return userData;
     } catch (error) {
-      console.error('❌ Error getting user data:', error);
       return null;
     }
   }

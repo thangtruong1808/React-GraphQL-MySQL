@@ -56,7 +56,6 @@ export const useAppFocusedActivityTracker = () => {
 
       // Step 4: Skip activity updates only during refresh token countdown (not during transitions)
       if (isRefreshTokenActive && !isInTransition) {
-        console.log('🔍 AppFocusedActivityTracker - Skipping activity update - refresh token timer active');
         return;
       }
       
@@ -167,9 +166,6 @@ export const useAppFocusedActivityTracker = () => {
       } catch (error) {
         // Silently handle any errors to prevent breaking the activity tracking
         // This ensures the app continues to function even if there are DOM-related issues
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn('Activity tracking error:', error);
-        }
       }
     };
 
@@ -185,9 +181,6 @@ export const useAppFocusedActivityTracker = () => {
         }
       } catch (error) {
         // Silently handle any errors to prevent breaking the activity tracking
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn('Focus change error:', error);
-        }
       }
     };
 
@@ -202,9 +195,6 @@ export const useAppFocusedActivityTracker = () => {
         }
       } catch (error) {
         // Silently handle any errors to prevent breaking the activity tracking
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn('Visibility change error:', error);
-        }
       }
     };
 
@@ -217,9 +207,6 @@ export const useAppFocusedActivityTracker = () => {
         });
       } catch (error) {
         // Silently handle any errors to prevent breaking the activity tracking
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn(`Failed to add event listener for ${eventType}:`, error);
-        }
       }
     });
 
@@ -231,9 +218,6 @@ export const useAppFocusedActivityTracker = () => {
         }
       } catch (error) {
         // Silently handle any errors to prevent breaking the activity tracking
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn('Mouse enter error:', error);
-        }
       }
     };
 
@@ -244,9 +228,6 @@ export const useAppFocusedActivityTracker = () => {
         }
       } catch (error) {
         // Silently handle any errors to prevent breaking the activity tracking
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn('Mouse leave error:', error);
-        }
       }
     };
 
@@ -263,9 +244,6 @@ export const useAppFocusedActivityTracker = () => {
       document.addEventListener('visibilitychange', handleVisibilityChange);
     } catch (error) {
       // Silently handle any errors to prevent breaking the activity tracking
-      if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-        console.warn('Failed to add event listeners:', error);
-      }
     }
 
     // Cleanup function to remove event listeners
@@ -276,9 +254,6 @@ export const useAppFocusedActivityTracker = () => {
             window.removeEventListener(eventType, handleUserInteraction);
           } catch (error) {
             // Silently handle any errors during cleanup
-            if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-              console.warn(`Failed to remove event listener for ${eventType}:`, error);
-            }
           }
         });
         
@@ -290,17 +265,11 @@ export const useAppFocusedActivityTracker = () => {
           document.removeEventListener('visibilitychange', handleVisibilityChange);
         } catch (error) {
           // Silently handle any errors during cleanup
-          if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-            console.warn('Failed to remove event listeners:', error);
-          }
         }
         
         listenersSetupRef.current = false;
       } catch (error) {
         // Silently handle any errors during cleanup
-        if (DEBUG_CONFIG.ENABLE_ERROR_LOGGING) {
-          console.warn('Cleanup error:', error);
-        }
       }
     };
   }, [handleUserActivity]); // Dependency on handleUserActivity

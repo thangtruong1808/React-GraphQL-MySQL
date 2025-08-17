@@ -31,17 +31,11 @@ export class ActivityManager {
       MemoryStorage.setActivityBasedExpiry(activityExpiry);
       
       // Debug logging to understand activity updates
-      console.log('🔍 ActivityManager - Activity updated:', {
-        now,
-        activityExpiry,
-        timeUntilExpiry: activityExpiry - now
-      });
       
       // Step 3: Ensure all operations are completed before returning
       // Small delay to ensure memory operations are fully processed
       await new Promise(resolve => setTimeout(resolve, 10));
     } catch (error) {
-      console.error('❌ Error updating activity:', error);
       throw error; // Re-throw to allow proper error handling
     }
   }
@@ -78,7 +72,6 @@ export class ActivityManager {
       
       return isInactive;
     } catch (error) {
-      console.error('❌ Error checking user inactivity:', error);
       return true; // Assume inactive on error
     }
   }
@@ -97,7 +90,6 @@ export class ActivityManager {
     try {
       const activityExpiry = MemoryStorage.getActivityBasedExpiry();
       if (!activityExpiry) {
-        console.log('🔍 ActivityManager - No activity expiry set, assuming valid (new user)');
         return false; // Assume valid for new users who haven't had activity yet
       }
       
@@ -105,16 +97,9 @@ export class ActivityManager {
       const isExpired = now >= activityExpiry;
       
       // Debug logging to understand activity-based token expiry checks
-      console.log('🔍 ActivityManager - Activity-based token expiry check:', {
-        activityExpiry,
-        now,
-        isExpired,
-        timeRemaining: activityExpiry - now
-      });
       
       return isExpired;
     } catch (error) {
-      console.error('❌ Error checking activity-based token expiry:', error);
       return false; // Assume valid on error to prevent false positives
     }
   }
@@ -149,7 +134,6 @@ export class ActivityManager {
       
       return timeRemaining > 0 ? timeRemaining : 0;
     } catch (error) {
-      console.error('❌ Error calculating activity-based token time remaining:', error);
       return null;
     }
   }

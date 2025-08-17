@@ -28,7 +28,6 @@ export interface TimerState {
 interface RefreshTokenStatus {
   expiry: number | null;
   isExpired: boolean;
-  needsRenewal: boolean;
   timeRemaining: number | null;
   isContinueToWorkTransition: boolean;
   isLogoutTransition: boolean;
@@ -115,7 +114,6 @@ export class TimerCalculator {
         return this.calculateTransitionState(now, refreshTokenStatus);
       }
     } catch (error) {
-      console.error('Error calculating timer state:', error);
       return this.createErrorState('Error calculating time');
     }
   }

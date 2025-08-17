@@ -74,7 +74,7 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
     try {
       await onLogout();
     } catch (error) {
-      console.error('❌ Error during logout:', error);
+      // Error during logout handled silently
     } finally {
       setIsLoggingOut(false);
     }

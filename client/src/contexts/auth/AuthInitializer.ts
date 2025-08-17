@@ -43,8 +43,6 @@ export const useAuthInitializer = (
    */
   const initializeAuth = useCallback(async () => {
     try {
-      console.log("🔍 1. Starting auth initialization...");
-      
       // Set authentication initialization flag to prevent error messages
       setAuthInitializing(true);
       
@@ -66,26 +64,20 @@ export const useAuthInitializer = (
         // Step 1: Always attempt to refresh access token
         // The httpOnly cookie will be sent automatically by the browser
         // Server will validate the refresh token and return appropriate response
-        console.log("🔍 2. Refreshing access token...");
         
         try {
           const refreshSuccess = await refreshAccessToken(true); // true = session restoration
-          console.log('🔍 Auth Initializer - Refresh success:', refreshSuccess);
           
           if (!refreshSuccess) {
             // Refresh failed - user is not authenticated
-            console.log('🔍 Auth Initializer - Refresh failed, user not authenticated');
             setUser(null);
             setIsAuthenticated(false);
           } else {
             // Refresh successful - user data is already set by refreshAccessToken
-            console.log('🔍 Auth Initializer - Refresh successful, user authenticated');
             // Ensure authentication state is properly set
             setIsAuthenticated(true);
           }
         } catch (error: any) {
-          console.error('🔍 Auth Initializer - Refresh error:', error);
-          
           // Handle specific GraphQL errors gracefully
           if (error.graphQLErrors && error.graphQLErrors.length > 0) {
             const graphQLError = error.graphQLErrors[0];
@@ -133,8 +125,6 @@ export const useAuthInitializer = (
         await performCompleteLogout();
       }
     } finally {
-      console.log("🔍 4. Initialization complete.");
-      
       // Clear authentication initialization flag
       setAuthInitializing(false);
       
@@ -155,7 +145,6 @@ export const useAuthInitializer = (
       isInitializedRef.current = true;
       initializeAuth().catch((error) => {
         // Handle any errors during initialization
-        console.error('Auth initialization failed:', error);
         // Reset initialization state on error
         isInitializedRef.current = false;
       });

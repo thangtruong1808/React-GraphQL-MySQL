@@ -89,10 +89,6 @@ export const useSessionManager = (
       
       if (timeSinceLastModalClose < modalCloseCooldown && !showSessionExpiryModal) {
         // Modal was recently closed - skip session checks to prevent immediate re-triggering
-        console.log('🔍 SessionManager - Modal recently closed, skipping session checks (reset state):', {
-          timeSinceLastModalClose,
-          modalCloseCooldown
-        });
         return;
       }
 
@@ -107,12 +103,6 @@ export const useSessionManager = (
         }
 
         // Debug logging for access token expiry check
-        console.log('🔍 SessionManager - Access token expiry check:', {
-          isAccessTokenExpired,
-          activityBasedEnabled: AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED,
-          hasAccessToken: !!tokens.accessToken,
-          timeSinceLastModalClose: timeSinceLastModalClose < modalCloseCooldown ? timeSinceLastModalClose : null
-        });
 
         // If access token is still valid, no need to check refresh token
         if (!isAccessTokenExpired) {
@@ -121,7 +111,6 @@ export const useSessionManager = (
         }
 
         // Access token is expired - now check refresh token status
-        console.log('🔍 SessionManager - Access token expired, checking refresh token status');
         const refreshTokenExpired = await isRefreshTokenExpired();
 
         // Show modal only if access token is expired, refresh token is valid, modal is not already showing, and enough time has passed since last show
@@ -132,22 +121,13 @@ export const useSessionManager = (
 
         if (!refreshTokenExpired && !showSessionExpiryModal && timeSinceLastShow > minTimeBetweenShows) {
           // Debug logging to understand session expiry detection
-          console.log('🔍 SessionManager - Access token expired, showing modal:', {
-            isAccessTokenExpired,
-            refreshTokenExpired,
-            showSessionExpiryModal,
-            timeSinceLastShow,
-            minTimeBetweenShows
-          });
           
           setSessionExpiryMessage('Your session has expired. Click "Continue to Work" to refresh your session or "Logout" to sign in again.');
           setShowSessionExpiryModal(true);
           setLastModalShowTime(now);
 
           // Start the refresh token expiry timer when access token expires
-          console.log('🔍 SessionManager - Starting refresh token expiry timer');
           await TokenManager.startRefreshTokenExpiryTimer();
-          console.log('🔍 SessionManager - Refresh token expiry timer started');
 
           // Start automatic logout timer based on modal countdown duration
           // This ensures auto-logout is based on the 1-minute modal countdown
