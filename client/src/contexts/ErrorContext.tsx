@@ -97,7 +97,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
       source,
       dismissible: true,
       autoDismiss: true,
-      duration: 5000,
+      duration: 10000,
       ...options,
     });
   };
@@ -112,7 +112,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
       source,
       dismissible: true,
       autoDismiss: true,
-      duration: 4000,
+      duration: 10000,
       ...options,
     });
   };
@@ -127,7 +127,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
       source,
       dismissible: true,
       autoDismiss: true,
-      duration: 3000,
+      duration: 10000,
       ...options,
     });
   };

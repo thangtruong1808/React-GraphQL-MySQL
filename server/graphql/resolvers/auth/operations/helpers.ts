@@ -57,8 +57,7 @@ export const logError = (prefix: string, operation: string, message: string, dat
  * @param data - Optional data to log
  */
 export const logSuccess = (operation: string, message: string, data?: any) => {
-  const prefix = AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.SUCCESS;
-  console.log(`${prefix} ${operation}: ${message}`, data || '');
+  // Logging disabled for cleaner server output
 };
 
 /**

@@ -8,7 +8,7 @@
 
 export const NOTIFICATION_CONFIG = {
   // Auto-hide duration (in milliseconds)
-  DEFAULT_DURATION: 3000,
+  DEFAULT_DURATION: 10000,
   
   // Positioning - top center of screen
   POSITION: {

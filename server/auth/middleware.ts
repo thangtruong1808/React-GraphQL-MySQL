@@ -52,7 +52,6 @@ export const authenticateUser = async (
     req.user = user;
     next();
   } catch (error) {
-    console.error('Authentication middleware error:', error);
     // Continue without authentication on error
     next();
   }

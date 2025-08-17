@@ -28,8 +28,6 @@ export const logout = async (req: any, res: any) => {
     const refreshToken = req.cookies[AUTH_OPERATIONS_CONFIG.REFRESH_TOKEN_COOKIE_NAME];
     
     if (refreshToken) {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - Found refresh token in cookie, attempting to delete from database`);
-      
       // Find and delete the specific refresh token from database
       // Improved logic: Get all active tokens and find the matching one
       const storedTokens = await RefreshToken.findAll({
@@ -42,8 +40,6 @@ export const logout = async (req: any, res: any) => {
         include: [{ model: require('../../../../db').User, as: 'refreshTokenUser' }],
       });
 
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - Found ${storedTokens.length} active refresh tokens in database`);
-
       // Find the matching token and delete it
       let tokenFound = false;
       for (const storedToken of storedTokens) {
@@ -53,20 +49,13 @@ export const logout = async (req: any, res: any) => {
             // Delete the specific token from database
             await storedToken.destroy();
             tokenFound = true;
-            console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - Refresh token successfully deleted from database`);
             break;
           }
         } catch (hashError) {
-          console.error(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Logout - Hash verification error:`, hashError);
+          // Hash verification error - continue to next token
           continue;
         }
       }
-
-      if (!tokenFound) {
-        console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - No matching refresh token found in database (may be expired or invalid)`);
-      }
-    } else {
-      console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - No refresh token in cookie (user may already be logged out)`);
     }
 
     // Note: Access tokens are short-lived and will expire automatically
@@ -92,14 +81,14 @@ export const logout = async (req: any, res: any) => {
     // Clear CSRF token
     clearCSRFToken(res);
 
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - Successfully completed logout process`);
+    // Logout process completed successfully
 
     return {
       success: true,
       message: AUTH_OPERATIONS_CONFIG.SUCCESS_MESSAGES.LOGOUT_SUCCESS,
     };
   } catch (error) {
-    console.error(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Logout - Error during logout:`, error);
+    // Error during logout process
     
     // Even if there's an error, try to clear the cookie with multiple attempts
     // This ensures the user is logged out even if database operations fail
@@ -120,7 +109,7 @@ export const logout = async (req: any, res: any) => {
     // Clear CSRF token even on error
     clearCSRFToken(res);
 
-    console.log(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.INFO} Logout - Completed logout with error, but cookies cleared`);
+    // Completed logout with error, but cookies cleared
 
     return {
       success: false,

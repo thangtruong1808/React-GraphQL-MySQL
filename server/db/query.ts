@@ -14,7 +14,6 @@ export async function transaction<T>(
     const result = await sequelize.transaction(callback);
     return result;
   } catch (error) {
-    console.error("Transaction error:", error);
     throw error;
   }
 }

@@ -45,7 +45,7 @@ export const cleanupRefreshTokens = async (userId: number): Promise<void> => {
 
     // Debug logging disabled for better user experience
   } catch (error) {
-    console.error('❌ Error cleaning up refresh tokens:', error);
+    // Error cleaning up refresh tokens
   }
 };
 
@@ -93,6 +93,6 @@ export const limitRefreshTokens = async (userId: number): Promise<void> => {
       }
     }
   } catch (error) {
-    console.error('❌ Error limiting refresh tokens:', error);
+    // Error limiting refresh tokens
   }
 }; 

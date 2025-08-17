@@ -51,7 +51,6 @@ export const validateCSRFToken = (req: any): boolean => {
     return isValid;
     
   } catch (error) {
-    console.error('❌ CSRF VALIDATION - Error validating CSRF token:', error);
     return false;
   }
 };
@@ -95,7 +94,6 @@ export const csrfProtection = (req: any, res: any, next: any) => {
     
     next();
   } catch (error) {
-    console.error('❌ CSRF PROTECTION - Error in CSRF middleware:', error);
     return res.status(500).json({
       errors: [{
         message: ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
@@ -120,7 +118,6 @@ export const validateCSRFInContext = (context: any): boolean => {
     
     return validateCSRFToken(req);
   } catch (error) {
-    console.error('❌ CSRF CONTEXT - Error validating CSRF in context:', error);
     return false;
   }
 };
@@ -140,7 +137,6 @@ export const setCSRFToken = (res: any): string => {
 
     return csrfToken;
   } catch (error) {
-    console.error('❌ CSRF TOKEN - Error setting CSRF token:', error);
     throw error;
   }
 };
@@ -159,6 +155,6 @@ export const clearCSRFToken = (res: any): void => {
     
 
   } catch (error) {
-    console.error('❌ CSRF TOKEN - Error clearing CSRF token:', error);
+    // Error clearing CSRF token
   }
 }; 

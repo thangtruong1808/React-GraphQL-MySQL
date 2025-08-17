@@ -13,9 +13,9 @@ export const ERROR_DISPLAY_CONFIG = {
     /** Whether to show global error notifications */
     ENABLED: true,
     /** Default duration for auto-dismissing errors (ms) */
-    AUTO_DISMISS_DURATION: 5000,
+    AUTO_DISMISS_DURATION: 10000,
     /** Maximum number of errors to display simultaneously */
-    MAX_ERRORS: 5,
+    MAX_ERRORS: 10,
     /** Position of global error display */
     POSITION: 'top-right' as const,
   },
@@ -25,7 +25,7 @@ export const ERROR_DISPLAY_CONFIG = {
     /** Whether to show inline error messages */
     ENABLED: true,
     /** Default animation duration for error appearance */
-    ANIMATION_DURATION: 300,
+    ANIMATION_DURATION: 700,
     /** Whether to show error icons by default */
     SHOW_ICONS: true,
   },
@@ -45,7 +45,7 @@ export const ERROR_DISPLAY_CONFIG = {
     /** Whether to show form-level error summaries */
     ENABLED: true,
     /** Maximum number of errors to show in summary */
-    MAX_ERRORS_IN_SUMMARY: 5,
+    MAX_ERRORS_IN_SUMMARY: 10,
     /** Whether form error summaries are dismissible */
     DISMISSIBLE: true,
   },
@@ -58,7 +58,7 @@ export const ERROR_DISPLAY_CONFIG = {
       /** Icon for error type */
       ICON: 'error',
       /** Auto-dismiss duration for errors (ms) */
-      AUTO_DISMISS_DURATION: 5000,
+      AUTO_DISMISS_DURATION: 10000,
     },
     WARNING: {
       /** Color scheme for warning type */
@@ -66,7 +66,7 @@ export const ERROR_DISPLAY_CONFIG = {
       /** Icon for warning type */
       ICON: 'warning',
       /** Auto-dismiss duration for warnings (ms) */
-      AUTO_DISMISS_DURATION: 4000,
+      AUTO_DISMISS_DURATION: 10000,
     },
     INFO: {
       /** Color scheme for info type */
@@ -74,7 +74,7 @@ export const ERROR_DISPLAY_CONFIG = {
       /** Icon for info type */
       ICON: 'info',
       /** Auto-dismiss duration for info messages (ms) */
-      AUTO_DISMISS_DURATION: 3000,
+      AUTO_DISMISS_DURATION: 10000,
     },
   },
 

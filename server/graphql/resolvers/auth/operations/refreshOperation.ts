@@ -222,7 +222,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
         break;
       }
     } catch (hashError) {
-      console.error(`${AUTH_OPERATIONS_CONFIG.DEBUG.LOG_PREFIXES.ERROR} Hash verification error:`, hashError);
+      // Hash verification error - continue to next token
       continue;
     }
   }

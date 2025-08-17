@@ -49,7 +49,6 @@ export const verifyAccessToken = (token: string): { userId: number } | null => {
       // Token expired - this is expected behavior, don't log as error
       return null;
     }
-    console.error('Token verification error:', error);
     return null;
   }
 };

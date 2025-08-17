@@ -47,13 +47,8 @@ const sequelize = new Sequelize({
     idle: 10000, // Maximum time connection can be idle
   },
   
-  // Logging configuration - only log errors in development
-  logging: process.env.NODE_ENV === 'development' ? (msg: string) => {
-    // Only log errors, not successful queries
-    if (msg.includes('ERROR') || msg.includes('error')) {
-      console.log(msg);
-    }
-  } : false,
+  // Logging configuration - disabled for cleaner output
+  logging: false,
   
   // Timezone configuration
   timezone: '+00:00',
@@ -61,7 +56,7 @@ const sequelize = new Sequelize({
 
 // Log database connection status
 const logMessage = (msg: string) => {
-  // Database connection message
+  console.log(msg);
 };
 
 // Test database connection
