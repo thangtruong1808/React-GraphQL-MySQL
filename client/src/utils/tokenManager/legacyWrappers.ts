@@ -73,8 +73,8 @@ export const isTokenExpired = (token: string): boolean => {
  * CALLED BY: AuthContext when user is active
  * SCENARIOS: All user interactions - updates last activity time
  */
-export const updateActivity = (): void => {
-  TokenManager.updateActivity();
+export const updateActivity = async (): Promise<void> => {
+  await TokenManager.updateActivity();
 };
 
 /**

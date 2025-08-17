@@ -145,8 +145,8 @@ export class TokenManager {
    * CALLED BY: AuthContext when user is active
    * SCENARIOS: All user interactions - updates last activity time
    */
-  static updateActivity(): void {
-    ActivityManager.updateActivity();
+  static async updateActivity(): Promise<void> {
+    await ActivityManager.updateActivity();
   }
 
   /**

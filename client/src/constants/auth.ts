@@ -10,7 +10,7 @@
  */
 export const AUTH_CONFIG = {
   // Activity tracking intervals
-  ACTIVITY_CHECK_INTERVAL: 1000, // Check user activity every 1 second
+  ACTIVITY_CHECK_INTERVAL: 3000, // Check user activity every 3 seconds (increased to prevent race conditions)
   ACTIVITY_THROTTLE_DELAY: 1000, // Throttle high-frequency events to 1 second
   
   // Session management
@@ -32,8 +32,7 @@ export const AUTH_CONFIG = {
   ACTIVITY_TOKEN_REFRESH_THRESHOLD: 15 * 1000, // 15 seconds activity refresh threshold
   
   // Refresh token management
-  REFRESH_TOKEN_RENEWAL_THRESHOLD: 15 * 1000, // 15 seconds renewal threshold
-  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
+  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: false, // Disabled - refresh token renewal should be user-driven only
   
   // Session expiry modal
   MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches modal countdown duration)
@@ -87,8 +86,7 @@ export const AUTH_TIMING = {
   ACTIVITY_TOKEN_REFRESH_THRESHOLD: 15 * 1000, // 15 seconds activity refresh threshold
   
   // Refresh token management
-  REFRESH_TOKEN_RENEWAL_THRESHOLD: 15 * 1000, // 15 seconds renewal threshold
-  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
+  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: false, // Disabled - refresh token renewal should be user-driven only
   
   // Session expiry modal
   MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches modal countdown duration)
@@ -110,7 +108,7 @@ export const AUTH_FEATURES = {
   ACTIVITY_BASED_TOKEN_ENABLED: true, // Enable activity-based token expiry
   
   // Refresh token auto-renewal
-  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic refresh token renewal
+  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: false, // Disabled - refresh token renewal should be user-driven only
   
   // First-time user experience
   ENABLE_FIRST_TIME_USER_OPTIMIZATION: true, // Enable optimizations for first-time users

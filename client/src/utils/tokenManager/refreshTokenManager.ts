@@ -46,18 +46,14 @@ export class RefreshTokenManager {
     try {
       const refreshTokenExpiry = await MemoryStorage.getRefreshTokenExpiry();
       if (!refreshTokenExpiry) {
-        return false; // Not expired if timer hasn't started yet (access token still valid)
+        return false; // No expiry set means refresh token timer hasn't started yet (access token still valid)
       }
       
       const now = Date.now();
-      const isExpired = now >= refreshTokenExpiry;
-      
-      // Debug logging disabled for better user experience
-      
-      return isExpired;
+      return now >= refreshTokenExpiry;
     } catch (error) {
       // Error checking refresh token expiry
-      return false; // Not expired on error
+      return false; // Assume not expired on error to prevent false positives
     }
   }
 
@@ -77,7 +73,7 @@ export class RefreshTokenManager {
         if (import.meta.env.DEV) {
           // No refresh token expiry available
         }
-        return true; // Expired if no expiry available
+        return false; // Not expired if no expiry available (timer hasn't started)
       }
       
       const now = Date.now();
@@ -92,36 +88,7 @@ export class RefreshTokenManager {
       return isExpired;
     } catch (error) {
       // Error checking refresh token expiry for operations
-      return true; // Expired on error
-    }
-  }
-
-  /**
-   * Check if refresh token needs renewal (proactive renewal) - async
-   * Returns true if refresh token will expire within the renewal threshold
-   * 
-   * @returns boolean - true if refresh token needs renewal
-   * 
-   * CALLED BY: AuthContext for proactive token renewal
-   * SCENARIOS: All scenarios - checks if refresh token is about to expire
-   */
-  static async isRefreshTokenNeedsRenewal(): Promise<boolean> {
-    try {
-      const refreshTokenExpiry = await MemoryStorage.getRefreshTokenExpiry();
-      if (!refreshTokenExpiry) {
-        return false;
-      }
-      
-      const now = Date.now();
-      const timeUntilExpiry = refreshTokenExpiry - now;
-      const needsRenewal = timeUntilExpiry <= AUTH_CONFIG.REFRESH_TOKEN_RENEWAL_THRESHOLD;
-      
-      // Debug logging disabled for better user experience
-      
-      return needsRenewal;
-    } catch (error) {
-      // Error checking refresh token renewal
-      return false;
+      return false; // Not expired on error to prevent false positives
     }
   }
 
@@ -158,9 +125,16 @@ export class RefreshTokenManager {
   static async clearRefreshTokenExpiry(): Promise<void> {
     try {
       const oldExpiry = await MemoryStorage.getRefreshTokenExpiry();
+      console.log('🔍 RefreshTokenManager - Clearing refresh token expiry:', {
+        oldExpiry,
+        oldTimeRemaining: oldExpiry ? oldExpiry - Date.now() : null
+      });
+      
       await MemoryStorage.setRefreshTokenExpiry(null);
+      console.log('🔍 RefreshTokenManager - Refresh token expiry cleared successfully');
       // Debug logging disabled for better user experience
     } catch (error) {
+      console.error('❌ RefreshTokenManager - Error clearing refresh token expiry:', error);
       // Error clearing refresh token expiry
     }
   }
@@ -212,14 +186,12 @@ export class RefreshTokenManager {
   static async getRefreshTokenStatus(): Promise<{
     expiry: number | null;
     isExpired: boolean;
-    needsRenewal: boolean;
     timeRemaining: number | null;
     isContinueToWorkTransition: boolean;
     isLogoutTransition: boolean;
   }> {
     const expiry = await this.getRefreshTokenExpiry();
     const isExpired = await this.isRefreshTokenExpired();
-    const needsRenewal = await this.isRefreshTokenNeedsRenewal();
     const timeRemaining = await this.getRefreshTokenTimeRemaining();
     const isContinueToWorkTransition = MemoryStorage.getContinueToWorkTransition();
     const isLogoutTransition = MemoryStorage.getLogoutTransition();
@@ -227,7 +199,6 @@ export class RefreshTokenManager {
     return {
       expiry,
       isExpired,
-      needsRenewal,
       timeRemaining,
       isContinueToWorkTransition,
       isLogoutTransition,

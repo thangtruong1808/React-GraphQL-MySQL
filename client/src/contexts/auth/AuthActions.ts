@@ -134,8 +134,7 @@ export const useAuthActions = (
       // Log timing information for debugging
       logTokenRefreshTiming('refresh_access_token_start', timeRemaining, { 
         isSessionRestoration,
-        isExpired: refreshTokenStatus.isExpired,
-        needsRenewal: refreshTokenStatus.needsRenewal 
+        isExpired: refreshTokenStatus.isExpired
       });
       
       // Check if refresh token has sufficient time remaining
@@ -221,8 +220,8 @@ export const useAuthActions = (
       setUser(refreshedUser);
       setIsAuthenticated(true);
       
-      // Reset activity timer
-      TokenManager.updateActivity();
+      // Reset activity timer - this is critical for preventing immediate session expiry
+      await TokenManager.updateActivity();
       
       console.log('🔄 Refresh Access Token - Refresh successful, user authenticated');
       
@@ -562,6 +561,13 @@ export const useAuthActions = (
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       const timeRemaining = refreshTokenStatus.timeRemaining;
       
+      // Debug logging to understand refresh token timer behavior
+      console.log('🔄 Refresh Session - Refresh token status:', {
+        timeRemaining,
+        isExpired: refreshTokenStatus.isExpired,
+        hasMoreThan5Seconds: timeRemaining && timeRemaining > 5000
+      });
+      
       // For manual refresh (Continue to Work), allow refresh even with 0 time remaining
       // The server-side validation will be the authority on whether the refresh token is still valid
       // This prevents the client-side timer from blocking legitimate refresh attempts
@@ -585,7 +591,6 @@ export const useAuthActions = (
       // Log timing information for debugging
       logTokenRefreshTiming('refresh_session_start', timeRemaining, { 
         isExpired: refreshTokenStatus.isExpired,
-        needsRenewal: refreshTokenStatus.needsRenewal,
         originalTimeRemaining: originalTimeRemaining,
         expiryCheckReason: expiryCheckReason,
         shouldProceed: shouldProceed
@@ -638,6 +643,14 @@ export const useAuthActions = (
           // Clear refresh token timer to allow normal activity tracking
           await TokenManager.clearRefreshTokenExpiry();
           // Refresh token expiry cleared successfully
+          
+          // Update activity after clearing refresh token timer to ensure proper reset
+          // This is critical to prevent immediate session expiry after refresh
+          await TokenManager.updateActivity();
+          
+          // Small delay to ensure activity update is processed before SessionManager runs its next check
+          // This prevents the immediate session expiry issue
+          await new Promise(resolve => setTimeout(resolve, 100));
           
           // Don't update user state immediately to prevent SessionManager from triggering another refresh
           // The SessionManager will naturally detect the refreshed tokens on its next check

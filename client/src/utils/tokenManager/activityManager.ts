@@ -30,6 +30,13 @@ export class ActivityManager {
       const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
       MemoryStorage.setActivityBasedExpiry(activityExpiry);
       
+      // Debug logging to understand activity updates
+      console.log('🔍 ActivityManager - Activity updated:', {
+        now,
+        activityExpiry,
+        timeUntilExpiry: activityExpiry - now
+      });
+      
       // Step 3: Ensure all operations are completed before returning
       await new Promise(resolve => setTimeout(resolve, 0));
     } catch (error) {
@@ -83,22 +90,31 @@ export class ActivityManager {
    * SCENARIOS:
    * - Active user: Returns false (token valid based on activity)
    * - Inactive user: Returns true (needs refresh or logout)
-   * - No activity data: Returns true (assume expired)
+   * - No activity data: Returns false (assume valid for new users)
    */
   static isActivityBasedTokenExpired(): boolean {
     try {
       const activityExpiry = MemoryStorage.getActivityBasedExpiry();
       if (!activityExpiry) {
-        return true;
+        console.log('🔍 ActivityManager - No activity expiry set, assuming valid (new user)');
+        return false; // Assume valid for new users who haven't had activity yet
       }
       
       const now = Date.now();
       const isExpired = now >= activityExpiry;
       
+      // Debug logging to understand activity-based token expiry checks
+      console.log('🔍 ActivityManager - Activity-based token expiry check:', {
+        activityExpiry,
+        now,
+        isExpired,
+        timeRemaining: activityExpiry - now
+      });
+      
       return isExpired;
     } catch (error) {
       console.error('❌ Error checking activity-based token expiry:', error);
-      return true; // Assume expired on error
+      return false; // Assume valid on error to prevent false positives
     }
   }
 
