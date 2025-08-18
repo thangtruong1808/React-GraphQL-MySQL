@@ -1,4 +1,3 @@
-import { TOKEN_STORAGE } from './constants';
 
 /**
  * Memory Storage Module

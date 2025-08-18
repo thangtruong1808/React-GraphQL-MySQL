@@ -15,7 +15,6 @@ export class ActivityManager {
   /**
    * Update user activity timestamp
    * Called when user performs any action
-   * 
    * CALLED BY: AuthContext when user is active
    * SCENARIOS: All user interactions - updates last activity time
    */
