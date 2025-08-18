@@ -37,40 +37,18 @@ export class AuthValidation {
         return !ActivityManager.isActivityBasedTokenExpired();
       }
       
-      // Fallback to original token expiry check
-      return !this.isAccessTokenExpired();
+      // Fallback to token expiry check
+      const tokenExpiry = MemoryStorage.getTokenExpiry();
+      if (!tokenExpiry) {
+        return false;
+      }
+      return Date.now() < tokenExpiry;
     } catch (error) {
       return false;
     }
   }
 
-  /**
-   * Check if access token is expired
-   * @returns Boolean indicating if access token is expired
-   * 
-   * CALLED BY: isAuthenticated(), apollo-client.ts authLink
-   * SCENARIOS:
-   * - Valid token: Returns false (token still valid)
-   * - Expired token: Returns true (needs refresh)
-   * - No expiry data: Returns true (assume expired)
-   */
-  static isAccessTokenExpired(): boolean {
-    try {
-      const tokenExpiry = MemoryStorage.getTokenExpiry();
-      if (!tokenExpiry) {
-        return true;
-      }
-      
-      const now = Date.now();
-      const isExpired = now >= tokenExpiry;
-      
-      // Debug logging disabled for better user experience
-      
-      return isExpired;
-    } catch (error) {
-      return true; // Assume expired on error
-    }
-  }
+
 
   /**
    * Get stored access token from memory with validation
@@ -170,7 +148,8 @@ export class AuthValidation {
     const isAuthenticated = this.isAuthenticated();
     const accessToken = this.getAccessToken();
     const hasAccessToken = !!accessToken;
-    const isAccessTokenExpired = this.isAccessTokenExpired();
+    const tokenExpiry = MemoryStorage.getTokenExpiry();
+    const isAccessTokenExpired = !tokenExpiry || Date.now() >= tokenExpiry;
     const isActivityBasedTokenExpired = this.isActivityBasedTokenExpired();
     const userData = this.getUser();
     const hasUserData = !!userData;

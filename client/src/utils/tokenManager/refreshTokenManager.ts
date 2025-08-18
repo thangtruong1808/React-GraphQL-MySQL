@@ -57,40 +57,7 @@ export class RefreshTokenManager {
     }
   }
 
-  /**
-   * Check if refresh token is expired for server operations
-   * Simple check using the original refresh token expiry with improved async handling
-   * 
-   * @returns boolean - true if refresh token is expired
-   * 
-   * CALLED BY: AuthActions for server operations
-   * SCENARIOS: Token refresh operations when timing is critical
-   */
-  static async isRefreshTokenExpiredForOperations(): Promise<boolean> {
-    try {
-      const refreshTokenExpiry = await MemoryStorage.getRefreshTokenExpiry();
-      if (!refreshTokenExpiry) {
-        if (import.meta.env.DEV) {
-          // No refresh token expiry available
-        }
-        return false; // Not expired if no expiry available (timer hasn't started)
-      }
-      
-      const now = Date.now();
-      const timeRemaining = refreshTokenExpiry - now;
-      const isExpired = timeRemaining <= 0;
-      
-      // Debug logging for refresh token expiry check
-      if (import.meta.env.DEV) {
-        // Refresh token expiry check
-      }
-      
-      return isExpired;
-    } catch (error) {
-      // Error checking refresh token expiry for operations
-      return false; // Not expired on error to prevent false positives
-    }
-  }
+
 
   /**
    * Update refresh token expiry after renewal (async)

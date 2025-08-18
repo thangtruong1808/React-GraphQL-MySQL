@@ -1,7 +1,7 @@
 import { AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
 import { MemoryStorage } from './memoryStorage';
 import { TokenValidation } from './tokenValidation';
-import { TOKEN_DEBUG, TOKEN_ERROR_MESSAGES, TOKEN_SUCCESS_MESSAGES } from './constants';
+import { TOKEN_ERROR_MESSAGES } from './constants';
 
 /**
  * Token Storage Module
@@ -174,78 +174,7 @@ export class TokenStorage {
     }
   }
 
-  /**
-   * Update user data only
-   * Used when user data needs to be updated without affecting tokens
-   * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS: Token refresh - updates user data without affecting token timers
-   */
-  static updateUser(user: any): void {
-    try {
-      // Debug logging disabled for better user experience
-      
-      // Validate and update user data
-      if (user && TokenValidation.isValidUserData(user)) {
-        MemoryStorage.setUserData(user);
-      }
-    } catch (error) {
-      // Error updating user data handled silently
-    }
-  }
 
-  /**
-   * Update both access and refresh tokens
-   * Used when tokens are refreshed from server
-   * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS: Token refresh - updates both tokens with new expiry
-   */
-  static updateTokens(accessToken: string, refreshToken: string, user?: any): void {
-    try {
-      // Debug logging disabled for better user experience
-      
-      // Validate access token format
-      if (!TokenValidation.isValidJWTFormat(accessToken)) {
-        throw new Error(TOKEN_ERROR_MESSAGES.INVALID_JWT_FORMAT);
-      }
-
-      // Validate refresh token format
-      if (!TokenValidation.isValidHexFormat(refreshToken)) {
-        throw new Error(TOKEN_ERROR_MESSAGES.INVALID_HEX_FORMAT);
-      }
-
-      // Update access token
-      MemoryStorage.setAccessToken(accessToken);
-      
-      // Update user data if provided
-      if (user && TokenValidation.isValidUserData(user)) {
-        MemoryStorage.setUserData(user);
-      }
-      
-      // Update token expiry
-      const expiry = TokenValidation.getTokenExpiration(accessToken);
-      if (expiry) {
-        MemoryStorage.setTokenExpiry(expiry);
-      }
-
-      // SIMPLE FIX: Reset all timers to original 1-minute values
-      const now = Date.now();
-      
-      // Reset activity-based token expiry to 1 minute from now
-      const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
-      MemoryStorage.setActivityBasedExpiry(activityExpiry);
-      
-      // Reset last activity timestamp
-      MemoryStorage.setLastActivity(now);
-
-      // Reset refresh token expiry to 1 minute from now
-      const refreshTokenExpiry = now + AUTH_CONFIG.MODAL_COUNTDOWN_DURATION;
-      MemoryStorage.setRefreshTokenExpiry(refreshTokenExpiry);
-    } catch (error) {
-      // Error updating tokens handled silently
-    }
-  }
 
   /**
    * Clear all authentication data securely

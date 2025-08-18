@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { AUTH_CONFIG } from '../../constants';
 import {
-  getActivityBasedTokenExpiry,
   getTokens,
   isActivityBasedTokenExpired,
   isRefreshTokenExpired,
-  isRefreshTokenNeedsRenewal,
   isTokenExpired,
-  isUserInactive,
   TokenManager,
   updateActivity,
 } from '../../utils/tokenManager';
@@ -272,7 +269,7 @@ export const useSessionManager = (
       const tokens = getTokens();
       if (tokens.accessToken) {
         // Use activity-based token expiry if enabled
-        const activityBasedExpiry = getActivityBasedTokenExpiry();
+        const activityBasedExpiry = TokenManager.getActivityBasedTokenExpiry();
         if (activityBasedExpiry && AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
           const timeUntilExpiry = activityBasedExpiry - Date.now();
           // Refresh token if it's more than halfway through its lifetime (30 seconds for 1-minute token)

@@ -81,7 +81,7 @@ export const updateActivity = async (): Promise<void> => {
  * Check if refresh token is expired (absolute session timeout) - async
  * @returns Boolean indicating if refresh token is expired
  * 
- * CALLED BY: AuthContext for session management
+ * CALLED BY: SessionManager for session management
  * SCENARIOS: All scenarios - checks absolute session timeout
  */
 export const isRefreshTokenExpired = async (): Promise<boolean> => {
@@ -89,93 +89,12 @@ export const isRefreshTokenExpired = async (): Promise<boolean> => {
 };
 
 /**
- * Check if refresh token needs renewal (proactive renewal) - async
- * @returns Boolean indicating if refresh token needs renewal
- * 
- * CALLED BY: AuthContext for proactive token renewal
- * SCENARIOS: All scenarios - checks if refresh token is about to expire
- */
-export const isRefreshTokenNeedsRenewal = async (): Promise<boolean> => {
-  return await TokenManager.isRefreshTokenNeedsRenewal();
-};
-
-/**
- * Update refresh token expiry after renewal - async
- * Extends the refresh token expiry time when token is renewed with NEW tokens
- * IMPORTANT: Should only be called when getting NEW refresh tokens from server
- * @returns void
- * 
- * CALLED BY: AuthContext after successful token refresh with NEW tokens
- * SCENARIOS: Full session refresh with new refresh token from server
- */
-export const updateRefreshTokenExpiry = async (): Promise<void> => {
-  await TokenManager.updateRefreshTokenExpiry();
-};
-
-/**
- * Clear refresh token expiry timer - async
- * ONLY used when user logs out or session is completely reset
- * @returns void
- * 
- * CALLED BY: AuthContext during logout operations
- * SCENARIOS: User logout, forced logout, session termination
- */
-export const clearRefreshTokenExpiry = async (): Promise<void> => {
-  await TokenManager.clearRefreshTokenExpiry();
-};
-
-/**
- * Check if user has been inactive for too long
- * @param inactivityThreshold - Time in milliseconds to consider user inactive
- * @returns Boolean indicating if user is inactive
- * 
- * CALLED BY: AuthContext for inactivity detection
- * SCENARIOS: All scenarios - checks user activity level
- */
-export const isUserInactive = (inactivityThreshold: number): boolean => {
-  return TokenManager.isUserInactive(inactivityThreshold);
-};
-
-/**
- * Get the timestamp of the last user activity
- * @returns Timestamp of last activity or null if no activity recorded
- * 
- * CALLED BY: ActivityDebugger for displaying activity information
- * SCENARIOS: Debugging and monitoring user activity
- */
-export const getLastActivityTime = (): number | null => {
-  return TokenManager.getLastActivityTime();
-};
-
-/**
- * Check if user is authenticated
- * @returns Boolean indicating if user is authenticated
- * 
- * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
- * SCENARIOS: All scenarios - checks authentication status
- */
-export const isAuthenticated = (): boolean => {
-  return TokenManager.isAuthenticated();
-};
-
-/**
  * Check if activity-based token is expired
  * @returns Boolean indicating if activity-based token is expired
  * 
- * CALLED BY: AuthContext for activity-based validation
+ * CALLED BY: apollo-client.ts authLink, AuthContext for activity-based validation
  * SCENARIOS: All scenarios - checks activity-based token expiry
  */
 export const isActivityBasedTokenExpired = (): boolean => {
   return TokenManager.isActivityBasedTokenExpired();
-};
-
-/**
- * Get activity-based token expiry timestamp
- * @returns Activity-based expiry timestamp or null if not available
- * 
- * CALLED BY: ActivityDebugger for displaying activity-based expiry information
- * SCENARIOS: Debugging and monitoring activity-based token expiry
- */
-export const getActivityBasedTokenExpiry = (): number | null => {
-  return TokenManager.getActivityBasedTokenExpiry();
 };

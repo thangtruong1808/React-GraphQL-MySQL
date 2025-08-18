@@ -78,20 +78,6 @@ export class TokenManager {
   }
 
   /**
-   * Get stored user data with validation
-   * @returns User data object or null if not found/invalid
-   * 
-   * CALLED BY: Components needing user information
-   * SCENARIOS:
-   * - Valid user: Returns user object for UI display
-   * - No user: Returns null (not logged in)
-   * - Invalid user: Returns null (cleared data)
-   */
-  static getUser(): any | null {
-    return TokenStorage.getUser();
-  }
-
-  /**
    * Update access token only
    * Used when only access token is refreshed
    * 
@@ -100,28 +86,6 @@ export class TokenManager {
    */
   static updateAccessToken(accessToken: string): void {
     TokenStorage.updateAccessToken(accessToken);
-  }
-
-  /**
-   * Update user data only
-   * Used when user data needs to be updated without affecting tokens
-   * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS: Token refresh - updates user data without affecting token timers
-   */
-  static updateUser(user: any): void {
-    TokenStorage.updateUser(user);
-  }
-
-  /**
-   * Update both access and refresh tokens
-   * Used when tokens are refreshed from server
-   * 
-   * CALLED BY: AuthContext after successful token refresh
-   * SCENARIOS: Token refresh - updates both tokens with new expiry
-   */
-  static updateTokens(accessToken: string, refreshToken: string, user?: any): void {
-    TokenStorage.updateTokens(accessToken, refreshToken, user);
   }
 
   /**
@@ -277,19 +241,7 @@ export class TokenManager {
     return AuthValidation.isAuthenticated();
   }
 
-  /**
-   * Check if access token is expired
-   * @returns Boolean indicating if access token is expired
-   * 
-   * CALLED BY: isAuthenticated(), apollo-client.ts authLink
-   * SCENARIOS:
-   * - Valid token: Returns false (token still valid)
-   * - Expired token: Returns true (needs refresh)
-   * - No expiry data: Returns true (assume expired)
-   */
-  static isAccessTokenExpired(): boolean {
-    return AuthValidation.isAccessTokenExpired();
-  }
+
 
   /**
    * Check if activity-based token is expired
