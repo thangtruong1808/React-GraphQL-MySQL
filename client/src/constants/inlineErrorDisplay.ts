@@ -6,40 +6,6 @@
  * PURPOSE: Centralize error display configuration
  */
 
-export const INLINE_ERROR_CONFIG = {
-  // Auto-hide duration for temporary errors (in milliseconds)
-  AUTO_HIDE_DURATION: 5000,
-  
-  // Retry button configuration
-  SHOW_RETRY_BUTTON: true,
-  
-  // Default error type
-  DEFAULT_ERROR_TYPE: 'error' as const,
-  
-  // CSS classes for different error types
-  STYLES: {
-    ERROR: 'bg-red-50 border-red-200 text-red-800',
-    WARNING: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    INFO: 'bg-blue-50 border-blue-200 text-blue-800'
-  },
-  
-  // Icon sizes
-  ICON_SIZE: 'w-4 h-4',
-  
-  // Spacing and layout
-  SPACING: {
-    PADDING: 'p-3',
-    MARGIN_RIGHT: 'mr-2',
-    MARGIN_LEFT: 'ml-3'
-  },
-  
-  // Border and rounded corners
-  BORDER: 'border rounded-md',
-  
-  // Text styling
-  TEXT_SIZE: 'text-sm'
-} as const;
-
 /**
  * Activity tracking error messages
  * Specific error messages for activity tracking failures
