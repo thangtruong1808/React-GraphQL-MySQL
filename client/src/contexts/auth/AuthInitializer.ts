@@ -19,13 +19,12 @@ export interface AuthInitializer {
  * 
  * SIMPLE APPROACH: 
  * 1. Always attempt refresh token first (httpOnly cookie is secure and server will validate)
- * 2. If successful, user data is set by refreshAccessToken
+ * 2. If successful, user data is set by refreshUserSession
  * 3. If failed, set user to null and isAuthenticated to false
  * 4. Handle errors gracefully without showing error messages for new users
  */
 export const useAuthInitializer = (
-  refreshAccessToken: (isSessionRestoration?: boolean) => Promise<boolean>,
-  fetchCurrentUser: () => Promise<void>,
+  refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>,
   performCompleteLogout: () => Promise<void>,
   setIsInitializing: (isInitializing: boolean) => void,
   setShowLoadingSpinner: (showLoadingSpinner: boolean) => void,
@@ -66,14 +65,14 @@ export const useAuthInitializer = (
         // Server will validate the refresh token and return appropriate response
         
         try {
-          const refreshSuccess = await refreshAccessToken(true); // true = session restoration
+          const refreshSuccess = await refreshUserSession(true); // true = session restoration
           
           if (!refreshSuccess) {
             // Refresh failed - user is not authenticated
             setUser(null);
             setIsAuthenticated(false);
           } else {
-            // Refresh successful - user data is already set by refreshAccessToken
+            // Refresh successful - user data is already set by refreshUserSession
             // Ensure authentication state is properly set
             setIsAuthenticated(true);
           }
@@ -135,7 +134,7 @@ export const useAuthInitializer = (
       setIsLoading(false);
       setIsInitializing(false);
     }
-  }, [refreshAccessToken, fetchCurrentUser, performCompleteLogout, setIsInitializing, setShowLoadingSpinner, setIsLoading, setUser, setIsAuthenticated]);
+  }, [refreshUserSession, performCompleteLogout, setIsInitializing, setShowLoadingSpinner, setIsLoading, setUser, setIsAuthenticated]);
 
   // Initialize authentication on mount (only once)
   useEffect(() => {

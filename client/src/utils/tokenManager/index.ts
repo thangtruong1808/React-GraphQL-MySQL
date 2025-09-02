@@ -4,23 +4,43 @@
  * Provides both modular access and backward compatibility
  */
 
-// Export the main TokenManager class
+// Import TokenManager for legacy function exports
+import { TokenManager } from './TokenManager';
+import { TokenValidation } from './tokenValidation';
+
+// Token Manager Exports
 export { TokenManager } from './TokenManager';
 
-// Export individual modules for advanced usage
-export { MemoryStorage } from './memoryStorage';
-export { TokenValidation } from './tokenValidation';
+// Token Storage Exports
 export { TokenStorage } from './tokenStorage';
-export { ActivityManager } from './activityManager';
-export { RefreshTokenManager } from './refreshTokenManager';
+
+// Auth Validation Exports
 export { AuthValidation } from './authValidation';
 
-// Export constants
-export * from './constants';
+// Activity Manager Exports
+export { ActivityManager } from './activityManager';
 
-// Export legacy wrapper functions for backward compatibility
-export * from './legacyWrappers';
+// Token Validation Exports
+export { TokenValidation } from './tokenValidation';
 
-// Re-export legacy functions as default exports for backward compatibility
-import * as LegacyWrappers from './legacyWrappers';
-export default LegacyWrappers;
+// Memory Storage Exports
+export { MemoryStorage } from './memoryStorage';
+
+// Legacy function exports for backward compatibility
+// These functions are now part of TokenManager class
+export const getTokens = () => ({
+  accessToken: TokenManager.getAccessToken(),
+  refreshToken: null // Refresh tokens are handled server-side via httpOnly cookies
+});
+
+export const clearTokens = () => TokenManager.clearTokens();
+
+export const saveTokens = (accessToken: string, refreshToken: string, user: any) => 
+  TokenManager.storeTokens(accessToken, refreshToken, user);
+
+export const isTokenExpired = (token: string) => TokenValidation.isTokenExpired(token);
+
+export const isActivityBasedTokenExpired = () => TokenManager.isActivityBasedTokenExpired();
+
+export const updateActivity = () => TokenManager.updateActivity();
+

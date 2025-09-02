@@ -1,120 +1,51 @@
 import React from 'react';
-import { TimerState } from './TimerCalculator';
-import {
-  ACTIVITY_DEBUGGER_LAYOUT,
-  ACTIVITY_DEBUGGER_MESSAGES,
-  ACTIVITY_DEBUGGER_COLORS,
-} from '../../constants/activityDebugger';
 
 /**
- * Refresh Token Info Props Interface
- * Defines props for the RefreshTokenInfo component
+ * Timer State Interface
+ * Simplified structure for timer information
+ */
+interface TimerState {
+  accessToken: {
+    expiry: number | null;
+    timeRemaining: number | null;
+    isExpired: boolean;
+  };
+  activity: {
+    expiry: number | null;
+    timeRemaining: number | null;
+    isExpired: boolean;
+  };
+  lastActivity: number | null;
+  isUserInactive: boolean;
+}
+
+/**
+ * Refresh Token Info Component
+ * Displays refresh token information for debugging
+ * Note: Refresh tokens are now handled server-side via httpOnly cookies
  */
 interface RefreshTokenInfoProps {
   timerState: TimerState;
 }
 
-/**
- * Refresh Token Info Component
- * Displays detailed refresh token information for debugging
- * Shows timing information and status for refresh token operations
- */
-const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
-  const {
-    refreshTokenExpiry,
-    refreshTokenTimeRemaining
-  } = timerState;
-
-  // Format time remaining for display
-  const formatTimeRemaining = (timeRemaining: number | null): string => {
-    if (!timeRemaining || timeRemaining <= 0) {
-      return '0m 0s';
-    }
-    const minutes = Math.floor(timeRemaining / 60000);
-    const seconds = Math.floor((timeRemaining % 60000) / 1000);
-    return `${minutes}m ${seconds}s`;
-  };
-
-  // Format expiry timestamp for display
-  const formatExpiryTime = (expiry: number | null): string => {
-    if (!expiry) {
-      return ACTIVITY_DEBUGGER_MESSAGES.NOT_AVAILABLE;
-    }
-    return new Date(expiry).toLocaleTimeString();
-  };
-
-  // Determine status color based on time remaining
-  const getStatusColor = (timeRemaining: number | null): string => {
-    if (!timeRemaining || timeRemaining <= 0) {
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
-    }
-    if (timeRemaining < 10 * 1000) { // Less than 10 seconds
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
-    }
-    if (timeRemaining < 30 * 1000) { // Less than 30 seconds
-      return ACTIVITY_DEBUGGER_COLORS.WARNING;
-    }
-    return ACTIVITY_DEBUGGER_COLORS.SUCCESS;
-  };
-
-  // Get status message based on time remaining
-  const getStatusMessage = (timeRemaining: number | null): string => {
-    if (!timeRemaining || timeRemaining <= 0) {
-      return 'Expired';
-    }
-    if (timeRemaining < 10 * 1000) {
-      return 'Critical - Too close to expiry';
-    }
-    if (timeRemaining < 30 * 1000) {
-      return 'Warning - Close to expiry';
-    }
-    return 'Valid';
-  };
-
-  // Only show refresh token info if there's actually a refresh token timer active
-  if (!refreshTokenExpiry || !refreshTokenTimeRemaining || refreshTokenTimeRemaining <= 0) {
-    return null;
-  }
-
-
-
+export const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
   return (
-    <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
-      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
-        Refresh Token Debug Info (1min countdown)
-      </div>
-
-      <div className={`space-y-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
-
-        {/* Status */}
-        <div className="flex justify-between">
-          <span>Status:</span>
-          <span className={`font-mono ${getStatusColor(refreshTokenTimeRemaining)}`}>
-            {getStatusMessage(refreshTokenTimeRemaining)}
-          </span>
+    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+      <h4 className="text-lg font-medium text-yellow-800 mb-2">Refresh Token Info</h4>
+      <div className="text-sm text-yellow-700">
+        <p className="mb-2">
+          <strong>Note:</strong> Refresh tokens are now handled server-side via httpOnly cookies for enhanced security.
+        </p>
+        <div className="space-y-1">
+          <div>Access Token Status: {timerState.accessToken.isExpired ? 'Expired' : 'Valid'}</div>
+          <div>Activity Token Status: {timerState.activity.isExpired ? 'Expired' : 'Valid'}</div>
+          <div>User Inactive: {timerState.isUserInactive ? 'Yes' : 'No'}</div>
         </div>
-
-        {/* Expiry Time */}
-        <div className="flex justify-between">
-          <span>Expires At:</span>
-          <span className="font-mono">
-            {formatExpiryTime(refreshTokenExpiry)}
-          </span>
-        </div>
-
-        {/* Current Time */}
-        <div className="flex justify-between">
-          <span>Current Time:</span>
-          <span className="font-mono">
-            {new Date().toLocaleTimeString()}
-          </span>
-        </div>
-
-
-
+        <p className="mt-2 text-xs">
+          Client-side refresh token management has been simplified since the server automatically validates
+          refresh tokens from httpOnly cookies on every request.
+        </p>
       </div>
     </div>
   );
 };
-
-export default RefreshTokenInfo;

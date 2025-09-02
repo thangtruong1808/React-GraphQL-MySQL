@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TokenManager, getTokens } from '../../../utils/tokenManager';
-import { AUTH_CONFIG } from '../../../constants/auth';
-import { ACTIVITY_CONFIG } from '../../../constants/activity';
-import { DEBUG_CONFIG } from '../../../constants/debug';
+import { TokenManager, getTokens } from '../../utils/tokenManager';
+import { AUTH_CONFIG } from '../../constants/auth';
+import { ACTIVITY_CONFIG } from '../../constants/activity';
+import { DEBUG_CONFIG } from '../../constants/debug';
 
 /**
  * Timer State Interface
@@ -53,27 +53,27 @@ export const TimerCalculator: React.FC = () => {
       const tokens = getTokens();
       const lastActivityTime = TokenManager.getLastActivityTime();
       const isUserInactive = TokenManager.isUserInactive(ACTIVITY_CONFIG.INACTIVITY_THRESHOLD);
-      
+
       // Calculate access token expiry (if available)
       let accessTokenExpiry: number | null = null;
       let accessTokenTimeRemaining: number | null = null;
-      
+
       if (tokens.accessToken) {
         accessTokenExpiry = TokenManager.getTokenExpiration(tokens.accessToken);
         if (accessTokenExpiry) {
           accessTokenTimeRemaining = Math.max(0, accessTokenExpiry - Date.now());
         }
       }
-      
+
       // Calculate activity-based token expiry
       const activityExpiry = TokenManager.getActivityBasedTokenExpiry();
       const activityTimeRemaining = activityExpiry ? Math.max(0, activityExpiry - Date.now()) : null;
-      
+
       // Get transition states
       const isContinueToWorkTransition = TokenManager.getContinueToWorkTransition();
       const isLogoutTransition = TokenManager.getLogoutTransition();
       const isRefreshOperationInProgress = TokenManager.getRefreshOperationInProgress();
-      
+
       // Update state with calculated values
       setTimerInfo({
         accessToken: {
@@ -117,7 +117,7 @@ export const TimerCalculator: React.FC = () => {
   const formatTimeRemaining = (timeRemaining: number | null): string => {
     if (timeRemaining === null) return 'N/A';
     if (timeRemaining <= 0) return 'Expired';
-    
+
     const minutes = Math.floor(timeRemaining / 60000);
     const seconds = Math.floor((timeRemaining % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -132,7 +132,7 @@ export const TimerCalculator: React.FC = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">Timer Calculator</h3>
-      
+
       {/* Access Token Timer */}
       <div className="mb-4">
         <h4 className="font-medium text-gray-700 mb-2">Access Token</h4>

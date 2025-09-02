@@ -32,8 +32,8 @@ export const ACTIVITY_CONFIG = {
   ACTIVITY_TOKEN_REFRESH_THRESHOLD: 15 * 1000, // 15 seconds activity refresh threshold
   
   // Refresh token management
-  REFRESH_TOKEN_RENEWAL_THRESHOLD: 15 * 1000, // 15 seconds renewal threshold
-  REFRESH_TOKEN_AUTO_RENEWAL_ENABLED: true, // Enable automatic renewal
+  // Removed: REFRESH_TOKEN_RENEWAL_THRESHOLD and REFRESH_TOKEN_AUTO_RENEWAL_ENABLED
+  // These are no longer needed after consolidating refresh functions
   
   // Session expiry modal
   MODAL_AUTO_LOGOUT_DELAY: 1 * 60 * 1000, // 1 minute after modal appears (matches modal countdown duration)

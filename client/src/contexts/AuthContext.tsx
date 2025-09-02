@@ -34,8 +34,7 @@ interface AuthContextType {
   // Actions
   login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => Promise<void>;
-  logoutFromModal: () => Promise<void>; // Add logoutFromModal to interface
-  refreshSession: () => Promise<boolean>;
+  refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>;
 
   // Session management
   validateSession: () => Promise<boolean>;
@@ -125,8 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authState.isAuthenticated,
     authState.showSessionExpiryModal,
     authState.lastModalShowTime,
-    authActions.refreshAccessToken,
-    authActions.renewRefreshToken,
+    authActions.refreshUserSession,
     authActions.performCompleteLogout,
     authState.showNotification,
     authState.setShowSessionExpiryModal,
@@ -137,8 +135,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Authentication initialization
   useAuthInitializer(
-    authActions.refreshAccessToken,
-    authActions.fetchCurrentUser,
+    authActions.refreshUserSession,
     authActions.performCompleteLogout,
     authState.setIsInitializing,
     authState.setShowLoadingSpinner,
@@ -175,8 +172,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Actions
     login: authActions.login,
     logout: authActions.logout,
-    logoutFromModal: authActions.logoutFromModal, // Add logoutFromModal to context
-    refreshSession: authActions.refreshSession,
+    refreshUserSession: authActions.refreshUserSession,
 
     // Session management
     validateSession: sessionManager.validateSession,

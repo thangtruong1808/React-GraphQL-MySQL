@@ -61,25 +61,4 @@ export const LOGOUT = gql`
   }
 `;
 
-/**
- * Refresh Token Renewal Mutation
- * Renews the refresh token to extend the session
- * Used for proactive refresh token renewal when user is active
- */
-export const REFRESH_TOKEN_RENEWAL = gql`
-  mutation RefreshTokenRenewal {
-    refreshTokenRenewal {
-      success
-      message
-      user {
-        id
-        email
-        role
-        createdAt
-        updatedAt
-      }
-    }
-  }
-`;
-
  
