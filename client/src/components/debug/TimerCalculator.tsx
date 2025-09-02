@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TokenManager, getTokens } from '../../utils/tokenManager';
-import { AUTH_CONFIG } from '../../constants/auth';
-import { ACTIVITY_CONFIG } from '../../constants/activity';
-import { DEBUG_CONFIG } from '../../constants/debug';
+import { TokenManager, getTokens } from '../../../utils/tokenManager';
+import { AUTH_CONFIG } from '../../../constants/auth';
+import { ACTIVITY_CONFIG } from '../../../constants/activity';
+import { DEBUG_CONFIG } from '../../../constants/debug';
 
 /**
  * Timer State Interface

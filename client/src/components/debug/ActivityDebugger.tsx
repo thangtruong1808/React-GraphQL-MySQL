@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { InactivityTimer } from './InactivityTimer';
+import InactivityTimer from './InactivityTimer';
 import SystemInfoSection from './SystemInfoSection';
 import HelpInfoSection from './HelpInfoSection';
 import UserInfoSection from './UserInfoSection';

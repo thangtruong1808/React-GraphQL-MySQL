@@ -15,6 +15,8 @@ export interface AuthActions {
   // Core actions
   login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => Promise<void>;
+  logoutFromModal: () => Promise<void>;
+  refreshSession: () => Promise<boolean>; // User clicks "Continue to Work" button
   
   // Token management
   refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>; // Unified function for all refresh scenarios
@@ -68,7 +70,15 @@ export const useAuthActions = (
     // Clear all authentication data
     clearTokens();
     
-
+    // Clear token creation time specifically for complete logout
+    TokenManager.clearTokenCreationTime();
+    
+    // Clear refresh token expiry timer
+    try {
+      await TokenManager.clearRefreshTokenExpiry();
+    } catch (error) {
+      // Refresh token expiry clearing failed - not critical for logout
+    }
     
     // Clear user data and authentication state immediately
     setUser(null);
@@ -123,7 +133,7 @@ export const useAuthActions = (
       const { accessToken, refreshToken, csrfToken, user: refreshedUser } = refreshData;
       
       // Store tokens (this resets access token to 1 minute like first-time login)
-      saveTokens(accessToken, refreshToken, refreshedUser);
+      saveTokens(accessToken, refreshToken);
       setUser(refreshedUser);
       setIsAuthenticated(true);
       
@@ -141,7 +151,8 @@ export const useAuthActions = (
         // This allows the access token timer to work normally and reset on user activity
         // The refresh token timer should only start when access token expires due to inactivity
       } else {
-
+        // For manual refresh (Continue to Work): Clear refresh token timer (like first-time login)
+        await TokenManager.clearRefreshTokenExpiry();
       }
 
       return true;
@@ -184,7 +195,7 @@ export const useAuthActions = (
       }
 
       // Save tokens and update authentication state
-      saveTokens(loginData.accessToken, loginData.refreshToken, loginData.user);
+      saveTokens(loginData.accessToken, loginData.refreshToken);
       setUser(loginData.user);
       setIsAuthenticated(true);
 
@@ -204,18 +215,41 @@ export const useAuthActions = (
   }, [loginMutation, setUser, setIsAuthenticated, setLoginLoading, showError]);
 
   /**
-   * Unified logout function - handles all logout scenarios
-   * Provides server logout, local cleanup, and transition state management
+   * Logout function - Main logout entry point
+   * Handles server logout and local state cleanup
    * Ensures refresh token is properly deleted from database
    */
   const logout = useCallback(async () => {
     try {
       setLogoutLoading(true);
       
+      // Call server logout first to clear refresh token from database
+      try {
+        const result = await logoutMutation();
+      } catch (serverError: any) {
+        // Server logout failed - continue with local cleanup
+        // This ensures the user is logged out locally even if server logout fails
+      }
+    } catch (error) {
+      // Any other unexpected errors during logout
+      // Don't show errors to user during logout process
+    } finally {
+      // Always perform local cleanup to ensure user is logged out
+      await performCompleteLogout();
+      setLogoutLoading(false);
+    }
+  }, [logoutMutation, performCompleteLogout, setLogoutLoading]);
+
+  /**
+   * Logout from modal with transition state
+   * Provides better user experience by showing transition state during logout
+   */
+  const logoutFromModal = useCallback(async () => {
+    try {
       // Set logout transition state for visual feedback
       TokenManager.setLogoutTransition(true);
       
-      // Clear modal auto-logout timer immediately if exists
+      // Clear modal auto-logout timer immediately
       if (modalAutoLogoutTimer) {
         clearTimeout(modalAutoLogoutTimer);
         setModalAutoLogoutTimer(null);
@@ -230,16 +264,10 @@ export const useAuthActions = (
       setUser(null);
       setIsAuthenticated(false);
       
-      // Call server logout to clear refresh token from database
-      try {
-        const result = await logoutMutation();
-      } catch (serverError: any) {
-        // Server logout failed - continue with local cleanup
-        // This ensures the user is logged out locally even if server logout fails
-      }
-      
-      // Clear tokens immediately
+      // Clear tokens and timers immediately
       clearTokens();
+      TokenManager.clearTokenCreationTime();
+      await TokenManager.clearRefreshTokenExpiry();
       
       // Clear CSRF token immediately
       clearApolloCSRFToken();
@@ -254,27 +282,65 @@ export const useAuthActions = (
       
       // Clear logout transition state
       TokenManager.setLogoutTransition(false);
-      
     } catch (error) {
-      // Error during logout - ensure cleanup still happens
+      // Error during logout from modal - ensure cleanup still happens
       TokenManager.setLogoutTransition(false);
       
       // Don't throw error to prevent error messages during logout
       // Logout should always succeed from user perspective
-    } finally {
-      // Always perform final cleanup to ensure user is logged out
-      await performCompleteLogout();
-      setLogoutLoading(false);
     }
-  }, [logoutMutation, performCompleteLogout, setLogoutLoading, modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated, client]);
+  }, [modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated, client]);
 
-
-
-
+  /**
+   * Wrapper function for refresh session with auto-logout pause/resume
+   * Prevents auto-logout from interfering with refresh operations
+   */
+  const refreshSession = useCallback(async (): Promise<boolean> => {
+    // Prevent multiple simultaneous refresh attempts
+    if (TokenManager.getContinueToWorkTransition()) {
+      // Refresh already in progress, skipping duplicate call
+      return false;
+    }
+    
+    try {
+      // Set transition state for visual feedback
+      TokenManager.setContinueToWorkTransition(true);
+      
+      // Set refresh operation in progress to prevent auto-logout
+      TokenManager.setRefreshOperationInProgress(true);
+      
+      // Call unified refresh function for manual refresh
+      const refreshSuccess = await refreshUserSession(false);
+      
+      // Clear transition state
+      TokenManager.setContinueToWorkTransition(false);
+      
+      // Clear refresh operation state
+      TokenManager.setRefreshOperationInProgress(false);
+      
+      if (refreshSuccess) {
+        // Refresh success - show success message
+        showNotification('You can continue working now!', 'success');
+        return true;
+      } else {
+        // Refresh failed - show error message
+        setShowSessionExpiryModal(false);
+        showNotification('Failed to refresh session. Please log in again.', 'error');
+        return false;
+      }
+    } catch (error) {
+      // Handle any errors during refresh
+      setShowSessionExpiryModal(false);
+      showNotification('Failed to refresh session. Please log in again.', 'error');
+      return false;
+    }
+  }, [refreshUserSession, setShowSessionExpiryModal, showNotification]);
 
   return {
     login,
     logout,
+    logoutFromModal,
+    refreshSession,
     refreshUserSession,
     performCompleteLogout,
     loginLoading,

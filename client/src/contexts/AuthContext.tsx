@@ -34,7 +34,8 @@ interface AuthContextType {
   // Actions
   login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => Promise<void>;
-  refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>;
+  logoutFromModal: () => Promise<void>; // Add logoutFromModal to interface
+  refreshSession: () => Promise<boolean>;
 
   // Session management
   validateSession: () => Promise<boolean>;
@@ -172,7 +173,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Actions
     login: authActions.login,
     logout: authActions.logout,
-    refreshUserSession: authActions.refreshUserSession,
+    logoutFromModal: authActions.logoutFromModal, // Add logoutFromModal to context
+    refreshSession: authActions.refreshSession,
 
     // Session management
     validateSession: sessionManager.validateSession,

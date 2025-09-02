@@ -57,8 +57,8 @@ const AppWithModals: React.FC = () => {
   const {
     showSessionExpiryModal,
     sessionExpiryMessage,
-    refreshUserSession,
-    logout, // UPDATED: Use unified logout function
+    refreshSession,
+    logoutFromModal, // UPDATED: Use logoutFromModal for transition state
     notification,
     hideNotification
   } = useAuth();
@@ -84,8 +84,8 @@ const AppWithModals: React.FC = () => {
         <SessionExpiryModal
           isOpen={showSessionExpiryModal}
           message={sessionExpiryMessage}
-          onRefresh={() => refreshUserSession(false)}
-          onLogout={logout} // UPDATED: Use unified logout function
+          onRefresh={refreshSession}
+          onLogout={logoutFromModal} // UPDATED: Use logoutFromModal for transition state
         />
       </Suspense>
 
