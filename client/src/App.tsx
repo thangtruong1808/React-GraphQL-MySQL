@@ -58,7 +58,7 @@ const AppWithModals: React.FC = () => {
     showSessionExpiryModal,
     sessionExpiryMessage,
     refreshSession,
-    logoutFromModal, // UPDATED: Use logoutFromModal for transition state
+    performLogout, // UPDATED: Use performLogout directly for better control
     notification,
     hideNotification
   } = useAuth();
@@ -85,7 +85,7 @@ const AppWithModals: React.FC = () => {
           isOpen={showSessionExpiryModal}
           message={sessionExpiryMessage}
           onRefresh={refreshSession}
-          onLogout={logoutFromModal} // UPDATED: Use logoutFromModal for transition state
+          onLogout={() => performLogout({ showToast: true, fromModal: true, immediate: true })} // UPDATED: Use performLogout with modal options and toast
         />
       </Suspense>
 

@@ -37,7 +37,7 @@ export const useSessionManager = (
   showSessionExpiryModal: boolean,
   lastModalShowTime: number | null,
   refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>,
-  performCompleteLogout: () => Promise<void>,
+  performCompleteLogout: (showToast: boolean, reason?: string) => Promise<void>,
   showNotification: (message: string, type: 'success' | 'error' | 'info') => void,
   setShowSessionExpiryModal: (show: boolean) => void,
   setSessionExpiryMessage: (message: string) => void,
@@ -142,8 +142,7 @@ export const useSessionManager = (
               // No transition in progress - proceed with auto-logout
               setModalAutoLogoutTimer(null);
               setShowSessionExpiryModal(false);
-              showNotification('Session expired due to inactivity. Please log in again.', 'info');
-              await performCompleteLogout();
+              await performCompleteLogout(true, 'Session expired due to inactivity. Please log in again.');
             }
           }, autoLogoutDelay);
 
@@ -162,8 +161,7 @@ export const useSessionManager = (
         // If refresh token is also expired, show session expiry message
         if (refreshTokenExpired) {
           setShowSessionExpiryModal(false);
-          showNotification('Your session has expired due to inactivity. Please log in again.', 'info');
-          await performCompleteLogout();
+          await performCompleteLogout(true, 'Your session has expired due to inactivity. Please log in again.');
           return;
         }
       }
@@ -188,7 +186,7 @@ export const useSessionManager = (
       // User session is still valid and active - NO TOKEN REFRESH HERE
       // Token refresh is handled by handleUserActivity when actual user activity is detected
     } catch (error) {
-      await performCompleteLogout();
+      await performCompleteLogout(true, 'Session check failed');
     } finally {
       // Reset the running flag
       isSessionCheckRunningRef.current = false;

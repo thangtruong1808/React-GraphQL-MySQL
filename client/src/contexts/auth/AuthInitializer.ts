@@ -25,7 +25,7 @@ export interface AuthInitializer {
  */
 export const useAuthInitializer = (
   refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>,
-  performCompleteLogout: () => Promise<void>,
+  performCompleteLogout: (showToast: boolean, reason?: string) => Promise<void>,
   setIsInitializing: (isInitializing: boolean) => void,
   setShowLoadingSpinner: (showLoadingSpinner: boolean) => void,
   setIsLoading: (isLoading: boolean) => void,
@@ -100,7 +100,7 @@ export const useAuthInitializer = (
           }
           
           // For other errors, perform logout to ensure clean state
-          await performCompleteLogout();
+          await performCompleteLogout(false, 'Authentication initialization failed');
         }
       })();
 
@@ -121,7 +121,7 @@ export const useAuthInitializer = (
         setIsAuthenticated(false);
       } else {
         // For other errors, perform logout to ensure clean state
-        await performCompleteLogout();
+        await performCompleteLogout(false, 'Authentication initialization failed');
       }
     } finally {
       // Clear authentication initialization flag

@@ -18,7 +18,7 @@ import MobileMenu from './MobileMenu';
  */
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, logoutLoading } = useAuth();
+  const { user, isAuthenticated, performLogout, logoutLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -42,11 +42,11 @@ const NavBar: React.FC = () => {
 
   /**
    * Handle user logout
-   * Performs logout and redirects to login page
+   * Performs logout with toast notification and redirects to login page
    */
   const handleLogout = async () => {
     try {
-      await logout();
+      await performLogout({ showToast: true, fromModal: false, immediate: false });
       navigate(ROUTE_PATHS.LOGIN, { replace: true });
     } catch (error) {
       // Logout error handled silently

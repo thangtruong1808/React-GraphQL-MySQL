@@ -14,15 +14,14 @@ import { useError } from '../ErrorContext';
 export interface AuthActions {
   // Core actions
   login: (input: LoginInput) => Promise<{ success: boolean; user?: User; error?: string }>;
-  logout: () => Promise<void>;
-  logoutFromModal: () => Promise<void>;
+  performLogout: (options?: { showToast?: boolean; fromModal?: boolean; immediate?: boolean }) => Promise<void>;
   refreshSession: () => Promise<boolean>; // User clicks "Continue to Work" button
   
   // Token management
   refreshUserSession: (isSessionRestoration?: boolean) => Promise<boolean>; // Unified function for all refresh scenarios
   
   // Utilities
-  performCompleteLogout: () => Promise<void>;
+  performCompleteLogout: (showToast: boolean, reason?: string) => Promise<void>;
 }
 
 /**
@@ -55,7 +54,7 @@ export const useAuthActions = (
    * Perform complete logout - Clears all authentication data
    * Used for both manual logout and automatic logout scenarios
    */
-  const performCompleteLogout = useCallback(async () => {
+  const performCompleteLogout = useCallback(async (showToast: boolean, reason?: string) => {
     // Clear modal auto-logout timer using ref for immediate access
     if (modalAutoLogoutTimer) {
       clearTimeout(modalAutoLogoutTimer);
@@ -94,9 +93,27 @@ export const useAuthActions = (
       // Cache clearing failed - this is not critical for logout
     }
 
+    // Show appropriate toast notification based on logout scenario
+    if (showToast) {
+      if (reason?.includes('inactivity') || reason?.includes('expired') || reason?.includes('failed')) {
+        // Automatic logout scenarios (session expiry, inactivity, errors)
+        const message = reason || 'Your session has ended due to inactivity';
+        showNotification(message, 'info');
+      } else if (reason?.includes('Session ended')) {
+        // Immediate logout scenarios (from modal, etc.)
+        showNotification('Session ended. You can refresh the browser to reload if your session is still valid.', 'info');
+      } else if (reason?.includes('Successfully logged out')) {
+        // Manual logout scenarios (user initiated)
+        showNotification(reason || 'Successfully logged out', 'success');
+      } else {
+        // Default case for any other logout scenarios
+        showNotification(reason || 'Successfully logged out', 'success');
+      }
+    }
+
     // Force a small delay to ensure all state changes are processed
     await new Promise(resolve => setTimeout(resolve, 100));
-  }, [client, modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated]);
+  }, [client, modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated, showNotification]);
 
   /**
    * Unified function to refresh user session
@@ -215,37 +232,21 @@ export const useAuthActions = (
   }, [loginMutation, setUser, setIsAuthenticated, setLoginLoading, showError]);
 
   /**
-   * Logout function - Main logout entry point
-   * Handles server logout and local state cleanup
-   * Ensures refresh token is properly deleted from database
+   * Comprehensive logout function - Unified logout entry point
+   * Handles all logout scenarios with server communication and local cleanup
+   * Provides toast notifications for better user experience
+   * @param options - Configuration options for logout behavior
    */
-  const logout = useCallback(async () => {
+  const performLogout = useCallback(async (options: {
+    showToast?: boolean;
+    fromModal?: boolean;
+    immediate?: boolean;
+  } = {}) => {
+    const { showToast = true, fromModal = false, immediate = false } = options;
+    
     try {
       setLogoutLoading(true);
       
-      // Call server logout first to clear refresh token from database
-      try {
-        const result = await logoutMutation();
-      } catch (serverError: any) {
-        // Server logout failed - continue with local cleanup
-        // This ensures the user is logged out locally even if server logout fails
-      }
-    } catch (error) {
-      // Any other unexpected errors during logout
-      // Don't show errors to user during logout process
-    } finally {
-      // Always perform local cleanup to ensure user is logged out
-      await performCompleteLogout();
-      setLogoutLoading(false);
-    }
-  }, [logoutMutation, performCompleteLogout, setLogoutLoading]);
-
-  /**
-   * Logout from modal with transition state
-   * Provides better user experience by showing transition state during logout
-   */
-  const logoutFromModal = useCallback(async () => {
-    try {
       // Set logout transition state for visual feedback
       TokenManager.setLogoutTransition(true);
       
@@ -260,36 +261,44 @@ export const useAuthActions = (
       setSessionExpiryMessage('');
       setLastModalShowTime(null);
       
-      // Clear authentication state immediately for instant logout
-      setUser(null);
-      setIsAuthenticated(false);
+      // Call server logout first (unless immediate mode) to clear refresh token from database
+      if (!immediate) {
+        try {
+          await logoutMutation();
+          // Toast notification will be handled by performCompleteLogout
+        } catch (serverError: any) {
+          // Server logout failed - continue with local cleanup
+          // This ensures the user is logged out locally even if server logout fails
+          // Toast notification will be handled by performCompleteLogout
+        }
+      }
       
-      // Clear tokens and timers immediately
-      clearTokens();
-      TokenManager.clearTokenCreationTime();
-      await TokenManager.clearRefreshTokenExpiry();
+      // Determine the appropriate reason message for toast notification
+      let logoutReason: string;
+      if (immediate) {
+        logoutReason = 'Session ended from modal';
+      } else if (fromModal) {
+        logoutReason = 'Successfully logged out';
+      } else {
+        logoutReason = 'Successfully logged out';
+      }
       
-      // Clear CSRF token immediately
-      clearApolloCSRFToken();
-      
-      // Clear Apollo cache in background (non-blocking)
-      client.clearStore().catch(cacheError => {
-        // Cache clearing failed - this is not critical for logout
-      });
-      
-      // Force a delay to ensure state changes are processed and prevent session restoration
-      await new Promise(resolve => setTimeout(resolve, 150));
+      // Perform comprehensive local cleanup with appropriate toast options
+      await performCompleteLogout(showToast, logoutReason);
       
       // Clear logout transition state
       TokenManager.setLogoutTransition(false);
+      
     } catch (error) {
-      // Error during logout from modal - ensure cleanup still happens
+      // Error during logout - ensure cleanup still happens
       TokenManager.setLogoutTransition(false);
       
-      // Don't throw error to prevent error messages during logout
+      // Don't show error to user during logout process
       // Logout should always succeed from user perspective
+    } finally {
+      setLogoutLoading(false);
     }
-  }, [modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime, setUser, setIsAuthenticated, client]);
+  }, [logoutMutation, performCompleteLogout, setLogoutLoading, modalAutoLogoutTimer, setModalAutoLogoutTimer, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime]);
 
   /**
    * Wrapper function for refresh session with auto-logout pause/resume
@@ -361,8 +370,7 @@ export const useAuthActions = (
 
   return {
     login,
-    logout,
-    logoutFromModal,
+    performLogout,
     refreshSession,
     refreshUserSession,
     performCompleteLogout,
