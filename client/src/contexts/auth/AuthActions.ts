@@ -319,9 +319,32 @@ export const useAuthActions = (
       TokenManager.setRefreshOperationInProgress(false);
       
       if (refreshSuccess) {
-        // Refresh success - show success message
-        showNotification('You can continue working now!', 'success');
-        return true;
+        // Refresh success - proceed with success flow
+        try {
+          // STEP 1: Reset activity timer to 1 minute (like first-time login)
+          await TokenManager.updateActivity();
+          
+          // STEP 2: Clear refresh token timer (like first-time login)
+          await TokenManager.clearRefreshTokenExpiry();
+          
+          // STEP 3: Reset Auth state to first-time login state
+          setShowSessionExpiryModal(false);
+          setLastModalShowTime(null);
+          setSessionExpiryMessage('');
+          
+          // STEP 4: Clear any auto-logout timer (like first-time login)
+          if (modalAutoLogoutTimer) {
+            clearTimeout(modalAutoLogoutTimer);
+            setModalAutoLogoutTimer(null);
+          }
+          
+          // STEP 5: Show success message
+          showNotification('You can continue working now!', 'success');
+          
+          return true;
+        } catch (successError) {
+          throw successError; // Re-throw to be caught by outer catch block
+        }
       } else {
         // Refresh failed - show error message
         setShowSessionExpiryModal(false);
@@ -334,7 +357,7 @@ export const useAuthActions = (
       showNotification('Failed to refresh session. Please log in again.', 'error');
       return false;
     }
-  }, [refreshUserSession, setShowSessionExpiryModal, showNotification]);
+  }, [refreshUserSession, setShowSessionExpiryModal, setLastModalShowTime, setSessionExpiryMessage, showNotification, modalAutoLogoutTimer, setModalAutoLogoutTimer]);
 
   return {
     login,

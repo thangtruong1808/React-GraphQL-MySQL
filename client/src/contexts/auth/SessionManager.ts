@@ -88,6 +88,8 @@ export const useSessionManager = (
         return;
       }
 
+
+
       // Check if access token is expired first - this is the primary check
       const tokens = getTokens();
       if (tokens.accessToken) {

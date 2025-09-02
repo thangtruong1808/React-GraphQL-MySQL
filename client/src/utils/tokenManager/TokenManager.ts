@@ -165,7 +165,7 @@ export class TokenManager {
   }
 
   /**
-   * Clear refresh token expiry timer
+   * Clear refresh token expiry timer (async)
    * ONLY used when user logs out or session is completely reset
    * 
    * CALLED BY: AuthContext during logout operations
@@ -174,6 +174,8 @@ export class TokenManager {
   static async clearRefreshTokenExpiry(): Promise<void> {
     await RefreshTokenManager.clearRefreshTokenExpiry();
   }
+
+
 
   /**
    * Get refresh token expiry timestamp
