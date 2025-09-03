@@ -8,7 +8,6 @@ import {
   TokenManager,
   updateActivity,
 } from '../../utils/tokenManager';
-import { RefreshTokenManager } from '../../utils/tokenManager/refreshTokenManager';
 
 /**
  * Session Manager Interface
@@ -60,7 +59,6 @@ export const useSessionManager = (
       // SessionManager: Session check already running, skipping...
       return;
     }
-    
     // SessionManager: checkSessionAndActivity called
     isSessionCheckRunningRef.current = true;
     
@@ -88,8 +86,6 @@ export const useSessionManager = (
         return;
       }
 
-
-
       // Check if access token is expired first - this is the primary check
       const tokens = getTokens();
       if (tokens.accessToken) {
@@ -99,8 +95,6 @@ export const useSessionManager = (
         } else {
           isAccessTokenExpired = isTokenExpired(tokens.accessToken);
         }
-
-        // Debug logging for access token expiry check
 
         // If access token is still valid, no need to check refresh token
         if (!isAccessTokenExpired) {
@@ -172,14 +166,9 @@ export const useSessionManager = (
         let isAccessTokenStillValid = false;
         if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
           isAccessTokenStillValid = !isActivityBasedTokenExpired();
-        } else {
+        } 
+        else {
           isAccessTokenStillValid = !isTokenExpired(tokens.accessToken);
-        }
-        
-        if (isAccessTokenStillValid) {
-          // Access token is still valid - no need for any renewal operations
-          // Refresh token renewal should ONLY happen when user clicks "Continue to Work"
-          // This prevents interference with manual refresh operations
         }
       }
 
@@ -216,12 +205,6 @@ export const useSessionManager = (
     try {
       const tokens = getTokens();
       if (!tokens.accessToken) {
-        // No access token found in memory - this could be:
-        // 1. A new user (no refresh token in cookie)
-        // 2. A returning user after browser refresh (has refresh token in cookie)
-        
-        // Always attempt session restoration - let server handle HttpOnly cookie validation
-        // HttpOnly cookies are not accessible via JavaScript, so we can't check them client-side
         const refreshSuccess = await refreshUserSession(true); // true = session restoration (browser refresh)
         return refreshSuccess;
       }
@@ -250,13 +233,12 @@ export const useSessionManager = (
   }, [refreshUserSession]);
 
   /**
-   * Handle user activity (mouse, keyboard, scroll, etc.)
+   * Handle application-level user activity (form submissions, API calls, data operations)
    * Updates activity timestamp and proactively refreshes tokens for active users
+   * Note: This function is called manually by components, not automatically by DOM events
    */
   const handleUserActivity = useCallback(async () => {
     try {
-      // Step 1: Don't update activity if session expiry modal is showing
-      // This prevents the modal from auto-closing and preserves the refresh token timer
       if (showSessionExpiryModal) {
         return;
       }
