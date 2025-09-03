@@ -2,19 +2,20 @@ import React from 'react';
 import { useAppFocusedActivityTracker } from '../../hooks/custom/useAppFocusedActivityTracker';
 
 /**
- * Activity Tracker Component
- * Handles user activity tracking across the application
- * Only tracks activity when the application window is focused
- * 
- * CALLED BY: App component
- * SCENARIOS: All application scenarios where user activity needs to be tracked
+
+ * FEATURES:
+ * - Tracks mouse, keyboard, touch, and scroll events automatically
+ * - Only tracks activity when application window is focused
+ * - Updates authentication activity timestamps
+ * - Prevents false activity detection when app is not focused 
  */
 const ActivityTracker: React.FC = () => {
-  // Track user activity across the application (only when app is focused)
-  const { isAppFocused } = useAppFocusedActivityTracker();
+  // Initialize the app-focused activity tracker
+  // The hook automatically sets up event listeners and handles all activity tracking
+  useAppFocusedActivityTracker();
 
   // This component doesn't render anything visible
-  // It only handles activity tracking logic
+  // It only handles background activity tracking logic
   return null;
 };
 

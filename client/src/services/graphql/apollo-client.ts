@@ -177,8 +177,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
         // Don't show authentication errors during initialization or for new users
         // These are expected for users without refresh tokens
         const isAuthOperation = operation.operationName === 'RefreshToken' || 
-                               operation.operationName === 'RefreshTokenRenewal' ||
-                               operation.operationName === 'GetCurrentUser';
+                               operation.operationName === 'RefreshTokenRenewal';
         
         // Don't show "Refresh token is required" errors for new users or after logout
         const isRefreshTokenRequiredError = message === 'Refresh token is required' || 
@@ -217,8 +216,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
       
       // Don't redirect to login for authentication operations during initialization
       const isAuthOperation = operation.operationName === 'RefreshToken' || 
-                             operation.operationName === 'RefreshTokenRenewal' ||
-                             operation.operationName === 'GetCurrentUser';
+                             operation.operationName === 'RefreshTokenRenewal';
       
       if (!isAuthOperation && !isAuthInitializing && !isAppInitializing) {
         window.location.href = ROUTE_PATHS.LOGIN;
@@ -257,12 +255,7 @@ const client = new ApolloClient({
       Query: {
         fields: {
           // Cache policies for better performance
-          currentUser: {
-            read(existing) {
-              // Debug logging disabled for better user experience
-              return existing;
-            },
-          },
+          // Removed currentUser cache policy - no longer needed
         },
       },
     },

@@ -1,17 +1,13 @@
-import { useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES } from '../../constants/activity';
+import { AUTH_CONFIG } from '../../constants/auth';
+import { DEBUG_CONFIG } from '../../constants/debug';
 import { updateActivity } from '../../utils/tokenManager';
 import { TokenManager } from '../../utils/tokenManager/TokenManager';
 import { getTokens, isActivityBasedTokenExpired, isTokenExpired } from '../../utils/tokenManager/legacyWrappers';
-import { AUTH_CONFIG } from '../../constants/auth';
-import { ACTIVITY_CONFIG, ACTIVITY_EVENTS, ACTIVITY_FEATURES } from '../../constants/activity';
-import { DEBUG_CONFIG } from '../../constants/debug';
 
 /**
- * App-Focused Activity Tracker Hook
- * Tracks user activity only when the application window is focused
- * Prevents false activity updates when user moves mouse outside the app
- * 
  * FEATURES:
  * - Only tracks activity when app window is focused
  * - Monitors mouse, keyboard, touch, and scroll events
@@ -19,12 +15,6 @@ import { DEBUG_CONFIG } from '../../constants/debug';
  * - Filters out system-generated events
  * - Uses passive event listeners for better performance
  * - Prevents false activity resets when switching between apps
- * 
- * USAGE:
- * - Automatically tracks all user interactions within the focused application
- * - Updates activity timestamp for authentication system
- * - Helps prevent premature logout for active users
- * - Prevents false activity detection when app is not focused
  */
 export const useAppFocusedActivityTracker = () => {
   const location = useLocation();
@@ -172,7 +162,6 @@ export const useAppFocusedActivityTracker = () => {
     // Handle focus/blur events for debugging purposes
     const handleFocusChange = () => {
       try {
-        const wasFocused = isAppFocusedRef.current;
         isAppFocusedRef.current = document.hasFocus();
         
         // Log focus state changes (disabled for production)
@@ -187,7 +176,6 @@ export const useAppFocusedActivityTracker = () => {
     // Handle visibility change events for debugging purposes
     const handleVisibilityChange = () => {
       try {
-        const isVisible = !document.hidden;
         
         // Log visibility state changes (disabled for production)
         if (DEBUG_CONFIG.ENABLE_ACTIVITY_DEBUG_LOGGING) {

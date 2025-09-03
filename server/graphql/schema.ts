@@ -65,12 +65,9 @@ export const typeDefs = gql`
     password: String!
   }
 
-  # Query Type - only includes currentUser query that's actually used
+  # Query Type - no queries currently needed (use AuthContext for user data)
   type Query {
-    # Get current authenticated user - requires valid JWT token
-    currentUser: User @auth
-    
-
+    # No queries needed - user data available through AuthContext
   }
 
   # Mutation Type - only includes authentication mutations that are actually used

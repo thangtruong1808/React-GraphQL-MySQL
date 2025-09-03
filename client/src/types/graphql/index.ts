@@ -53,11 +53,6 @@ export interface LoginInput {
 
 
 
-// GraphQL Query Response Types
-export interface CurrentUserQuery {
-  currentUser: User | null;
-}
-
 // User Session Info Type
 export interface UserSessionInfo {
   userId: string;
@@ -65,11 +60,6 @@ export interface UserSessionInfo {
   activeTokens: number;
   maxAllowed: number;
   isAtLimit: boolean;
-}
-
-// GraphQL Query Response Types
-export interface CurrentUserQuery {
-  currentUser: User | null;
 }
 
 export interface UsersWithSessionsQuery {
