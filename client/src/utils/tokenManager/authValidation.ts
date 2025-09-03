@@ -15,46 +15,10 @@ import { DEBUG_CONFIG } from '../../constants';
  */
 export class AuthValidation {
   /**
-   * Check if user is authenticated
-   * @returns Boolean indicating if user is authenticated
-   * 
-   * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
-   * SCENARIOS:
-   * - Valid token: Returns true (user is authenticated)
-   * - Expired token: Returns false (needs refresh)
-   * - No token: Returns false (not authenticated)
-   * - Invalid token: Returns false (not authenticated)
-   */
-  static isAuthenticated(): boolean {
-    try {
-      const token = this.getAccessToken();
-      if (!token) return false;
-      
-      // Use activity-based token validation if enabled
-      // This allows active users to stay logged in longer
-      const activityExpiry = MemoryStorage.getActivityBasedExpiry();
-      if (activityExpiry !== null) {
-        return !ActivityManager.isActivityBasedTokenExpired();
-      }
-      
-      // Fallback to token expiry check
-      const tokenExpiry = MemoryStorage.getTokenExpiry();
-      if (!tokenExpiry) {
-        return false;
-      }
-      return Date.now() < tokenExpiry;
-    } catch (error) {
-      return false;
-    }
-  }
-
-
-
-  /**
    * Get stored access token from memory with validation
    * @returns Access token or null if not found/invalid
    * 
-   * CALLED BY: isAuthenticated(), apollo-client.ts authLink
+   * CALLED BY: apollo-client.ts authLink
    * SCENARIOS:
    * - Valid token: Returns JWT token for authorization header
    * - Expired token: Returns token (expiry checked separately)
@@ -108,7 +72,7 @@ export class AuthValidation {
    * Check if activity-based token is expired
    * @returns Boolean indicating if activity-based token is expired
    * 
-   * CALLED BY: isAuthenticated(), AuthContext for activity-based validation
+   * CALLED BY: AuthContext for activity-based validation
    * SCENARIOS:
    * - Active user: Returns false (token valid based on activity)
    * - Inactive user: Returns true (needs refresh or logout)
@@ -129,41 +93,5 @@ export class AuthValidation {
     return ActivityManager.getActivityBasedTokenExpiry();
   }
 
-  /**
-   * Get comprehensive authentication status for debugging
-   * @returns Object with authentication status information
-   * 
-   * CALLED BY: Debug components for displaying comprehensive authentication information
-   * SCENARIOS: Debugging and monitoring authentication status
-   */
-  static getAuthenticationStatus(): {
-    isAuthenticated: boolean;
-    hasAccessToken: boolean;
-    isAccessTokenExpired: boolean;
-    isActivityBasedTokenExpired: boolean;
-    hasUserData: boolean;
-    accessTokenExpiry: number | null;
-    activityBasedExpiry: number | null;
-  } {
-    const isAuthenticated = this.isAuthenticated();
-    const accessToken = this.getAccessToken();
-    const hasAccessToken = !!accessToken;
-    const tokenExpiry = MemoryStorage.getTokenExpiry();
-    const isAccessTokenExpired = !tokenExpiry || Date.now() >= tokenExpiry;
-    const isActivityBasedTokenExpired = this.isActivityBasedTokenExpired();
-    const userData = this.getUser();
-    const hasUserData = !!userData;
-    const accessTokenExpiry = MemoryStorage.getTokenExpiry();
-    const activityBasedExpiry = this.getActivityBasedTokenExpiry();
-
-    return {
-      isAuthenticated,
-      hasAccessToken,
-      isAccessTokenExpired,
-      isActivityBasedTokenExpired,
-      hasUserData,
-      accessTokenExpiry,
-      activityBasedExpiry,
-    };
-  }
+  // Removed redundant getAuthenticationStatus method - use useAuthState().isAuthenticated instead
 }

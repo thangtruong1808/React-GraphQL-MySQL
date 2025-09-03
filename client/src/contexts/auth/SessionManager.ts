@@ -120,7 +120,7 @@ export const useSessionManager = (
         if (!refreshTokenExpired && !showSessionExpiryModal && timeSinceLastShow > minTimeBetweenShows) {
           // Debug logging to understand session expiry detection
           
-          setSessionExpiryMessage('Your session has expired. Click "Continue to Work" to refresh your session or "Logout" to sign in again.');
+          setSessionExpiryMessage('Your session has expired. Click "Continue to Work" to refresh your session, "Logout" to terminate your session temporarily');
           setShowSessionExpiryModal(true);
           setLastModalShowTime(now);
 

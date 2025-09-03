@@ -12,8 +12,8 @@ interface SessionExpiryModalProps {
 /**
  * Session Expiry Modal Component
  * Displays when access token expires but refresh token is still valid
- * Gives users options to continue working or logout
- * Enhanced with progress bar for better user experience
+ * Gives users options to continue working, logout, or refresh browser
+ * Enhanced with progress bar and helpful tips for better user experience
  * 
  * CALLED BY: AuthContext when access token expires
  * SCENARIOS: Access token expiry with valid refresh token
@@ -104,6 +104,22 @@ const SessionExpiryModal: React.FC<SessionExpiryModalProps> = ({
         {/* Message */}
         <div className="mb-6">
           <p className="text-sm text-gray-600">{message}</p>
+
+          {/* Helpful Tip - Informs users about browser refresh option for better UX */}
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="w-4 h-4 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-2">
+                <p className="text-xs text-blue-800">
+                  <strong>Pro tip:</strong> If you refresh your browser, you can continue working without signing in again as long as your refresh token is still valid.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Progress Bar (only show during refresh) */}

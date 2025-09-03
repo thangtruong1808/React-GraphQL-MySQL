@@ -79,7 +79,7 @@ export class ActivityManager {
    * Check if activity-based token is expired
    * @returns Boolean indicating if activity-based token is expired
    * 
-   * CALLED BY: isAuthenticated(), AuthContext for activity-based validation
+   * CALLED BY: AuthContext for activity-based validation
    * SCENARIOS:
    * - Active user: Returns false (token valid based on activity)
    * - Inactive user: Returns true (needs refresh or logout)

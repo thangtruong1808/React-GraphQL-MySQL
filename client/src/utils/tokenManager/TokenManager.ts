@@ -5,31 +5,6 @@ import { RefreshTokenManager } from './refreshTokenManager';
 import { TokenValidation } from './tokenValidation';
 
 /**
- * Enhanced Token Manager Class
- * Orchestrates all token management operations using modular components
- * Manages JWT tokens with automatic refresh and secure memory storage
- * 
- * EXECUTION FLOW FOR DIFFERENT SCENARIOS:
- * 
- * 1. FIRST TIME LOGIN (No tokens):
- *    - getTokens() → returns { accessToken: null, refreshToken: null }
- *    - storeTokens() → stores new tokens in memory
- *    - isAuthenticated() → returns true after storage
- * 
- * 2. EXPIRED ACCESS TOKEN + VALID REFRESH TOKEN:
- *    - getTokens() → returns { accessToken: "expired_token", refreshToken: null }
- *    - isTokenExpired() → returns true
- *    - updateAccessToken() → stores new access token
- *    - isAuthenticated() → returns true after update
- * 
- * 3. EXPIRED ACCESS TOKEN + EXPIRED REFRESH TOKEN:
- *    - getTokens() → returns { accessToken: "expired_token", refreshToken: null }
- *    - isTokenExpired() → returns true
- *    - clearTokens() → clears all memory data
- *    - isAuthenticated() → returns false
- */
-
-/**
  * Token Manager Class
  * Main orchestrator for all token management operations
  */
@@ -39,12 +14,6 @@ export class TokenManager {
    * @param accessToken - JWT access token (stored in memory only)
    * @param refreshToken - Random hex refresh token (stored in httpOnly cookie)
    * @param user - User data object (stored in memory only)
-   * 
-   * CALLED BY: AuthContext after successful login/refresh
-   * SCENARIOS:
-   * - First time login: Stores new tokens from server response
-   * - Token refresh: Stores new tokens after successful refresh
-   * - Re-login: Stores new tokens after successful login
    */
   static storeTokens(accessToken: string, refreshToken: string, user: any): void {
     TokenStorage.storeTokens(accessToken, refreshToken, user);
@@ -53,13 +22,6 @@ export class TokenManager {
   /**
    * Get stored access token from memory with validation
    * @returns Access token or null if not found/invalid
-   * 
-   * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
-   * SCENARIOS:
-   * - Valid token: Returns JWT token for authorization header
-   * - Expired token: Returns token (expiry checked separately)
-   * - No token: Returns null (first time login)
-   * - Invalid token: Returns null (cleared tokens)
    */
   static getAccessToken(): string | null {
     return TokenStorage.getAccessToken();
@@ -67,11 +29,7 @@ export class TokenManager {
 
   /**
    * Get stored refresh token from httpOnly cookie
-   * Note: This is handled server-side, client can't directly access httpOnly cookies
    * @returns null (refresh token is managed server-side)
-   * 
-   * CALLED BY: Legacy code (not used in current implementation)
-   * SCENARIOS: All scenarios - refresh tokens handled by server via httpOnly cookies
    */
   static getRefreshToken(): string | null {
     return TokenStorage.getRefreshToken();
@@ -80,23 +38,14 @@ export class TokenManager {
   /**
    * Update access token only
    * Used when only access token is refreshed
-   * 
-   * CALLED BY: AuthContext after successful access token refresh
-   * SCENARIOS: Access token refresh - updates access token with new expiry
    */
   static updateAccessToken(accessToken: string): void {
     TokenStorage.updateAccessToken(accessToken);
   }
 
   /**
-   * Clear all authentication data securely
-   * 
-   * CALLED BY: AuthContext logout, apollo-client.ts errorLink
-   * SCENARIOS:
-   * - User logout: Clears all data after server logout
-   * - Force logout: Clears all data due to admin action
-   * - Token expiration: Clears all data when refresh fails
-   * - Authentication errors: Clears all data on server errors
+   * Clears all data after server logout
+   * Used for secure cleanup during logout or errors
    */
   static clearTokens(): void {
     TokenStorage.clearTokens();
@@ -104,10 +53,7 @@ export class TokenManager {
 
   /**
    * Update user activity timestamp
-   * Called when user performs any action
-   * 
    * CALLED BY: AuthContext when user is active
-   * SCENARIOS: All user interactions - updates last activity time
    */
   static async updateActivity(): Promise<void> {
     await ActivityManager.updateActivity();
@@ -115,9 +61,6 @@ export class TokenManager {
 
   /**
    * Start refresh token expiry timer
-   * Called when access token expires to start the 4-minute countdown
-   * 
-   * CALLED BY: AuthContext when access token expires
    * SCENARIOS: Access token expiry - starts refresh token countdown
    */
   static async startRefreshTokenExpiryTimer(): Promise<void> {
@@ -137,28 +80,11 @@ export class TokenManager {
     return await RefreshTokenManager.isRefreshTokenExpired();
   }
 
-  /**
-   * Check if refresh token needs renewal (proactive renewal)
-   * Returns true if refresh token will expire within the renewal threshold
-   * 
-   * @returns boolean - true if refresh token needs renewal
-   * 
-   * CALLED BY: AuthContext for proactive token renewal
-   * SCENARIOS: All scenarios - checks if refresh token is about to expire
-   */
-  static async isRefreshTokenNeedsRenewal(): Promise<boolean> {
-    // This method is not implemented in RefreshTokenManager
-    // Return false as default behavior
-    return false;
-  }
 
   /**
    * Update refresh token expiry after renewal
    * Extends the refresh token expiry time when token is renewed with NEW tokens from server
-   * IMPORTANT: This should ONLY be called when getting NEW refresh tokens from server
-   * 
-   * CALLED BY: AuthContext after successful token refresh with NEW tokens
-   * SCENARIOS: Full session refresh with new refresh token from server
+   
    */
   static async updateRefreshTokenExpiry(): Promise<void> {
     await RefreshTokenManager.updateRefreshTokenExpiry();
@@ -167,22 +93,14 @@ export class TokenManager {
   /**
    * Clear refresh token expiry timer (async)
    * ONLY used when user logs out or session is completely reset
-   * 
-   * CALLED BY: AuthContext during logout operations
-   * SCENARIOS: User logout, forced logout, session termination
    */
   static async clearRefreshTokenExpiry(): Promise<void> {
     await RefreshTokenManager.clearRefreshTokenExpiry();
   }
 
-
-
   /**
    * Get refresh token expiry timestamp
    * @returns Refresh token expiry timestamp or null if not set
-   * 
-   * CALLED BY: Debug components for displaying refresh token information
-   * SCENARIOS: Debugging and monitoring refresh token expiry
    */
   static async getRefreshTokenExpiry(): Promise<number | null> {
     return await RefreshTokenManager.getRefreshTokenExpiry();
@@ -191,9 +109,6 @@ export class TokenManager {
   /**
    * Get refresh token status information for debugging (async)
    * @returns Object with refresh token status information
-   * 
-   * CALLED BY: Debug components for displaying comprehensive refresh token information
-   * SCENARIOS: Debugging and monitoring refresh token status
    */
   static async getRefreshTokenStatus(): Promise<{
     expiry: number | null;
@@ -208,9 +123,6 @@ export class TokenManager {
   /**
    * Get the timestamp of the last user activity
    * @returns Timestamp of last activity or null if no activity recorded
-   * 
-   * CALLED BY: ActivityDebugger for displaying activity information
-   * SCENARIOS: Debugging and monitoring user activity
    */
   static getLastActivityTime(): number | null {
     return ActivityManager.getLastActivityTime();
@@ -220,40 +132,14 @@ export class TokenManager {
    * Check if user has been inactive for too long
    * @param inactivityThreshold - Time in milliseconds to consider user inactive
    * @returns Boolean indicating if user is inactive
-   * 
-   * CALLED BY: AuthContext for inactivity detection
-   * SCENARIOS: All scenarios - checks user activity level
    */
   static isUserInactive(inactivityThreshold: number): boolean {
     return ActivityManager.isUserInactive(inactivityThreshold);
   }
 
   /**
-   * Check if user is authenticated
-   * @returns Boolean indicating if user is authenticated
-   * 
-   * CALLED BY: apollo-client.ts authLink, AuthContext validateSession()
-   * SCENARIOS:
-   * - Valid token: Returns true (user is authenticated)
-   * - Expired token: Returns false (needs refresh)
-   * - No token: Returns false (not authenticated)
-   * - Invalid token: Returns false (not authenticated)
-   */
-  static isAuthenticated(): boolean {
-    return AuthValidation.isAuthenticated();
-  }
-
-
-
-  /**
    * Check if activity-based token is expired
    * @returns Boolean indicating if activity-based token is expired
-   * 
-   * CALLED BY: AuthContext for activity-based validation
-   * SCENARIOS:
-   * - Active user: Returns false (token valid based on activity)
-   * - Inactive user: Returns true (needs refresh or logout)
-   * - No activity data: Returns true (assume expired)
    */
   static isActivityBasedTokenExpired(): boolean {
     return ActivityManager.isActivityBasedTokenExpired();
@@ -262,9 +148,6 @@ export class TokenManager {
   /**
    * Get activity-based token expiry timestamp
    * @returns Activity-based expiry timestamp or null if not available
-   * 
-   * CALLED BY: ActivityDebugger for displaying activity-based expiry information
-   * SCENARIOS: Debugging and monitoring activity-based token expiry
    */
   static getActivityBasedTokenExpiry(): number | null {
     return ActivityManager.getActivityBasedTokenExpiry();
@@ -274,9 +157,6 @@ export class TokenManager {
    * Get token expiration timestamp from JWT
    * @param token - JWT token to decode
    * @returns Expiration timestamp or null if invalid
-   * 
-   * CALLED BY: storeTokens(), updateAccessToken(), updateTokens()
-   * SCENARIOS: All scenarios - extracts expiry from JWT payload
    */
   static getTokenExpiration(token?: string): number | null {
     if (!token) return null;
@@ -287,9 +167,6 @@ export class TokenManager {
    * Decode JWT token without verification
    * @param token - JWT token to decode
    * @returns Decoded payload or null if invalid
-   * 
-   * CALLED BY: getTokenExpiration()
-   * SCENARIOS: All scenarios - extracts data from JWT payload
    */
   static decodeToken(token: string): any {
     return TokenValidation.decodeToken(token);
@@ -298,9 +175,6 @@ export class TokenManager {
   /**
    * Set transition state for "Continue to Work" operation
    * @param isTransitioning - Whether the transition is active
-   * 
-   * CALLED BY: AuthActions during refreshSession
-   * SCENARIOS: "Continue to Work" button clicked
    */
   static setContinueToWorkTransition(isTransitioning: boolean): void {
     RefreshTokenManager.setContinueToWorkTransition(isTransitioning);
@@ -309,9 +183,6 @@ export class TokenManager {
   /**
    * Get transition state for "Continue to Work" operation
    * @returns Whether the transition is active
-   * 
-   * CALLED BY: SessionManager to avoid interference during transitions
-   * SCENARIOS: Session checking during "Continue to Work" operation
    */
   static getContinueToWorkTransition(): boolean {
     return RefreshTokenManager.getContinueToWorkTransition();
@@ -320,9 +191,6 @@ export class TokenManager {
   /**
    * Store token creation timestamp for dynamic buffer calculation
    * @param timestamp - Token creation timestamp in milliseconds
-   * 
-   * CALLED BY: AuthActions after successful login/refresh
-   * SCENARIOS: New token creation for dynamic buffer calculation
    */
   static setTokenCreationTime(timestamp: number | null): void {
     TokenStorage.setTokenCreationTime(timestamp);
@@ -331,9 +199,6 @@ export class TokenManager {
   /**
    * Get token creation timestamp for dynamic buffer calculation
    * @returns Token creation timestamp or null if not available
-   * 
-   * CALLED BY: Dynamic buffer calculation
-   * SCENARIOS: "Continue to Work" functionality
    */
   static getTokenCreationTime(): number | null {
     return TokenStorage.getTokenCreationTime();
@@ -341,11 +206,7 @@ export class TokenManager {
 
   /**
    * Calculate dynamic buffer time based on token creation time
-   * Buffer = Current time - Token creation time
    * @returns Buffer time in milliseconds or null if creation time not available
-   * 
-   * CALLED BY: Server-side refresh operation for cookie expiry
-   * SCENARIOS: "Continue to Work" functionality with dynamic buffer
    */
   static calculateDynamicBuffer(): number | null {
     return TokenStorage.calculateDynamicBuffer();
@@ -354,9 +215,6 @@ export class TokenManager {
   /**
    * Clear token creation time specifically
    * Used when a complete logout is performed and new tokens will be created
-   * 
-   * CALLED BY: AuthActions during complete logout
-   * SCENARIOS: User logout, session termination
    */
   static clearTokenCreationTime(): void {
     TokenStorage.clearTokenCreationTime();
@@ -365,9 +223,6 @@ export class TokenManager {
   /**
    * Set logout transition state for logout operation
    * @param isTransitioning - Whether the logout transition is active
-   * 
-   * CALLED BY: AuthActions during logout from modal
-   * SCENARIOS: "Logout" button clicked from session expiry modal
    */
   static setLogoutTransition(isTransitioning: boolean): void {
     TokenStorage.setLogoutTransition(isTransitioning);
@@ -376,9 +231,6 @@ export class TokenManager {
   /**
    * Get logout transition state
    * @returns Boolean indicating if logout transition is active
-   * 
-   * CALLED BY: TimerCalculator for transition state detection
-   * SCENARIOS: Logout transition state display
    */
   static getLogoutTransition(): boolean {
     return TokenStorage.getLogoutTransition();
@@ -387,9 +239,6 @@ export class TokenManager {
   /**
    * Check if session expiry modal is showing
    * @returns Boolean indicating if session expiry modal is visible
-   * 
-   * CALLED BY: Activity tracker to prevent activity updates when modal is showing
-   * SCENARIOS: Preventing activity interference during modal display
    */
   static isSessionExpiryModalShowing(): boolean {
     return TokenStorage.isSessionExpiryModalShowing();
@@ -398,9 +247,6 @@ export class TokenManager {
   /**
    * Set session expiry modal state
    * @param isShowing - Whether the session expiry modal is visible
-   * 
-   * CALLED BY: AuthContext when modal state changes
-   * SCENARIOS: Modal show/hide state management
    */
   static setSessionExpiryModalShowing(isShowing: boolean): void {
     TokenStorage.setSessionExpiryModalShowing(isShowing);
