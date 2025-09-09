@@ -7,17 +7,17 @@ import { authResolvers } from './auth';
 
 export const resolvers = {
   // JSON Scalar Resolver for flexible data structures
-  JSON: {
-    __serialize(value: any) {
-      return value;
-    },
-    __parseValue(value: any) {
-      return value;
-    },
-    __parseLiteral(ast: any) {
-      return ast.value;
-    },
-  },
+  // JSON: {
+  //   __serialize(value: any) {
+  //     return value;
+  //   },
+  //   __parseValue(value: any) {
+  //     return value;
+  //   },
+  //   __parseLiteral(ast: any) {
+  //     return ast.value;
+  //   },
+  // },
   Query: {
     ...authResolvers.Query,
   },

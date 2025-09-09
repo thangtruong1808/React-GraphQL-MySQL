@@ -29,7 +29,7 @@ export const authenticateUser = async (
     if (!token) {
       // No token provided, continue without authentication
       next();
-      return;
+      return; // stops execution, prevents further response
     }
 
     // Verify token

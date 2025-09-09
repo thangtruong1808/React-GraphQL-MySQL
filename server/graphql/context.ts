@@ -16,6 +16,6 @@ export function createContext({ req, res }: { req: Request; res: Response }): Gr
     req,
     res,
     user: user || undefined,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user,  //“If user exists, isAuthenticated is true; otherwise, it’s false.”
   };
 }

@@ -59,13 +59,27 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
       const data = await response.json();
       if (data.csrfToken) {
         csrfToken = data.csrfToken;
-        // Debug logging disabled for better user experience
+        // CSRF token successfully fetched and stored
+      } else {
+        // Server response missing CSRF token
+        throw new Error('CSRF token not found in server response');
       }
     } else {
-      // Failed to fetch initial CSRF token
+      // Server returned error status
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch CSRF token: ${response.status} ${response.statusText} - ${errorText}`);
     }
   } catch (error) {
-    // Error fetching initial CSRF token handled silently
+    // Log error for debugging but don't break the app
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    throw new Error(errorMessage);
+    // console.error('CSRF Token Fetch Error:', errorMessage);
+    
+    // Set a fallback CSRF token to prevent app from breaking
+    csrfToken = 'fallback-csrf-token';
+    
+    // Note: In production, you might want to show a user-friendly notification
+    // but for now, we'll use fallback to maintain app functionality
   }
 };
 

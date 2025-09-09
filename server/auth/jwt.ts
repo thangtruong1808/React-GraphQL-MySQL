@@ -3,7 +3,8 @@ import { ERROR_MESSAGES, JWT_CONFIG } from '../constants';
 
 /**
  * JWT Utility Functions
- * Handles token generation, verification, and refresh token management
+ * Handles token verification and extraction for authentication middleware
+ * Note: Token generation is handled by tokenManager.ts
  */
 
 // JWT configuration - required environment variables
@@ -14,22 +15,7 @@ if (!JWT_SECRET) {
   throw new Error(ERROR_MESSAGES.JWT_SECRET_MISSING);
 }
 
-/**
- * Generate access token for user
- * @param user - User object with id
- * @returns JWT access token
- */
-export const generateAccessToken = (user: { id: number }): string => {
-  return jwt.sign(
-    { userId: user.id },
-    JWT_SECRET,
-    { 
-      expiresIn: JWT_CONFIG.ACCESS_TOKEN_EXPIRY,
-      issuer: JWT_CONFIG.ISSUER,
-      audience: JWT_CONFIG.AUDIENCE
-    }
-  );
-};
+// Removed unused generateAccessToken function - use tokenManager.ts instead
 
 /**
  * Verify JWT access token
