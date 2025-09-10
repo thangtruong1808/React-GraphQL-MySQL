@@ -57,13 +57,13 @@ interface AuthProviderProps {
 }
 
 /**
- * AuthContext Creation
+ * Step 1 AuthContext Creation
  * Creates the authentication context with default values
  */
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 /**
- * Custom hook to use authentication context
+ * Step 3 Custom hook to use authentication context
  * Provides type-safe access to authentication state and functions
  */
 export const useAuth = (): AuthContextType => {
@@ -75,7 +75,7 @@ export const useAuth = (): AuthContextType => {
 };
 
 /**
- * AuthProvider Component
+ * Step 2 Create AuthProvider Component
  * Wraps the application and provides authentication context
  * Combines all authentication modules into a single provider
  * 

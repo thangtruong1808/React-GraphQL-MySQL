@@ -11,9 +11,13 @@
 export const ROUTE_PATHS = {
   // Public routes (accessible without authentication)
   LOGIN: '/login',
+  PROJECTS: '/projects',
+  TEAM: '/team',
+  ABOUT: '/about',
   
   // Protected routes (require authentication)
   HOME: '/',
+  DASHBOARD: '/dashboard',
   
   // API routes
   GRAPHQL: '/graphql',
@@ -28,11 +32,15 @@ export const ROUTE_PROTECTION = {
   // Public routes (no authentication required)
   PUBLIC: [
     ROUTE_PATHS.LOGIN,
+    ROUTE_PATHS.PROJECTS,
+    ROUTE_PATHS.TEAM,
+    ROUTE_PATHS.ABOUT,
   ],
   
   // Protected routes (authentication required)
   PROTECTED: [
     ROUTE_PATHS.HOME,
+    ROUTE_PATHS.DASHBOARD,
   ],
   
   // API routes (no protection needed)
@@ -55,12 +63,20 @@ export const ROUTE_CONFIG = {
   TITLES: {
     [ROUTE_PATHS.LOGIN]: 'Login',
     [ROUTE_PATHS.HOME]: 'Home',
+    [ROUTE_PATHS.PROJECTS]: 'Projects',
+    [ROUTE_PATHS.TEAM]: 'Team',
+    [ROUTE_PATHS.ABOUT]: 'About',
+    [ROUTE_PATHS.DASHBOARD]: 'Dashboard',
   },
   
   // Route descriptions for SEO
   DESCRIPTIONS: {
     [ROUTE_PATHS.LOGIN]: 'Sign in to your account',
-    [ROUTE_PATHS.HOME]: 'Welcome to the application',
+    [ROUTE_PATHS.HOME]: 'Welcome to TaskFlow',
+    [ROUTE_PATHS.PROJECTS]: 'Explore all projects managed through TaskFlow',
+    [ROUTE_PATHS.TEAM]: 'Meet our talented team members',
+    [ROUTE_PATHS.ABOUT]: 'Learn more about TaskFlow platform',
+    [ROUTE_PATHS.DASHBOARD]: 'Your personal project dashboard',
   },
 } as const;
 

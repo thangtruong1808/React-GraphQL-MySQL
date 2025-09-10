@@ -203,7 +203,9 @@ export const useAuthActions = (
         showError(errorMessage, 'Authentication');
         return { success: false, error: errorMessage };
       }
-
+      // GraphQL automatically wraps it as: { login: { accessToken, refreshToken, csrfToken, user } }
+      // because GraphQL creates the login field based on the mutation name defined in the schema.
+      // It's equivalent to: const loginData = response.data?.login;
       const { login: loginData } = response.data || {};
       if (!loginData?.accessToken || !loginData?.refreshToken || !loginData?.user) {
         const errorMessage = 'Invalid login response';

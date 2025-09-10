@@ -7,6 +7,7 @@ import User from './user';
  * Handles refresh token storage for JWT authentication
  * Matches the database schema exactly from db-schema.txt
  * Do NOT declare public fields to avoid shadowing Sequelize accessors.
+ * This is a standard Sequelize ORM pattern where all models that extend Model automatically inherit static methods like create, findOne, findAll, update, destroy, etc.
  */
 export class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCreationAttributes<RefreshToken>> {
   declare id: string;

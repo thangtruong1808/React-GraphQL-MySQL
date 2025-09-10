@@ -6,6 +6,9 @@ import { ROUTE_PATHS } from '../../constants/routingConstants';
 // Lazy load components for better performance
 const HomePage = React.lazy(() => import('../../pages/home/HomePage'));
 const LoginPage = React.lazy(() => import('../../pages/auth/LoginPage'));
+const ProjectsPage = React.lazy(() => import('../../pages/public/ProjectsPage'));
+const TeamPage = React.lazy(() => import('../../pages/public/TeamPage'));
+const AboutPage = React.lazy(() => import('../../pages/public/AboutPage'));
 
 /**
  * App Routes Component
@@ -24,6 +27,33 @@ const AppRoutes: React.FC = () => {
         element={
           <PublicRoute>
             <LoginPage />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path={ROUTE_PATHS.PROJECTS}
+        element={
+          <PublicRoute>
+            <ProjectsPage />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path={ROUTE_PATHS.TEAM}
+        element={
+          <PublicRoute>
+            <TeamPage />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path={ROUTE_PATHS.ABOUT}
+        element={
+          <PublicRoute>
+            <AboutPage />
           </PublicRoute>
         }
       />

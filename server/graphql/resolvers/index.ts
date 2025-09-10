@@ -20,6 +20,7 @@ export const resolvers = {
   // },
   Query: {
     ...authResolvers.Query,
+    _placeholder: () => null,
   },
   Mutation: {
     ...authResolvers.Mutation,

@@ -57,17 +57,15 @@ export const typeDefs = gql`
     user: User
   }
 
-
-
   # Login Input Type - email and password for authentication
   input LoginInput {
     email: String!
     password: String!
   }
 
-  # Query Type - no queries currently needed (use AuthContext for user data)
+  # Query Type - placeholder for future queries
   type Query {
-    # No queries needed - user data available through AuthContext
+    _placeholder: String
   }
 
   # Mutation Type - only includes authentication mutations that are actually used
@@ -84,7 +82,5 @@ export const typeDefs = gql`
     
     # Renew refresh token to extend session - for active users
     refreshTokenRenewal: RefreshTokenRenewalResponse!
-    
-
   }
 `;

@@ -1,0 +1,129 @@
+import { gql } from '@apollo/client';
+
+/**
+ * GraphQL Queries for TaskFlow Dashboard
+ * Defines queries for project management data
+ */
+
+// Query for dashboard statistics
+export const GET_DASHBOARD_STATS = gql`
+  query GetDashboardStats {
+    dashboardStats {
+      totalProjects
+      activeProjects
+      completedProjects
+      totalTasks
+      completedTasks
+      inProgressTasks
+      totalUsers
+      recentActivity
+    }
+  }
+`;
+
+// Query for recent projects
+export const GET_RECENT_PROJECTS = gql`
+  query GetRecentProjects($limit: Int = 5) {
+    recentProjects(limit: $limit) {
+      id
+      uuid
+      name
+      status
+      taskCount
+      memberCount
+      progress
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+// Query for upcoming tasks
+export const GET_UPCOMING_TASKS = gql`
+  query GetUpcomingTasks($limit: Int = 5) {
+    upcomingTasks(limit: $limit) {
+      id
+      uuid
+      title
+      status
+      priority
+      dueDate
+      project {
+        id
+        name
+      }
+      assignedTo {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+`;
+
+// Query for project status distribution
+export const GET_PROJECT_STATUS_DISTRIBUTION = gql`
+  query GetProjectStatusDistribution {
+    projectStatusDistribution {
+      planning
+      inProgress
+      completed
+    }
+  }
+`;
+
+// Query for task progress overview
+export const GET_TASK_PROGRESS_OVERVIEW = gql`
+  query GetTaskProgressOverview {
+    taskProgressOverview {
+      todo
+      inProgress
+      done
+    }
+  }
+`;
+
+// Public queries for unauthenticated users
+export const GET_PUBLIC_STATS = gql`
+  query GetPublicStats {
+    publicStats {
+      totalProjects
+      activeProjects
+      completedProjects
+      totalTasks
+      completedTasks
+      totalUsers
+      recentActivity
+      averageProjectCompletion
+    }
+  }
+`;
+
+export const GET_FEATURED_PROJECTS = gql`
+  query GetFeaturedProjects($limit: Int = 4) {
+    featuredProjects(limit: $limit) {
+      id
+      uuid
+      name
+      status
+      taskCount
+      memberCount
+      createdAt
+    }
+  }
+`;
+
+export const GET_PUBLIC_RECENT_TASKS = gql`
+  query GetPublicRecentTasks($limit: Int = 4) {
+    publicRecentTasks(limit: $limit) {
+      id
+      uuid
+      title
+      status
+      priority
+      project {
+        name
+      }
+    }
+  }
+`;

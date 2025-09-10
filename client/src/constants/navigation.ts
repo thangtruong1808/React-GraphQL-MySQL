@@ -17,7 +17,7 @@ export interface NavItem {
 }
 
 /**
- * Core navigation items for login feature only
+ * Core navigation items for TaskFlow project management platform
  * Uses centralized route constants for consistency
  */
 export const NAV_ITEMS: NavItem[] = [
@@ -27,7 +27,31 @@ export const NAV_ITEMS: NavItem[] = [
     path: ROUTE_PATHS.HOME,
     icon: 'home',
     requiresAuth: false,
-    description: 'Landing page'
+    description: 'Discover TaskFlow platform'
+  },
+  {
+    id: 'projects',
+    label: 'Projects',
+    path: ROUTE_PATHS.PROJECTS,
+    icon: 'folder',
+    requiresAuth: false,
+    description: 'Explore all projects'
+  },
+  {
+    id: 'team',
+    label: 'Team',
+    path: ROUTE_PATHS.TEAM,
+    icon: 'users',
+    requiresAuth: false,
+    description: 'Meet our team members'
+  },
+  {
+    id: 'about',
+    label: 'About',
+    path: ROUTE_PATHS.ABOUT,
+    icon: 'info',
+    requiresAuth: false,
+    description: 'Learn about TaskFlow'
   },
   {
     id: 'login',
@@ -36,20 +60,28 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'login',
     requiresAuth: false,
     description: 'Sign in to your account'
+  },
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    path: ROUTE_PATHS.DASHBOARD,
+    icon: 'dashboard',
+    requiresAuth: true,
+    description: 'Your project dashboard'
   }
 ];
 
 /**
  * Get navigation items for a specific user
- * Filters based on authentication status
+ * Filters based on authentication status and user role
  */
 export const getNavItemsForUser = (user: User | null): NavItem[] => {
   if (!user) {
-    // Show all public routes for unauthenticated users
-    return NAV_ITEMS.filter(item => !item.requiresAuth);
+    // Show all public routes for unauthenticated users (Projects, Team, About, Login)
+    return NAV_ITEMS.filter(item => !item.requiresAuth && item.id !== 'home');
   }
 
-  // For authenticated users, show home and hide login
+  // For authenticated users, show dashboard and hide login
   return NAV_ITEMS.filter(item => {
     if (item.requiresAuth && !user) {
       return false;
@@ -60,7 +92,13 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
       return false;
     }
 
-    return true;
+    // Show dashboard for authenticated users
+    if (user && item.id === 'dashboard') {
+      return true;
+    }
+
+    // Show public items for authenticated users
+    return !item.requiresAuth;
   });
 };
 
