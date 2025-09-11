@@ -92,9 +92,35 @@ export const GET_PUBLIC_STATS = gql`
       completedProjects
       totalTasks
       completedTasks
+      inProgressTasks
+      todoTasks
+      totalComments
+      commentsOnCompletedTasks
+      commentsOnInProgressTasks
+      commentsOnTodoTasks
       totalUsers
       recentActivity
       averageProjectCompletion
+      likesOnCompletedTasks
+      likesOnInProgressTasks
+      likesOnTodoTasks
+      usersWhoLikedCompletedTasks
+      usersWhoLikedInProgressTasks
+      usersWhoLikedTodoTasks
+      # Project likes data by status
+      likesOnCompletedProjects
+      likesOnActiveProjects
+      likesOnPlanningProjects
+      usersWhoLikedCompletedProjects
+      usersWhoLikedActiveProjects
+      usersWhoLikedPlanningProjects
+      # Comment likes data by task status
+      likesOnCommentsOnCompletedTasks
+      likesOnCommentsOnInProgressTasks
+      likesOnCommentsOnTodoTasks
+      usersWhoLikedCommentsOnCompletedTasks
+      usersWhoLikedCommentsOnInProgressTasks
+      usersWhoLikedCommentsOnTodoTasks
     }
   }
 `;

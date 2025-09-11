@@ -63,9 +63,48 @@ export const typeDefs = gql`
     password: String!
   }
 
-  # Query Type - placeholder for future queries
+  # Public Statistics Type - for unauthenticated dashboard
+  type PublicStats {
+    totalProjects: Int!
+    activeProjects: Int!
+    completedProjects: Int!
+    totalTasks: Int!
+    completedTasks: Int!
+    inProgressTasks: Int!
+    todoTasks: Int!
+    totalComments: Int!
+    commentsOnCompletedTasks: Int!
+    commentsOnInProgressTasks: Int!
+    commentsOnTodoTasks: Int!
+    totalUsers: Int!
+    recentActivity: Int!
+    averageProjectCompletion: Float!
+    likesOnCompletedTasks: Int!
+    likesOnInProgressTasks: Int!
+    likesOnTodoTasks: Int!
+    usersWhoLikedCompletedTasks: [String!]!
+    usersWhoLikedInProgressTasks: [String!]!
+    usersWhoLikedTodoTasks: [String!]!
+    # Project likes data by status
+    likesOnCompletedProjects: Int!
+    likesOnActiveProjects: Int!
+    likesOnPlanningProjects: Int!
+    usersWhoLikedCompletedProjects: [String!]!
+    usersWhoLikedActiveProjects: [String!]!
+    usersWhoLikedPlanningProjects: [String!]!
+    # Comment likes data by task status
+    likesOnCommentsOnCompletedTasks: Int!
+    likesOnCommentsOnInProgressTasks: Int!
+    likesOnCommentsOnTodoTasks: Int!
+    usersWhoLikedCommentsOnCompletedTasks: [String!]!
+    usersWhoLikedCommentsOnInProgressTasks: [String!]!
+    usersWhoLikedCommentsOnTodoTasks: [String!]!
+  }
+
+  # Query Type - includes public statistics
   type Query {
     _placeholder: String
+    publicStats: PublicStats!
   }
 
   # Mutation Type - only includes authentication mutations that are actually used

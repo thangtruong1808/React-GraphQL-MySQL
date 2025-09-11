@@ -112,10 +112,14 @@ const server = new ApolloServer({
 async function startServer() {
   try {
     // Test database connection first
-    await testConnection();
-    
-    // Setup model associations
-    setupAssociations();
+    try {
+      await testConnection();
+      // Setup model associations
+      setupAssociations();
+      console.log('✅ Database models and associations initialized');
+    } catch (dbError) {
+      console.warn('⚠️  Database connection failed, server will start with mock data:', dbError);
+    }
     
     // Start Apollo Server
     await server.start();

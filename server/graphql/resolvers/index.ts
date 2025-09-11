@@ -1,8 +1,9 @@
 import { authResolvers } from './auth';
+import { publicStatsResolvers } from './publicStats';
 
 /**
  * GraphQL Resolvers Index
- * Includes authentication and error logging resolvers
+ * Includes authentication, public statistics, and error logging resolvers
  */
 
 export const resolvers = {
@@ -20,6 +21,7 @@ export const resolvers = {
   // },
   Query: {
     ...authResolvers.Query,
+    ...publicStatsResolvers.Query,
     _placeholder: () => null,
   },
   Mutation: {
