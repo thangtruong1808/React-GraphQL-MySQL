@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
-import { getNavItemsForUser } from '../../constants/navigation';
+import { getNavItemsForUser, getMobileNavItems } from '../../constants/navigation';
 import { NAVBAR_UI } from '../../constants/navbar';
 import Logo from './Logo';
-import UserDropdown from './UserDropdown';
 import MobileMenuButton from './MobileMenuButton';
 import MobileMenu from './MobileMenu';
+import UserDropdown from './UserDropdown';
+import NavIcon from '../ui/NavIcon';
 
 /**
  * Navigation Bar Component
@@ -22,19 +23,25 @@ const NavBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
   // Get navigation items based on user authentication status
-  const navItems = getNavItemsForUser(user);
+  const navItems = getNavItemsForUser(user); // Desktop navigation items
+  const mobileNavItems = getMobileNavItems(user); // Mobile navigation items
 
   /**
    * Handle click outside to close dropdowns
    * Closes mobile menu and user dropdown when clicking outside
    */
   const handleClickOutside = (event: MouseEvent) => {
-    if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+    // Close mobile menu if clicking outside both menu and button
+    if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node) &&
+      mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
       setIsMobileMenuOpen(false);
     }
+
+    // Close user dropdown if clicking outside
     if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
       setIsUserDropdownOpen(false);
     }
@@ -110,52 +117,27 @@ const NavBar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white  border-b border-gray-200 sticky top-0 z-50 mb-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo and brand */}
-          <div className="flex items-center">
+        <div className="flex items-center justify-between h-16">
+          {/* Left Section: Logo and Brand */}
+          <div className="flex items-center flex-shrink-0">
             <Logo />
           </div>
 
-          {/* Desktop navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {/* Navigation links - show based on navigation items */}
-            <div className="flex items-center space-x-1">
+          {/* Center Section: Primary Navigation */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-8">
               {navItems.map((item) => (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className="group relative text-gray-700 hover:text-purple-600 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5"
+                  className="group relative text-gray-700 hover:text-purple-600 px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5"
                   title={item.description}
                 >
-                  {/* Navigation icon */}
+                  {/* Navigation icon and text */}
                   <div className="flex items-center space-x-2">
-                    {item.icon === 'folder' && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                      </svg>
-                    )}
-                    {item.icon === 'users' && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
-                    )}
-                    {item.icon === 'info' && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    )}
-                    {item.icon === 'login' && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                      </svg>
-                    )}
-                    {item.icon === 'dashboard' && (
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                      </svg>
-                    )}
+                    <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
                     <span>{item.label}</span>
                   </div>
 
@@ -167,10 +149,13 @@ const NavBar: React.FC = () => {
                 </Link>
               ))}
             </div>
+          </div>
 
-            {/* User dropdown - only show for authenticated users */}
+          {/* Right Section: User Actions */}
+          <div className="flex items-center space-x-4">
+            {/* User dropdown - only show for authenticated users on desktop (hidden on mobile) */}
             {isAuthenticated && (
-              <div className="relative" ref={userDropdownRef}>
+              <div className="relative hidden md:block" ref={userDropdownRef}>
                 <UserDropdown
                   user={user}
                   isDropdownOpen={isUserDropdownOpen}
@@ -181,23 +166,10 @@ const NavBar: React.FC = () => {
                 />
               </div>
             )}
-
-            {/* Call to action button for unauthenticated users */}
-            {!isAuthenticated && (
-              <Link
-                to={ROUTE_PATHS.LOGIN}
-                className="ml-4 inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                Get Started
-              </Link>
-            )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center" ref={mobileMenuButtonRef}>
             <MobileMenuButton
               isOpen={isMobileMenuOpen}
               onToggle={toggleMobileMenu}
@@ -206,19 +178,21 @@ const NavBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      <div ref={mobileMenuRef}>
-        <MobileMenu
-          isOpen={isMobileMenuOpen}
-          user={user}
-          isAuthenticated={isAuthenticated}
-          onClose={closeMobileMenu}
-          onLogout={handleLogout}
-          logoutLoading={logoutLoading}
-          getUserInitials={getUserInitials}
-          navItems={navItems}
-        />
-      </div>
+      {/* Mobile menu - only render when open */}
+      {isMobileMenuOpen && (
+        <div ref={mobileMenuRef}>
+          <MobileMenu
+            isOpen={isMobileMenuOpen}
+            user={user}
+            isAuthenticated={isAuthenticated}
+            onClose={closeMobileMenu}
+            onLogout={handleLogout}
+            logoutLoading={logoutLoading}
+            getUserInitials={getUserInitials}
+            navItems={mobileNavItems}
+          />
+        </div>
+      )}
     </nav>
   );
 };

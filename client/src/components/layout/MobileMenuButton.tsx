@@ -12,10 +12,10 @@ interface MobileMenuButtonProps {
 
 const MobileMenuButton: React.FC<MobileMenuButtonProps> = ({ isOpen, onToggle }) => {
   return (
-    <div className="lg:hidden">
+    <div className="md:hidden">
       <button
         onClick={onToggle}
-        className="text-gray-600 hover:text-emerald-600 p-3 rounded-xl border border-gray-200 hover:border-emerald-300 transition-all duration-300 ease-in-out hover:bg-emerald-50 hover:shadow-lg transform hover:scale-105 hover:-translate-y-0.5"
+        className="text-gray-600 hover:text-purple-600 p-3 rounded-xl border border-gray-200 hover:border-purple-300 transition-all duration-300 ease-in-out hover:bg-purple-50 hover:shadow-lg transform hover:scale-105 hover:-translate-y-0.5"
         aria-label="Toggle mobile menu"
       >
         <svg

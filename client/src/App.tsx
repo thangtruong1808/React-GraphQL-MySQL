@@ -18,7 +18,7 @@ const Notification = React.lazy(() => import('./components/ui/Notification'));
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
   </div>
 );
 
@@ -31,7 +31,7 @@ const LoadingSpinner = () => (
  */
 const AppContent: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Global navigation bar - show for all users */}
       <NavBar />
 
