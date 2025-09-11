@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import path from 'path';
 import { csrfProtection } from './auth/csrf';
 import { authenticateUser } from './auth/middleware';
 import { setupAssociations, testConnection } from './db';
@@ -11,9 +12,8 @@ import { createContext } from './graphql/context';
 import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
 
-
-// Load environment variables
-dotenv.config();
+// Load environment variables from project root
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 /**
  * Main Server Setup

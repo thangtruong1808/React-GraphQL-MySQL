@@ -48,3 +48,5 @@ ProjectLike.init(
     ],
   }
 );
+
+export default ProjectLike;

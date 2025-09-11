@@ -48,3 +48,5 @@ CommentLike.init(
     ],
   }
 );
+
+export default CommentLike;

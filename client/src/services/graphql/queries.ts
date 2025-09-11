@@ -52,7 +52,7 @@ export const GET_UPCOMING_TASKS = gql`
         id
         name
       }
-      assignedTo {
+      assignedUser {
         id
         firstName
         lastName
@@ -149,6 +149,59 @@ export const GET_PUBLIC_RECENT_TASKS = gql`
       priority
       project {
         name
+      }
+    }
+  }
+`;
+
+// Search queries for members, projects, and tasks
+export const SEARCH_MEMBERS = gql`
+  query SearchMembers($query: String!) {
+    searchMembers(query: $query) {
+      id
+      uuid
+      firstName
+      lastName
+      email
+      role
+    }
+  }
+`;
+
+export const SEARCH_PROJECTS = gql`
+  query SearchProjects($query: String!, $statusFilter: [String!]) {
+    searchProjects(query: $query, statusFilter: $statusFilter) {
+      id
+      uuid
+      name
+      description
+      status
+      owner {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+`;
+
+export const SEARCH_TASKS = gql`
+  query SearchTasks($query: String!) {
+    searchTasks(query: $query) {
+      id
+      uuid
+      title
+      description
+      status
+      priority
+      project {
+        id
+        name
+      }
+      assignedUser {
+        id
+        firstName
+        lastName
       }
     }
   }

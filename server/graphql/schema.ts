@@ -36,6 +36,57 @@ export const typeDefs = gql`
     updatedAt: String!
   }
 
+  # Project Status Enum - matches database enum values
+  enum ProjectStatus {
+    PLANNING
+    IN_PROGRESS
+    COMPLETED
+  }
+
+  # Task Status Enum - matches database enum values
+  enum TaskStatus {
+    TODO
+    IN_PROGRESS
+    DONE
+  }
+
+  # Task Priority Enum - matches database enum values
+  enum TaskPriority {
+    LOW
+    MEDIUM
+    HIGH
+  }
+
+  # Project Type - for project management
+  type Project {
+    id: ID!
+    uuid: String!
+    name: String!
+    description: String!
+    status: ProjectStatus!
+    owner: User
+    isDeleted: Boolean!
+    version: Int!
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  # Task Type - for task management
+  type Task {
+    id: ID!
+    uuid: String!
+    title: String!
+    description: String!
+    status: TaskStatus!
+    priority: TaskPriority!
+    project: Project!
+    assignedUser: User
+    isDeleted: Boolean!
+    version: Int!
+    createdAt: String!
+    updatedAt: String!
+  }
+
   # Authentication Response Type - includes all tokens returned by login/refresh
   type AuthResponse {
     accessToken: String
@@ -101,10 +152,13 @@ export const typeDefs = gql`
     usersWhoLikedCommentsOnTodoTasks: [String!]!
   }
 
-  # Query Type - includes public statistics
+  # Query Type - includes public statistics and search functionality
   type Query {
     _placeholder: String
     publicStats: PublicStats!
+    searchMembers(query: String!): [User!]!
+    searchProjects(query: String!, statusFilter: [String!]): [Project!]!
+    searchTasks(query: String!): [Task!]!
   }
 
   # Mutation Type - only includes authentication mutations that are actually used

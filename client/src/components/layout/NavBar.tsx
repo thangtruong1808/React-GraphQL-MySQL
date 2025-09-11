@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { getNavItemsForUser, getMobileNavItems } from '../../constants/navigation';
@@ -9,6 +9,7 @@ import MobileMenuButton from './MobileMenuButton';
 import MobileMenu from './MobileMenu';
 import UserDropdown from './UserDropdown';
 import NavIcon from '../ui/NavIcon';
+import { SearchDrawer } from '../search';
 
 /**
  * Navigation Bar Component
@@ -18,10 +19,12 @@ import NavIcon from '../ui/NavIcon';
  */
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   // Consume context from AuthContext.tsx to get user, isAuthenticated, performLogout, and logoutLoading
   const { user, isAuthenticated, performLogout, logoutLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isSearchDrawerOpen, setIsSearchDrawerOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
@@ -29,6 +32,25 @@ const NavBar: React.FC = () => {
   // Get navigation items based on user authentication status
   const navItems = getNavItemsForUser(user); // Desktop navigation items
   const mobileNavItems = getMobileNavItems(user); // Mobile navigation items
+
+  /**
+   * Check if a navigation item is currently active
+   * Compares current pathname with item path, handling special cases
+   */
+  const isNavItemActive = (item: any) => {
+    // Special handling for search item (button, not link)
+    if (item.id === 'search') {
+      return location.pathname === '/search';
+    }
+
+    // For home route, check if we're on root path
+    if (item.path === ROUTE_PATHS.HOME) {
+      return location.pathname === '/' || location.pathname === ROUTE_PATHS.HOME;
+    }
+
+    // For other routes, check exact match
+    return location.pathname === item.path;
+  };
 
   /**
    * Handle click outside to close dropdowns
@@ -87,6 +109,24 @@ const NavBar: React.FC = () => {
   };
 
   /**
+   * Handle search drawer toggle
+   * Opens/closes search drawer
+   */
+  const handleSearchToggle = () => {
+    setIsSearchDrawerOpen(!isSearchDrawerOpen);
+    setIsUserDropdownOpen(false); // Close user dropdown when opening search
+    setIsMobileMenuOpen(false); // Close mobile menu when opening search
+  };
+
+  /**
+   * Handle search drawer close
+   * Closes search drawer
+   */
+  const handleSearchClose = () => {
+    setIsSearchDrawerOpen(false);
+  };
+
+  /**
    * Get user initials for avatar
    * Returns user's first and last name initials
    */
@@ -128,26 +168,54 @@ const NavBar: React.FC = () => {
           {/* Center Section: Primary Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1">
             <div className="flex items-center space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  className="group relative text-gray-700 hover:text-purple-600 px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5"
-                  title={item.description}
-                >
-                  {/* Navigation icon and text */}
-                  <div className="flex items-center space-x-2">
-                    <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </div>
+              {navItems.map((item) => {
+                const isActive = isNavItemActive(item);
+                return item.id === 'search' ? (
+                  <button
+                    key={item.id}
+                    onClick={handleSearchToggle}
+                    className={`group relative px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                        ? 'text-purple-600 bg-purple-50 shadow-md'
+                        : 'text-gray-700 hover:text-purple-600'
+                      }`}
+                    title={item.description}
+                  >
+                    {/* Navigation icon and text */}
+                    <div className="flex items-center space-x-2">
+                      <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </div>
 
-                  {/* Hover tooltip */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-                    {item.description}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </Link>
-              ))}
+                    {/* Hover tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                      {item.description}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </button>
+                ) : (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    className={`group relative px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                        ? 'text-purple-600 bg-purple-50 shadow-md'
+                        : 'text-gray-700 hover:text-purple-600'
+                      }`}
+                    title={item.description}
+                  >
+                    {/* Navigation icon and text */}
+                    <div className="flex items-center space-x-2">
+                      <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </div>
+
+                    {/* Hover tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                      {item.description}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
@@ -190,9 +258,16 @@ const NavBar: React.FC = () => {
             logoutLoading={logoutLoading}
             getUserInitials={getUserInitials}
             navItems={mobileNavItems}
+            onSearchToggle={handleSearchToggle}
           />
         </div>
       )}
+
+      {/* Search drawer */}
+      <SearchDrawer
+        isOpen={isSearchDrawerOpen}
+        onClose={handleSearchClose}
+      />
     </nav>
   );
 };

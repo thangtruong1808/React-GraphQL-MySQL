@@ -42,13 +42,21 @@ export const setupAssociations = (): void => {
   // User associations
   User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
   
-  // Task associations
-  Task.hasMany(Comment, { foreignKey: 'taskId', as: 'comments' });
-  Comment.belongsTo(Task, { foreignKey: 'taskId', as: 'task' });
+  // Project associations
+  User.hasMany(Project, { foreignKey: 'owner_id', as: 'ownedProjects' });
+  Project.belongsTo(User, { foreignKey: 'owner_id', as: 'owner' });
   
-  // User associations for comments
-  User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' });
-  Comment.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+  // Task associations
+  Project.hasMany(Task, { foreignKey: 'project_id', as: 'tasks' });
+  Task.belongsTo(Project, { foreignKey: 'project_id', as: 'project' });
+  User.hasMany(Task, { foreignKey: 'assigned_to', as: 'assignedTasks' });
+  Task.belongsTo(User, { foreignKey: 'assigned_to', as: 'assignedUser' });
+  
+  // Comment associations
+  Task.hasMany(Comment, { foreignKey: 'task_id', as: 'comments' });
+  Comment.belongsTo(Task, { foreignKey: 'task_id', as: 'task' });
+  User.hasMany(Comment, { foreignKey: 'user_id', as: 'comments' });
+  Comment.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
   
   // Task like associations
   Task.hasMany(TaskLike, { foreignKey: 'taskId', as: 'likes' });

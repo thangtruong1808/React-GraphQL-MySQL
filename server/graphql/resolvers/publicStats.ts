@@ -595,7 +595,8 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       usersWhoLikedCommentsOnTodoTasks,
     };
   } catch (error) {
-    console.error('Error calculating public stats:', error);
+    console.error('❌ Error calculating public stats - using fallback data:', error);
+    console.warn('⚠️  Database connection failed - returning mock data for development');
     // Return mock data if database query fails for testing
     return {
       totalProjects: 25,

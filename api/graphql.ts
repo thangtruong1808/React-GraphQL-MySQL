@@ -20,9 +20,6 @@ async function startServer() {
     await testConnection();
     setupAssociations();
     // Database initialized successfully
-  } catch (error) {
-    throw new Error(`Database initialization failed: ${error}`);
-  }
 
     // Create Express app
     const app = express();
@@ -81,9 +78,9 @@ async function startServer() {
     
     // Start the server
     app.listen(PORT, () => {
-      // GraphQL Server running
-      // Apollo Studio available
-      // Health check available
+      console.log(`🚀 Server running on http://${SERVER_HOST}:${PORT}`);
+      console.log(`📊 GraphQL endpoint: http://${SERVER_HOST}:${PORT}/graphql`);
+      console.log(`🏥 Health check: http://${SERVER_HOST}:${PORT}/health`);
     });
 
   } catch (error) {

@@ -54,6 +54,14 @@ export const NAV_ITEMS: NavItem[] = [
     description: 'Learn about TaskFlow'
   },
   {
+    id: 'search',
+    label: 'Search',
+    path: '#search',
+    icon: 'search',
+    requiresAuth: false,
+    description: 'Search members, projects, and tasks'
+  },
+  {
     id: 'login',
     label: 'Login',
     path: ROUTE_PATHS.LOGIN,
@@ -93,8 +101,8 @@ export const NAV_ITEMS: NavItem[] = [
  */
 export const getNavItemsForUser = (user: User | null): NavItem[] => {
   if (!user) {
-    // Show all public routes for unauthenticated users (Projects, Team, About, Login)
-    return NAV_ITEMS.filter(item => !item.requiresAuth && item.id !== 'home');
+    // Show all public routes for unauthenticated users (Home, Projects, Team, About, Login)
+    return NAV_ITEMS.filter(item => !item.requiresAuth);
   }
 
   // For authenticated users, show only navigation items (no user-specific items)
@@ -114,8 +122,8 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show only dashboard for authenticated users (not profile/signout)
-    if (item.requiresAuth && user && item.id === 'dashboard') {
+    // Show dashboard and home for authenticated users (not profile/signout)
+    if (item.requiresAuth && user && (item.id === 'dashboard' || item.id === 'home')) {
       return true;
     }
 
@@ -129,8 +137,8 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
  */
 export const getMobileNavItems = (user: User | null): NavItem[] => {
   if (!user) {
-    // Show all public routes for unauthenticated users (Projects, Team, About, Login)
-    return NAV_ITEMS.filter(item => !item.requiresAuth && item.id !== 'home');
+    // Show all public routes for unauthenticated users (Home, Projects, Team, About, Login)
+    return NAV_ITEMS.filter(item => !item.requiresAuth);
   }
 
   // For authenticated users, show all items except profile (not implemented yet)
@@ -150,13 +158,13 @@ export const getMobileNavItems = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show only signout for authenticated users (profile excluded)
+    // Show signout for authenticated users
     if (item.requiresAuth && user && item.id === 'signout') {
       return true;
     }
 
-    // Show dashboard for authenticated users
-    if (item.requiresAuth && user && item.id === 'dashboard') {
+    // Show dashboard and home for authenticated users
+    if (item.requiresAuth && user && (item.id === 'dashboard' || item.id === 'home')) {
       return true;
     }
 

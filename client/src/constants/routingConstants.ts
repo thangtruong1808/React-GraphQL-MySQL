@@ -14,6 +14,7 @@ export const ROUTE_PATHS = {
   PROJECTS: '/projects',
   TEAM: '/team',
   ABOUT: '/about',
+  SEARCH: '/search',
   
   // Protected routes (require authentication)
   HOME: '/',
@@ -31,15 +32,16 @@ export const ROUTE_PATHS = {
 export const ROUTE_PROTECTION = {
   // Public routes (no authentication required)
   PUBLIC: [
+    ROUTE_PATHS.HOME,
     ROUTE_PATHS.LOGIN,
     ROUTE_PATHS.PROJECTS,
     ROUTE_PATHS.TEAM,
     ROUTE_PATHS.ABOUT,
+    ROUTE_PATHS.SEARCH,
   ],
   
   // Protected routes (authentication required)
   PROTECTED: [
-    ROUTE_PATHS.HOME,
     ROUTE_PATHS.DASHBOARD,
   ],
   
@@ -66,6 +68,7 @@ export const ROUTE_CONFIG = {
     [ROUTE_PATHS.PROJECTS]: 'Projects',
     [ROUTE_PATHS.TEAM]: 'Team',
     [ROUTE_PATHS.ABOUT]: 'About',
+    [ROUTE_PATHS.SEARCH]: 'Search',
     [ROUTE_PATHS.DASHBOARD]: 'Dashboard',
   },
   
@@ -76,6 +79,7 @@ export const ROUTE_CONFIG = {
     [ROUTE_PATHS.PROJECTS]: 'Explore all projects managed through TaskFlow',
     [ROUTE_PATHS.TEAM]: 'Meet our talented team members',
     [ROUTE_PATHS.ABOUT]: 'Learn more about TaskFlow platform',
+    [ROUTE_PATHS.SEARCH]: 'Search for members, projects, and tasks',
     [ROUTE_PATHS.DASHBOARD]: 'Your personal project dashboard',
   },
 } as const;

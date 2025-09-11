@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { TaskFlowOverview } from '../../components/dashboard';
-import { PublicDashboard } from '../../components/public';
+import { PublicDashboard } from '../../components/shared';
 
 /**
  * Authenticated Skeleton Component

@@ -18,6 +18,7 @@ interface MobileMenuProps {
   onLogout: () => void;
   getUserInitials: () => string;
   navItems?: NavItem[];
+  onSearchToggle?: () => void;
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({
@@ -29,6 +30,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   onLogout,
   getUserInitials,
   navItems = [],
+  onSearchToggle,
 }) => {
   const location = useLocation();
 
@@ -47,10 +49,18 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
    * @returns True if item is active
    */
   const isActiveItem = (itemPath: string): boolean => {
+    // Special handling for search route
+    if (itemPath === '#search') {
+      return location.pathname === '/search';
+    }
+
+    // For home route, check exact match
     if (itemPath === '/') {
       return location.pathname === '/';
     }
-    return location.pathname.startsWith(itemPath);
+
+    // For other routes, check exact match
+    return location.pathname === itemPath;
   };
 
   return (
@@ -115,6 +125,30 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                   </span>
                 </button>
               </div>
+            );
+          }
+
+          // Handle search as button (not link)
+          if (item.id === 'search') {
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onClose();
+                  onSearchToggle?.();
+                }}
+                className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-lg transition-colors duration-200 w-full text-left ${isActive
+                  ? 'text-purple-700 bg-purple-50'
+                  : 'text-gray-700 hover:text-purple-700 hover:bg-purple-50'
+                  }`}
+                title={item.description}
+              >
+                <NavIcon
+                  icon={item.icon || 'default'}
+                  className={`w-5 h-5 ${isActive ? 'text-purple-700' : 'text-gray-500'}`}
+                />
+                <span>{item.label}</span>
+              </button>
             );
           }
 

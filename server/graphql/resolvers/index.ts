@@ -1,5 +1,6 @@
 import { authResolvers } from './auth';
 import { publicStatsResolvers } from './publicStats';
+import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 
 /**
  * GraphQL Resolvers Index
@@ -22,7 +23,9 @@ export const resolvers = {
   Query: {
     ...authResolvers.Query,
     ...publicStatsResolvers.Query,
-    _placeholder: () => null,
+    searchMembers,
+    searchProjects,
+    searchTasks,
   },
   Mutation: {
     ...authResolvers.Mutation,
