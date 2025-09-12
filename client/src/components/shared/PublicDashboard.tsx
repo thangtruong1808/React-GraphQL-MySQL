@@ -123,9 +123,9 @@ const PublicDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white mt-4">
       {/* Hero Section - Different color scheme */}
-      <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 py-16 px-4 sm:px-6 lg:px-8 rounded-2xl">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
@@ -150,8 +150,8 @@ const PublicDashboard: React.FC = () => {
           {/* Statistics and Charts - Enhanced with likes data */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             {/* Project Status Distribution with Likes - Real data from database */}
-            <div className="shadow-lg border border-purple-100 bg-white rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Status Overview</h3>
+            <div className="shadow-lg border border-purple-100 bg-white rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Project Status Overview</h3>
 
               {/* Chart */}
               <SimpleChart
@@ -162,11 +162,11 @@ const PublicDashboard: React.FC = () => {
                   { label: 'In Progress', value: stats.activeProjects, color: '#f97316' },
                   { label: 'Planning', value: stats.totalProjects - stats.activeProjects - stats.completedProjects, color: '#6366f1' },
                 ]}
-                className="mb-6"
+                className="mb-4"
               />
 
               {/* Project Likes Information */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {/* Completed Projects Likes */}
                 <ProjectLikesDisplay
                   projectStatus="Completed"
@@ -206,8 +206,8 @@ const PublicDashboard: React.FC = () => {
             </div>
 
             {/* Task Progress Overview - Enhanced with likes and user information */}
-            <div className="shadow-lg border border-pink-100 bg-white rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Task Completion Progress</h3>
+            <div className="shadow-lg border border-pink-100 bg-white rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Task Completion Progress</h3>
 
               {/* Chart */}
               <SimpleChart
@@ -219,11 +219,11 @@ const PublicDashboard: React.FC = () => {
                   { label: 'Todo', value: stats.todoTasks, color: '#6b7280' },
                 ]}
                 maxValue={stats.totalTasks}
-                className="mb-6"
+                className="mb-4"
               />
 
               {/* Likes and User Information */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {/* Completed Tasks Likes */}
                 <TaskLikesDisplay
                   taskStatus="Completed"
@@ -264,80 +264,79 @@ const PublicDashboard: React.FC = () => {
           </div>
 
           {/* Comment Statistics Section with Likes - Real data from database */}
-          <div className="mb-12">
-            <div className="bg-white rounded-xl shadow-lg border border-green-100 p-6 max-w-6xl mx-auto">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Comment Activity Overview</h3>
-              <div className="space-y-6">
-                {/* Total Comments Display */}
-                <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                  <span className="text-gray-700 font-medium text-lg">Total Comments</span>
-                  <span className="text-3xl font-bold text-green-600">{stats.totalComments}</span>
+          <div className="bg-white rounded-xl shadow-lg border border-green-100 p-6 max-w-6xl mx-auto">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Comment Activity Overview</h3>
+            <div className="space-y-6">
+              {/* Total Comments Display */}
+              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
+                <span className="text-gray-700 font-medium text-lg">Total Comments</span>
+                <span className="text-3xl font-bold text-green-600">{stats.totalComments}</span>
+              </div>
+
+              {/* Comments by Task Status */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnCompletedTasks}</div>
+                  <div className="text-sm text-gray-600">Comments on Completed Tasks</div>
                 </div>
-
-                {/* Comments by Task Status */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnCompletedTasks}</div>
-                    <div className="text-sm text-gray-600">Comments on Completed Tasks</div>
-                  </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnInProgressTasks}</div>
-                    <div className="text-sm text-gray-600">Comments on In Progress Tasks</div>
-                  </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnTodoTasks}</div>
-                    <div className="text-sm text-gray-600">Comments on Todo Tasks</div>
-                  </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnInProgressTasks}</div>
+                  <div className="text-sm text-gray-600">Comments on In Progress Tasks</div>
                 </div>
-
-                {/* Comment Likes Information */}
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-800 text-center">Comment Likes by Task Status</h4>
-
-                  {/* Comments on Completed Tasks Likes */}
-                  <CommentLikesDisplay
-                    taskStatus="Completed"
-                    likeCount={stats.likesOnCommentsOnCompletedTasks}
-                    userNames={stats.usersWhoLikedCommentsOnCompletedTasks}
-                    colorScheme={{
-                      text: "text-green-600",
-                      bg: "bg-green-100 text-green-800",
-                      icon: "text-green-600"
-                    }}
-                  />
-
-                  {/* Comments on In Progress Tasks Likes */}
-                  <CommentLikesDisplay
-                    taskStatus="In Progress"
-                    likeCount={stats.likesOnCommentsOnInProgressTasks}
-                    userNames={stats.usersWhoLikedCommentsOnInProgressTasks}
-                    colorScheme={{
-                      text: "text-blue-600",
-                      bg: "bg-blue-100 text-blue-800",
-                      icon: "text-blue-600"
-                    }}
-                  />
-
-                  {/* Comments on Todo Tasks Likes */}
-                  <CommentLikesDisplay
-                    taskStatus="Todo"
-                    likeCount={stats.likesOnCommentsOnTodoTasks}
-                    userNames={stats.usersWhoLikedCommentsOnTodoTasks}
-                    colorScheme={{
-                      text: "text-gray-600",
-                      bg: "bg-gray-100 text-gray-800",
-                      icon: "text-gray-600"
-                    }}
-                  />
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnTodoTasks}</div>
+                  <div className="text-sm text-gray-600">Comments on Todo Tasks</div>
                 </div>
+              </div>
+
+              {/* Comment Likes Information */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-gray-800 text-center">Comment Likes by Task Status</h4>
+
+                {/* Comments on Completed Tasks Likes */}
+                <CommentLikesDisplay
+                  taskStatus="Completed"
+                  likeCount={stats.likesOnCommentsOnCompletedTasks}
+                  userNames={stats.usersWhoLikedCommentsOnCompletedTasks}
+                  colorScheme={{
+                    text: "text-green-600",
+                    bg: "bg-green-100 text-green-800",
+                    icon: "text-green-600"
+                  }}
+                />
+
+                {/* Comments on In Progress Tasks Likes */}
+                <CommentLikesDisplay
+                  taskStatus="In Progress"
+                  likeCount={stats.likesOnCommentsOnInProgressTasks}
+                  userNames={stats.usersWhoLikedCommentsOnInProgressTasks}
+                  colorScheme={{
+                    text: "text-blue-600",
+                    bg: "bg-blue-100 text-blue-800",
+                    icon: "text-blue-600"
+                  }}
+                />
+
+                {/* Comments on Todo Tasks Likes */}
+                <CommentLikesDisplay
+                  taskStatus="Todo"
+                  likeCount={stats.likesOnCommentsOnTodoTasks}
+                  userNames={stats.usersWhoLikedCommentsOnTodoTasks}
+                  colorScheme={{
+                    text: "text-gray-600",
+                    bg: "bg-gray-100 text-gray-800",
+                    icon: "text-gray-600"
+                  }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Call to Action - Real data from database */}
-          <PublicCallToAction stats={stats} />
         </div>
       </div>
+
+      {/* Call to Action - Real data from database */}
+      <PublicCallToAction stats={stats} />
     </div>
   );
 };

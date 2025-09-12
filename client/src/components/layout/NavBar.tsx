@@ -157,8 +157,8 @@ const NavBar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white  border-b border-gray-200 sticky top-0 z-50 mb-4">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white  border-b border-gray-200 sticky top-0 z-50 m-2">
+      <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
         <div className="flex items-center justify-between h-16">
           {/* Left Section: Logo and Brand */}
           <div className="flex items-center flex-shrink-0">
@@ -175,15 +175,15 @@ const NavBar: React.FC = () => {
                     key={item.id}
                     onClick={handleSearchToggle}
                     className={`group relative px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                        ? 'text-purple-600 bg-purple-50 shadow-md'
-                        : 'text-gray-700 hover:text-purple-600'
+                      ? 'text-purple-600 bg-purple-50 shadow-md'
+                      : 'text-gray-700 hover:text-purple-600'
                       }`}
                     title={item.description}
                   >
                     {/* Navigation icon and text */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-col items-center space-y-1">
                       <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                      <span>{item.label}</span>
+                      <span className="text-sm">{item.label}</span>
                     </div>
 
                     {/* Hover tooltip */}
@@ -197,15 +197,15 @@ const NavBar: React.FC = () => {
                     key={item.id}
                     to={item.path}
                     className={`group relative px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                        ? 'text-purple-600 bg-purple-50 shadow-md'
-                        : 'text-gray-700 hover:text-purple-600'
+                      ? 'text-purple-600 bg-purple-50 shadow-md'
+                      : 'text-gray-700 hover:text-purple-600'
                       }`}
                     title={item.description}
                   >
                     {/* Navigation icon and text */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-col items-center space-y-1">
                       <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                      <span>{item.label}</span>
+                      <span className="text-sm">{item.label}</span>
                     </div>
 
                     {/* Hover tooltip */}

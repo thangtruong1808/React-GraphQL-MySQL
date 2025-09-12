@@ -164,6 +164,31 @@ export const SEARCH_MEMBERS = gql`
       lastName
       email
       role
+      ownedProjects {
+        id
+        uuid
+        name
+        description
+        status
+        isDeleted
+      }
+      assignedTasks {
+        id
+        uuid
+        title
+        description
+        status
+        priority
+        isDeleted
+        project {
+          id
+          uuid
+          name
+          description
+          status
+          isDeleted
+        }
+      }
     }
   }
 `;

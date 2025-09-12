@@ -34,6 +34,9 @@ export const typeDefs = gql`
     version: Int!
     createdAt: String!
     updatedAt: String!
+    # Associated projects and tasks for member search
+    ownedProjects: [Project!]!
+    assignedTasks: [Task!]!
   }
 
   # Project Status Enum - matches database enum values
