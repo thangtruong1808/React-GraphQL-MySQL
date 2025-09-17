@@ -97,7 +97,6 @@ export const login = async (input: { email: string; password: string }, res: any
     const tokenHash = await hashRefreshToken(refreshToken);
 
 
-
     // Store refresh token in database with 8-hour expiry
     await RefreshToken.create({
       id: uuidv4(),

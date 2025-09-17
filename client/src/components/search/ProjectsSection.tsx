@@ -28,6 +28,9 @@ interface ProjectsSectionProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  totalItems: number;
+  itemsPerPage: number;
+  onProjectClick?: (project: Project) => void;
 }
 
 /**
@@ -40,7 +43,10 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   hasQuery,
   currentPage,
   totalPages,
-  onPageChange
+  onPageChange,
+  totalItems,
+  itemsPerPage,
+  onProjectClick
 }) => {
   // Get status color classes
   const getStatusColor = (status: string) => {
@@ -54,31 +60,70 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
     }
   };
 
-  // Render individual project item
+  // Handle project card click
+  const handleProjectClick = (project: Project) => {
+    if (onProjectClick) {
+      onProjectClick(project);
+    }
+  };
+
+  // Render individual project item with enhanced styling and labels
   const renderProject = (project: Project) => (
-    <div key={project.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          {/* Project title */}
-          <h3 className="text-lg font-medium text-gray-900 mb-2">{project.name}</h3>
+    <div
+      key={project.id}
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      onClick={() => handleProjectClick(project)}
+    >
+      <div className="space-y-4">
+        {/* Project title */}
+        <div>
+          <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+            Project Name
+          </label>
+          <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
+        </div>
 
-          {/* Project description */}
-          <p className="text-gray-600 mb-3">{project.description}</p>
+        {/* Project description */}
+        <div>
+          <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+            Description
+          </label>
+          <p className="text-gray-700 leading-relaxed">{project.description}</p>
+        </div>
 
-          {/* Project metadata */}
-          <div className="flex items-center space-x-4">
-            {/* Status badge */}
-            <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(project.status)}`}>
-              {project.status.replace('_', ' ')}
-            </span>
-
-            {/* Owner information */}
-            {project.owner && (
-              <span className="text-sm text-gray-500">
-                Owner: {project.owner.firstName} {project.owner.lastName}
+        {/* Project metadata with enhanced layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+          {/* Status */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+              Status
+            </label>
+            <div className="flex items-center space-x-2">
+              <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(project.status)}`}>
+                {project.status.replace('_', ' ')}
               </span>
-            )}
+            </div>
           </div>
+
+          {/* Owner information */}
+          {project.owner && (
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Project Owner
+              </label>
+              <div className="flex items-center space-x-2">
+                <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="text-sm font-medium text-gray-700">
+                  {project.owner.firstName} {project.owner.lastName}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -92,6 +137,11 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       hasQuery={hasQuery}
       emptyMessage="No projects found"
       renderItem={renderProject}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+      totalItems={totalItems}
+      itemsPerPage={itemsPerPage}
     />
   );
 };

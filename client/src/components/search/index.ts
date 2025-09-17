@@ -15,3 +15,4 @@ export { default as ProjectsSection } from './ProjectsSection';
 export { default as TasksSection } from './TasksSection';
 export { default as NoSearchCriteria } from './NoSearchCriteria';
 export { default as PaginationControls } from './PaginationControls';
+export { default as DetailModal } from './DetailModal';

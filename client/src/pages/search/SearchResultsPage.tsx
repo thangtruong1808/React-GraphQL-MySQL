@@ -8,7 +8,8 @@ import {
   MembersSection,
   ProjectsSection,
   TasksSection,
-  NoSearchCriteria
+  NoSearchCriteria,
+  DetailModal
 } from '../../components/search';
 
 /**
@@ -48,6 +49,11 @@ const SearchResultsPage: React.FC = () => {
     tasks: 1
   });
 
+  // Modal state for detail view
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState<any>(null);
+  const [modalType, setModalType] = useState<'member' | 'project' | 'task'>('member');
+
   // Items per page for each section
   const ITEMS_PER_PAGE = 3;
 
@@ -60,6 +66,30 @@ const SearchResultsPage: React.FC = () => {
 
   const getTotalPages = (items: any[]) => {
     return Math.ceil(items.length / ITEMS_PER_PAGE);
+  };
+
+  // Modal handlers for detail view
+  const handleMemberClick = (member: any) => {
+    setModalData(member);
+    setModalType('member');
+    setIsModalOpen(true);
+  };
+
+  const handleProjectClick = (project: any) => {
+    setModalData(project);
+    setModalType('project');
+    setIsModalOpen(true);
+  };
+
+  const handleTaskClick = (task: any) => {
+    setModalData(task);
+    setModalType('task');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalData(null);
   };
 
   // Reset pagination when search results change
@@ -160,41 +190,73 @@ const SearchResultsPage: React.FC = () => {
         {/* No search criteria state */}
         {!hasSearchCriteria && <NoSearchCriteria />}
 
-        {/* Search Results */}
+        {/* Search Results with Enhanced Layout */}
         {hasSearchCriteria && (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {/* Members Section */}
-            <MembersSection
-              members={getPaginatedResults(searchResults.members, currentPage.members)}
-              loading={membersLoading}
-              hasQuery={hasSearchCriteria}
-              currentPage={currentPage.members}
-              totalPages={getTotalPages(searchResults.members)}
-              onPageChange={(page) => setCurrentPage(prev => ({ ...prev, members: page }))}
-            />
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl opacity-50"></div>
+              <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-200 p-6">
+                <MembersSection
+                  members={getPaginatedResults(searchResults.members, currentPage.members)}
+                  loading={membersLoading}
+                  hasQuery={hasSearchCriteria}
+                  currentPage={currentPage.members}
+                  totalPages={getTotalPages(searchResults.members)}
+                  onPageChange={(page) => setCurrentPage(prev => ({ ...prev, members: page }))}
+                  totalItems={searchResults.members.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onMemberClick={handleMemberClick}
+                />
+              </div>
+            </div>
 
             {/* Projects Section */}
-            <ProjectsSection
-              projects={getPaginatedResults(searchResults.projects, currentPage.projects)}
-              loading={projectsLoading}
-              hasQuery={hasSearchCriteria}
-              currentPage={currentPage.projects}
-              totalPages={getTotalPages(searchResults.projects)}
-              onPageChange={(page) => setCurrentPage(prev => ({ ...prev, projects: page }))}
-            />
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl opacity-50"></div>
+              <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-green-200 p-6">
+                <ProjectsSection
+                  projects={getPaginatedResults(searchResults.projects, currentPage.projects)}
+                  loading={projectsLoading}
+                  hasQuery={hasSearchCriteria}
+                  currentPage={currentPage.projects}
+                  totalPages={getTotalPages(searchResults.projects)}
+                  onPageChange={(page) => setCurrentPage(prev => ({ ...prev, projects: page }))}
+                  totalItems={searchResults.projects.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onProjectClick={handleProjectClick}
+                />
+              </div>
+            </div>
 
             {/* Tasks Section */}
-            <TasksSection
-              tasks={getPaginatedResults(searchResults.tasks, currentPage.tasks)}
-              loading={tasksLoading}
-              hasQuery={hasSearchCriteria}
-              currentPage={currentPage.tasks}
-              totalPages={getTotalPages(searchResults.tasks)}
-              onPageChange={(page) => setCurrentPage(prev => ({ ...prev, tasks: page }))}
-            />
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl opacity-50"></div>
+              <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-orange-200 p-6">
+                <TasksSection
+                  tasks={getPaginatedResults(searchResults.tasks, currentPage.tasks)}
+                  loading={tasksLoading}
+                  hasQuery={hasSearchCriteria}
+                  currentPage={currentPage.tasks}
+                  totalPages={getTotalPages(searchResults.tasks)}
+                  onPageChange={(page) => setCurrentPage(prev => ({ ...prev, tasks: page }))}
+                  totalItems={searchResults.tasks.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  onTaskClick={handleTaskClick}
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      <DetailModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        data={modalData}
+        type={modalType}
+      />
     </div>
   );
 };

@@ -57,7 +57,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <span className="font-semibold text-lg">{totalResults} Total Results</span>
+                <span className="font-semibold text-lg">{totalResults} Total {totalResults === 1 ? 'Result' : 'Results'}</span>
               </div>
             </div>
 
@@ -74,7 +74,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-blue-700">{memberCount}</p>
-                      <p className="text-sm text-blue-600 font-medium">Members</p>
+                      <p className="text-sm text-blue-600 font-medium">{memberCount === 1 ? 'Member' : 'Members'}</p>
                     </div>
                   </div>
                 </div>
@@ -91,7 +91,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-green-700">{projectCount}</p>
-                      <p className="text-sm text-green-600 font-medium">Projects</p>
+                      <p className="text-sm text-green-600 font-medium">{projectCount === 1 ? 'Project' : 'Projects'}</p>
                     </div>
                   </div>
                 </div>
@@ -108,7 +108,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-orange-700">{taskCount}</p>
-                      <p className="text-sm text-orange-600 font-medium">Tasks</p>
+                      <p className="text-sm text-orange-600 font-medium">{taskCount === 1 ? 'Task' : 'Tasks'}</p>
                     </div>
                   </div>
                 </div>
