@@ -25,15 +25,15 @@ export const typeDefs = gql`
   # User Type - matches database users table structure
   type User {
     id: ID!
-    uuid: String!
+    uuid: String
     email: String!
     firstName: String!
     lastName: String!
     role: UserRole!
     isDeleted: Boolean!
     version: Int!
-    createdAt: String!
-    updatedAt: String!
+    createdAt: String
+    updatedAt: String
     # Associated projects and tasks for member search
     ownedProjects: [Project!]!
     assignedTasks: [Task!]!
@@ -63,21 +63,23 @@ export const typeDefs = gql`
   # Project Type - for project management
   type Project {
     id: ID!
-    uuid: String!
+    uuid: String
     name: String!
     description: String!
     status: ProjectStatus!
     owner: User
     isDeleted: Boolean!
     version: Int!
-    createdAt: String!
-    updatedAt: String!
+    createdAt: String
+    updatedAt: String
+    # Tasks belonging to this project
+    tasks: [Task!]!
   }
 
   # Task Type - for task management
   type Task {
     id: ID!
-    uuid: String!
+    uuid: String
     title: String!
     description: String!
     status: TaskStatus!
@@ -86,8 +88,8 @@ export const typeDefs = gql`
     assignedUser: User
     isDeleted: Boolean!
     version: Int!
-    createdAt: String!
-    updatedAt: String!
+    createdAt: String
+    updatedAt: String
   }
 
   # Project Like Info Type - for displaying project names with like counts
@@ -177,9 +179,10 @@ export const typeDefs = gql`
   type Query {
     _placeholder: String
     publicStats: PublicStats!
-    searchMembers(query: String!): [User!]!
-    searchProjects(query: String!, statusFilter: [String!]): [Project!]!
-    searchTasks(query: String!, taskStatusFilter: [String!]): [Task!]!
+    # Search functionality - all parameters are optional
+    searchMembers(query: String): [User!]!
+    searchProjects(statusFilter: [String!]): [Project!]!
+    searchTasks(taskStatusFilter: [String!]): [Task!]!
   }
 
   # Mutation Type - only includes authentication mutations that are actually used

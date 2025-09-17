@@ -110,7 +110,19 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
       // Add task status filters if any are selected
       const selectedTaskFilters = Object.entries(taskFilters)
         .filter(([_, isSelected]) => isSelected)
-        .map(([status, _]) => status.toUpperCase());
+        .map(([status, _]) => {
+          // Map frontend status names to GraphQL schema values
+          switch (status) {
+            case 'todo':
+              return 'TODO';
+            case 'inProgress':
+              return 'IN_PROGRESS';
+            case 'completed':
+              return 'DONE';
+            default:
+              return status.toUpperCase();
+          }
+        });
 
       if (selectedTaskFilters.length > 0) {
         params.set('taskStatus', selectedTaskFilters.join(','));

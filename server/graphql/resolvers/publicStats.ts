@@ -676,88 +676,43 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       commentsWithLikesOnTodoTasks,
     };
   } catch (error) {
-    console.error('❌ Error calculating public stats - using fallback data:', error);
-    console.warn('⚠️  Database connection failed - returning mock data for development');
-    // Return mock data if database query fails for testing
+    console.error('❌ Error calculating public stats:', error);
+    // Return empty data structure if database query fails
     return {
-      totalProjects: 25,
-      activeProjects: 15,
-      completedProjects: 8,
-      totalTasks: 120,
-      completedTasks: 45,
-      inProgressTasks: 35,
-      todoTasks: 40,
-      totalComments: 180,
-      commentsOnCompletedTasks: 85,
-      commentsOnInProgressTasks: 65,
-      commentsOnTodoTasks: 30,
-      totalUsers: 12,
-      recentActivity: 48,
-      averageProjectCompletion: 32,
-      likesOnCompletedTasks: 23,
-      likesOnInProgressTasks: 18,
-      likesOnTodoTasks: 12,
-      tasksWithLikesCompleted: [
-        { taskName: 'Implement User Authentication', likeCount: 8 },
-        { taskName: 'Design Database Schema', likeCount: 6 },
-        { taskName: 'Create API Endpoints', likeCount: 5 },
-        { taskName: 'Setup Testing Framework', likeCount: 4 }
-      ],
-      tasksWithLikesInProgress: [
-        { taskName: 'Build Dashboard UI', likeCount: 7 },
-        { taskName: 'Integrate Payment System', likeCount: 5 },
-        { taskName: 'Optimize Performance', likeCount: 4 },
-        { taskName: 'Add Real-time Notifications', likeCount: 2 }
-      ],
-      tasksWithLikesTodo: [
-        { taskName: 'Write Documentation', likeCount: 5 },
-        { taskName: 'Deploy to Production', likeCount: 4 },
-        { taskName: 'Setup Monitoring', likeCount: 3 }
-      ],
+      totalProjects: 0,
+      activeProjects: 0,
+      completedProjects: 0,
+      totalTasks: 0,
+      completedTasks: 0,
+      inProgressTasks: 0,
+      todoTasks: 0,
+      totalComments: 0,
+      commentsOnCompletedTasks: 0,
+      commentsOnInProgressTasks: 0,
+      commentsOnTodoTasks: 0,
+      totalUsers: 0,
+      recentActivity: 0,
+      averageProjectCompletion: 0,
+      likesOnCompletedTasks: 0,
+      likesOnInProgressTasks: 0,
+      likesOnTodoTasks: 0,
+      tasksWithLikesCompleted: [],
+      tasksWithLikesInProgress: [],
+      tasksWithLikesTodo: [],
       // Project likes data by status
-      likesOnCompletedProjects: 15,
-      likesOnActiveProjects: 22,
-      likesOnPlanningProjects: 8,
-      projectsWithLikesCompleted: [
-        { projectName: 'E-commerce Platform', likeCount: 5 },
-        { projectName: 'Mobile App Development', likeCount: 4 },
-        { projectName: 'Data Analytics Dashboard', likeCount: 3 },
-        { projectName: 'API Integration', likeCount: 3 }
-      ],
-      projectsWithLikesActive: [
-        { projectName: 'Website Redesign', likeCount: 6 },
-        { projectName: 'Cloud Migration', likeCount: 5 },
-        { projectName: 'User Authentication', likeCount: 4 },
-        { projectName: 'Payment System', likeCount: 4 },
-        { projectName: 'Database Optimization', likeCount: 3 }
-      ],
-      projectsWithLikesPlanning: [
-        { projectName: 'AI Chatbot', likeCount: 5 },
-        { projectName: 'Performance Monitoring', likeCount: 3 }
-      ],
+      likesOnCompletedProjects: 0,
+      likesOnActiveProjects: 0,
+      likesOnPlanningProjects: 0,
+      projectsWithLikesCompleted: [],
+      projectsWithLikesActive: [],
+      projectsWithLikesPlanning: [],
       // Comment likes data by task status
-      likesOnCommentsOnCompletedTasks: 34,
-      likesOnCommentsOnInProgressTasks: 28,
-      likesOnCommentsOnTodoTasks: 16,
-      commentsWithLikesOnCompletedTasks: [
-        { commentContent: 'Great work on this feature!', likeCount: 8 },
-        { commentContent: 'This looks amazing, well done!', likeCount: 6 },
-        { commentContent: 'Perfect implementation', likeCount: 5 },
-        { commentContent: 'Excellent progress', likeCount: 4 },
-        { commentContent: 'Love the new design', likeCount: 3 }
-      ],
-      commentsWithLikesOnInProgressTasks: [
-        { commentContent: 'Looking forward to the final result', likeCount: 7 },
-        { commentContent: 'Keep up the good work!', likeCount: 5 },
-        { commentContent: 'This is coming along nicely', likeCount: 4 },
-        { commentContent: 'Great progress so far', likeCount: 3 },
-        { commentContent: 'Can\'t wait to see this finished', likeCount: 2 }
-      ],
-      commentsWithLikesOnTodoTasks: [
-        { commentContent: 'This will be a great addition', likeCount: 5 },
-        { commentContent: 'Looking forward to this feature', likeCount: 4 },
-        { commentContent: 'Excited to see this implemented', likeCount: 3 }
-      ],
+      likesOnCommentsOnCompletedTasks: 0,
+      likesOnCommentsOnInProgressTasks: 0,
+      likesOnCommentsOnTodoTasks: 0,
+      commentsWithLikesOnCompletedTasks: [],
+      commentsWithLikesOnInProgressTasks: [],
+      commentsWithLikesOnTodoTasks: []
     };
   }
 };

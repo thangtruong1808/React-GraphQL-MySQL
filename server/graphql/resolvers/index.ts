@@ -1,6 +1,7 @@
 import { authResolvers } from './auth';
 import { publicStatsResolvers } from './publicStats';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
+import { Task, User } from '../../db';
 
 /**
  * GraphQL Resolvers Index
@@ -30,4 +31,30 @@ export const resolvers = {
   Mutation: {
     ...authResolvers.Mutation,
   },
+  // Type resolvers for nested relationships
+  Project: {
+    // Resolver for tasks field on Project type
+    tasks: async (parent: any) => {
+      try {
+        return await Task.findAll({
+          where: {
+            projectId: parent.id,
+            isDeleted: false
+          },
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
+          include: [
+            {
+              model: User,
+              as: 'assignedUser',
+              attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
+              required: false
+            }
+          ]
+        });
+      } catch (error) {
+        console.error('Error fetching tasks for project:', error);
+        return [];
+      }
+    }
+  }
 };

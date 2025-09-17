@@ -182,8 +182,9 @@ export const GET_PUBLIC_RECENT_TASKS = gql`
 `;
 
 // Search queries for members, projects, and tasks
+// All parameters are optional - search works independently
 export const SEARCH_MEMBERS = gql`
-  query SearchMembers($query: String!) {
+  query SearchMembers($query: String) {
     searchMembers(query: $query) {
       id
       uuid
@@ -198,6 +199,23 @@ export const SEARCH_MEMBERS = gql`
         description
         status
         isDeleted
+        tasks {
+          id
+          uuid
+          title
+          description
+          status
+          priority
+          isDeleted
+          assignedUser {
+            id
+            uuid
+            firstName
+            lastName
+            email
+            role
+          }
+        }
       }
       assignedTasks {
         id
@@ -221,8 +239,8 @@ export const SEARCH_MEMBERS = gql`
 `;
 
 export const SEARCH_PROJECTS = gql`
-  query SearchProjects($query: String!, $statusFilter: [String!]) {
-    searchProjects(query: $query, statusFilter: $statusFilter) {
+  query SearchProjects($statusFilter: [String!]) {
+    searchProjects(statusFilter: $statusFilter) {
       id
       uuid
       name
@@ -238,16 +256,14 @@ export const SEARCH_PROJECTS = gql`
 `;
 
 export const SEARCH_TASKS = gql`
-  query SearchTasks($query: String!, $taskStatusFilter: [String!]) {
-    searchTasks(query: $query, taskStatusFilter: $taskStatusFilter) {
+  query SearchTasks($taskStatusFilter: [String!]) {
+    searchTasks(taskStatusFilter: $taskStatusFilter) {
       id
       uuid
       title
       description
       status
       priority
-      projectId
-      assignedUserId
       project {
         id
         uuid
@@ -271,19 +287,6 @@ export const SEARCH_TASKS = gql`
         lastName
         email
         role
-      }
-      comments {
-        id
-        uuid
-        content
-        isDeleted
-        user {
-          id
-          uuid
-          firstName
-          lastName
-          email
-        }
       }
     }
   }
