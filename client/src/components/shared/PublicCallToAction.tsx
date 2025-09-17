@@ -21,7 +21,8 @@ interface PublicCallToActionProps {
 
 const PublicCallToAction: React.FC<PublicCallToActionProps> = ({ stats }) => {
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8 rounded-2xl shadow-xl border border-purple-200 text-center">
+    // bg-gradient-to-br from-purple-50 to-pink-50 shadow-xl border border-purple-200
+    <div className=" py-12 px-4 sm:px-6 lg:px-8 rounded-2xl  text-center">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-8">

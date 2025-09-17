@@ -90,6 +90,24 @@ export const typeDefs = gql`
     updatedAt: String!
   }
 
+  # Project Like Info Type - for displaying project names with like counts
+  type ProjectLikeInfo {
+    projectName: String!
+    likeCount: Int!
+  }
+
+  # Task Like Info Type - for displaying task names with like counts
+  type TaskLikeInfo {
+    taskName: String!
+    likeCount: Int!
+  }
+
+  # Comment Like Info Type - for displaying comment content with like counts
+  type CommentLikeInfo {
+    commentContent: String!
+    likeCount: Int!
+  }
+
   # Authentication Response Type - includes all tokens returned by login/refresh
   type AuthResponse {
     accessToken: String
@@ -136,23 +154,23 @@ export const typeDefs = gql`
     likesOnCompletedTasks: Int!
     likesOnInProgressTasks: Int!
     likesOnTodoTasks: Int!
-    usersWhoLikedCompletedTasks: [String!]!
-    usersWhoLikedInProgressTasks: [String!]!
-    usersWhoLikedTodoTasks: [String!]!
+    tasksWithLikesCompleted: [TaskLikeInfo!]!
+    tasksWithLikesInProgress: [TaskLikeInfo!]!
+    tasksWithLikesTodo: [TaskLikeInfo!]!
     # Project likes data by status
     likesOnCompletedProjects: Int!
     likesOnActiveProjects: Int!
     likesOnPlanningProjects: Int!
-    usersWhoLikedCompletedProjects: [String!]!
-    usersWhoLikedActiveProjects: [String!]!
-    usersWhoLikedPlanningProjects: [String!]!
+    projectsWithLikesCompleted: [ProjectLikeInfo!]!
+    projectsWithLikesActive: [ProjectLikeInfo!]!
+    projectsWithLikesPlanning: [ProjectLikeInfo!]!
     # Comment likes data by task status
     likesOnCommentsOnCompletedTasks: Int!
     likesOnCommentsOnInProgressTasks: Int!
     likesOnCommentsOnTodoTasks: Int!
-    usersWhoLikedCommentsOnCompletedTasks: [String!]!
-    usersWhoLikedCommentsOnInProgressTasks: [String!]!
-    usersWhoLikedCommentsOnTodoTasks: [String!]!
+    commentsWithLikesOnCompletedTasks: [CommentLikeInfo!]!
+    commentsWithLikesOnInProgressTasks: [CommentLikeInfo!]!
+    commentsWithLikesOnTodoTasks: [CommentLikeInfo!]!
   }
 
   # Query Type - includes public statistics and search functionality
@@ -161,7 +179,7 @@ export const typeDefs = gql`
     publicStats: PublicStats!
     searchMembers(query: String!): [User!]!
     searchProjects(query: String!, statusFilter: [String!]): [Project!]!
-    searchTasks(query: String!): [Task!]!
+    searchTasks(query: String!, taskStatusFilter: [String!]): [Task!]!
   }
 
   # Mutation Type - only includes authentication mutations that are actually used

@@ -1,4 +1,4 @@
-import { User, Project, Task, sequelize } from '../../db';
+import { User, Project, Task, Comment, sequelize } from '../../db';
 import { Op } from 'sequelize';
 
 /**
@@ -264,38 +264,87 @@ export const searchProjects = async (_: any, { query, statusFilter }: { query: s
 };
 
 /**
- * Search tasks by title or description
- * Searches tasks table for matching title or description
+ * Search tasks by title or description with optional task status filtering
+ * Searches tasks table for matching title or description and filters by status if provided
+ * Includes full table relationships: project, assigned user, and comments
  */
-export const searchTasks = async (_: any, { query }: { query: string }) => {
+export const searchTasks = async (_: any, { query, taskStatusFilter }: { query: string; taskStatusFilter?: string[] }) => {
   try {
-    // Search in task title or description
+    // Build where clause for search
+    const whereClause: any = {
+      isDeleted: false
+    };
+
+    // Add text search if query is provided and not empty
+    if (query && query.trim().length > 0) {
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${query.trim()}%` } },
+        { description: { [Op.like]: `%${query.trim()}%` } }
+      ];
+    }
+
+    // Add task status filter if provided
+    if (taskStatusFilter && taskStatusFilter.length > 0) {
+      whereClause.status = { [Op.in]: taskStatusFilter };
+    }
+
+    // Search in task title or description with optional status filter and full relationships
     const tasks = await Task.findAll({
-      where: {
-        isDeleted: false,
-        [Op.or]: [
-          { title: { [Op.like]: `%${query}%` } },
-          { description: { [Op.like]: `%${query}%` } }
-        ]
-      },
-      attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority'],
+      where: whereClause,
+      attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'projectId', 'assignedUserId'],
       include: [
+        // Include project information with owner details
         {
           model: Project,
           as: 'project',
-          attributes: ['id', 'name'],
-          required: true
+          attributes: ['id', 'uuid', 'name', 'description', 'status', 'isDeleted'],
+          required: true,
+          include: [
+            {
+              model: User,
+              as: 'owner',
+              attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
+              required: false
+            }
+          ]
         },
+        // Include assigned user information
         {
           model: User,
           as: 'assignedUser',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
           required: false
+        },
+        // Include comments with user information
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: ['id', 'uuid', 'content', 'isDeleted'],
+          required: false,
+          where: { isDeleted: false },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'uuid', 'firstName', 'lastName', 'email'],
+              required: false
+            }
+          ]
         }
       ],
-      limit: 10,
+      limit: 20,
       order: [['title', 'ASC']]
     });
+
+    // Debug logging for task search results
+    console.log(`Task search query: "${query}" with status filter: ${taskStatusFilter ? taskStatusFilter.join(', ') : 'none'}`);
+    console.log(`Found ${tasks.length} tasks`);
+    
+    if (tasks.length > 0) {
+      tasks.forEach((task, index) => {
+        console.log(`[${index + 1}] Task: "${task.title}" (${task.status}) -> Project: "${task.project?.name}" -> Assigned to: ${task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'} -> Comments: ${task.comments?.length || 0}`);
+      });
+    }
 
     return tasks;
   } catch (error) {

@@ -9,12 +9,12 @@ import { LoginForm, LoginHeader, LoginFooter, LoginCredentials } from '../../com
 const LoginPage: React.FC = () => {
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="min-h-screen  flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
 
         {/* Login Form Container - Fixed width */}
         <div className="max-w-lg w-full space-y-8 relative z-10">
-          {/* Card Container */}
-          <div className="bg-white rounded-xl shadow-lg border border-emerald-400 p-8">
+          {/* Card Container - Enhanced styling to match PublicCallToAction */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-200 p-8">
             {/* Login Header */}
             <LoginHeader />
 

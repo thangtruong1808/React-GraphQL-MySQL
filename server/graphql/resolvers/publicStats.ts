@@ -26,23 +26,23 @@ export interface PublicStats {
   likesOnCompletedTasks: number;
   likesOnInProgressTasks: number;
   likesOnTodoTasks: number;
-  usersWhoLikedCompletedTasks: string[];
-  usersWhoLikedInProgressTasks: string[];
-  usersWhoLikedTodoTasks: string[];
+  tasksWithLikesCompleted: Array<{ taskName: string; likeCount: number }>;
+  tasksWithLikesInProgress: Array<{ taskName: string; likeCount: number }>;
+  tasksWithLikesTodo: Array<{ taskName: string; likeCount: number }>;
   // Project likes data by status
   likesOnCompletedProjects: number;
   likesOnActiveProjects: number;
   likesOnPlanningProjects: number;
-  usersWhoLikedCompletedProjects: string[];
-  usersWhoLikedActiveProjects: string[];
-  usersWhoLikedPlanningProjects: string[];
+  projectsWithLikesCompleted: Array<{ projectName: string; likeCount: number }>;
+  projectsWithLikesActive: Array<{ projectName: string; likeCount: number }>;
+  projectsWithLikesPlanning: Array<{ projectName: string; likeCount: number }>;
   // Comment likes data by task status
   likesOnCommentsOnCompletedTasks: number;
   likesOnCommentsOnInProgressTasks: number;
   likesOnCommentsOnTodoTasks: number;
-  usersWhoLikedCommentsOnCompletedTasks: string[];
-  usersWhoLikedCommentsOnInProgressTasks: string[];
-  usersWhoLikedCommentsOnTodoTasks: string[];
+  commentsWithLikesOnCompletedTasks: Array<{ commentContent: string; likeCount: number }>;
+  commentsWithLikesOnInProgressTasks: Array<{ commentContent: string; likeCount: number }>;
+  commentsWithLikesOnTodoTasks: Array<{ commentContent: string; likeCount: number }>;
 }
 
 /**
@@ -171,11 +171,12 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       ? Math.round((completedProjects / totalProjects) * 100) 
       : 0;
 
-    // Get likes on completed tasks with user information
+    // Get likes on completed tasks with task information
     const completedTasksLikes = await TaskLike.findAll({
       include: [{
         model: Task,
         as: 'task',
+        attributes: ['title'],
         where: { 
           status: 'DONE',
           isDeleted: false 
@@ -184,18 +185,18 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
       order: [['createdAt', 'DESC']] // Order by most recent likes first
     });
 
-    // Get likes on in progress tasks with user information
+    // Get likes on in progress tasks with task information
     const inProgressTasksLikes = await TaskLike.findAll({
       include: [{
         model: Task,
         as: 'task',
+        attributes: ['title'],
         where: { 
           status: 'IN_PROGRESS',
           isDeleted: false 
@@ -204,18 +205,18 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
       order: [['createdAt', 'DESC']] // Order by most recent likes first
     });
 
-    // Get likes on todo tasks with user information
+    // Get likes on todo tasks with task information
     const todoTasksLikes = await TaskLike.findAll({
       include: [{
         model: Task,
         as: 'task',
+        attributes: ['title'],
         where: { 
           status: 'TODO',
           isDeleted: false 
@@ -224,7 +225,6 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
@@ -277,25 +277,53 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
     // Verification: likes counts are now explicitly calculated from task_likes table
     // Each count represents actual like records in the database, not task counts
 
-    // Format user names for each task status (ordered by most recent likes)
-    const usersWhoLikedCompletedTasks = completedTasksLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    // Count likes per task name for each task status
+    const tasksWithLikesCompleted = completedTasksLikes.reduce((acc, like) => {
+      const taskName = like.task?.title?.trim();
+      if (taskName) {
+        const existing = acc.find(t => t.taskName === taskName);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ taskName, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ taskName: string; likeCount: number }>);
 
-    const usersWhoLikedInProgressTasks = inProgressTasksLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    const tasksWithLikesInProgress = inProgressTasksLikes.reduce((acc, like) => {
+      const taskName = like.task?.title?.trim();
+      if (taskName) {
+        const existing = acc.find(t => t.taskName === taskName);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ taskName, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ taskName: string; likeCount: number }>);
 
-    const usersWhoLikedTodoTasks = todoTasksLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    const tasksWithLikesTodo = todoTasksLikes.reduce((acc, like) => {
+      const taskName = like.task?.title?.trim();
+      if (taskName) {
+        const existing = acc.find(t => t.taskName === taskName);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ taskName, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ taskName: string; likeCount: number }>);
 
-    // Get project likes data for each project status
-    // Get likes on completed projects with user information
+    // Get project likes data for each project status with like counts per project
+    // Get likes on completed projects with project information and count likes per project
     const completedProjectsLikes = await ProjectLike.findAll({
       include: [{
         model: Project,
         as: 'project',
+        attributes: ['name'],
         where: { 
           status: 'COMPLETED',
           isDeleted: false 
@@ -304,18 +332,18 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
       order: [['createdAt', 'DESC']]
     });
 
-    // Get likes on active projects with user information
+    // Get likes on active projects with project information and count likes per project
     const activeProjectsLikes = await ProjectLike.findAll({
       include: [{
         model: Project,
         as: 'project',
+        attributes: ['name'],
         where: { 
           status: 'IN_PROGRESS',
           isDeleted: false 
@@ -324,18 +352,18 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
       order: [['createdAt', 'DESC']]
     });
 
-    // Get likes on planning projects with user information
+    // Get likes on planning projects with project information and count likes per project
     const planningProjectsLikes = await ProjectLike.findAll({
       include: [{
         model: Project,
         as: 'project',
+        attributes: ['name'],
         where: { 
           status: 'PLANNING',
           isDeleted: false 
@@ -344,7 +372,6 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
@@ -393,18 +420,45 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
     const likesOnActiveProjects = likesOnActiveProjectsCount;
     const likesOnPlanningProjects = likesOnPlanningProjectsCount;
 
-    // Format user names for each project status
-    const usersWhoLikedCompletedProjects = completedProjectsLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    // Count likes per project name for each project status
+    const projectsWithLikesCompleted = completedProjectsLikes.reduce((acc, like) => {
+      const projectName = like.project?.name?.trim();
+      if (projectName) {
+        const existing = acc.find(p => p.projectName === projectName);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ projectName, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ projectName: string; likeCount: number }>);
 
-    const usersWhoLikedActiveProjects = activeProjectsLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    const projectsWithLikesActive = activeProjectsLikes.reduce((acc, like) => {
+      const projectName = like.project?.name?.trim();
+      if (projectName) {
+        const existing = acc.find(p => p.projectName === projectName);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ projectName, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ projectName: string; likeCount: number }>);
 
-    const usersWhoLikedPlanningProjects = planningProjectsLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    const projectsWithLikesPlanning = planningProjectsLikes.reduce((acc, like) => {
+      const projectName = like.project?.name?.trim();
+      if (projectName) {
+        const existing = acc.find(p => p.projectName === projectName);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ projectName, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ projectName: string; likeCount: number }>);
 
     // Get comment likes data for each task status
     // Get likes on comments of completed tasks
@@ -412,6 +466,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       include: [{
         model: Comment,
         as: 'comment',
+        attributes: ['content'],
         include: [{
           model: Task,
           as: 'task',
@@ -426,7 +481,6 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
@@ -438,6 +492,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       include: [{
         model: Comment,
         as: 'comment',
+        attributes: ['content'],
         include: [{
           model: Task,
           as: 'task',
@@ -452,7 +507,6 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
@@ -464,6 +518,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       include: [{
         model: Comment,
         as: 'comment',
+        attributes: ['content'],
         include: [{
           model: Task,
           as: 'task',
@@ -478,7 +533,6 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       }, {
         model: User,
         as: 'user',
-        attributes: ['firstName', 'lastName'],
         where: { isDeleted: false },
         required: true
       }],
@@ -545,18 +599,45 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
     const likesOnCommentsOnInProgressTasks = likesOnCommentsOnInProgressTasksCount;
     const likesOnCommentsOnTodoTasks = likesOnCommentsOnTodoTasksCount;
 
-    // Format user names for comment likes by task status
-    const usersWhoLikedCommentsOnCompletedTasks = commentsOnCompletedTasksLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    // Count likes per comment content for each task status
+    const commentsWithLikesOnCompletedTasks = commentsOnCompletedTasksLikes.reduce((acc, like) => {
+      const commentContent = like.comment?.content?.trim();
+      if (commentContent) {
+        const existing = acc.find(c => c.commentContent === commentContent);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ commentContent, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ commentContent: string; likeCount: number }>);
 
-    const usersWhoLikedCommentsOnInProgressTasks = commentsOnInProgressTasksLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    const commentsWithLikesOnInProgressTasks = commentsOnInProgressTasksLikes.reduce((acc, like) => {
+      const commentContent = like.comment?.content?.trim();
+      if (commentContent) {
+        const existing = acc.find(c => c.commentContent === commentContent);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ commentContent, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ commentContent: string; likeCount: number }>);
 
-    const usersWhoLikedCommentsOnTodoTasks = commentsOnTodoTasksLikes.map(like => 
-      `${like.user?.firstName} ${like.user?.lastName}`.trim()
-    ).filter(name => name);
+    const commentsWithLikesOnTodoTasks = commentsOnTodoTasksLikes.reduce((acc, like) => {
+      const commentContent = like.comment?.content?.trim();
+      if (commentContent) {
+        const existing = acc.find(c => c.commentContent === commentContent);
+        if (existing) {
+          existing.likeCount += 1;
+        } else {
+          acc.push({ commentContent, likeCount: 1 });
+        }
+      }
+      return acc;
+    }, [] as Array<{ commentContent: string; likeCount: number }>);
 
     return {
       totalProjects,
@@ -576,23 +657,23 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       likesOnCompletedTasks,
       likesOnInProgressTasks,
       likesOnTodoTasks,
-      usersWhoLikedCompletedTasks,
-      usersWhoLikedInProgressTasks,
-      usersWhoLikedTodoTasks,
+      tasksWithLikesCompleted,
+      tasksWithLikesInProgress,
+      tasksWithLikesTodo,
       // Project likes data by status
       likesOnCompletedProjects,
       likesOnActiveProjects,
       likesOnPlanningProjects,
-      usersWhoLikedCompletedProjects,
-      usersWhoLikedActiveProjects,
-      usersWhoLikedPlanningProjects,
+      projectsWithLikesCompleted,
+      projectsWithLikesActive,
+      projectsWithLikesPlanning,
       // Comment likes data by task status
       likesOnCommentsOnCompletedTasks,
       likesOnCommentsOnInProgressTasks,
       likesOnCommentsOnTodoTasks,
-      usersWhoLikedCommentsOnCompletedTasks,
-      usersWhoLikedCommentsOnInProgressTasks,
-      usersWhoLikedCommentsOnTodoTasks,
+      commentsWithLikesOnCompletedTasks,
+      commentsWithLikesOnInProgressTasks,
+      commentsWithLikesOnTodoTasks,
     };
   } catch (error) {
     console.error('❌ Error calculating public stats - using fallback data:', error);
@@ -616,23 +697,67 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       likesOnCompletedTasks: 23,
       likesOnInProgressTasks: 18,
       likesOnTodoTasks: 12,
-      usersWhoLikedCompletedTasks: ['John Doe', 'Jane Smith', 'Mike Johnson'],
-      usersWhoLikedInProgressTasks: ['Alice Brown', 'Bob Wilson', 'Carol Davis'],
-      usersWhoLikedTodoTasks: ['David Lee', 'Emma Taylor', 'Frank Miller'],
+      tasksWithLikesCompleted: [
+        { taskName: 'Implement User Authentication', likeCount: 8 },
+        { taskName: 'Design Database Schema', likeCount: 6 },
+        { taskName: 'Create API Endpoints', likeCount: 5 },
+        { taskName: 'Setup Testing Framework', likeCount: 4 }
+      ],
+      tasksWithLikesInProgress: [
+        { taskName: 'Build Dashboard UI', likeCount: 7 },
+        { taskName: 'Integrate Payment System', likeCount: 5 },
+        { taskName: 'Optimize Performance', likeCount: 4 },
+        { taskName: 'Add Real-time Notifications', likeCount: 2 }
+      ],
+      tasksWithLikesTodo: [
+        { taskName: 'Write Documentation', likeCount: 5 },
+        { taskName: 'Deploy to Production', likeCount: 4 },
+        { taskName: 'Setup Monitoring', likeCount: 3 }
+      ],
       // Project likes data by status
       likesOnCompletedProjects: 15,
       likesOnActiveProjects: 22,
       likesOnPlanningProjects: 8,
-      usersWhoLikedCompletedProjects: ['John Doe', 'Jane Smith', 'Alice Brown', 'Mike Johnson'],
-      usersWhoLikedActiveProjects: ['Bob Wilson', 'Carol Davis', 'David Lee', 'Emma Taylor', 'Frank Miller'],
-      usersWhoLikedPlanningProjects: ['John Doe', 'Alice Brown'],
+      projectsWithLikesCompleted: [
+        { projectName: 'E-commerce Platform', likeCount: 5 },
+        { projectName: 'Mobile App Development', likeCount: 4 },
+        { projectName: 'Data Analytics Dashboard', likeCount: 3 },
+        { projectName: 'API Integration', likeCount: 3 }
+      ],
+      projectsWithLikesActive: [
+        { projectName: 'Website Redesign', likeCount: 6 },
+        { projectName: 'Cloud Migration', likeCount: 5 },
+        { projectName: 'User Authentication', likeCount: 4 },
+        { projectName: 'Payment System', likeCount: 4 },
+        { projectName: 'Database Optimization', likeCount: 3 }
+      ],
+      projectsWithLikesPlanning: [
+        { projectName: 'AI Chatbot', likeCount: 5 },
+        { projectName: 'Performance Monitoring', likeCount: 3 }
+      ],
       // Comment likes data by task status
       likesOnCommentsOnCompletedTasks: 34,
       likesOnCommentsOnInProgressTasks: 28,
       likesOnCommentsOnTodoTasks: 16,
-      usersWhoLikedCommentsOnCompletedTasks: ['John Doe', 'Jane Smith', 'Alice Brown', 'Bob Wilson', 'Carol Davis'],
-      usersWhoLikedCommentsOnInProgressTasks: ['David Lee', 'Emma Taylor', 'Frank Miller', 'John Doe', 'Jane Smith'],
-      usersWhoLikedCommentsOnTodoTasks: ['Alice Brown', 'Bob Wilson', 'Mike Johnson'],
+      commentsWithLikesOnCompletedTasks: [
+        { commentContent: 'Great work on this feature!', likeCount: 8 },
+        { commentContent: 'This looks amazing, well done!', likeCount: 6 },
+        { commentContent: 'Perfect implementation', likeCount: 5 },
+        { commentContent: 'Excellent progress', likeCount: 4 },
+        { commentContent: 'Love the new design', likeCount: 3 }
+      ],
+      commentsWithLikesOnInProgressTasks: [
+        { commentContent: 'Looking forward to the final result', likeCount: 7 },
+        { commentContent: 'Keep up the good work!', likeCount: 5 },
+        { commentContent: 'This is coming along nicely', likeCount: 4 },
+        { commentContent: 'Great progress so far', likeCount: 3 },
+        { commentContent: 'Can\'t wait to see this finished', likeCount: 2 }
+      ],
+      commentsWithLikesOnTodoTasks: [
+        { commentContent: 'This will be a great addition', likeCount: 5 },
+        { commentContent: 'Looking forward to this feature', likeCount: 4 },
+        { commentContent: 'Excited to see this implemented', likeCount: 3 }
+      ],
     };
   }
 };

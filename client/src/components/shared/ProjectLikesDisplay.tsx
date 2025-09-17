@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 interface ProjectLikesDisplayProps {
   projectStatus: 'Completed' | 'Active' | 'Planning';
   likeCount: number;
-  userNames: string[];
+  projectsWithLikes: Array<{ projectName: string; likeCount: number }>;
   colorScheme: {
     text: string;
     bg: string;
@@ -22,15 +22,15 @@ interface ProjectLikesDisplayProps {
 /**
  * ProjectLikesDisplay Component
  * Renders project likes information for a specific project status
- * Displays like count and expandable user names who liked projects
+ * Displays like count and expandable project names with their individual like counts
  */
 const ProjectLikesDisplay: React.FC<ProjectLikesDisplayProps> = ({
   projectStatus,
   likeCount,
-  userNames,
+  projectsWithLikes,
   colorScheme,
 }) => {
-  // State for expandable user names
+  // State for expandable project names
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Toggle expansion state
@@ -38,17 +38,17 @@ const ProjectLikesDisplay: React.FC<ProjectLikesDisplayProps> = ({
     setIsExpanded(!isExpanded);
   };
 
-  // Get users to display based on expansion state
-  const getDisplayUsers = () => {
+  // Get projects to display based on expansion state
+  const getDisplayProjects = () => {
     if (isExpanded) {
-      return userNames;
+      return projectsWithLikes;
     }
-    return userNames.slice(0, 3);
+    return projectsWithLikes.slice(0, 3);
   };
 
-  // Get remaining users count
+  // Get remaining projects count
   const getRemainingCount = () => {
-    return Math.max(0, userNames.length - 3);
+    return Math.max(0, projectsWithLikes.length - 3);
   };
 
   return (
@@ -64,21 +64,21 @@ const ProjectLikesDisplay: React.FC<ProjectLikesDisplayProps> = ({
         </div>
       </div>
 
-      {/* User names display */}
-      {userNames.length > 0 && (
+      {/* Project names with like counts display */}
+      {projectsWithLikes.length > 0 && (
         <div className="space-y-2">
-          {/* User name badges */}
+          {/* Project name badges with like counts */}
           <div className="flex flex-wrap gap-1">
-            {getDisplayUsers().map((userName, index) => (
+            {getDisplayProjects().map((project, index) => (
               <span
                 key={index}
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${colorScheme.bg} ${colorScheme.text}`}
               >
-                {userName}
+                {project.projectName} - {project.likeCount} {project.likeCount === 1 ? 'like' : 'likes'}
               </span>
             ))}
 
-            {/* More button for remaining users */}
+            {/* More button for remaining projects */}
             {getRemainingCount() > 0 && (
               <button
                 onClick={handleToggleExpansion}

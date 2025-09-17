@@ -67,7 +67,7 @@ export const EnhancedInput = forwardRef<HTMLInputElement, EnhancedInputProps>(({
       return `${baseStyles} border-red-300 focus:ring-red-500 focus:border-red-500 pr-10`;
     }
 
-    return `${baseStyles} border-gray-300 focus:ring-emerald-500 focus:border-emerald-500`;
+    return `${baseStyles} border-gray-300 focus:ring-purple-500 focus:border-purple-500`;
   };
 
   // Get container styling

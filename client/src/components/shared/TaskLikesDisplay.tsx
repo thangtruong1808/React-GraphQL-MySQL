@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 
 /**
  * Task Likes Display Component
- * Displays likes count and expandable user names for a specific task status
- * Shows 3 users by default with "more" button to expand remaining users
+ * Displays likes count and expandable task names with their individual like counts for a specific task status
+ * Shows 3 tasks by default with "more" button to expand remaining tasks
  */
 
 interface TaskLikesDisplayProps {
   taskStatus: string;
   likeCount: number;
-  userNames: string[];
+  tasksWithLikes: Array<{ taskName: string; likeCount: number }>;
   colorScheme: {
     text: string;
     bg: string;
@@ -20,10 +20,10 @@ interface TaskLikesDisplayProps {
 const TaskLikesDisplay: React.FC<TaskLikesDisplayProps> = ({
   taskStatus,
   likeCount,
-  userNames,
+  tasksWithLikes,
   colorScheme
 }) => {
-  // State for expandable user names
+  // State for expandable task names
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Toggle expansion state
@@ -31,17 +31,17 @@ const TaskLikesDisplay: React.FC<TaskLikesDisplayProps> = ({
     setIsExpanded(!isExpanded);
   };
 
-  // Get users to display based on expansion state
-  const getDisplayUsers = () => {
+  // Get tasks to display based on expansion state
+  const getDisplayTasks = () => {
     if (isExpanded) {
-      return userNames;
+      return tasksWithLikes;
     }
-    return userNames.slice(0, 3);
+    return tasksWithLikes.slice(0, 3);
   };
 
-  // Get remaining users count
+  // Get remaining tasks count
   const getRemainingCount = () => {
-    return Math.max(0, userNames.length - 3);
+    return Math.max(0, tasksWithLikes.length - 3);
   };
 
   return (
@@ -57,21 +57,21 @@ const TaskLikesDisplay: React.FC<TaskLikesDisplayProps> = ({
         </div>
       </div>
 
-      {/* User names display */}
-      {userNames.length > 0 && (
+      {/* Task names with like counts display */}
+      {tasksWithLikes.length > 0 && (
         <div className="space-y-2">
-          {/* User name badges */}
+          {/* Task name badges with like counts */}
           <div className="flex flex-wrap gap-1">
-            {getDisplayUsers().map((userName, index) => (
+            {getDisplayTasks().map((task, index) => (
               <span
                 key={index}
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${colorScheme.bg} ${colorScheme.text}`}
               >
-                {userName}
+                {task.taskName} - {task.likeCount} {task.likeCount === 1 ? 'like' : 'likes'}
               </span>
             ))}
 
-            {/* More button for remaining users */}
+            {/* More button for remaining tasks */}
             {getRemainingCount() > 0 && (
               <button
                 onClick={handleToggleExpansion}

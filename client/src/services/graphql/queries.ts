@@ -104,23 +104,50 @@ export const GET_PUBLIC_STATS = gql`
       likesOnCompletedTasks
       likesOnInProgressTasks
       likesOnTodoTasks
-      usersWhoLikedCompletedTasks
-      usersWhoLikedInProgressTasks
-      usersWhoLikedTodoTasks
+      tasksWithLikesCompleted {
+        taskName
+        likeCount
+      }
+      tasksWithLikesInProgress {
+        taskName
+        likeCount
+      }
+      tasksWithLikesTodo {
+        taskName
+        likeCount
+      }
       # Project likes data by status
       likesOnCompletedProjects
       likesOnActiveProjects
       likesOnPlanningProjects
-      usersWhoLikedCompletedProjects
-      usersWhoLikedActiveProjects
-      usersWhoLikedPlanningProjects
+      projectsWithLikesCompleted {
+        projectName
+        likeCount
+      }
+      projectsWithLikesActive {
+        projectName
+        likeCount
+      }
+      projectsWithLikesPlanning {
+        projectName
+        likeCount
+      }
       # Comment likes data by task status
       likesOnCommentsOnCompletedTasks
       likesOnCommentsOnInProgressTasks
       likesOnCommentsOnTodoTasks
-      usersWhoLikedCommentsOnCompletedTasks
-      usersWhoLikedCommentsOnInProgressTasks
-      usersWhoLikedCommentsOnTodoTasks
+      commentsWithLikesOnCompletedTasks {
+        commentContent
+        likeCount
+      }
+      commentsWithLikesOnInProgressTasks {
+        commentContent
+        likeCount
+      }
+      commentsWithLikesOnTodoTasks {
+        commentContent
+        likeCount
+      }
     }
   }
 `;
@@ -211,22 +238,52 @@ export const SEARCH_PROJECTS = gql`
 `;
 
 export const SEARCH_TASKS = gql`
-  query SearchTasks($query: String!) {
-    searchTasks(query: $query) {
+  query SearchTasks($query: String!, $taskStatusFilter: [String!]) {
+    searchTasks(query: $query, taskStatusFilter: $taskStatusFilter) {
       id
       uuid
       title
       description
       status
       priority
+      projectId
+      assignedUserId
       project {
         id
+        uuid
         name
+        description
+        status
+        isDeleted
+        owner {
+          id
+          uuid
+          firstName
+          lastName
+          email
+          role
+        }
       }
       assignedUser {
         id
+        uuid
         firstName
         lastName
+        email
+        role
+      }
+      comments {
+        id
+        uuid
+        content
+        isDeleted
+        user {
+          id
+          uuid
+          firstName
+          lastName
+          email
+        }
       }
     }
   }

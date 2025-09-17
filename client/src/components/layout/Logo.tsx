@@ -13,10 +13,10 @@ const Logo: React.FC = () => {
       className="flex items-center space-x-3 flex-shrink-0 group transition-all duration-300 hover:scale-105"
       title="TaskFlow - Project Management Platform"
     >
-      {/* App Logo - Modern gradient with purple theme */}
+      {/* App Logo - Modern gradient with GraphQL theme */}
       <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
         </svg>
       </div>
 

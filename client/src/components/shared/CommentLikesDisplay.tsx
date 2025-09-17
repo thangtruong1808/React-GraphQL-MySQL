@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 
 /**
  * Comment Likes Display Component
- * Displays comment likes information with user details
- * Shows total likes count and expandable list of users who liked comments by task status
+ * Displays comment likes information with comment content details
+ * Shows total likes count and expandable list of comment content with their individual like counts by task status
  * Follows the same design pattern as TaskLikesDisplay for consistency
  */
 
@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 interface CommentLikesDisplayProps {
   taskStatus: 'Completed' | 'In Progress' | 'Todo';
   likeCount: number;
-  userNames: string[];
+  commentsWithLikes: Array<{ commentContent: string; likeCount: number }>;
   colorScheme: {
     text: string;
     bg: string;
@@ -22,15 +22,15 @@ interface CommentLikesDisplayProps {
 /**
  * CommentLikesDisplay Component
  * Renders comment likes information for comments on tasks of specific status
- * Displays like count and expandable user names who liked comments
+ * Displays like count and expandable comment content with their individual like counts
  */
 const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
   taskStatus,
   likeCount,
-  userNames,
+  commentsWithLikes,
   colorScheme,
 }) => {
-  // State for expandable user names
+  // State for expandable comment content
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Toggle expansion state
@@ -38,17 +38,17 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
     setIsExpanded(!isExpanded);
   };
 
-  // Get users to display based on expansion state
-  const getDisplayUsers = () => {
+  // Get comments to display based on expansion state
+  const getDisplayComments = () => {
     if (isExpanded) {
-      return userNames;
+      return commentsWithLikes;
     }
-    return userNames.slice(0, 3);
+    return commentsWithLikes.slice(0, 3);
   };
 
-  // Get remaining users count
+  // Get remaining comments count
   const getRemainingCount = () => {
-    return Math.max(0, userNames.length - 3);
+    return Math.max(0, commentsWithLikes.length - 3);
   };
 
   return (
@@ -64,21 +64,25 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
         </div>
       </div>
 
-      {/* User names display */}
-      {userNames.length > 0 && (
+      {/* Comment content with like counts display */}
+      {commentsWithLikes.length > 0 && (
         <div className="space-y-2">
-          {/* User name badges */}
+          {/* Comment content badges with like counts */}
           <div className="flex flex-wrap gap-1">
-            {getDisplayUsers().map((userName, index) => (
+            {getDisplayComments().map((comment, index) => (
               <span
                 key={index}
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${colorScheme.bg} ${colorScheme.text}`}
+                title={comment.commentContent} // Show full comment on hover
               >
-                {userName}
+                {comment.commentContent.length > 30
+                  ? `${comment.commentContent.substring(0, 30)}...`
+                  : comment.commentContent
+                } - {comment.likeCount} {comment.likeCount === 1 ? 'like' : 'likes'}
               </span>
             ))}
 
-            {/* More button for remaining users */}
+            {/* More button for remaining comments */}
             {getRemainingCount() > 0 && (
               <button
                 onClick={handleToggleExpansion}
