@@ -248,8 +248,28 @@ export const SEARCH_PROJECTS = gql`
       status
       owner {
         id
+        uuid
         firstName
         lastName
+        email
+        role
+      }
+      tasks {
+        id
+        uuid
+        title
+        description
+        status
+        priority
+        isDeleted
+        assignedUser {
+          id
+          uuid
+          firstName
+          lastName
+          email
+          role
+        }
       }
     }
   }

@@ -35,7 +35,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
             type="text"
             value={searchQuery}
             onChange={onSearchChange}
-            placeholder="Search by member name, project, or task."
+            placeholder="Search by member name ."
             className={`w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all  ${searchQuery ? 'pr-32' : 'pr-20'
               }`}
           />

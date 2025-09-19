@@ -109,7 +109,17 @@ const SearchResultsPage: React.FC = () => {
       statusFilter: projectStatusFilter.length > 0 ? projectStatusFilter : undefined
     },
     skip: projectStatusFilter.length === 0, // Only run when there are project status filters
-    errorPolicy: 'all'
+    errorPolicy: 'all',
+    onCompleted: (data) => {
+      console.log('Projects query completed:', {
+        projectStatusFilter,
+        resultsCount: data?.searchProjects?.length || 0,
+        results: data?.searchProjects
+      });
+    },
+    onError: (error) => {
+      console.error('Projects query error:', error);
+    }
   });
 
   const { data: tasksData, loading: tasksLoading } = useQuery(SEARCH_TASKS, {
@@ -129,7 +139,9 @@ const SearchResultsPage: React.FC = () => {
     // Extract projects and tasks from members' owned projects
     const relatedProjects: any[] = [];
     const relatedTasks: any[] = [];
+    const relatedMembers: any[] = [];
 
+    // Process members data - extract related projects and tasks
     members.forEach((member: any) => {
       if (member.ownedProjects) {
         member.ownedProjects.forEach((project: any) => {
@@ -153,12 +165,74 @@ const SearchResultsPage: React.FC = () => {
       }
     });
 
+    // Process projects data - extract related members (owners) and tasks
+    directProjects.forEach((project: any) => {
+      // Add project owner to related members if not already included
+      if (project.owner) {
+        const ownerExists = relatedMembers.some(member => member.id === project.owner.id);
+        if (!ownerExists) {
+          relatedMembers.push(project.owner);
+        }
+      }
+
+      // Add tasks from this project to related tasks
+      if (project.tasks) {
+        project.tasks.forEach((task: any) => {
+          relatedTasks.push(task);
+
+          // Also add assigned user to related members if not already included
+          if (task.assignedUser) {
+            const userExists = relatedMembers.some(member => member.id === task.assignedUser.id);
+            if (!userExists) {
+              relatedMembers.push(task.assignedUser);
+            }
+          }
+        });
+      }
+    });
+
+    // Process tasks data - extract related members (assigned users) and projects
+    directTasks.forEach((task: any) => {
+      // Add assigned user to related members if not already included
+      if (task.assignedUser) {
+        const userExists = relatedMembers.some(member => member.id === task.assignedUser.id);
+        if (!userExists) {
+          relatedMembers.push(task.assignedUser);
+        }
+      }
+
+      // Add project to related projects if not already included
+      if (task.project) {
+        const projectExists = relatedProjects.some(project => project.id === task.project.id);
+        if (!projectExists) {
+          relatedProjects.push(task.project);
+        }
+      }
+    });
+
     // Combine direct results with related results
+    const allMembers = [...members, ...relatedMembers];
     const allProjects = [...directProjects, ...relatedProjects];
     const allTasks = [...directTasks, ...relatedTasks];
 
+    // Debug logging to help identify the issue
+    console.log('Search Results Debug:', {
+      directMembers: members.length,
+      relatedMembers: relatedMembers.length,
+      totalMembers: allMembers.length,
+      directProjects: directProjects.length,
+      relatedProjects: relatedProjects.length,
+      totalProjects: allProjects.length,
+      directTasks: directTasks.length,
+      relatedTasks: relatedTasks.length,
+      totalTasks: allTasks.length,
+      searchQuery,
+      projectStatusFilter,
+      taskStatusFilter
+    });
+
     setSearchResults({
-      members,
+      members: allMembers,
       projects: allProjects,
       tasks: allTasks
     });

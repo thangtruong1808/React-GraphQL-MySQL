@@ -148,7 +148,7 @@ export const searchMembers = async (_: any, { query }: { query?: string }) => {
  * Search projects by status filter
  * If statusFilter is provided, returns projects with matching status
  * If no filter provided, returns empty array (no projects to show)
- * Includes owner information for comprehensive project details
+ * Includes owner information and tasks for comprehensive project details
  */
 export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: string[] }) => {
   try {
@@ -164,6 +164,8 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
     };
 
     console.log(`Searching projects with status filter: ${statusFilter.join(', ')}`);
+    console.log('Status filter array:', statusFilter);
+    console.log('Where clause:', whereClause);
 
     const projects = await Project.findAll({
       where: whereClause,
@@ -175,12 +177,40 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
           as: 'owner',
           attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
           required: false
+        },
+        // Include tasks within the project
+        {
+          model: Task,
+          as: 'tasks',
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'isDeleted'],
+          required: false,
+          where: { isDeleted: false },
+          include: [
+            // Include assigned user for each task
+            {
+              model: User,
+              as: 'assignedUser',
+              attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
+              required: false
+            }
+          ]
         }
       ],
       limit: 50
     });
 
-    console.log(`Found ${projects.length} projects`);
+    console.log(`Found ${projects.length} projects with their tasks`);
+    
+    // Debug logging to help identify the issue
+    let totalTasks = 0;
+    projects.forEach(project => {
+      if (project.tasks) {
+        totalTasks += project.tasks.length;
+        console.log(`Project "${project.name}" has ${project.tasks.length} tasks`);
+      }
+    });
+    console.log(`Total tasks across all projects: ${totalTasks}`);
+    
     return projects;
   } catch (error) {
     console.error('Error searching projects:', error);
@@ -240,6 +270,17 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
     });
 
     console.log(`Found ${tasks.length} tasks`);
+    
+    // Debug logging to help identify the issue
+    let tasksWithProjects = 0;
+    tasks.forEach(task => {
+      if (task.project) {
+        tasksWithProjects++;
+        console.log(`Task "${task.title}" belongs to project "${task.project.name}"`);
+      }
+    });
+    console.log(`Tasks with projects: ${tasksWithProjects}/${tasks.length}`);
+    
     return tasks;
   } catch (error) {
     console.error('Error searching tasks:', error);

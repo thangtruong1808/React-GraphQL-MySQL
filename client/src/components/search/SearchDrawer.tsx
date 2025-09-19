@@ -101,7 +101,19 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
       // Add project status filters if any are selected
       const selectedProjectFilters = Object.entries(projectFilters)
         .filter(([_, isSelected]) => isSelected)
-        .map(([status, _]) => status.toUpperCase());
+        .map(([status, _]) => {
+          // Map frontend status names to GraphQL schema values
+          switch (status) {
+            case 'planning':
+              return 'PLANNING';
+            case 'inProgress':
+              return 'IN_PROGRESS';
+            case 'completed':
+              return 'COMPLETED';
+            default:
+              return status.toUpperCase();
+          }
+        });
 
       if (selectedProjectFilters.length > 0) {
         params.set('projectStatus', selectedProjectFilters.join(','));

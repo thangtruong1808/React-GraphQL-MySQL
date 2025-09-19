@@ -61,7 +61,7 @@ const MembersSection: React.FC<MembersSectionProps> = ({
         <div className="flex-shrink-0 relative">
           <div className="h-16 w-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
             <span className="text-white font-semibold text-lg">
-              {member.firstName.charAt(0)}{member.lastName.charAt(0)}
+              {member.firstName?.charAt(0) || 'U'}{member.lastName?.charAt(0) || 'N'}
             </span>
           </div>
           {/* Online status indicator */}
@@ -79,7 +79,7 @@ const MembersSection: React.FC<MembersSectionProps> = ({
               Full Name
             </label>
             <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-200">
-              {member.firstName} {member.lastName}
+              {member.firstName || 'Unknown'} {member.lastName || 'User'}
             </h3>
           </div>
 
@@ -95,7 +95,7 @@ const MembersSection: React.FC<MembersSectionProps> = ({
               <svg className="h-5 w-5 text-gray-400 group-hover:text-purple-500 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <p className="text-sm text-gray-700 font-medium group-hover:text-purple-700 transition-colors duration-200">{member.email}</p>
+              <p className="text-sm text-gray-700 font-medium group-hover:text-purple-700 transition-colors duration-200">{member.email || 'No email provided'}</p>
             </div>
           </div>
 
@@ -112,7 +112,7 @@ const MembersSection: React.FC<MembersSectionProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 capitalize shadow-sm group-hover:shadow-md transition-shadow duration-200">
-                {member.role.toLowerCase()}
+                {member.role?.toLowerCase() || 'Unknown'}
               </span>
             </div>
           </div>
