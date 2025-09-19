@@ -1,5 +1,6 @@
 import React from 'react';
 import SearchSection from './SearchSection';
+import ProjectStatusCounts from './ProjectStatusCounts';
 
 /**
  * Projects Section Component
@@ -22,7 +23,8 @@ interface Project {
 }
 
 interface ProjectsSectionProps {
-  projects: Project[];
+  projects: Project[]; // Current page projects for display
+  allProjects: Project[]; // All filtered projects for status breakdown calculation
   loading: boolean;
   hasQuery: boolean;
   currentPage: number;
@@ -39,6 +41,7 @@ interface ProjectsSectionProps {
  */
 const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   projects,
+  allProjects,
   loading,
   hasQuery,
   currentPage,
@@ -142,6 +145,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
       onPageChange={onPageChange}
       totalItems={totalItems}
       itemsPerPage={itemsPerPage}
+      headerContent={<ProjectStatusCounts projects={allProjects} totalProjects={totalItems} />}
     />
   );
 };

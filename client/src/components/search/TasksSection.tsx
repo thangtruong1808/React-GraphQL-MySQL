@@ -1,5 +1,6 @@
 import React from 'react';
 import SearchSection from './SearchSection';
+import TaskStatusCounts from './TaskStatusCounts';
 
 /**
  * Tasks Section Component
@@ -42,7 +43,8 @@ interface Task {
 }
 
 interface TasksSectionProps {
-  tasks: Task[];
+  tasks: Task[]; // Current page tasks for display
+  allTasks: Task[]; // All filtered tasks for status breakdown calculation
   loading: boolean;
   hasQuery: boolean;
   currentPage: number;
@@ -59,6 +61,7 @@ interface TasksSectionProps {
  */
 const TasksSection: React.FC<TasksSectionProps> = ({
   tasks,
+  allTasks,
   loading,
   hasQuery,
   currentPage,
@@ -210,6 +213,7 @@ const TasksSection: React.FC<TasksSectionProps> = ({
       onPageChange={onPageChange}
       totalItems={totalItems}
       itemsPerPage={itemsPerPage}
+      headerContent={<TaskStatusCounts tasks={allTasks} totalTasks={totalItems} />}
     />
   );
 };

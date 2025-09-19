@@ -1,5 +1,6 @@
 import React from 'react';
 import SearchSection from './SearchSection';
+import MemberStatusCounts from './MemberStatusCounts';
 
 /**
  * Members Section Component
@@ -16,7 +17,8 @@ interface Member {
 }
 
 interface MembersSectionProps {
-  members: Member[];
+  members: Member[]; // Current page members for display
+  allMembers: Member[]; // All filtered members for role breakdown calculation
   loading: boolean;
   hasQuery: boolean;
   currentPage: number;
@@ -33,6 +35,7 @@ interface MembersSectionProps {
  */
 const MembersSection: React.FC<MembersSectionProps> = ({
   members,
+  allMembers,
   loading,
   hasQuery,
   currentPage,
@@ -134,6 +137,7 @@ const MembersSection: React.FC<MembersSectionProps> = ({
       onPageChange={onPageChange}
       totalItems={totalItems}
       itemsPerPage={itemsPerPage}
+      headerContent={<MemberStatusCounts members={allMembers} totalMembers={totalItems} />}
     />
   );
 };

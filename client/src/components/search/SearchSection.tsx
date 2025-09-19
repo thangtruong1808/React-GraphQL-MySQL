@@ -18,6 +18,7 @@ interface SearchSectionProps {
   onPageChange?: (page: number) => void;
   totalItems?: number;
   itemsPerPage?: number;
+  headerContent?: React.ReactNode; // Optional header content to display before results
 }
 
 /**
@@ -35,7 +36,8 @@ const SearchSection: React.FC<SearchSectionProps> = ({
   totalPages = 1,
   onPageChange,
   totalItems = 0,
-  itemsPerPage = 3
+  itemsPerPage = 3,
+  headerContent
 }) => {
   // Show section only if there's a query or results
   if (!hasQuery && results.length === 0) {
@@ -90,6 +92,13 @@ const SearchSection: React.FC<SearchSectionProps> = ({
         <div className="space-y-4">
           {results.length > 0 ? (
             <>
+              {/* Optional header content (e.g., status counts) */}
+              {headerContent && (
+                <div className="mb-4">
+                  {headerContent}
+                </div>
+              )}
+
               {/* Results grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {results.map(renderItem)}
