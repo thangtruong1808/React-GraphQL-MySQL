@@ -9,6 +9,12 @@ import React from 'react';
 interface ActiveFiltersProps {
   projectStatusFilter: string[];
   taskStatusFilter: string[];
+  searchQuery: string;
+  searchType: {
+    isUserSearch: boolean;
+    isProjectStatusSearch: boolean;
+    isTaskStatusSearch: boolean;
+  };
 }
 
 /**
@@ -17,54 +23,135 @@ interface ActiveFiltersProps {
  */
 const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   projectStatusFilter,
-  taskStatusFilter
+  taskStatusFilter,
+  searchQuery,
+  searchType
 }) => {
   // Don't render if no filters are active
-  if (projectStatusFilter.length === 0 && taskStatusFilter.length === 0) {
+  if (projectStatusFilter.length === 0 && taskStatusFilter.length === 0 && !searchType.isUserSearch) {
     return null;
   }
 
   return (
-    <div className="space-y-4 mb-6">
-      {/* Project status filters */}
-      {projectStatusFilter.length > 0 && (
-        <div>
-          <p className="text-sm text-gray-600 mb-2">Filtered by project status:</p>
-          <div className="flex flex-wrap gap-2">
-            {projectStatusFilter.map((status) => (
-              <span
-                key={status}
-                className={`px-3 py-1 text-xs rounded-full ${status === 'COMPLETED' ? 'bg-purple-100 text-purple-800' :
-                    status === 'IN_PROGRESS' ? 'bg-orange-100 text-orange-800' :
-                      'bg-indigo-100 text-indigo-800'
-                  }`}
-              >
-                {status.replace('_', ' ')}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+    <div className="relative overflow-hidden mb-8">
+      {/* Enhanced background with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 rounded-2xl opacity-60"></div>
 
-      {/* Task status filters */}
-      {taskStatusFilter.length > 0 && (
-        <div>
-          <p className="text-sm text-gray-600 mb-2">Filtered by task status:</p>
-          <div className="flex flex-wrap gap-2">
-            {taskStatusFilter.map((status) => (
-              <span
-                key={status}
-                className={`px-3 py-1 text-xs rounded-full ${status === 'DONE' ? 'bg-pink-100 text-pink-800' :
-                    status === 'IN_PROGRESS' ? 'bg-cyan-100 text-cyan-800' :
-                      'bg-gray-100 text-gray-800'
-                  }`}
-              >
-                {status.replace('_', ' ')}
-              </span>
-            ))}
+      {/* Main container with enhanced styling */}
+      <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6">
+        {/* Header section with icon and title */}
+        <div className="flex items-center mb-6">
+          <div className="mr-3 p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">Active Filters</h3>
+            <p className="text-sm text-gray-500">Current search and filter criteria</p>
           </div>
         </div>
-      )}
+
+        {/* Filter sections with enhanced styling */}
+        <div className="space-y-5">
+          {/* Enhanced search query filter for member searches */}
+          {searchType.isUserSearch && searchQuery && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl opacity-50"></div>
+              <div className="relative bg-white/70 backdrop-blur-sm rounded-xl border border-blue-200 p-4">
+                <div className="flex items-center mb-3">
+                  <div className="mr-2 p-1.5 bg-blue-500 rounded-lg">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-blue-700">Searching by member name</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex items-center px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 rounded-full border border-blue-200 shadow-sm">
+                    <svg className="w-3 h-3 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    "{searchQuery}"
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced project status filters */}
+          {projectStatusFilter.length > 0 && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl opacity-50"></div>
+              <div className="relative bg-white/70 backdrop-blur-sm rounded-xl border border-green-200 p-4">
+                <div className="flex items-center mb-3">
+                  <div className="mr-2 p-1.5 bg-green-500 rounded-lg">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-green-700">Filtered by project status</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {projectStatusFilter.map((status) => (
+                    <span
+                      key={status}
+                      className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border shadow-sm ${status === 'COMPLETED'
+                        ? 'bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-purple-300' :
+                        status === 'IN_PROGRESS'
+                          ? 'bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 border-orange-300' :
+                          'bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-800 border-indigo-300'
+                        }`}
+                    >
+                      <div className={`w-2 h-2 mr-2 rounded-full ${status === 'COMPLETED' ? 'bg-purple-500' :
+                        status === 'IN_PROGRESS' ? 'bg-orange-500' :
+                          'bg-indigo-500'
+                        }`}></div>
+                      {status.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced task status filters */}
+          {taskStatusFilter.length > 0 && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl opacity-50"></div>
+              <div className="relative bg-white/70 backdrop-blur-sm rounded-xl border border-orange-200 p-4">
+                <div className="flex items-center mb-3">
+                  <div className="mr-2 p-1.5 bg-orange-500 rounded-lg">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-orange-700">Filtered by task status</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {taskStatusFilter.map((status) => (
+                    <span
+                      key={status}
+                      className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border shadow-sm ${status === 'DONE'
+                        ? 'bg-gradient-to-r from-pink-100 to-pink-200 text-pink-800 border-pink-300' :
+                        status === 'IN_PROGRESS'
+                          ? 'bg-gradient-to-r from-cyan-100 to-cyan-200 text-cyan-800 border-cyan-300' :
+                          'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-300'
+                        }`}
+                    >
+                      <div className={`w-2 h-2 mr-2 rounded-full ${status === 'DONE' ? 'bg-pink-500' :
+                        status === 'IN_PROGRESS' ? 'bg-cyan-500' :
+                          'bg-gray-500'
+                        }`}></div>
+                      {status.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

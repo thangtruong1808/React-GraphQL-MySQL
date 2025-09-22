@@ -11,6 +11,11 @@ interface SearchHeaderProps {
   memberCount: number;
   projectCount: number;
   taskCount: number;
+  searchType: {
+    isUserSearch: boolean;
+    isProjectStatusSearch: boolean;
+    isTaskStatusSearch: boolean;
+  };
 }
 
 /**
@@ -21,7 +26,8 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
   totalResults,
   memberCount,
   projectCount,
-  taskCount
+  taskCount,
+  searchType
 }) => {
   return (
     <div className="relative overflow-hidden">
@@ -61,10 +67,21 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
               </div>
             </div>
 
-            {/* Category breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Members count */}
-              {memberCount > 0 && (
+            {/* Dynamic category breakdown based on search filters */}
+            <div className={`grid gap-4 ${
+              // Dynamic grid columns based on number of active search types
+              (searchType.isUserSearch ? 1 : 0) +
+                (searchType.isProjectStatusSearch ? 1 : 0) +
+                (searchType.isTaskStatusSearch ? 1 : 0) === 1
+                ? 'grid-cols-1'
+                : (searchType.isUserSearch ? 1 : 0) +
+                  (searchType.isProjectStatusSearch ? 1 : 0) +
+                  (searchType.isTaskStatusSearch ? 1 : 0) === 2
+                  ? 'grid-cols-1 md:grid-cols-2'
+                  : 'grid-cols-1 md:grid-cols-3'
+              }`}>
+              {/* Members count - Show only when searching by user name */}
+              {searchType.isUserSearch && memberCount > 0 && (
                 <div className="flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-blue-500 rounded-xl">
@@ -80,8 +97,8 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                 </div>
               )}
 
-              {/* Projects count */}
-              {projectCount > 0 && (
+              {/* Projects count - Show only when searching by project status */}
+              {searchType.isProjectStatusSearch && projectCount > 0 && (
                 <div className="flex items-center justify-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-green-500 rounded-xl">
@@ -97,8 +114,8 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                 </div>
               )}
 
-              {/* Tasks count */}
-              {taskCount > 0 && (
+              {/* Tasks count - Show only when searching by task status */}
+              {searchType.isTaskStatusSearch && taskCount > 0 && (
                 <div className="flex items-center justify-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl border border-orange-200">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-orange-500 rounded-xl">

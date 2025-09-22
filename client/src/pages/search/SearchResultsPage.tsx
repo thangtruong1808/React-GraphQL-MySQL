@@ -40,6 +40,7 @@ const SearchResultsPage: React.FC = () => {
       searchType={searchType}
       projectStatusFilter={projectStatusFilter}
       taskStatusFilter={taskStatusFilter}
+      searchQuery={searchQuery}
     />
   );
 };

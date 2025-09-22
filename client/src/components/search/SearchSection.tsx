@@ -111,18 +111,35 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <span>Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} {totalItems === 1 ? 'result' : 'results'}</span>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    {/* First page button */}
+                    <button
+                      onClick={() => onPageChange(1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      title="Go to first page"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                      </svg>
+                      <span className="hidden sm:inline">First</span>
+                    </button>
+
                     {/* Previous button */}
                     <button
                       onClick={() => onPageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      title="Go to previous page"
                     >
-                      Previous
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      <span className="hidden sm:inline">Previous</span>
                     </button>
 
-                    {/* Page numbers */}
-                    <div className="flex items-center space-x-1">
+                    {/* Page numbers with enhanced spacing */}
+                    <div className="flex items-center space-x-1 mx-2">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
                         if (pageNum > totalPages) return null;
@@ -131,10 +148,11 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                           <button
                             key={pageNum}
                             onClick={() => onPageChange(pageNum)}
-                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNum === currentPage
-                              ? 'bg-purple-600 text-white'
-                              : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors min-w-[2.5rem] ${pageNum === currentPage
+                              ? 'bg-purple-600 text-white shadow-md'
+                              : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
                               }`}
+                            title={`Go to page ${pageNum}`}
                           >
                             {pageNum}
                           </button>
@@ -146,9 +164,26 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      title="Go to next page"
                     >
-                      Next
+                      <span className="hidden sm:inline">Next</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+
+                    {/* Last page button */}
+                    <button
+                      onClick={() => onPageChange(totalPages)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      title="Go to last page"
+                    >
+                      <span className="hidden sm:inline">Last</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                      </svg>
                     </button>
                   </div>
                 </div>

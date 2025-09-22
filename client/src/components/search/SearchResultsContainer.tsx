@@ -30,6 +30,7 @@ interface SearchResultsContainerProps {
   };
   projectStatusFilter: string[];
   taskStatusFilter: string[];
+  searchQuery: string;
 }
 
 /**
@@ -42,7 +43,8 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
   hasSearchCriteria,
   searchType,
   projectStatusFilter,
-  taskStatusFilter
+  taskStatusFilter,
+  searchQuery
 }) => {
   // Pagination state for better UX with large result sets
   const [currentPage, setCurrentPage] = useState({
@@ -100,12 +102,15 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
           memberCount={searchResults.members.length}
           projectCount={searchResults.projects.length}
           taskCount={searchResults.tasks.length}
+          searchType={searchType}
         />
 
         {/* Active Filters */}
         <ActiveFilters
           projectStatusFilter={projectStatusFilter}
           taskStatusFilter={taskStatusFilter}
+          searchQuery={searchQuery}
+          searchType={searchType}
         />
 
         {/* No search criteria state */}
