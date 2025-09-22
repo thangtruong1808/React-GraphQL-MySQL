@@ -120,7 +120,7 @@ const PublicDashboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 public-dashboard">
+    <div className="w-full min-h-screen bg-gray-50 public-dashboard ">
       {/* Hero Section - Main title and public statistics overview */}
       <HeroSection stats={stats} />
 

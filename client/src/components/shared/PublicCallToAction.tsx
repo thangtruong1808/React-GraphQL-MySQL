@@ -23,7 +23,7 @@ const PublicCallToAction: React.FC<PublicCallToActionProps> = ({ stats }) => {
   return (
     // bg-gradient-to-br from-purple-50 to-pink-50 shadow-xl border border-purple-200
     <div className=" py-12 px-4 sm:px-6 lg:px-8 rounded-2xl  text-center">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
         {/* Header Section */}
         <div className="mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6">

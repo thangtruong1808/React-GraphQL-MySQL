@@ -14,3 +14,5 @@ export { default as PublicCallToAction } from './PublicCallToAction';
 export { default as TaskLikesDisplay } from './TaskLikesDisplay';
 export { default as ProjectLikesDisplay } from './ProjectLikesDisplay';
 export { default as CommentLikesDisplay } from './CommentLikesDisplay';
+export { default as TechnologyItem } from './TechnologyItem';
+export { default as TechnologyIcons } from './TechnologyIcons';

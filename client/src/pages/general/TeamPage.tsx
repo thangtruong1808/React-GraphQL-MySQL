@@ -102,143 +102,145 @@ const TeamPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-100 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Meet Our{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                Team
-              </span>
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
-              Discover the talented individuals behind TaskFlow. Our diverse team of {teamMembers.length} professionals brings together expertise in technology, project management, and innovation.
-            </p>
+    <div className="w-full public-dashboard bg-gray-50">
+      <div className="min-h-screen bg-gray-50 mt-10">
+        {/* Header Section */}
+        <div className=" py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                Meet Our{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                  Team
+                </span>
+              </h1>
+              <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
+                Discover the talented individuals behind TaskFlow. Our diverse team of {teamMembers.length} professionals brings together expertise in technology, project management, and innovation.
+              </p>
 
-            {/* Team Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                <div className="text-2xl font-bold text-indigo-600">{teamMembers.length}</div>
-                <div className="text-sm text-gray-600">Team Members</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                <div className="text-2xl font-bold text-red-600">{teamMembers.filter(m => m.role === 'ADMIN').length}</div>
-                <div className="text-sm text-gray-600">Administrators</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                <div className="text-2xl font-bold text-blue-600">{teamMembers.filter(m => m.role === 'MANAGER').length}</div>
-                <div className="text-sm text-gray-600">Managers</div>
-              </div>
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                <div className="text-2xl font-bold text-green-600">{teamMembers.filter(m => m.role === 'DEVELOPER').length}</div>
-                <div className="text-sm text-gray-600">Developers</div>
+              {/* Team Statistics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                  <div className="text-2xl font-bold text-indigo-600">{teamMembers.length}</div>
+                  <div className="text-sm text-gray-600">Team Members</div>
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                  <div className="text-2xl font-bold text-red-600">{teamMembers.filter(m => m.role === 'ADMIN').length}</div>
+                  <div className="text-sm text-gray-600">Administrators</div>
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                  <div className="text-2xl font-bold text-blue-600">{teamMembers.filter(m => m.role === 'MANAGER').length}</div>
+                  <div className="text-sm text-gray-600">Managers</div>
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                  <div className="text-2xl font-bold text-green-600">{teamMembers.filter(m => m.role === 'DEVELOPER').length}</div>
+                  <div className="text-sm text-gray-600">Developers</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Filter Section */}
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                { key: 'ALL', label: 'All Members', count: teamMembers.length },
-                { key: 'ADMIN', label: 'Administrators', count: teamMembers.filter(m => m.role === 'ADMIN').length },
-                { key: 'MANAGER', label: 'Managers', count: teamMembers.filter(m => m.role === 'MANAGER').length },
-                { key: 'DEVELOPER', label: 'Developers', count: teamMembers.filter(m => m.role === 'DEVELOPER').length },
-              ].map((filterOption) => (
-                <button
-                  key={filterOption.key}
-                  onClick={() => setFilter(filterOption.key as any)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === filterOption.key
-                    ? 'bg-indigo-600 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200'
-                    }`}
-                >
-                  {filterOption.label} ({filterOption.count})
-                </button>
+        {/* Main Content */}
+        <div className="py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Filter Section */}
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-2 justify-center">
+                {[
+                  { key: 'ALL', label: 'All Members', count: teamMembers.length },
+                  { key: 'ADMIN', label: 'Administrators', count: teamMembers.filter(m => m.role === 'ADMIN').length },
+                  { key: 'MANAGER', label: 'Managers', count: teamMembers.filter(m => m.role === 'MANAGER').length },
+                  { key: 'DEVELOPER', label: 'Developers', count: teamMembers.filter(m => m.role === 'DEVELOPER').length },
+                ].map((filterOption) => (
+                  <button
+                    key={filterOption.key}
+                    onClick={() => setFilter(filterOption.key as any)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === filterOption.key
+                      ? 'bg-indigo-600 text-white shadow-lg'
+                      : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200'
+                      }`}
+                  >
+                    {filterOption.label} ({filterOption.count})
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Team Members Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredMembers.map((member) => (
+                <div key={member.id} className="bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="p-6 text-center">
+                    {/* Avatar */}
+                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-white font-bold text-xl">
+                        {member.firstName[0]}{member.lastName[0]}
+                      </span>
+                    </div>
+
+                    {/* Name and Role */}
+                    <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                      {member.firstName} {member.lastName}
+                    </h3>
+
+                    <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${getRoleColor(member.role)} mb-4`}>
+                      {member.role}
+                    </span>
+
+                    {/* Bio */}
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">{member.bio}</p>
+
+                    {/* Stats */}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Projects:</span>
+                        <span className="font-medium text-gray-900">{member.projectCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Tasks:</span>
+                        <span className="font-medium text-gray-900">{member.taskCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Joined:</span>
+                        <span className="font-medium text-gray-900">{new Date(member.joinDate).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <Link
+                      to={ROUTE_PATHS.LOGIN}
+                      className="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all duration-300"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Connect
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
 
-          {/* Team Members Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredMembers.map((member) => (
-              <div key={member.id} className="bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="p-6 text-center">
-                  {/* Avatar */}
-                  <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-white font-bold text-xl">
-                      {member.firstName[0]}{member.lastName[0]}
-                    </span>
-                  </div>
-
-                  {/* Name and Role */}
-                  <h3 className="font-semibold text-gray-900 text-lg mb-2">
-                    {member.firstName} {member.lastName}
-                  </h3>
-
-                  <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${getRoleColor(member.role)} mb-4`}>
-                    {member.role}
-                  </span>
-
-                  {/* Bio */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{member.bio}</p>
-
-                  {/* Stats */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Projects:</span>
-                      <span className="font-medium text-gray-900">{member.projectCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Tasks:</span>
-                      <span className="font-medium text-gray-900">{member.taskCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Joined:</span>
-                      <span className="font-medium text-gray-900">{new Date(member.joinDate).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  <Link
-                    to={ROUTE_PATHS.LOGIN}
-                    className="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all duration-300"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Connect
-                  </Link>
-                </div>
+            {/* Call to Action */}
+            <div className="mt-12 text-center">
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-200">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Join Our Team
+                </h2>
+                <p className="text-gray-700 mb-6">
+                  Ready to be part of our innovative team? Start your journey with TaskFlow today.
+                </p>
+                <Link
+                  to={ROUTE_PATHS.LOGIN}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Get Started with TaskFlow
+                </Link>
               </div>
-            ))}
-          </div>
-
-          {/* Call to Action */}
-          <div className="mt-12 text-center">
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Join Our Team
-              </h2>
-              <p className="text-gray-700 mb-6">
-                Ready to be part of our innovative team? Start your journey with TaskFlow today.
-              </p>
-              <Link
-                to={ROUTE_PATHS.LOGIN}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                Get Started with TaskFlow
-              </Link>
             </div>
           </div>
         </div>

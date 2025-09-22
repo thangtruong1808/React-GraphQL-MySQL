@@ -30,12 +30,12 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
   searchType
 }) => {
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden mb-8">
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 rounded-3xl opacity-50"></div>
+      {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 rounded-3xl opacity-50"></div> */}
 
       {/* Main content */}
-      <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-purple-200 p-8 mb-8">
+      <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200 bg-white w-full mx-auto p-8 shadow-lg">
         {/* Header with icon and title */}
         <div className="flex items-center justify-center mb-6">
           {/* Search icon */}
@@ -148,7 +148,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
