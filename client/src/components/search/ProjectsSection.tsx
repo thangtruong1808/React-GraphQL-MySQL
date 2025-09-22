@@ -74,7 +74,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const renderProject = (project: Project) => (
     <div
       key={project.id}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg hover:border-purple-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
       onClick={() => handleProjectClick(project)}
     >
       <div className="space-y-4">
@@ -83,7 +83,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
             Project Name
           </label>
-          <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-purple-700 transition-colors duration-200">{project.name}</h3>
         </div>
 
         {/* Project description */}
@@ -91,7 +91,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
           <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
             Description
           </label>
-          <p className="text-gray-700 leading-relaxed">{project.description}</p>
+          <p className="text-gray-700 leading-relaxed group-hover:text-purple-600 transition-colors duration-200">{project.description}</p>
         </div>
 
         {/* Project metadata with enhanced layout */}
@@ -102,10 +102,10 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               Status
             </label>
             <div className="flex items-center space-x-2">
-              <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(project.status)}`}>
+              <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(project.status)} group-hover:shadow-md transition-shadow duration-200`}>
                 {project.status.replace('_', ' ')}
               </span>
             </div>
@@ -118,10 +118,10 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
                 Project Owner
               </label>
               <div className="flex items-center space-x-2">
-                <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600 transition-colors duration-200">
                   {project.owner.firstName} {project.owner.lastName}
                 </span>
               </div>

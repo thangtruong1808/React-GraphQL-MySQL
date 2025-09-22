@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { SEARCH_MEMBERS, SEARCH_PROJECTS, SEARCH_TASKS } from '../../services/graphql/queries';
 
@@ -51,114 +51,39 @@ export const useSearchResults = ({
     tasks: []
   });
 
-  // Track previous search parameters to detect changes
-  const prevSearchParams = useRef({
-    searchQuery: '',
-    projectStatusFilter: [] as string[],
-    taskStatusFilter: [] as string[]
-  });
-
-
-  // Create a unique key for search parameters to force query re-execution
-  const searchKey = `${searchQuery}-${projectStatusFilter.join(',')}-${taskStatusFilter.join(',')}`;
 
   // GraphQL queries for search functionality - only run when there are actual search criteria
-  const { data: membersData, loading: membersLoading, refetch: refetchMembers } = useQuery(SEARCH_MEMBERS, {
+  const { data: membersData, loading: membersLoading } = useQuery(SEARCH_MEMBERS, {
     variables: { query: searchQuery || undefined },
     skip: !searchQuery || searchQuery.length < 2, // Only run when there's a search query
     errorPolicy: 'all',
-    fetchPolicy: 'network-only', // Always fetch fresh data from network when navigating
-    notifyOnNetworkStatusChange: true // Ensure loading states are updated
+    fetchPolicy: 'network-only' // Always fetch fresh data from network
   });
 
-  const { data: projectsData, loading: projectsLoading, refetch: refetchProjects } = useQuery(SEARCH_PROJECTS, {
+  const { data: projectsData, loading: projectsLoading } = useQuery(SEARCH_PROJECTS, {
     variables: {
       statusFilter: projectStatusFilter.length > 0 ? projectStatusFilter : undefined
     },
     skip: projectStatusFilter.length === 0, // Only run when there are project status filters
     errorPolicy: 'all',
-    fetchPolicy: 'network-only', // Always fetch fresh data from network when navigating
-    notifyOnNetworkStatusChange: true, // Ensure loading states are updated
-    onCompleted: (data) => {
-      console.log('Projects query completed:', { 
-        projectStatusFilter, 
-        resultsCount: data?.searchProjects?.length || 0,
-        results: data?.searchProjects 
-      });
-    },
-    onError: (error) => {
-      console.error('Projects query error:', error);
-    }
+    fetchPolicy: 'network-only' // Always fetch fresh data from network
   });
 
-  const { data: tasksData, loading: tasksLoading, refetch: refetchTasks } = useQuery(SEARCH_TASKS, {
+  const { data: tasksData, loading: tasksLoading } = useQuery(SEARCH_TASKS, {
     variables: {
       taskStatusFilter: taskStatusFilter.length > 0 ? taskStatusFilter : undefined
     },
     skip: taskStatusFilter.length === 0, // Only run when there are task status filters
     errorPolicy: 'all',
-    fetchPolicy: 'network-only', // Always fetch fresh data from network when navigating
-    notifyOnNetworkStatusChange: true // Ensure loading states are updated
+    fetchPolicy: 'network-only' // Always fetch fresh data from network
   });
 
-  // Force query execution when search parameters change (for navigation from SearchDrawer)
-  useEffect(() => {
-    // Check if search parameters have actually changed
-    const hasSearchQueryChanged = prevSearchParams.current.searchQuery !== searchQuery;
-    const hasProjectFilterChanged = JSON.stringify(prevSearchParams.current.projectStatusFilter) !== JSON.stringify(projectStatusFilter);
-    const hasTaskFilterChanged = JSON.stringify(prevSearchParams.current.taskStatusFilter) !== JSON.stringify(taskStatusFilter);
-
-    // Only trigger if parameters have changed
-    if (hasSearchQueryChanged || hasProjectFilterChanged || hasTaskFilterChanged) {
-      // Update the ref with current parameters
-      prevSearchParams.current = {
-        searchQuery,
-        projectStatusFilter,
-        taskStatusFilter
-      };
-
-      // Log the change for debugging
-      console.log('Search parameters changed:', {
-        searchQuery,
-        projectStatusFilter,
-        taskStatusFilter,
-        changes: {
-          hasSearchQueryChanged,
-          hasProjectFilterChanged,
-          hasTaskFilterChanged
-        }
-      });
-
-      // Manually trigger queries based on what changed using refetch functions
-      const triggerQueries = async () => {
-        try {
-          // Trigger members query if search query changed
-          if (hasSearchQueryChanged && searchQuery && searchQuery.length >= 2) {
-            await refetchMembers();
-          }
-
-          // Trigger projects query if project filter changed
-          if (hasProjectFilterChanged && projectStatusFilter.length > 0) {
-            await refetchProjects();
-          }
-
-          // Trigger tasks query if task filter changed
-          if (hasTaskFilterChanged && taskStatusFilter.length > 0) {
-            await refetchTasks();
-          }
-        } catch (error) {
-          console.error('Error triggering queries:', error);
-        }
-      };
-
-      // Use a small delay to ensure the component has fully mounted
-      const timeoutId = setTimeout(triggerQueries, 100);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [searchQuery, projectStatusFilter, taskStatusFilter, refetchMembers, refetchProjects, refetchTasks]);
 
 
+  // Memoize search parameters to prevent infinite loops
+  const memoizedSearchQuery = useMemo(() => searchQuery, [searchQuery]);
+  const memoizedProjectStatusFilter = useMemo(() => projectStatusFilter, [projectStatusFilter.join(',')]);
+  const memoizedTaskStatusFilter = useMemo(() => taskStatusFilter, [taskStatusFilter.join(',')]);
 
   // Update search results when GraphQL data changes
   // Search behavior:
@@ -248,40 +173,65 @@ export const useSearchResults = ({
     // Combine direct results with related results based on search type
     // When searching by user name, only show direct members (no related members from projects/tasks)
     // When searching by project/task status, include related members
-    const isUserSearch = searchQuery && searchQuery.length >= 2;
-    const isProjectStatusSearch = projectStatusFilter.length > 0;
-    const isTaskStatusSearch = taskStatusFilter.length > 0;
+    const isUserSearch = memoizedSearchQuery && memoizedSearchQuery.length >= 2;
+    const isProjectStatusSearch = memoizedProjectStatusFilter.length > 0;
+    const isTaskStatusSearch = memoizedTaskStatusFilter.length > 0;
+    
+    // Determine if we should include related members
+    const hasMultipleSearchTypes = (isUserSearch ? 1 : 0) + (isProjectStatusSearch ? 1 : 0) + (isTaskStatusSearch ? 1 : 0) > 1;
     
     const allMembers = isUserSearch 
       ? members  // Only direct members when searching by user name
-      : [...members, ...relatedMembers];  // Include related members for status searches
+      : hasMultipleSearchTypes 
+        ? members  // Multiple search types: only direct members to avoid duplicates
+        : [...members, ...relatedMembers];  // Single search type: include related members for enrichment
     
-    // Filter projects based on combined search criteria
-    let filteredProjects = [...directProjects, ...relatedProjects];
-    if (isUserSearch && isProjectStatusSearch) {
-      // When both user search (firstname/lastname/email) and project status search are active,
-      // only show projects owned by users whose firstname, lastname, or email contains the search term
-      // Example: q=th&projectStatus=IN_PROGRESS means:
-      // - Users whose firstname, lastname, or email contains "th" AND own "IN_PROGRESS" projects
-      // - Projects with status "IN_PROGRESS" owned by users whose firstname, lastname, or email contains "th"
-      const matchingUserIds = members.map(member => member.id);
-      filteredProjects = filteredProjects.filter(project => 
-        project.owner && matchingUserIds.includes(project.owner.id)
-      );
+    // Filter projects based on search type
+    let filteredProjects: any[] = [];
+    if (isProjectStatusSearch) {
+      // When multiple search types are active, only show direct results to avoid duplicates
+      // When only project status search is active, include related projects
+      
+      if (hasMultipleSearchTypes) {
+        // Multiple search types: only show direct results
+        filteredProjects = [...directProjects];
+      } else {
+        // Single search type: include related results
+        filteredProjects = [...directProjects, ...relatedProjects];
+      }
+      
+      if (isUserSearch) {
+        // When both user search and project status search are active,
+        // only show projects owned by users whose firstname, lastname, or email contains the search term
+        const matchingUserIds = members.map(member => member.id);
+        filteredProjects = filteredProjects.filter(project => 
+          project.owner && matchingUserIds.includes(project.owner.id)
+        );
+      }
     }
     
-    // Filter tasks based on combined search criteria
-    let filteredTasks = [...directTasks, ...relatedTasks];
-    if (isUserSearch && isTaskStatusSearch) {
-      // When both user search (firstname/lastname/email) and task status search are active,
-      // only show tasks assigned to users whose firstname, lastname, or email contains the search term
-      // Example: q=th&taskStatus=TODO means:
-      // - Users whose firstname, lastname, or email contains "th" AND are assigned to "TODO" tasks
-      // - Tasks with status "TODO" assigned to users whose firstname, lastname, or email contains "th"
-      const matchingUserIds = members.map(member => member.id);
-      filteredTasks = filteredTasks.filter(task => 
-        task.assignedUser && matchingUserIds.includes(task.assignedUser.id)
-      );
+    // Filter tasks based on search type
+    let filteredTasks: any[] = [];
+    if (isTaskStatusSearch) {
+      // When multiple search types are active, only show direct results to avoid duplicates
+      // When only task status search is active, include related tasks
+      
+      if (hasMultipleSearchTypes) {
+        // Multiple search types: only show direct results
+        filteredTasks = [...directTasks];
+      } else {
+        // Single search type: include related results
+        filteredTasks = [...directTasks, ...relatedTasks];
+      }
+      
+      if (isUserSearch) {
+        // When both user search and task status search are active,
+        // only show tasks assigned to users whose firstname, lastname, or email contains the search term
+        const matchingUserIds = members.map(member => member.id);
+        filteredTasks = filteredTasks.filter(task => 
+          task.assignedUser && matchingUserIds.includes(task.assignedUser.id)
+        );
+      }
     }
     
     const allProjects = filteredProjects;
@@ -309,9 +259,9 @@ export const useSearchResults = ({
       directTasks: directTasks.length,
       relatedTasks: relatedTasks.length,
       totalTasks: allTasks.length,
-      searchQuery,
-      projectStatusFilter,
-      taskStatusFilter
+      searchQuery: memoizedSearchQuery,
+      projectStatusFilter: memoizedProjectStatusFilter,
+      taskStatusFilter: memoizedTaskStatusFilter
     });
 
     setSearchResults({
@@ -319,7 +269,7 @@ export const useSearchResults = ({
       projects: allProjects,
       tasks: allTasks
     });
-  }, [membersData, projectsData, tasksData, searchQuery, projectStatusFilter, taskStatusFilter]);
+  }, [membersData, projectsData, tasksData, memoizedSearchQuery, memoizedProjectStatusFilter, memoizedTaskStatusFilter]);
 
   // Determine search type
   const isUserSearch = searchQuery && searchQuery.length >= 2;
