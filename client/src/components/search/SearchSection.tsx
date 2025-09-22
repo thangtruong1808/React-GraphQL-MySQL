@@ -56,23 +56,13 @@ const SearchSection: React.FC<SearchSectionProps> = ({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-            {totalItems > 0 && (
+            {totalPages > 1 && (
               <p className="text-sm text-gray-600">
-                {totalItems} {totalItems === 1 ? title.toLowerCase().slice(0, -1) : title.toLowerCase()} found
-                {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+                Page {currentPage} of {totalPages}
               </p>
             )}
           </div>
         </div>
-
-        {/* Results count badge */}
-        {results.length > 0 && (
-          <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-              {results.length} {results.length === 1 ? 'result' : 'results'}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Loading state with enhanced design */}

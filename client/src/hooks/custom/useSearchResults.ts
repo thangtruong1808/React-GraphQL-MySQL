@@ -55,7 +55,7 @@ export const useSearchResults = ({
   // GraphQL queries for search functionality - only run when there are actual search criteria
   const { data: membersData, loading: membersLoading } = useQuery(SEARCH_MEMBERS, {
     variables: { query: searchQuery || undefined },
-    skip: !searchQuery || searchQuery.length < 2, // Only run when there's a search query
+    skip: !searchQuery || searchQuery.length < 1, // Only run when there's a search query
     errorPolicy: 'all',
     fetchPolicy: 'network-only' // Always fetch fresh data from network
   });
@@ -173,7 +173,7 @@ export const useSearchResults = ({
     // Combine direct results with related results based on search type
     // When searching by user name, only show direct members (no related members from projects/tasks)
     // When searching by project/task status, include related members
-    const isUserSearch = memoizedSearchQuery && memoizedSearchQuery.length >= 2;
+    const isUserSearch = memoizedSearchQuery && memoizedSearchQuery.length >= 1;
     const isProjectStatusSearch = memoizedProjectStatusFilter.length > 0;
     const isTaskStatusSearch = memoizedTaskStatusFilter.length > 0;
     
@@ -272,7 +272,7 @@ export const useSearchResults = ({
   }, [membersData, projectsData, tasksData, memoizedSearchQuery, memoizedProjectStatusFilter, memoizedTaskStatusFilter]);
 
   // Determine search type
-  const isUserSearch = searchQuery && searchQuery.length >= 2;
+  const isUserSearch = searchQuery && searchQuery.length >= 1;
   const isProjectStatusSearch = projectStatusFilter.length > 0;
   const isTaskStatusSearch = taskStatusFilter.length > 0;
 
