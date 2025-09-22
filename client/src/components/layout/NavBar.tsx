@@ -157,9 +157,9 @@ const NavBar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white  border-b border-gray-200 sticky top-0 z-50 m-2">
-      <div className="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
-        <div className="flex items-center justify-between h-16">
+    <nav className="fixed top-0 left-0 right-0 w-full bg-gray-100 border-b border-gray-200 z-50">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Brand */}
           <div className="flex items-center flex-shrink-0">
             <Logo />
@@ -167,14 +167,14 @@ const NavBar: React.FC = () => {
 
           {/* Center Section: Primary Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1">
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-3 lg:space-x-6 xl:space-x-8">
               {navItems.map((item) => {
                 const isActive = isNavItemActive(item);
                 return item.id === 'search' ? (
                   <button
                     key={item.id}
                     onClick={handleSearchToggle}
-                    className={`group relative px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                    className={`group relative px-8 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
                       ? 'text-purple-600 bg-purple-50 shadow-md'
                       : 'text-gray-700 hover:text-purple-600'
                       }`}
@@ -183,7 +183,7 @@ const NavBar: React.FC = () => {
                     {/* Navigation icon and text */}
                     <div className="flex flex-col items-center space-y-1">
                       <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                      <span className="text-sm">{item.label}</span>
+                      <span className="text-xs lg:text-sm">{item.label}</span>
                     </div>
 
                     {/* Hover tooltip */}
@@ -196,7 +196,7 @@ const NavBar: React.FC = () => {
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`group relative px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
                       ? 'text-purple-600 bg-purple-50 shadow-md'
                       : 'text-gray-700 hover:text-purple-600'
                       }`}
@@ -205,7 +205,7 @@ const NavBar: React.FC = () => {
                     {/* Navigation icon and text */}
                     <div className="flex flex-col items-center space-y-1">
                       <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                      <span className="text-sm">{item.label}</span>
+                      <span className="text-xs lg:text-sm">{item.label}</span>
                     </div>
 
                     {/* Hover tooltip */}

@@ -38,7 +38,7 @@ const AppContent: React.FC = () => {
       {/* Activity tracker - handles user activity monitoring */}
       <ActivityTracker />
 
-      {/* Main content area - flex-1 to take remaining space */}
+      {/* Main content area - flex-1 to take remaining space with top padding for fixed NavBar */}
       <main className="flex-1">
         <AppRoutes />
       </main>

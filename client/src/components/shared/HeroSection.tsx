@@ -54,7 +54,7 @@ interface HeroSectionProps {
  */
 const HeroSection: React.FC<HeroSectionProps> = ({ stats }) => {
   return (
-    <div className="py-16 px-4 sm:px-6 lg:px-8 rounded-2xl">
+    <div className="py-16 px-4 sm:px-6 lg:px-8 rounded-2xl mt-10">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           {/* Main title with gradient text */}

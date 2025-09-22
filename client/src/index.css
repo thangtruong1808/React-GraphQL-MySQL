@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure full width for entire application */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Ensure PublicDashboard extends full width */
+.public-dashboard {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+
 /* Custom animations for modern UI effects */
 @keyframes blob {
   0% {
