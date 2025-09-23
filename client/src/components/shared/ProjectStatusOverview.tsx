@@ -30,7 +30,7 @@ interface ProjectStatusOverviewProps {
  */
 const ProjectStatusOverview: React.FC<ProjectStatusOverviewProps> = ({ stats }) => {
   return (
-    <div className="shadow-lg border border-purple-100 bg-white rounded-xl p-4">
+    <div className="bg-white shadow-lg border border-gray-200 rounded-2xl p-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-3">Project Status Overview</h3>
 
       {/* Chart */}
@@ -46,7 +46,7 @@ const ProjectStatusOverview: React.FC<ProjectStatusOverviewProps> = ({ stats }) 
       />
 
       {/* Project Likes Information */}
-      <div className="space-y-2">
+      <div className="space-y-2 ">
         {/* Completed Projects Likes */}
         <ProjectLikesDisplay
           projectStatus="Completed"

@@ -22,7 +22,7 @@ interface PublicCallToActionProps {
 const PublicCallToAction: React.FC<PublicCallToActionProps> = ({ stats }) => {
   return (
     // bg-gradient-to-br from-purple-50 to-pink-50 shadow-xl border border-purple-200
-    <div className=" py-12 px-4 sm:px-6 lg:px-8 rounded-2xl  text-center">
+    <div className="px-4 sm:px-6 lg:px-8 rounded-2xl  text-center">
       <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
         {/* Header Section */}
         <div className="mb-8">
@@ -53,30 +53,30 @@ const PublicCallToAction: React.FC<PublicCallToActionProps> = ({ stats }) => {
         </div>
 
         {/* Features List */}
-        <div className="border-t border-purple-200 pt-8">
+        <div className="border-t border-gray-300 pt-8">
           <h3 className="text-xl font-semibold text-gray-900 mb-6">
             Why Choose TaskFlow?
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-            <div className="flex items-center p-3 bg-white/60 rounded-lg">
+            <div className="flex items-center p-3 rounded-xl border border-gray-300 bg-gray-100">
               <svg className="w-5 h-5 text-purple-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <span className="text-gray-700 font-medium">Comprehensive Project Management</span>
             </div>
-            <div className="flex items-center p-3 bg-white/60 rounded-lg">
+            <div className="flex items-center p-3 rounded-xl border border-gray-300 bg-gray-100">
               <svg className="w-5 h-5 text-pink-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <span className="text-gray-700 font-medium">Team Collaboration & Communication</span>
             </div>
-            <div className="flex items-center p-3 bg-white/60 rounded-lg">
+            <div className="flex items-center p-3 rounded-xl border border-gray-300 bg-gray-100">
               <svg className="w-5 h-5 text-indigo-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <span className="text-gray-700 font-medium">Real-time Analytics & Insights</span>
             </div>
-            <div className="flex items-center p-3 bg-white/60 rounded-lg">
+            <div className="flex items-center p-3 rounded-xl border border-gray-300 bg-gray-100">
               <svg className="w-5 h-5 text-orange-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>

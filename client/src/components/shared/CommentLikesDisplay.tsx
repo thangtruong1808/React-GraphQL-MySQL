@@ -52,7 +52,7 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4">
+    <div className="border border-gray-300 rounded-xl p-4 bg-gray-100">
       {/* Header with task status and comment likes */}
       <div className="flex items-center justify-between mb-2">
         <span className="font-medium text-gray-900">Comments on {taskStatus} Tasks</span>
@@ -86,7 +86,7 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
             {getRemainingCount() > 0 && (
               <button
                 onClick={handleToggleExpansion}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors transform hover:scale-105 hover:shadow-lg"
               >
                 {isExpanded ? 'Show less' : `+${getRemainingCount()} more`}
               </button>

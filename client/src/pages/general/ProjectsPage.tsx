@@ -112,7 +112,7 @@ const ProjectsPage: React.FC = () => {
     <div className="w-full public-dashboard bg-gray-50">
       <div className="w-full min-h-screen mt-10">
         {/* Header Section */}
-        <div className=" py-16 px-4 sm:px-6 lg:px-8">
+        <div className=" py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -127,19 +127,19 @@ const ProjectsPage: React.FC = () => {
 
               {/* Project Statistics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-fuchsia-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-purple-600">{projects.length}</div>
                   <div className="text-sm text-gray-600">Total Projects</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-fuchsia-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-orange-600">{projects.filter(p => p.status === 'IN_PROGRESS').length}</div>
                   <div className="text-sm text-gray-600">Active</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-fuchsia-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-indigo-600">{projects.filter(p => p.status === 'PLANNING').length}</div>
                   <div className="text-sm text-gray-600">Planning</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-fuchsia-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-green-600">{projects.filter(p => p.status === 'COMPLETED').length}</div>
                   <div className="text-sm text-gray-600">Completed</div>
                 </div>
@@ -149,11 +149,11 @@ const ProjectsPage: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             {/* Filter Section */}
             <div className="mb-8">
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-4 justify-center">
                 {[
                   { key: 'ALL', label: 'All Projects', count: projects.length },
                   { key: 'PLANNING', label: 'Planning', count: projects.filter(p => p.status === 'PLANNING').length },
@@ -163,9 +163,9 @@ const ProjectsPage: React.FC = () => {
                   <button
                     key={filterOption.key}
                     onClick={() => setFilter(filterOption.key as any)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === filterOption.key
+                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
                       ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200'
+                      : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 hover:border-purple-500 transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
                       }`}
                   >
                     {filterOption.label} ({filterOption.count})
@@ -177,7 +177,7 @@ const ProjectsPage: React.FC = () => {
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project) => (
-                <div key={project.id} className="bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div key={project.id} className="bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 hover:shadow-fuchsia-500/50 ">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="font-semibold text-gray-900 text-lg leading-tight">{project.name}</h3>
@@ -226,7 +226,7 @@ const ProjectsPage: React.FC = () => {
 
             {/* Call to Action */}
             <div className="mt-12 text-center">
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200">
+              <div className="rounded-2xl p-8 border border-gray-200 bg-white shadow-lg shadow-lg border border-gray-200 ">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Ready to Start Your Project?
                 </h2>

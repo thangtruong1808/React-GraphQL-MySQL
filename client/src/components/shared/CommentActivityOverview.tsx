@@ -30,26 +30,26 @@ interface CommentActivityOverviewProps {
  */
 const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-green-100 p-6 max-w-7xl mx-auto">
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 max-w-7xl mx-auto">
       <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Comment Activity Overview</h3>
       <div className="space-y-6">
         {/* Total Comments Display */}
-        <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-          <span className="text-gray-700 font-medium text-lg">Total Comments</span>
+        <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
+          <span className="text-gray-700 font-medium text-lg rounded-xl">Total Comments</span>
           <span className="text-3xl font-bold text-green-600">{stats.totalComments}</span>
         </div>
 
         {/* Comments by Task Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
+          <div className="text-center p-4 bg-gray-100 rounded-xl border border-gray-300">
             <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnCompletedTasks}</div>
             <div className="text-sm text-gray-600">Comments on Completed Tasks</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
+          <div className="text-center p-4 bg-gray-100 rounded-xl border border-gray-300">
             <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnInProgressTasks}</div>
             <div className="text-sm text-gray-600">Comments on In Progress Tasks</div>
           </div>
-          <div className="text-center p-4 bg-gray-50 rounded-lg">
+          <div className="text-center p-4 bg-gray-100 rounded-xl border border-gray-300">
             <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnTodoTasks}</div>
             <div className="text-sm text-gray-600">Comments on Todo Tasks</div>
           </div>

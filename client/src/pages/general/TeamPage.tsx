@@ -120,19 +120,19 @@ const TeamPage: React.FC = () => {
 
               {/* Team Statistics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-indigo-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-indigo-600">{teamMembers.length}</div>
                   <div className="text-sm text-gray-600">Team Members</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-indigo-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-red-600">{teamMembers.filter(m => m.role === 'ADMIN').length}</div>
                   <div className="text-sm text-gray-600">Administrators</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-indigo-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-blue-600">{teamMembers.filter(m => m.role === 'MANAGER').length}</div>
                   <div className="text-sm text-gray-600">Managers</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                <div className="bg-gray-100 rounded-xl p-6 shadow-md border border-gray-300 hover:shadow-xl hover:shadow-indigo-500/50 transition-shadow duration-500">
                   <div className="text-2xl font-bold text-green-600">{teamMembers.filter(m => m.role === 'DEVELOPER').length}</div>
                   <div className="text-sm text-gray-600">Developers</div>
                 </div>
@@ -142,11 +142,11 @@ const TeamPage: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="py-12 px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             {/* Filter Section */}
             <div className="mb-8">
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-4 justify-center">
                 {[
                   { key: 'ALL', label: 'All Members', count: teamMembers.length },
                   { key: 'ADMIN', label: 'Administrators', count: teamMembers.filter(m => m.role === 'ADMIN').length },
@@ -156,9 +156,9 @@ const TeamPage: React.FC = () => {
                   <button
                     key={filterOption.key}
                     onClick={() => setFilter(filterOption.key as any)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${filter === filterOption.key
+                    className={`px-8 py-2 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
                       ? 'bg-indigo-600 text-white shadow-lg'
-                      : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200'
+                      : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200 hover:border-indigo-500 transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
                       }`}
                   >
                     {filterOption.label} ({filterOption.count})
@@ -170,7 +170,7 @@ const TeamPage: React.FC = () => {
             {/* Team Members Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredMembers.map((member) => (
-                <div key={member.id} className="bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div key={member.id} className="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 hover:shadow-indigo-500/50">
                   <div className="p-6 text-center">
                     {/* Avatar */}
                     <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -224,7 +224,7 @@ const TeamPage: React.FC = () => {
 
             {/* Call to Action */}
             <div className="mt-12 text-center">
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-200">
+              <div className="rounded-2xl p-8 border border-gray-200 bg-white shadow-lg border-gray-200 shadow-lg">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Join Our Team
                 </h2>

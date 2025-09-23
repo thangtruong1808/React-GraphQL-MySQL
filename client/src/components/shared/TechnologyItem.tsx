@@ -23,7 +23,7 @@ const TechnologyItem: React.FC<TechnologyItemProps> = ({
   color
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 text-center hover:shadow-xl transition-shadow">
+    <div className="bg-gray-100 rounded-xl shadow-lg p-6 border border-gray-300 text-center hover:shadow-indigo-500/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl">
       {/* Technology icon with gradient background */}
       <div className={`w-16 h-16 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center mb-4 mx-auto`}>
         <div className="text-white">
