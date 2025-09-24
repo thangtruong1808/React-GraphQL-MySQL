@@ -184,8 +184,8 @@ export const GET_PUBLIC_RECENT_TASKS = gql`
 // Search queries for members, projects, and tasks
 // All parameters are optional - search works independently
 export const SEARCH_MEMBERS = gql`
-  query SearchMembers($query: String) {
-    searchMembers(query: $query) {
+  query SearchMembers($query: String, $roleFilter: [UserRole!]) {
+    searchMembers(query: $query, roleFilter: $roleFilter) {
       id
       uuid
       firstName
@@ -325,6 +325,25 @@ export const GET_TEAM_MEMBERS = gql`
       taskCount
       joinDate
       createdAt
+    }
+  }
+`;
+
+// Public projects query for public projects page
+export const GET_PROJECTS = gql`
+  query GetProjects {
+    projects {
+      id
+      name
+      description
+      status
+      taskCount
+      memberCount
+      createdAt
+      owner {
+        firstName
+        lastName
+      }
     }
   }
 `;

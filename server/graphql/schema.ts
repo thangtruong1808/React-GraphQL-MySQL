@@ -199,14 +199,34 @@ export const typeDefs = gql`
     commentsWithLikesOnTodoTasks: [CommentLikeInfo!]!
   }
 
+  # Public Project Type - for public projects page with aggregated stats
+  type PublicProject {
+    id: ID!
+    name: String!
+    description: String!
+    status: ProjectStatus!
+    taskCount: Int!
+    memberCount: Int!
+    createdAt: String!
+    owner: PublicProjectOwner!
+  }
+
+  # Public Project Owner Type - simplified owner info for public display
+  type PublicProjectOwner {
+    firstName: String!
+    lastName: String!
+  }
+
   # Query Type - includes public statistics and search functionality
   type Query {
     _placeholder: String
     publicStats: PublicStats!
     # Team functionality - for public team page
     teamMembers: [TeamMember!]!
+    # Public projects - for public projects page
+    projects: [PublicProject!]!
     # Search functionality - all parameters are optional
-    searchMembers(query: String): [User!]!
+    searchMembers(query: String, roleFilter: [UserRole!]): [User!]!
     searchProjects(statusFilter: [String!]): [Project!]!
     searchTasks(taskStatusFilter: [String!]): [Task!]!
   }

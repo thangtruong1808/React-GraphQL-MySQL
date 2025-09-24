@@ -19,6 +19,7 @@ const SearchResultsPage: React.FC = () => {
   const searchQuery = searchParams.get('q') || '';
   const projectStatusFilter = searchParams.get('projectStatus')?.split(',') || [];
   const taskStatusFilter = searchParams.get('taskStatus')?.split(',') || [];
+  const roleFilter = searchParams.get('roleFilter')?.split(',') || [];
 
   // Use custom hook for search results logic
   const {
@@ -29,7 +30,8 @@ const SearchResultsPage: React.FC = () => {
   } = useSearchResults({
     searchQuery,
     projectStatusFilter,
-    taskStatusFilter
+    taskStatusFilter,
+    roleFilter
   });
 
   return (
@@ -41,6 +43,7 @@ const SearchResultsPage: React.FC = () => {
       projectStatusFilter={projectStatusFilter}
       taskStatusFilter={taskStatusFilter}
       searchQuery={searchQuery}
+      roleFilter={roleFilter}
     />
   );
 };

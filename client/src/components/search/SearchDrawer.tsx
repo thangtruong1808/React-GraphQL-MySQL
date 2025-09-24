@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchInput from './SearchInput';
 import ProjectFilters from './ProjectFilters';
 import TaskFilters from './TaskFilters';
+import RoleFilters from './RoleFilters';
 
 /**
  * Search Drawer Component
@@ -34,6 +35,8 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     inProgress: false,
     completed: false
   });
+  // State for role filters
+  const [roleFilters, setRoleFilters] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
 
   // Handle search input change
@@ -80,6 +83,19 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     });
   };
 
+  // Handle role filter change
+  const handleRoleFilterChange = (role: string) => {
+    setRoleFilters(prev => ({
+      ...prev,
+      [role]: !prev[role]
+    }));
+  };
+
+  // Handle clear all role filters
+  const handleClearRoleFilters = () => {
+    setRoleFilters({});
+  };
+
   // Handle search submission
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -88,8 +104,9 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     const hasQuery = searchQuery.trim().length > 0;
     const hasProjectFilters = Object.values(projectFilters).some(Boolean);
     const hasTaskFilters = Object.values(taskFilters).some(Boolean);
+    const hasRoleFilters = Object.values(roleFilters).some(Boolean);
 
-    if (hasQuery || hasProjectFilters || hasTaskFilters) {
+    if (hasQuery || hasProjectFilters || hasTaskFilters || hasRoleFilters) {
       // Build query parameters including project and task filters
       const params = new URLSearchParams();
 
@@ -140,6 +157,15 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
         params.set('taskStatus', selectedTaskFilters.join(','));
       }
 
+      // Add role filters if any are selected
+      const selectedRoleFilters = Object.entries(roleFilters)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([role, _]) => role);
+
+      if (selectedRoleFilters.length > 0) {
+        params.set('roleFilter', selectedRoleFilters.join(','));
+      }
+
       // Navigate to search results page with query parameters
       navigate(`/search?${params.toString()}`);
       handleClose();
@@ -159,6 +185,7 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
       inProgress: false,
       completed: false
     });
+    setRoleFilters({});
     onClose();
   };
 
@@ -221,7 +248,14 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
           onSearchChange={handleSearchChange}
           onClearSearch={handleClearSearch}
           onSubmit={handleSearchSubmit}
-          hasFilters={Object.values(projectFilters).some(Boolean) || Object.values(taskFilters).some(Boolean)}
+          hasFilters={Object.values(projectFilters).some(Boolean) || Object.values(taskFilters).some(Boolean) || Object.values(roleFilters).some(Boolean)}
+        />
+
+        {/* Role Filters */}
+        <RoleFilters
+          roleFilters={roleFilters}
+          onRoleFilterChange={handleRoleFilterChange}
+          onClearRoleFilters={handleClearRoleFilters}
         />
 
         {/* Project Status Filters */}

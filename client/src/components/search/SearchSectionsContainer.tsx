@@ -34,6 +34,7 @@ interface SearchSectionsContainerProps {
     isUserSearch: boolean;
     isProjectStatusSearch: boolean;
     isTaskStatusSearch: boolean;
+    isRoleSearch: boolean;
   };
 }
 
@@ -73,8 +74,8 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
   const ITEMS_PER_PAGE = 3; // Display only 2 rows per section
 
   // Determine which sections to display based on search type
-  // Members section: Show ONLY when searching by user name (q parameter exists)
-  const shouldShowMembersSection = searchType.isUserSearch;
+  // Members section: Show when searching by user name OR by role
+  const shouldShowMembersSection = searchType.isUserSearch || searchType.isRoleSearch;
 
   // Projects section: Show ONLY when explicitly searching by project status
   const shouldShowProjectsSection = searchType.isProjectStatusSearch;

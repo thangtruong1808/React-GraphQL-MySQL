@@ -18,6 +18,7 @@ interface UseSearchResultsProps {
   searchQuery: string;
   projectStatusFilter: string[];
   taskStatusFilter: string[];
+  roleFilter: string[];
 }
 
 interface UseSearchResultsReturn {
@@ -32,6 +33,7 @@ interface UseSearchResultsReturn {
     isUserSearch: boolean;
     isProjectStatusSearch: boolean;
     isTaskStatusSearch: boolean;
+    isRoleSearch: boolean;
   };
 }
 
@@ -42,7 +44,8 @@ interface UseSearchResultsReturn {
 export const useSearchResults = ({
   searchQuery,
   projectStatusFilter,
-  taskStatusFilter
+  taskStatusFilter,
+  roleFilter
 }: UseSearchResultsProps): UseSearchResultsReturn => {
   // State for search results
   const [searchResults, setSearchResults] = useState<SearchResults>({
@@ -54,8 +57,11 @@ export const useSearchResults = ({
 
   // GraphQL queries for search functionality - only run when there are actual search criteria
   const { data: membersData, loading: membersLoading } = useQuery(SEARCH_MEMBERS, {
-    variables: { query: searchQuery || undefined },
-    skip: !searchQuery || searchQuery.length < 1, // Only run when there's a search query
+    variables: { 
+      query: searchQuery || undefined,
+      roleFilter: roleFilter.length > 0 ? roleFilter : undefined
+    },
+    skip: (!searchQuery || searchQuery.length < 1) && roleFilter.length === 0, // Only run when there's a search query or role filter
     errorPolicy: 'all',
     fetchPolicy: 'network-only' // Always fetch fresh data from network
   });
@@ -84,6 +90,7 @@ export const useSearchResults = ({
   const memoizedSearchQuery = useMemo(() => searchQuery, [searchQuery]);
   const memoizedProjectStatusFilter = useMemo(() => projectStatusFilter, [projectStatusFilter.join(',')]);
   const memoizedTaskStatusFilter = useMemo(() => taskStatusFilter, [taskStatusFilter.join(',')]);
+  const memoizedRoleFilter = useMemo(() => roleFilter, [roleFilter.join(',')]);
 
   // Update search results when GraphQL data changes
   // Search behavior:
@@ -275,9 +282,10 @@ export const useSearchResults = ({
   const isUserSearch = searchQuery && searchQuery.length >= 1;
   const isProjectStatusSearch = projectStatusFilter.length > 0;
   const isTaskStatusSearch = taskStatusFilter.length > 0;
+  const isRoleSearch = roleFilter.length > 0;
 
   // Check if any search criteria is active
-  const hasSearchCriteria = isUserSearch || isProjectStatusSearch || isTaskStatusSearch;
+  const hasSearchCriteria = isUserSearch || isProjectStatusSearch || isTaskStatusSearch || isRoleSearch;
 
   return {
     searchResults,
@@ -290,7 +298,8 @@ export const useSearchResults = ({
     searchType: {
       isUserSearch,
       isProjectStatusSearch,
-      isTaskStatusSearch
+      isTaskStatusSearch,
+      isRoleSearch
     }
   };
 };

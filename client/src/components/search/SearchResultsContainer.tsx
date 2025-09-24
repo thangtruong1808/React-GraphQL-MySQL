@@ -27,10 +27,12 @@ interface SearchResultsContainerProps {
     isUserSearch: boolean;
     isProjectStatusSearch: boolean;
     isTaskStatusSearch: boolean;
+    isRoleSearch: boolean;
   };
   projectStatusFilter: string[];
   taskStatusFilter: string[];
   searchQuery: string;
+  roleFilter: string[];
 }
 
 /**
@@ -44,7 +46,8 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
   searchType,
   projectStatusFilter,
   taskStatusFilter,
-  searchQuery
+  searchQuery,
+  roleFilter
 }) => {
   // Pagination state for better UX with large result sets
   const [currentPage, setCurrentPage] = useState({
@@ -111,6 +114,7 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
           taskStatusFilter={taskStatusFilter}
           searchQuery={searchQuery}
           searchType={searchType}
+          roleFilter={roleFilter}
         />
 
         {/* No search criteria state */}

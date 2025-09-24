@@ -14,7 +14,9 @@ interface ActiveFiltersProps {
     isUserSearch: boolean;
     isProjectStatusSearch: boolean;
     isTaskStatusSearch: boolean;
+    isRoleSearch: boolean;
   };
+  roleFilter: string[];
 }
 
 /**
@@ -25,10 +27,11 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   projectStatusFilter,
   taskStatusFilter,
   searchQuery,
-  searchType
+  searchType,
+  roleFilter
 }) => {
   // Don't render if no filters are active
-  if (projectStatusFilter.length === 0 && taskStatusFilter.length === 0 && !searchType.isUserSearch) {
+  if (projectStatusFilter.length === 0 && taskStatusFilter.length === 0 && !searchType.isUserSearch && !searchType.isRoleSearch) {
     return null;
   }
 
@@ -70,6 +73,31 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
                   </svg>
                   "{searchQuery}"
                 </span>
+              </div>
+            </div>
+          )}
+
+          {/* Role filters */}
+          {searchType.isRoleSearch && roleFilter.length > 0 && (
+            <div className="flex items-center bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl border border-purple-200 p-3">
+              <div className="mr-2 p-1.5 bg-purple-500 rounded-lg">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-purple-700">Roles:</span>
+                <div className="flex flex-wrap gap-1">
+                  {roleFilter.map((role) => (
+                    <span
+                      key={role}
+                      className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800 rounded-full border border-purple-300 shadow-sm"
+                    >
+                      <div className="w-1.5 h-1.5 mr-1 rounded-full bg-purple-500"></div>
+                      {role.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           )}
