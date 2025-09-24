@@ -79,7 +79,7 @@ const ProjectStatusCounts: React.FC<ProjectStatusCountsProps> = ({ projects, tot
           return (
             <div
               key={status}
-              className={`px-3 py-2 rounded-lg border ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
+              className={`px-3 py-2 rounded-full border shadow-sm ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
             >
               <span className="font-medium capitalize">
                 {status.replace('_', ' ')}

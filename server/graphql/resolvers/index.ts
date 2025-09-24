@@ -44,7 +44,7 @@ export const resolvers = {
     role: (parent: any) => {
       const roleMapping: { [key: string]: string } = {
         'ADMIN': 'ADMIN',
-        'Project Manager (PM)': 'PROJECT_MANAGER_PM',
+        'Project Manager': 'PROJECT_MANAGER_PM',
         'Software Architect': 'SOFTWARE_ARCHITECT',
         'Frontend Developer': 'FRONTEND_DEVELOPER',
         'Backend Developer': 'BACKEND_DEVELOPER',

@@ -97,41 +97,43 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
   };
 
   return (
-    <div className="min-h-screen public-dashboard bg-gray-50 rounded-2xl shadow-lg p-8 border border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <SearchHeader
-          totalResults={totalResults}
-          memberCount={searchResults.members.length}
-          projectCount={searchResults.projects.length}
-          taskCount={searchResults.tasks.length}
-          searchType={searchType}
-        />
+    <div className="min-h-screen public-dashboard bg-gray-50 rounded-2xl shadow-lg p-6 border border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-6">
+        <div className="space-y-10">
+          {/* Page Header */}
+          <SearchHeader
+            totalResults={totalResults}
+            memberCount={searchResults.members.length}
+            projectCount={searchResults.projects.length}
+            taskCount={searchResults.tasks.length}
+            searchType={searchType}
+          />
 
-        {/* Active Filters */}
-        <ActiveFilters
-          projectStatusFilter={projectStatusFilter}
-          taskStatusFilter={taskStatusFilter}
-          searchQuery={searchQuery}
-          searchType={searchType}
-          roleFilter={roleFilter}
-        />
+          {/* Active Filters */}
+          <ActiveFilters
+            projectStatusFilter={projectStatusFilter}
+            taskStatusFilter={taskStatusFilter}
+            searchQuery={searchQuery}
+            searchType={searchType}
+            roleFilter={roleFilter}
+          />
 
-        {/* No search criteria state */}
-        {!hasSearchCriteria && <NoSearchCriteria />}
+          {/* No search criteria state */}
+          {!hasSearchCriteria && <NoSearchCriteria />}
 
-        {/* Search Results with Enhanced Layout */}
-        <SearchSectionsContainer
-          searchResults={searchResults}
-          loading={loading}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          onMemberClick={handleMemberClick}
-          onProjectClick={handleProjectClick}
-          onTaskClick={handleTaskClick}
-          hasSearchCriteria={hasSearchCriteria}
-          searchType={searchType}
-        />
+          {/* Search Results with Enhanced Layout */}
+          <SearchSectionsContainer
+            searchResults={searchResults}
+            loading={loading}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            onMemberClick={handleMemberClick}
+            onProjectClick={handleProjectClick}
+            onTaskClick={handleTaskClick}
+            hasSearchCriteria={hasSearchCriteria}
+            searchType={searchType}
+          />
+        </div>
       </div>
 
       {/* Detail Modal */}

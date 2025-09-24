@@ -227,8 +227,8 @@ export const typeDefs = gql`
     projects: [PublicProject!]!
     # Search functionality - all parameters are optional
     searchMembers(query: String, roleFilter: [UserRole!]): [User!]!
-    searchProjects(statusFilter: [String!]): [Project!]!
-    searchTasks(taskStatusFilter: [String!]): [Task!]!
+    searchProjects(statusFilter: [ProjectStatus!]): [Project!]!
+    searchTasks(taskStatusFilter: [TaskStatus!]): [Task!]!
   }
 
   # Mutation Type - only includes authentication mutations that are actually used

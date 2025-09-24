@@ -1,4 +1,6 @@
 import React from 'react';
+import { formatRoleForDisplay } from '../../utils/roleFormatter';
+import { getRoleColorScheme } from '../../utils/roleColors';
 
 /**
  * Member Status Counts Component
@@ -44,68 +46,22 @@ const MemberStatusCounts: React.FC<MemberStatusCountsProps> = ({ members, totalM
           const count = roleCounts[role];
           const percentage = totalMembers > 0 ? Math.round((count / totalMembers) * 100) : 0;
 
-          // Get role-specific styling
-          const getRoleStyle = (role: string) => {
-            switch (role.toLowerCase()) {
-              case 'admin':
-                return {
-                  bg: 'bg-red-100',
-                  text: 'text-red-800',
-                  border: 'border-red-200'
-                };
-              case 'manager':
-                return {
-                  bg: 'bg-purple-100',
-                  text: 'text-purple-800',
-                  border: 'border-purple-200'
-                };
-              case 'developer':
-                return {
-                  bg: 'bg-blue-100',
-                  text: 'text-blue-800',
-                  border: 'border-blue-200'
-                };
-              case 'designer':
-                return {
-                  bg: 'bg-pink-100',
-                  text: 'text-pink-800',
-                  border: 'border-pink-200'
-                };
-              case 'tester':
-                return {
-                  bg: 'bg-yellow-100',
-                  text: 'text-yellow-800',
-                  border: 'border-yellow-200'
-                };
-              case 'user':
-                return {
-                  bg: 'bg-green-100',
-                  text: 'text-green-800',
-                  border: 'border-green-200'
-                };
-              default:
-                return {
-                  bg: 'bg-gray-100',
-                  text: 'text-gray-800',
-                  border: 'border-gray-200'
-                };
-            }
-          };
-
-          const style = getRoleStyle(role);
+          // Get role-specific styling using shared utility for consistency
+          const style = getRoleColorScheme(role);
 
           return (
             <div
               key={role}
-              className={`px-3 py-2 rounded-lg border ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
+              className={`inline-flex items-center px-3 py-2 rounded-full border shadow-sm ${style.bg} ${style.border} ${style.text}`}
             >
-              <span className="font-medium capitalize">
-                {role}
+              <div className={`w-1.5 h-1.5 mr-2 rounded-full ${style.dot}`}></div>
+              <span className="font-medium">
+                {formatRoleForDisplay(role)}
               </span>
-              <span className="text-sm font-bold">
+              <span className="ml-2 text-sm font-bold">
                 {count}
               </span>
-              <span className="text-xs opacity-75">
+              <span className="ml-1 text-xs opacity-75">
                 ({percentage}%)
               </span>
             </div>

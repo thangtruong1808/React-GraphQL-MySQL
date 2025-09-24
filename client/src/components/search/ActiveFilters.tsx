@@ -1,4 +1,6 @@
 import React from 'react';
+import { formatRoleForFilter } from '../../utils/roleFormatter';
+import { getRoleColorScheme } from '../../utils/roleColors';
 
 /**
  * Active Filters Component
@@ -36,12 +38,12 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
   }
 
   return (
-    <div className="relative overflow-hidden mb-8">
-      {/* Enhanced background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 rounded-2xl opacity-60"></div>
+    <div className="relative">
+      {/* Background decoration matching SearchSectionsContainer */}
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 rounded-2xl opacity-50"></div>
 
-      {/* Main container with enhanced styling */}
-      <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6">
+      {/* Main container with exact SearchSectionsContainer styling */}
+      <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-300 p-6">
         {/* Header section with icon and title */}
         <div className="flex items-center mb-6">
           <div className="mr-3 p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md">
@@ -88,15 +90,18 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-purple-700">Roles:</span>
                 <div className="flex flex-wrap gap-1">
-                  {roleFilter.map((role) => (
-                    <span
-                      key={role}
-                      className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800 rounded-full border border-purple-300 shadow-sm"
-                    >
-                      <div className="w-1.5 h-1.5 mr-1 rounded-full bg-purple-500"></div>
-                      {role.replace('_', ' ')}
-                    </span>
-                  ))}
+                  {roleFilter.map((role) => {
+                    const roleStyle = getRoleColorScheme(role);
+                    return (
+                      <span
+                        key={role}
+                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border shadow-sm ${roleStyle.bg} ${roleStyle.border} ${roleStyle.text}`}
+                      >
+                        <div className={`w-1.5 h-1.5 mr-1 rounded-full ${roleStyle.dot}`}></div>
+                        {formatRoleForFilter(role)}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>

@@ -33,7 +33,7 @@ export const searchMembers = async (_: any, { query, roleFilter }: { query?: str
       const mapGraphQLRoleToDBRole = (graphqlRole: string): string => {
         const dbRoleMapping: { [key: string]: string } = {
           'ADMIN': 'ADMIN',
-          'PROJECT_MANAGER_PM': 'Project Manager (PM)',
+          'PROJECT_MANAGER_PM': 'Project Manager',
           'SOFTWARE_ARCHITECT': 'Software Architect',
           'FRONTEND_DEVELOPER': 'Frontend Developer',
           'BACKEND_DEVELOPER': 'Backend Developer',
@@ -73,7 +73,8 @@ export const searchMembers = async (_: any, { query, roleFilter }: { query?: str
       sqlQuery += ` AND ${conditions.join(' AND ')}`;
     }
     
-    sqlQuery += ` LIMIT 50`;
+    // Order by created_at for consistent results
+    sqlQuery += ` ORDER BY created_at ASC`;
     
     // Execute query
     const members = await sequelize.query(sqlQuery, {
@@ -107,13 +108,11 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
       return [];
     }
 
-    // Map GraphQL status values to database status values
+    // Map GraphQL status values to database status values (database stores enum values directly)
     const dbStatusMapping: { [key: string]: string } = {
-      'PLANNING': 'Planning',
-      'IN_PROGRESS': 'In Progress',
-      'ON_HOLD': 'On Hold',
-      'COMPLETED': 'Completed',
-      'CANCELLED': 'Cancelled'
+      'PLANNING': 'PLANNING',
+      'IN_PROGRESS': 'IN_PROGRESS',
+      'COMPLETED': 'COMPLETED'
     };
     
     const dbStatuses = statusFilter.map(status => dbStatusMapping[status]).filter(Boolean);
@@ -149,7 +148,7 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
       LEFT JOIN users u ON p.owner_id = u.id
       WHERE p.is_deleted = false 
       AND p.status IN (${placeholders})
-      LIMIT 50
+      ORDER BY p.created_at ASC
     `;
     
     console.log('Executing project status filter query:', sqlQuery);
@@ -163,14 +162,12 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
 
     console.log(`Found ${projects.length} projects with specified statuses`);
     
-    // Map database status values to GraphQL status values
+    // Map database status values to GraphQL status values (database stores enum values directly)
     const mapDBStatusToGraphQLStatus = (dbStatus: string): string => {
       const statusMapping: { [key: string]: string } = {
-        'Planning': 'PLANNING',
-        'In Progress': 'IN_PROGRESS',
-        'On Hold': 'ON_HOLD',
-        'Completed': 'COMPLETED',
-        'Cancelled': 'CANCELLED'
+        'PLANNING': 'PLANNING',
+        'IN_PROGRESS': 'IN_PROGRESS',
+        'COMPLETED': 'COMPLETED'
       };
       return statusMapping[dbStatus] || 'PLANNING';
     };
@@ -211,13 +208,11 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
       return [];
     }
 
-    // Map GraphQL status values to database status values
+    // Map GraphQL status values to database status values (database stores enum values directly)
     const dbStatusMapping: { [key: string]: string } = {
-      'TODO': 'To Do',
-      'IN_PROGRESS': 'In Progress',
-      'IN_REVIEW': 'In Review',
-      'DONE': 'Done',
-      'CANCELLED': 'Cancelled'
+      'TODO': 'TODO',
+      'IN_PROGRESS': 'IN_PROGRESS',
+      'DONE': 'DONE'
     };
     
     const dbStatuses = taskStatusFilter.map(status => dbStatusMapping[status]).filter(Boolean);
@@ -249,6 +244,7 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
         p.name as projectName,
         p.description as projectDescription,
         p.status as projectStatus,
+        p.is_deleted as projectIsDeleted,
         u.id as assignedUserId,
         u.uuid as assignedUserUuid,
         u.first_name as assignedUserFirstName,
@@ -260,7 +256,7 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
       LEFT JOIN users u ON t.assigned_to = u.id
       WHERE t.is_deleted = false 
       AND t.status IN (${placeholders})
-      LIMIT 50
+      ORDER BY t.created_at ASC
     `;
     
     console.log('Executing task status filter query:', sqlQuery);
@@ -274,14 +270,12 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
 
     console.log(`Found ${tasks.length} tasks with specified statuses`);
     
-    // Map database status values to GraphQL status values
+    // Map database status values to GraphQL status values (database stores enum values directly)
     const mapDBStatusToGraphQLStatus = (dbStatus: string): string => {
       const statusMapping: { [key: string]: string } = {
-        'To Do': 'TODO',
-        'In Progress': 'IN_PROGRESS',
-        'In Review': 'IN_REVIEW',
-        'Done': 'DONE',
-        'Cancelled': 'CANCELLED'
+        'TODO': 'TODO',
+        'IN_PROGRESS': 'IN_PROGRESS',
+        'DONE': 'DONE'
       };
       return statusMapping[dbStatus] || 'TODO';
     };
@@ -309,7 +303,8 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
         uuid: task.projectUuid,
         name: task.projectName,
         description: task.projectDescription,
-        status: task.projectStatus
+        status: task.projectStatus,
+        isDeleted: task.projectIsDeleted
       } : null,
       assignedUser: task.assignedUserId ? {
         id: task.assignedUserId.toString(),

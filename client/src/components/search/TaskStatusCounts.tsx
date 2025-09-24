@@ -44,7 +44,7 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
           const count = statusCounts[status];
           const percentage = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
 
-          // Get status-specific styling
+          // Get status-specific styling - matching database TaskStatus enum values
           const getStatusStyle = (status: string) => {
             switch (status) {
               case 'TODO':
@@ -59,17 +59,11 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
                   text: 'text-yellow-800',
                   border: 'border-yellow-200'
                 };
-              case 'COMPLETED':
+              case 'DONE':
                 return {
                   bg: 'bg-green-100',
                   text: 'text-green-800',
                   border: 'border-green-200'
-                };
-              case 'CANCELLED':
-                return {
-                  bg: 'bg-red-100',
-                  text: 'text-red-800',
-                  border: 'border-red-200'
                 };
               default:
                 return {
@@ -85,7 +79,7 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
           return (
             <div
               key={status}
-              className={`px-3 py-2 rounded-lg border ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
+              className={`px-3 py-2 rounded-full border shadow-sm ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
             >
               <span className="font-medium capitalize">
                 {status.replace('_', ' ')}

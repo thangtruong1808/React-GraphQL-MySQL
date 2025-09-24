@@ -1,6 +1,8 @@
 import React from 'react';
 import SearchSection from './SearchSection';
 import MemberStatusCounts from './MemberStatusCounts';
+import { formatRoleForDisplay } from '../../utils/roleFormatter';
+import { getRoleColorScheme } from '../../utils/roleColors';
 
 /**
  * Members Section Component
@@ -45,6 +47,7 @@ const MembersSection: React.FC<MembersSectionProps> = ({
   itemsPerPage,
   onMemberClick
 }) => {
+
   // Handle member card click
   const handleMemberClick = (member: Member) => {
     if (onMemberClick) {
@@ -114,9 +117,15 @@ const MembersSection: React.FC<MembersSectionProps> = ({
               <svg className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 capitalize shadow-sm group-hover:shadow-md transition-shadow duration-200">
-                {member.role?.toLowerCase() || 'Unknown'}
-              </span>
+              {(() => {
+                const roleStyle = getRoleColorScheme(member.role);
+                return (
+                  <span className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-semibold border shadow-sm group-hover:shadow-md transition-shadow duration-200 ${roleStyle.bg} ${roleStyle.border} ${roleStyle.text}`}>
+                    <div className={`w-1.5 h-1.5 mr-2 rounded-full ${roleStyle.dot}`}></div>
+                    {formatRoleForDisplay(member.role)}
+                  </span>
+                );
+              })()}
             </div>
           </div>
         </div>

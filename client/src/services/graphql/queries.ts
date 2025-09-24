@@ -239,7 +239,7 @@ export const SEARCH_MEMBERS = gql`
 `;
 
 export const SEARCH_PROJECTS = gql`
-  query SearchProjects($statusFilter: [String!]) {
+  query SearchProjects($statusFilter: [ProjectStatus!]) {
     searchProjects(statusFilter: $statusFilter) {
       id
       uuid
@@ -276,7 +276,7 @@ export const SEARCH_PROJECTS = gql`
 `;
 
 export const SEARCH_TASKS = gql`
-  query SearchTasks($taskStatusFilter: [String!]) {
+  query SearchTasks($taskStatusFilter: [TaskStatus!]) {
     searchTasks(taskStatusFilter: $taskStatusFilter) {
       id
       uuid
