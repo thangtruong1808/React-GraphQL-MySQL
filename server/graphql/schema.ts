@@ -18,8 +18,19 @@ export const typeDefs = gql`
   # User Role Enum - matches database schema
   enum UserRole {
     ADMIN
-    MANAGER
-    DEVELOPER
+    PROJECT_MANAGER_PM
+    SOFTWARE_ARCHITECT
+    FRONTEND_DEVELOPER
+    BACKEND_DEVELOPER
+    FULL_STACK_DEVELOPER
+    DEVOPS_ENGINEER
+    QA_ENGINEER
+    QC_ENGINEER
+    UX_UI_DESIGNER
+    BUSINESS_ANALYST
+    DATABASE_ADMINISTRATOR
+    TECHNICAL_WRITER
+    SUPPORT_ENGINEER
   }
 
   # User Type - matches database users table structure
@@ -37,6 +48,19 @@ export const typeDefs = gql`
     # Associated projects and tasks for member search
     ownedProjects: [Project!]!
     assignedTasks: [Task!]!
+  }
+
+  # Team Member Type - for public team display with aggregated stats
+  type TeamMember {
+    id: ID!
+    uuid: String!
+    firstName: String!
+    lastName: String!
+    role: UserRole!
+    projectCount: Int!
+    taskCount: Int!
+    joinDate: String!
+    createdAt: String!
   }
 
   # Project Status Enum - matches database enum values
@@ -179,6 +203,8 @@ export const typeDefs = gql`
   type Query {
     _placeholder: String
     publicStats: PublicStats!
+    # Team functionality - for public team page
+    teamMembers: [TeamMember!]!
     # Search functionality - all parameters are optional
     searchMembers(query: String): [User!]!
     searchProjects(statusFilter: [String!]): [Project!]!

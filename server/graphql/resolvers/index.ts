@@ -1,5 +1,6 @@
 import { authResolvers } from './auth';
 import { publicStatsResolvers } from './publicStats';
+import { teamResolvers } from './teamResolvers';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 import { Task, User } from '../../db';
 
@@ -24,6 +25,7 @@ export const resolvers = {
   Query: {
     ...authResolvers.Query,
     ...publicStatsResolvers.Query,
+    ...teamResolvers.Query,
     searchMembers,
     searchProjects,
     searchTasks,

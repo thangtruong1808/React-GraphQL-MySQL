@@ -311,3 +311,20 @@ export const SEARCH_TASKS = gql`
     }
   }
 `;
+
+// Team members query for public team page
+export const GET_TEAM_MEMBERS = gql`
+  query GetTeamMembers {
+    teamMembers {
+      id
+      uuid
+      firstName
+      lastName
+      role
+      projectCount
+      taskCount
+      joinDate
+      createdAt
+    }
+  }
+`;
