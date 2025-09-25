@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { TaskFlowOverview } from '../../components/dashboard';
 import { PublicDashboard } from '../../components/shared';
@@ -59,6 +59,11 @@ export const AuthenticatedSkeleton: React.FC = () => {
  */
 const HomePage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
+
+  // Reset scroll position to top when component mounts for better UX
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
 
   // AuthProvider handles gating - we only render here after initialization is complete
   if (!user || !isAuthenticated) {

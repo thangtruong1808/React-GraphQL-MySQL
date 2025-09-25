@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
@@ -14,6 +14,11 @@ import { InlineError } from '../../components/ui/InlineError';
  */
 
 const AboutPage: React.FC = () => {
+  // Reset scroll position to top when component mounts for better UX
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
+
   // Fetch public statistics from GraphQL API
   const { data, loading, error } = useQuery(GET_PUBLIC_STATS);
 

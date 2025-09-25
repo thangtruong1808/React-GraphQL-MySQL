@@ -5,6 +5,7 @@
 
 export { default as PublicDashboard } from './PublicDashboard';
 export { default as HeroSection } from './HeroSection';
+export { default as InfiniteScrollTrigger } from './InfiniteScrollTrigger';
 export { default as MainContentSection } from './MainContentSection';
 export { default as ProjectStatusOverview } from './ProjectStatusOverview';
 export { default as TaskCompletionProgress } from './TaskCompletionProgress';

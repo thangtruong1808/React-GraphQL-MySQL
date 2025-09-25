@@ -101,10 +101,7 @@ export const searchMembers = async (_: any, { query, roleFilter }: { query?: str
  */
 export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: string[] }) => {
   try {
-    console.log('Searching projects with status filter:', statusFilter);
-    
     if (!statusFilter || statusFilter.length === 0) {
-      console.log('No status filter provided, returning empty array');
       return [];
     }
 
@@ -116,10 +113,8 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
     };
     
     const dbStatuses = statusFilter.map(status => dbStatusMapping[status]).filter(Boolean);
-    console.log('Mapped to database statuses:', dbStatuses);
     
     if (dbStatuses.length === 0) {
-      console.log('No valid statuses found, returning empty array');
       return [];
     }
     
@@ -151,8 +146,6 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
       ORDER BY p.created_at ASC
     `;
     
-    console.log('Executing project status filter query:', sqlQuery);
-    console.log('With replacements:', replacements);
     
     const projects = await sequelize.query(sqlQuery, {
       type: QueryTypes.SELECT,

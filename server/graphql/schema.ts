@@ -211,6 +211,21 @@ export const typeDefs = gql`
     owner: PublicProjectOwner!
   }
 
+  # Pagination Info Type - for infinite scroll support
+  type PaginationInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    totalCount: Int!
+    currentPage: Int!
+    totalPages: Int!
+  }
+
+  # Paginated Projects Response Type - for infinite scroll
+  type PaginatedProjectsResponse {
+    projects: [PublicProject!]!
+    paginationInfo: PaginationInfo!
+  }
+
   # Public Project Owner Type - simplified owner info for public display
   type PublicProjectOwner {
     firstName: String!
@@ -223,8 +238,10 @@ export const typeDefs = gql`
     publicStats: PublicStats!
     # Team functionality - for public team page
     teamMembers: [TeamMember!]!
-    # Public projects - for public projects page
+    # Public projects - for public projects page (legacy, loads all)
     projects: [PublicProject!]!
+    # Paginated projects - for infinite scroll support
+    paginatedProjects(limit: Int = 12, offset: Int = 0): PaginatedProjectsResponse!
     # Search functionality - all parameters are optional
     searchMembers(query: String, roleFilter: [UserRole!]): [User!]!
     searchProjects(statusFilter: [ProjectStatus!]): [Project!]!

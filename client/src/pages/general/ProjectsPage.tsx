@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
-import { GET_PROJECTS } from '../../services/graphql/queries';
+import { GET_PAGINATED_PROJECTS } from '../../services/graphql/queries';
 import { InlineError } from '../../components/ui/InlineError';
 
 /**
@@ -28,12 +28,134 @@ interface Project {
 
 const ProjectsPage: React.FC = () => {
   const [filter, setFilter] = useState<'ALL' | 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED'>('ALL');
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const loadingRef = useRef(false);
 
-  // Fetch projects from GraphQL API
-  const { data, loading, error } = useQuery<{ projects: Project[] }>(GET_PROJECTS);
+  // Reset scroll position to top when component mounts for better UX
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
 
-  // Get projects from GraphQL data
-  const projects = data?.projects || [];
+  // Reset state when component mounts to prevent stale state issues
+  useEffect(() => {
+    // Only reset if we don't have any projects loaded
+    if (allProjects.length === 0) {
+      setAllProjects([]);
+      setLoadingMore(false);
+      setHasMore(true);
+      setCurrentOffset(0);
+      loadingRef.current = false;
+    }
+
+    // Cleanup function to reset state when component unmounts
+    return () => {
+      // Don't reset state on unmount to preserve cache
+      loadingRef.current = false;
+    };
+  }, []);
+
+  // Initial GraphQL query for projects
+  const { data, loading, error, fetchMore } = useQuery(GET_PAGINATED_PROJECTS, {
+    variables: { limit: 12, offset: 0 },
+    fetchPolicy: 'cache-first', // Use cache to prevent flashing
+    errorPolicy: 'all',
+    onCompleted: (data) => {
+      if (data?.paginatedProjects && allProjects.length === 0) {
+        setAllProjects(data.paginatedProjects.projects);
+        setHasMore(data.paginatedProjects.paginationInfo.hasNextPage);
+        setCurrentOffset(data.paginatedProjects.projects.length);
+      }
+    }
+  });
+
+  // Restore pagination state from cached data if available
+  useEffect(() => {
+    if (data?.paginatedProjects && allProjects.length === 0) {
+      const projects = data.paginatedProjects.projects;
+      const paginationInfo = data.paginatedProjects.paginationInfo;
+
+      setAllProjects(projects);
+      setHasMore(paginationInfo.hasNextPage);
+      // Set offset based on actual number of projects loaded from cache
+      setCurrentOffset(projects.length);
+    }
+  }, [data, allProjects.length]);
+
+  // Update hasMore state when data changes to ensure end message shows correctly
+  useEffect(() => {
+    if (data?.paginatedProjects?.paginationInfo) {
+      const paginationInfo = data.paginatedProjects.paginationInfo;
+      setHasMore(paginationInfo.hasNextPage);
+    }
+  }, [data]);
+
+  // Load more projects function
+  const loadMoreProjects = useCallback(async () => {
+    // Prevent multiple simultaneous calls
+    if (loadingRef.current || !hasMore || loadingMore) return;
+
+    loadingRef.current = true;
+    setLoadingMore(true);
+
+    try {
+      const result = await fetchMore({
+        variables: {
+          limit: 12,
+          offset: currentOffset
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+
+          // Merge the new projects with existing ones
+          return {
+            paginatedProjects: {
+              ...fetchMoreResult.paginatedProjects,
+              projects: [...prev.paginatedProjects.projects, ...fetchMoreResult.paginatedProjects.projects]
+            }
+          };
+        }
+      });
+
+      if (result.data?.paginatedProjects) {
+        const newProjects = result.data.paginatedProjects.projects;
+        const paginationInfo = result.data.paginatedProjects.paginationInfo;
+
+        setAllProjects(prev => [...prev, ...newProjects]);
+        setHasMore(paginationInfo.hasNextPage);
+        setCurrentOffset(prev => prev + 12);
+      }
+    } catch (err) {
+      // Handle error silently to avoid console logs
+    } finally {
+      setLoadingMore(false);
+      loadingRef.current = false;
+    }
+  }, [fetchMore, currentOffset, hasMore, loadingMore]);
+
+  // Scroll event handler for infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        loadMoreProjects();
+      }
+    };
+
+    // Only add scroll listener if we have projects and more to load
+    if (allProjects.length > 0 && hasMore && !loadingMore) {
+      window.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [loadMoreProjects, allProjects.length, hasMore, loadingMore]);
+
+  // Use allProjects for filtering and display
+  const projects = allProjects;
+  const totalProjects = data?.paginatedProjects?.paginationInfo?.totalCount || 0;
 
   // Helper function to safely format creation date
   const formatCreatedDate = (createdAt: string): string => {
@@ -62,16 +184,50 @@ const ProjectsPage: React.FC = () => {
     }
   };
 
-  // Filter projects based on selected status
-  const filteredProjects = projects.filter(project =>
-    filter === 'ALL' || project.status === filter
-  );
+  // Filter projects based on selected status using useMemo for performance
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project: Project) =>
+      filter === 'ALL' || project.status === filter
+    );
+  }, [projects, filter]);
 
-  // Handle loading state
-  if (loading) {
+  // Calculate filtered project counts for statistics - optimized single pass
+  const projectCounts = useMemo(() => {
+    let planning = 0;
+    let inProgress = 0;
+    let completed = 0;
+
+    // Single pass through projects for better performance
+    for (const project of projects) {
+      switch ((project as Project).status) {
+        case 'PLANNING':
+          planning++;
+          break;
+        case 'IN_PROGRESS':
+          inProgress++;
+          break;
+        case 'COMPLETED':
+          completed++;
+          break;
+      }
+    }
+
+    return {
+      total: projects.length,
+      planning,
+      inProgress,
+      completed
+    };
+  }, [projects]);
+
+  // Handle initial loading state - show simple spinner only if no cached data
+  if (loading && allProjects.length === 0 && !data) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading projects...</p>
+        </div>
       </div>
     );
   }
@@ -81,7 +237,7 @@ const ProjectsPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md mx-auto">
-          <InlineError message={error.message} />
+          <InlineError message={error.message || 'An error occurred'} />
         </div>
       </div>
     );
@@ -101,7 +257,7 @@ const ProjectsPage: React.FC = () => {
                 </span>
               </h1>
               <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
-                Discover {projects.length} innovative projects managed through TaskFlow. From cutting-edge technology solutions to business-critical applications.
+                Discover {totalProjects} innovative projects managed through TaskFlow. From cutting-edge technology solutions to business-critical applications.
               </p>
 
               {/* Project Statistics */}
@@ -112,7 +268,7 @@ const ProjectsPage: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-purple-600 text-center">{projects.length}</div>
+                  <div className="text-2xl font-bold text-purple-600 text-center">{projectCounts.total}</div>
                   <div className="text-sm text-gray-600 text-center">Total Projects</div>
                 </div>
                 <div className="bg-gray-100 rounded-xl p-6 shadow-lg border border-gray-300 hover:shadow-xl hover:shadow-orange-500/20 transition-all duration-500 transform hover:-translate-y-1">
@@ -121,7 +277,7 @@ const ProjectsPage: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-orange-600 text-center">{projects.filter(p => p.status === 'IN_PROGRESS').length}</div>
+                  <div className="text-2xl font-bold text-orange-600 text-center">{projectCounts.inProgress}</div>
                   <div className="text-sm text-gray-600 text-center">Active</div>
                 </div>
                 <div className="bg-gray-100 rounded-xl p-6 shadow-lg border border-gray-300 hover:shadow-xl hover:shadow-indigo-500/20 transition-all duration-500 transform hover:-translate-y-1">
@@ -130,7 +286,7 @@ const ProjectsPage: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-indigo-600 text-center">{projects.filter(p => p.status === 'PLANNING').length}</div>
+                  <div className="text-2xl font-bold text-indigo-600 text-center">{projectCounts.planning}</div>
                   <div className="text-sm text-gray-600 text-center">Planning</div>
                 </div>
                 <div className="bg-gray-100 rounded-xl p-6 shadow-lg border border-gray-300 hover:shadow-xl hover:shadow-green-500/20 transition-all duration-500 transform hover:-translate-y-1">
@@ -139,7 +295,7 @@ const ProjectsPage: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <div className="text-2xl font-bold text-green-600 text-center">{projects.filter(p => p.status === 'COMPLETED').length}</div>
+                  <div className="text-2xl font-bold text-green-600 text-center">{projectCounts.completed}</div>
                   <div className="text-sm text-gray-600 text-center">Completed</div>
                 </div>
               </div>
@@ -154,10 +310,10 @@ const ProjectsPage: React.FC = () => {
             <div className="mb-8">
               <div className="flex flex-wrap gap-4 justify-center">
                 {[
-                  { key: 'ALL', label: 'All Projects', count: projects.length, icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
-                  { key: 'PLANNING', label: 'Planning', count: projects.filter(p => p.status === 'PLANNING').length, icon: 'M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
-                  { key: 'IN_PROGRESS', label: 'In Progress', count: projects.filter(p => p.status === 'IN_PROGRESS').length, icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
-                  { key: 'COMPLETED', label: 'Completed', count: projects.filter(p => p.status === 'COMPLETED').length, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+                  { key: 'ALL', label: 'All Projects', count: projectCounts.total, icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+                  { key: 'PLANNING', label: 'Planning', count: projectCounts.planning, icon: 'M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+                  { key: 'IN_PROGRESS', label: 'In Progress', count: projectCounts.inProgress, icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+                  { key: 'COMPLETED', label: 'Completed', count: projectCounts.completed, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
                 ].map((filterOption) => (
                   <button
                     key={filterOption.key}
@@ -178,11 +334,11 @@ const ProjectsPage: React.FC = () => {
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
-                <div key={project.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 hover:shadow-purple-500/20 group">
+              {filteredProjects.map((project: Project, index: number) => (
+                <div key={`${project.id}-${index}`} className="bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow duration-200">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <h3 className="font-semibold text-gray-900 text-lg leading-tight group-hover:text-purple-600 transition-colors duration-300">{project.name}</h3>
+                      <h3 className="font-semibold text-gray-900 text-lg leading-tight">{project.name}</h3>
                       <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
                         {project.status.replace('_', ' ')}
                       </span>
@@ -244,6 +400,56 @@ const ProjectsPage: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            {/* Loading skeleton for infinite scroll - shows below existing projects */}
+            {loadingMore && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                  {[...Array(6)].map((_, index) => (
+                    <div key={`skeleton-${index}`} className="bg-white rounded-lg shadow-md border border-gray-100 p-6 animate-pulse">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-6 bg-gray-200 rounded w-16"></div>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        <div className="h-4 bg-gray-200 rounded w-full"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="h-4 bg-gray-200 rounded w-4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-20"></div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="h-4 bg-gray-200 rounded w-4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-16"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-center items-center py-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                    <span className="text-gray-600 text-sm">Loading more projects...</span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* End of results indicator */}
+            {!hasMore && !loadingMore && allProjects.length > 0 && (
+              <div className="flex justify-center items-center py-8">
+                <div className="text-center">
+                  <div className="text-gray-500 text-sm">
+                    <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    You've reached the end of the projects list
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Call to Action */}
             <div className="mt-12 text-center">

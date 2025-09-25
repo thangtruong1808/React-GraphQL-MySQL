@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
@@ -26,6 +26,11 @@ interface TeamMember {
 
 const TeamPage: React.FC = () => {
   const [filter, setFilter] = useState<'ALL' | 'ADMIN' | 'PROJECT_MANAGER_PM' | 'SOFTWARE_ARCHITECT' | 'FRONTEND_DEVELOPER' | 'BACKEND_DEVELOPER' | 'FULL_STACK_DEVELOPER' | 'DEVOPS_ENGINEER' | 'QA_ENGINEER' | 'QC_ENGINEER' | 'UX_UI_DESIGNER' | 'BUSINESS_ANALYST' | 'DATABASE_ADMINISTRATOR' | 'TECHNICAL_WRITER' | 'SUPPORT_ENGINEER'>('ALL');
+
+  // Reset scroll position to top when component mounts for better UX
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  }, []);
 
   // Fetch team members from GraphQL API
   const { data, loading, error } = useQuery<{ teamMembers: TeamMember[] }>(GET_TEAM_MEMBERS);

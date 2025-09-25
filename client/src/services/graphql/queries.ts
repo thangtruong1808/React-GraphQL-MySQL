@@ -329,7 +329,7 @@ export const GET_TEAM_MEMBERS = gql`
   }
 `;
 
-// Public projects query for public projects page
+// Public projects query for public projects page (legacy - loads all projects)
 export const GET_PROJECTS = gql`
   query GetProjects {
     projects {
@@ -343,6 +343,34 @@ export const GET_PROJECTS = gql`
       owner {
         firstName
         lastName
+      }
+    }
+  }
+`;
+
+// Paginated projects query for infinite scroll support
+export const GET_PAGINATED_PROJECTS = gql`
+  query GetPaginatedProjects($limit: Int = 12, $offset: Int = 0) {
+    paginatedProjects(limit: $limit, offset: $offset) {
+      projects {
+        id
+        name
+        description
+        status
+        taskCount
+        memberCount
+        createdAt
+        owner {
+          firstName
+          lastName
+        }
+      }
+      paginationInfo {
+        hasNextPage
+        hasPreviousPage
+        totalCount
+        currentPage
+        totalPages
       }
     }
   }
