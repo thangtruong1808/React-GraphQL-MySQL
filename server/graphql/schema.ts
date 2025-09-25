@@ -226,6 +226,35 @@ export const typeDefs = gql`
     paginationInfo: PaginationInfo!
   }
 
+  # Paginated Team Members Response Type - for load more functionality
+  type PaginatedTeamMembersResponse {
+    teamMembers: [TeamMember!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Team Statistics Type - for database-wide team role counts
+  type TeamStats {
+    totalMembers: Int!
+    administrators: Int!
+    projectManagers: Int!
+    developers: Int!
+    architects: Int!
+    specialists: Int!
+    # Individual role counts for detailed filtering
+    frontendDevelopers: Int!
+    backendDevelopers: Int!
+    fullStackDevelopers: Int!
+    softwareArchitects: Int!
+    devopsEngineers: Int!
+    databaseAdministrators: Int!
+    qaEngineers: Int!
+    qcEngineers: Int!
+    uxUiDesigners: Int!
+    businessAnalysts: Int!
+    technicalWriters: Int!
+    supportEngineers: Int!
+  }
+
   # Public Project Owner Type - simplified owner info for public display
   type PublicProjectOwner {
     firstName: String!
@@ -237,7 +266,11 @@ export const typeDefs = gql`
     _placeholder: String
     publicStats: PublicStats!
     # Team functionality - for public team page
-    teamMembers: [TeamMember!]!
+    teamMembers: [TeamMember!]! # Legacy - loads all team members
+    # Paginated team members - for load more support
+    paginatedTeamMembers(limit: Int = 12, offset: Int = 0): PaginatedTeamMembersResponse!
+    # Team statistics - for database-wide role counts
+    teamStats: TeamStats!
     # Public projects - for public projects page (legacy, loads all)
     projects: [PublicProject!]!
     # Paginated projects - for infinite scroll support

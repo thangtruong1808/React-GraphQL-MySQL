@@ -329,6 +329,58 @@ export const GET_TEAM_MEMBERS = gql`
   }
 `;
 
+// Paginated team members query for load more functionality
+export const GET_PAGINATED_TEAM_MEMBERS = gql`
+  query GetPaginatedTeamMembers($limit: Int = 12, $offset: Int = 0) {
+    paginatedTeamMembers(limit: $limit, offset: $offset) {
+      teamMembers {
+        id
+        uuid
+        firstName
+        lastName
+        role
+        projectCount
+        taskCount
+        joinDate
+        createdAt
+      }
+      paginationInfo {
+        hasNextPage
+        hasPreviousPage
+        totalCount
+        currentPage
+        totalPages
+      }
+    }
+  }
+`;
+
+// Team statistics query for database-wide role counts
+export const GET_TEAM_STATS = gql`
+  query GetTeamStats {
+    teamStats {
+      totalMembers
+      administrators
+      projectManagers
+      developers
+      architects
+      specialists
+      frontendDevelopers
+      backendDevelopers
+      fullStackDevelopers
+      softwareArchitects
+      devopsEngineers
+      databaseAdministrators
+      qaEngineers
+      qcEngineers
+      uxUiDesigners
+      businessAnalysts
+      technicalWriters
+      supportEngineers
+    }
+  }
+`;
+
 // Public projects query for public projects page (legacy - loads all projects)
 export const GET_PROJECTS = gql`
   query GetProjects {
