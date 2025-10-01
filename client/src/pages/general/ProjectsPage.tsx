@@ -230,9 +230,9 @@ const ProjectsPage: React.FC = () => {
 
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="w-full min-h-screen mt-10">
+      <div className="min-h-screen bg-gray-50 mt-16">
         {/* Header Section */}
-        <div className="py-3 px-4 sm:px-6 lg:px-8">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -252,7 +252,7 @@ const ProjectsPage: React.FC = () => {
         {/* Main Content */}
         <div className="container mx-auto">
           {/* Filter Section */}
-          <div className="py-2 px-4 sm:px-6 lg:px-8">
+          <div className="py-4 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
               <div className="flex flex-wrap gap-4 justify-center">
                 {[
@@ -280,7 +280,7 @@ const ProjectsPage: React.FC = () => {
           </div>
 
           {/* Sort Section */}
-          <div className="py-2 px-4 sm:px-6 lg:px-8">
+          <div className="py-4 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
               <div className="flex flex-wrap gap-3 justify-center items-center">
                 <span className="text-sm font-medium text-gray-700 mr-2">Sort by:</span>
@@ -314,7 +314,7 @@ const ProjectsPage: React.FC = () => {
           </div>
 
           {/* Projects Grid */}
-          <div className="py-2 px-4 sm:px-6 lg:px-8">
+          <div className="py-4 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sortedProjects.map((project: Project, index: number) => (
@@ -411,7 +411,7 @@ const ProjectsPage: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-center items-center py-4">
+                  <div className="flex justify-center items-center py-3">
                     <div className="flex items-center space-x-2">
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
                       <span className="text-gray-600 text-sm">Loading more projects...</span>
@@ -422,7 +422,7 @@ const ProjectsPage: React.FC = () => {
 
               {/* End of results indicator */}
               {!hasMore && !loadingMore && projects.length > 0 && (
-                <div className="flex justify-center items-center py-8">
+                <div className="flex justify-center items-center py-3">
                   <div className="text-center">
                     <div className="text-gray-500 text-sm">
                       <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -438,7 +438,7 @@ const ProjectsPage: React.FC = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="py-2 px-4 sm:px-6 lg:px-8">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="text-center rounded-2xl p-8 border border-gray-100 bg-white shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1">
               <div className="flex items-center justify-center mb-4">

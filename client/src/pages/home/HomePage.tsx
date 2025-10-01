@@ -9,38 +9,40 @@ import { PublicDashboard } from '../../components/shared';
  */
 export const AuthenticatedSkeleton: React.FC = () => {
   return (
-    <div className="min-h-full bg-gray-50">
-      {/* Hero Section Skeleton */}
-      <div className="bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="h-12 bg-gray-200 rounded-lg mb-6 animate-pulse max-w-2xl mx-auto"></div>
-            <div className="h-8 bg-gray-200 rounded-lg animate-pulse max-w-3xl mx-auto"></div>
+    <div className="w-full public-dashboard bg-gray-50">
+      <div className="min-h-screen bg-gray-50 mt-16">
+        {/* Hero Section Skeleton */}
+        <div className="bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center">
+              <div className="h-12 bg-gray-200 rounded-lg mb-6 animate-pulse max-w-2xl mx-auto"></div>
+              <div className="h-8 bg-gray-200 rounded-lg animate-pulse max-w-3xl mx-auto"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content Section Skeleton - Matches authenticated layout */}
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* User Welcome Card Skeleton */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-6 animate-pulse"></div>
-                <div className="h-8 bg-gray-200 rounded-lg mb-2 animate-pulse"></div>
-                <div className="h-6 bg-gray-200 rounded-lg animate-pulse"></div>
+        {/* Main Content Section Skeleton - Matches authenticated layout */}
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* User Welcome Card Skeleton */}
+              <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                <div className="text-center mb-8">
+                  <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-6 animate-pulse"></div>
+                  <div className="h-8 bg-gray-200 rounded-lg mb-2 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded-lg animate-pulse"></div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
               </div>
-              <div className="h-10 bg-gray-200 rounded-lg animate-pulse"></div>
-            </div>
 
-            {/* User Information Card Skeleton */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <div className="h-8 bg-gray-200 rounded-lg mb-6 animate-pulse"></div>
-              <div className="space-y-4">
-                <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
-                <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
-                <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+              {/* User Information Card Skeleton */}
+              <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                <div className="h-8 bg-gray-200 rounded-lg mb-6 animate-pulse"></div>
+                <div className="space-y-4">
+                  <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                </div>
               </div>
             </div>
           </div>

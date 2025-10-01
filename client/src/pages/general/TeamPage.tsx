@@ -1,5 +1,4 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_TEAM_MEMBERS, GET_TEAM_STATS } from '../../services/graphql/queries';
@@ -136,23 +135,8 @@ const TeamPage: React.FC = () => {
   const totalCount = data?.paginatedTeamMembers?.paginationInfo?.totalCount || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              to={ROUTE_PATHS.HOME}
-              className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors duration-200"
-            >
-              ← Back to Home
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="container mx-auto">
+    <div className="w-full public-dashboard bg-gray-50">
+      <div className="min-h-screen bg-gray-50 mt-16">
         {/* Team Header */}
         <TeamHeader
           statsData={statsData}
@@ -187,7 +171,7 @@ const TeamPage: React.FC = () => {
 
         {/* Loading More Indicator */}
         {loadingMore && (
-          <div className="py-2 px-4 sm:px-6 lg:px-8">
+          <div className="py-4 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
               <div className="flex justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -198,7 +182,7 @@ const TeamPage: React.FC = () => {
 
         {/* End of Results Indicator */}
         {!hasMore && teamMembers.length > 0 && (
-          <div className="py-2 px-4 sm:px-6 lg:px-8">
+          <div className="py-4 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
               <div className="text-center text-gray-500">
                 <p>You've reached the end of the team members list.</p>
@@ -209,7 +193,7 @@ const TeamPage: React.FC = () => {
 
         {/* Loading Skeleton for initial load */}
         {loading && teamMembers.length === 0 && (
-          <div className="py-2 px-4 sm:px-6 lg:px-8">
+          <div className="py-4 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {Array.from({ length: 12 }).map((_, index) => (

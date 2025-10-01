@@ -56,8 +56,8 @@ interface MainContentSectionProps {
  */
 const MainContentSection: React.FC<MainContentSectionProps> = ({ stats }) => {
   return (
-    <div className="py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="py-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
         {/* Statistics and Charts - Enhanced with likes data */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Project Status Overview - Real data from database */}

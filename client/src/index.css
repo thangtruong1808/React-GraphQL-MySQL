@@ -8,6 +8,7 @@ html, body {
   padding: 0;
   width: 100%;
   overflow-x: hidden;
+  background-color: #f9fafb; /* bg-gray-50 */
 }
 
 #root {

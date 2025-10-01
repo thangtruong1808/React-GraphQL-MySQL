@@ -36,7 +36,7 @@ const TeamFilters: React.FC<TeamFiltersProps> = ({ filter, setFilter, teamStats 
   ];
 
   return (
-    <div className="py-2 px-4 sm:px-6 lg:px-8">
+    <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
         <div className="flex flex-wrap gap-4 justify-center">
           {filterOptions

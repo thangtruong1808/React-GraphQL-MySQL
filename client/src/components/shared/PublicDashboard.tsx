@@ -120,15 +120,17 @@ const PublicDashboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 public-dashboard ">
-      {/* Hero Section - Main title and public statistics overview */}
-      <HeroSection stats={stats} />
+    <div className="w-full public-dashboard bg-gray-50">
+      <div className="min-h-screen bg-gray-50 mt-16">
+        {/* Hero Section - Main title and public statistics overview */}
+        <HeroSection stats={stats} />
 
-      {/* Main Content Section - Detailed statistics, charts, and likes information */}
-      <MainContentSection stats={stats} />
+        {/* Main Content Section - Detailed statistics, charts, and likes information */}
+        <MainContentSection stats={stats} />
 
-      {/* Call to Action - Real data from database */}
-      <PublicCallToAction stats={stats} />
+        {/* Call to Action - Real data from database */}
+        <PublicCallToAction stats={stats} />
+      </div>
     </div>
   );
 };

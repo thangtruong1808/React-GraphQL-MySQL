@@ -108,7 +108,7 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
   };
 
   return (
-    <div className="py-2 px-4 sm:px-6 lg:px-8">
+    <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
         {/* Team Members Grid - 4 items per row with client-side sorting */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
