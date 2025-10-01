@@ -44,24 +44,6 @@ export interface SortOption {
   direction: 'ASC' | 'DESC';
 }
 
-// Role filter type
+// Role filter type - matches GraphQL UserRole enum values exactly
 export type FilterType = 'ALL' | 'ADMIN' | 'PROJECT_MANAGER_PM' | 'SOFTWARE_ARCHITECT' | 'FRONTEND_DEVELOPER' | 'BACKEND_DEVELOPER' | 'FULL_STACK_DEVELOPER' | 'DEVOPS_ENGINEER' | 'QA_ENGINEER' | 'QC_ENGINEER' | 'UX_UI_DESIGNER' | 'BUSINESS_ANALYST' | 'DATABASE_ADMINISTRATOR' | 'TECHNICAL_WRITER' | 'SUPPORT_ENGINEER';
 
-// Loaded role counts interface for currently loaded data
-export interface LoadedRoleCounts {
-  totalMembers: number;
-  administrators: number;
-  projectManagers: number;
-  softwareArchitects: number;
-  frontendDevelopers: number;
-  backendDevelopers: number;
-  fullStackDevelopers: number;
-  devopsEngineers: number;
-  qaEngineers: number;
-  qcEngineers: number;
-  uxUiDesigners: number;
-  businessAnalysts: number;
-  databaseAdministrators: number;
-  technicalWriters: number;
-  supportEngineers: number;
-}

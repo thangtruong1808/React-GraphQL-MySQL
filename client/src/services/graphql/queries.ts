@@ -329,10 +329,10 @@ export const GET_TEAM_MEMBERS = gql`
   }
 `;
 
-// Paginated team members query for load more functionality
+// Paginated team members query for load more functionality with role filtering
 export const GET_PAGINATED_TEAM_MEMBERS = gql`
-  query GetPaginatedTeamMembers($limit: Int = 12, $offset: Int = 0) {
-    paginatedTeamMembers(limit: $limit, offset: $offset) {
+  query GetPaginatedTeamMembers($limit: Int = 12, $offset: Int = 0, $roleFilter: UserRole) {
+    paginatedTeamMembers(limit: $limit, offset: $offset, roleFilter: $roleFilter) {
       teamMembers {
         id
         uuid

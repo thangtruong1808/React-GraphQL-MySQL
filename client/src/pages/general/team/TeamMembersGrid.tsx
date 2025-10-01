@@ -2,34 +2,91 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '../../../constants/routingConstants';
 import { TeamMember, FilterType, SortOption } from './types';
+import { useMemo } from 'react';
 
 /**
  * Team Members Grid Component
- * Displays team members in a grid layout with role filtering
+ * Displays team members in a grid layout with role filtering and client-side sorting
+ * Updated to support sortOption prop for sorting functionality
  */
 
 interface TeamMembersGridProps {
   filteredMembers: TeamMember[];
   filter: FilterType;
   setFilter: (filter: FilterType) => void;
-  hasMore: boolean;
-  onLoadMoreClick: () => void;
+  sortOption: SortOption;
   formatJoinDate: (date: string) => string;
 }
 
 /**
  * Team members grid component displaying filtered and sorted team members
- * Includes empty state handling and load more functionality
+ * Includes empty state handling for filtered results
  */
 const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
   filteredMembers,
   filter,
   setFilter,
-  hasMore,
-  onLoadMoreClick,
+  sortOption,
   formatJoinDate
 }) => {
-  // Get role color for team members based on role type
+  // Convert GraphQL enum role to display-friendly format
+  const formatRoleForDisplay = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'Administrator';
+      case 'PROJECT_MANAGER_PM': return 'Project Manager';
+      case 'SOFTWARE_ARCHITECT': return 'Software Architect';
+      case 'FRONTEND_DEVELOPER': return 'Frontend Developer';
+      case 'BACKEND_DEVELOPER': return 'Backend Developer';
+      case 'FULL_STACK_DEVELOPER': return 'Full-Stack Developer';
+      case 'DEVOPS_ENGINEER': return 'DevOps Engineer';
+      case 'QA_ENGINEER': return 'QA Engineer';
+      case 'QC_ENGINEER': return 'QC Engineer';
+      case 'UX_UI_DESIGNER': return 'UX/UI Designer';
+      case 'BUSINESS_ANALYST': return 'Business Analyst';
+      case 'DATABASE_ADMINISTRATOR': return 'Database Administrator';
+      case 'TECHNICAL_WRITER': return 'Technical Writer';
+      case 'SUPPORT_ENGINEER': return 'Support Engineer';
+      default: return role;
+    }
+  };
+
+  // Client-side sorting logic for filtered team members
+  const sortedMembers = useMemo(() => {
+    return [...filteredMembers].sort((a, b) => {
+      let aVal: any, bVal: any;
+
+      switch (sortOption.field) {
+        case 'name':
+          aVal = `${a.firstName} ${a.lastName}`.toLowerCase();
+          bVal = `${b.firstName} ${b.lastName}`.toLowerCase();
+          break;
+        case 'role':
+          aVal = a.role.toLowerCase();
+          bVal = b.role.toLowerCase();
+          break;
+        case 'joinDate':
+          aVal = new Date(a.joinDate).getTime();
+          bVal = new Date(b.joinDate).getTime();
+          break;
+        case 'projectCount':
+          aVal = a.projectCount;
+          bVal = b.projectCount;
+          break;
+        case 'taskCount':
+          aVal = a.taskCount;
+          bVal = b.taskCount;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return sortOption.direction === 'ASC' ? -1 : 1;
+      if (aVal > bVal) return sortOption.direction === 'ASC' ? 1 : -1;
+      return 0;
+    });
+  }, [filteredMembers, sortOption.field, sortOption.direction]);
+
+  // Get role color for team members based on GraphQL enum values
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'bg-red-100 text-red-800';
@@ -52,10 +109,10 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
 
   return (
     <>
-      {/* Team Members Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 mb-3">
-        {filteredMembers.length > 0 ? (
-          filteredMembers.map((member: TeamMember) => (
+      {/* Team Members Grid - 4 items per row with client-side sorting */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-3">
+        {sortedMembers.length > 0 ? (
+          sortedMembers.map((member: TeamMember) => (
             <div key={member.id} className="bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 hover:shadow-indigo-500/20 group">
               <div className="p-6 text-center">
                 {/* Avatar */}
@@ -71,7 +128,7 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
                 </h3>
 
                 <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${getRoleColor(member.role)} mb-4`}>
-                  {member.role.replace(/_PM$/, '').replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                  {formatRoleForDisplay(member.role)}
                 </span>
 
                 {/* Stats */}
@@ -128,37 +185,24 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                No {filter === 'ALL' ? 'team members' : filter.toLowerCase()} found
+                No {filter === 'ALL' ? 'team members' : formatRoleForDisplay(filter).toLowerCase()} found
               </h3>
               <p className="text-gray-600 mb-6">
                 {filter === 'ALL'
                   ? "We're still building our amazing team. Check back soon for new members!"
-                  : `No team members with the role "${filter.toLowerCase()}" are currently loaded. Try loading more members or select a different filter.`
+                  : `No team members with the role "${formatRoleForDisplay(filter)}" are currently loaded. Scroll down to load more members or select a different filter.`
                 }
               </p>
               {filter !== 'ALL' && (
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button
-                    onClick={() => setFilter('ALL')}
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    View All Members
-                  </button>
-                  {hasMore && (
-                    <button
-                      onClick={onLoadMoreClick}
-                      className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      Load More Members
-                    </button>
-                  )}
-                </div>
+                <button
+                  onClick={() => setFilter('ALL')}
+                  className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  View All Members
+                </button>
               )}
             </div>
           </div>

@@ -1,58 +1,38 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_TEAM_MEMBERS, GET_TEAM_STATS } from '../../services/graphql/queries';
 import { InlineError } from '../../components/ui/InlineError';
 import { TeamHeader, TeamFilters, TeamSortControls, TeamMembersGrid } from './team';
-import {
-  useTeamState,
-  useFilteredMembers,
-  useLoadedRoleCounts,
-  useFormatJoinDate
-} from './team/teamHooks';
+import { useFormatJoinDate } from './team/teamHooks';
+import { FilterType, SortOption } from './team/types';
 
 /**
- * Team Page Component (refactored to ~200 lines)
- * Displays all team members for public exploration
- * Allows users to browse team members without authentication
- * Broken down into smaller components for maintainability
+ * Team Page Component - Server-side filtering with client-side sorting
+ * Displays team members with server-side role filtering and client-side sorting
+ * Uses GraphQL queries with role filter parameters for database-level filtering
  */
 const TeamPage: React.FC = () => {
-  // Use custom hooks for state management
-  const {
-    filter,
-    setFilter,
-    allTeamMembers,
-    setAllTeamMembers,
-    loadingMore,
-    setLoadingMore,
-    hasMore,
-    setHasMore,
-    currentOffset,
-    setCurrentOffset,
-    loadingRef,
-    sortOption,
-    setSortOption
-  } = useTeamState();
+  // State for server-side filtering and client-side sorting
+  const [filter, setFilter] = useState<FilterType>('ALL');
+  const [sortOption, setSortOption] = useState<SortOption>({ field: 'name', direction: 'ASC' });
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Custom hooks for functionality
   const formatJoinDate = useFormatJoinDate();
-  const loadedRoleCounts = useLoadedRoleCounts(allTeamMembers);
-  const filteredMembers = useFilteredMembers(allTeamMembers, filter, sortOption);
 
-  // Fetch team members from GraphQL API with pagination (15 records per load)
-  const { data, loading, error, fetchMore } = useQuery(GET_PAGINATED_TEAM_MEMBERS, {
-    variables: { limit: 15, offset: 0 },
+  // Fetch team members from GraphQL API with server-side role filtering (12 records per load)
+  const { data, loading, error, fetchMore, refetch } = useQuery(GET_PAGINATED_TEAM_MEMBERS, {
+    variables: {
+      limit: 12,
+      offset: 0,
+      roleFilter: filter === 'ALL' ? null : filter
+    },
     fetchPolicy: 'cache-first',
     errorPolicy: 'all',
-    onCompleted: (data) => {
-      if (data?.paginatedTeamMembers && allTeamMembers.length === 0) {
-        setAllTeamMembers(data.paginatedTeamMembers.teamMembers);
-        setHasMore(data.paginatedTeamMembers.paginationInfo.hasNextPage);
-        setCurrentOffset(data.paginatedTeamMembers.teamMembers.length);
-      }
-    }
+    notifyOnNetworkStatusChange: true
   });
 
   // Fetch team statistics from entire database for statistics section
@@ -61,185 +41,177 @@ const TeamPage: React.FC = () => {
     errorPolicy: 'all'
   });
 
-  // Restore pagination state from cached data if available
+  // Handle filter changes - refetch data with new role filter
   useEffect(() => {
-    if (data?.paginatedTeamMembers && allTeamMembers.length === 0) {
-      const teamMembers = data.paginatedTeamMembers.teamMembers;
-      const paginationInfo = data.paginatedTeamMembers.paginationInfo;
+    setCurrentOffset(0);
+    refetch({
+      limit: 12,
+      offset: 0,
+      roleFilter: filter === 'ALL' ? null : filter
+    });
+  }, [filter, refetch]);
 
-      setAllTeamMembers(teamMembers);
-      setHasMore(paginationInfo.hasNextPage);
-      setCurrentOffset(teamMembers.length);
-    }
-  }, [data, allTeamMembers.length]);
-
-  // Update hasMore state when data changes to ensure end message shows correctly
-  useEffect(() => {
-    if (data?.paginatedTeamMembers?.paginationInfo) {
-      const paginationInfo = data.paginatedTeamMembers.paginationInfo;
-      setHasMore(paginationInfo.hasNextPage);
-    }
-  }, [data]);
-
-  // Load more team members - adds to Array2 (accumulated records)
+  // Load more team members function for infinite scroll with server-side filtering
   const loadMoreTeamMembers = useCallback(async () => {
-    if (loadingRef.current || !hasMore || loadingMore) return;
+    if (loadingMore || !data?.paginatedTeamMembers?.paginationInfo?.hasNextPage) return;
 
-    loadingRef.current = true;
     setLoadingMore(true);
 
     try {
       const result = await fetchMore({
         variables: {
-          limit: 15,
-          offset: currentOffset
+          limit: 12,
+          offset: currentOffset + 12,
+          roleFilter: filter === 'ALL' ? null : filter
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+
+          const newTeamMembers = fetchMoreResult.paginatedTeamMembers.teamMembers;
+          const newPaginationInfo = fetchMoreResult.paginatedTeamMembers.paginationInfo;
+
+          return {
+            paginatedTeamMembers: {
+              ...fetchMoreResult.paginatedTeamMembers,
+              teamMembers: [...prev.paginatedTeamMembers.teamMembers, ...newTeamMembers],
+              paginationInfo: newPaginationInfo
+            }
+          };
         }
       });
 
-      if (result.data?.paginatedTeamMembers) {
-        const newMembers = result.data.paginatedTeamMembers.teamMembers; // Array1: newest records
-        const paginationInfo = result.data.paginatedTeamMembers.paginationInfo;
-
-        // Add new records to Array2 (accumulated records: 15, 30, 45, 60...)
-        setAllTeamMembers(prev => [...prev, ...newMembers]);
-        setHasMore(paginationInfo.hasNextPage);
-        setCurrentOffset(currentOffset + 15);
-      }
-    } catch (err) {
-      // Handle error silently
+      setCurrentOffset(prev => prev + 12);
+    } catch (error) {
+      console.error('Error loading more team members:', error);
     } finally {
       setLoadingMore(false);
-      loadingRef.current = false;
     }
-  }, [fetchMore, currentOffset, hasMore, loadingMore]);
+  }, [fetchMore, currentOffset, loadingMore, data?.paginatedTeamMembers?.paginationInfo?.hasNextPage, filter]);
 
-  // Load more button click handler
-  const handleLoadMoreClick = useCallback(() => {
-    loadMoreTeamMembers();
-  }, [loadMoreTeamMembers]);
+  // Scroll event handler for infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
+        loadMoreTeamMembers();
+      }
+    };
 
-  // Sort change handler for team member sorting  
-  const handleSortChange = useCallback((field: any) => {
-    setSortOption(prev => ({
-      field,
-      direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
-    }));
-  }, [setSortOption]);
+    // Only add scroll listener if we have team members and more to load
+    const teamMembers = data?.paginatedTeamMembers?.teamMembers || [];
+    const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
 
-  // Handle initial loading state - show simple spinner only if no cached data
-  if (loading && allTeamMembers.length === 0 && !data) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading team members...</p>
-        </div>
-      </div>
-    );
-  }
+    if (teamMembers.length > 0 && hasMore && !loadingMore) {
+      window.addEventListener('scroll', handleScroll);
+    }
 
-  // Show error state using inline error component
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [loadMoreTeamMembers, data?.paginatedTeamMembers?.teamMembers?.length, data?.paginatedTeamMembers?.paginationInfo?.hasNextPage, loadingMore]);
+
+  // Handle filter reset when data changes to prevent stale state
+  useEffect(() => {
+    if (data?.paginatedTeamMembers?.teamMembers) {
+      setCurrentOffset(0);
+    }
+  }, [data?.paginatedTeamMembers?.teamMembers]);
+
+  // Handle errors with inline display
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full">
-          <InlineError message="Failed to load team members. Please try again later." />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+        <div className="container mx-auto px-4">
+          <InlineError
+            message="Failed to load team members. Please try again later."
+          />
         </div>
       </div>
     );
   }
 
+  // Get team members and pagination info from GraphQL response
+  const teamMembers = data?.paginatedTeamMembers?.teamMembers || [];
+  const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
+  const totalCount = data?.paginatedTeamMembers?.paginationInfo?.totalCount || 0;
+
   return (
-    <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 mt-10">
-        {/* Header Section */}
-        <TeamHeader statsData={statsData} />
-
-        {/* Main Content */}
-        <div className="mt-10 pb-10 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Filter Section */}
-            <TeamFilters
-              filter={filter}
-              setFilter={setFilter}
-              loadedRoleCounts={loadedRoleCounts}
-            />
-
-            {/* Sort Controls */}
-            <TeamSortControls
-              sortOption={sortOption}
-              onSortChange={handleSortChange}
-            />
-
-            {/* Team Members Grid */}
-            <TeamMembersGrid
-              filteredMembers={filteredMembers}
-              filter={filter}
-              setFilter={setFilter as (filter: any) => void}
-              hasMore={hasMore}
-              onLoadMoreClick={handleLoadMoreClick}
-              formatJoinDate={formatJoinDate}
-            />
-
-            {/* Load More Button - Only show when there are filtered results */}
-            {hasMore && !loadingMore && filteredMembers.length > 0 && (
-              <div className="flex justify-center items-center py-12">
-                <button
-                  onClick={handleLoadMoreClick}
-                  className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Load More Team Members
-                </button>
-              </div>
-            )}
-
-            {/* Loading indicator when loading more - Only show when there are filtered results */}
-            {loadingMore && filteredMembers.length > 0 && (
-              <div className="flex justify-center items-center py-12">
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-                  <span className="text-gray-600 text-sm">Loading more team members...</span>
-                </div>
-              </div>
-            )}
-
-            {/* End of results indicator - Only show when there are filtered results */}
-            {!hasMore && !loadingMore && allTeamMembers.length > 0 && filteredMembers.length > 0 && (
-              <div className="flex justify-center items-center py-12">
-                <div className="text-center">
-                  <div className="text-gray-500 text-sm">
-                    <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    You've reached the end of the team members list
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Call to Action */}
-            <div className="mt-3 text-center">
-              <div className="rounded-2xl p-8 border border-gray-200 bg-white shadow-lg border-gray-200 shadow-lg">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Join Our Team</h2>
-                <p className="text-gray-700 mb-6">
-                  Ready to be part of our innovative team? Start your journey with TaskFlow today.
-                </p>
-                <Link
-                  to={ROUTE_PATHS.LOGIN}
-                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
-                  Get Started with TaskFlow
-                </Link>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Navigation */}
+      <nav className="bg-white shadow-sm border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              to={ROUTE_PATHS.HOME}
+              className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors duration-200"
+            >
+              ← Back to Home
+            </Link>
           </div>
         </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Team Header */}
+        <TeamHeader />
+
+        {/* Team Filters - Server-side filtering */}
+        <TeamFilters
+          filter={filter}
+          setFilter={setFilter}
+          teamStats={statsData?.teamStats || null}
+        />
+
+        {/* Team Sort Controls - Client-side sorting */}
+        <TeamSortControls
+          sortOption={sortOption}
+          onSortChange={(field) => {
+            setSortOption(prev => ({
+              field,
+              direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
+            }));
+          }}
+        />
+
+        {/* Team Members Grid - Server-filtered results with client-side sorting */}
+        <TeamMembersGrid
+          filteredMembers={teamMembers}
+          filter={filter}
+          setFilter={setFilter}
+          sortOption={sortOption}
+          formatJoinDate={formatJoinDate}
+        />
+
+        {/* Loading More Indicator */}
+        {loadingMore && (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        )}
+
+        {/* End of Results Indicator */}
+        {!hasMore && teamMembers.length > 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>You've reached the end of the team members list.</p>
+          </div>
+        )}
+
+        {/* Loading Skeleton for initial load */}
+        {loading && teamMembers.length === 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+            {Array.from({ length: 12 }).map((_, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+                <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

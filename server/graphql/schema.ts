@@ -267,8 +267,8 @@ export const typeDefs = gql`
     publicStats: PublicStats!
     # Team functionality - for public team page
     teamMembers: [TeamMember!]! # Legacy - loads all team members
-    # Paginated team members - for load more support
-    paginatedTeamMembers(limit: Int = 12, offset: Int = 0): PaginatedTeamMembersResponse!
+    # Paginated team members - for load more support with role filtering
+    paginatedTeamMembers(limit: Int = 12, offset: Int = 0, roleFilter: UserRole): PaginatedTeamMembersResponse!
     # Team statistics - for database-wide role counts
     teamStats: TeamStats!
     # Public projects - for public projects page (legacy, loads all)

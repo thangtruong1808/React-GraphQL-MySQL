@@ -91,13 +91,38 @@ export const teamMembers = async () => {
  * Returns paginated active users with their project ownership count and task assignment count
  * Includes pagination info for load more functionality
  */
-export const paginatedTeamMembers = async (_: any, { limit = 12, offset = 0 }: { limit?: number; offset?: number }) => {
+export const paginatedTeamMembers = async (_: any, { limit = 12, offset = 0, roleFilter }: { limit?: number; offset?: number; roleFilter?: string }) => {
   try {
-    // Get total count for pagination info
+    // Convert GraphQL enum role to database role format
+    const convertRoleToDatabaseFormat = (graphqlRole: string): string => {
+      const roleMapping: { [key: string]: string } = {
+        'ADMIN': 'ADMIN',
+        'PROJECT_MANAGER_PM': 'Project Manager',
+        'SOFTWARE_ARCHITECT': 'Software Architect',
+        'FRONTEND_DEVELOPER': 'Frontend Developer',
+        'BACKEND_DEVELOPER': 'Backend Developer',
+        'FULL_STACK_DEVELOPER': 'Full-Stack Developer',
+        'DEVOPS_ENGINEER': 'DevOps Engineer',
+        'QA_ENGINEER': 'QA Engineer',
+        'QC_ENGINEER': 'QC Engineer',
+        'UX_UI_DESIGNER': 'UX/UI Designer',
+        'BUSINESS_ANALYST': 'Business Analyst',
+        'DATABASE_ADMINISTRATOR': 'Database Administrator',
+        'TECHNICAL_WRITER': 'Technical Writer',
+        'SUPPORT_ENGINEER': 'Support Engineer'
+      };
+      return roleMapping[graphqlRole] || graphqlRole;
+    };
+
+    // Build role filter condition with proper database role format
+    const databaseRole = roleFilter ? convertRoleToDatabaseFormat(roleFilter) : null;
+    const roleFilterCondition = databaseRole ? `AND u.role = '${databaseRole}'` : '';
+    
+    // Get total count for pagination info with role filtering
     const totalCountResult = await sequelize.query(`
       SELECT COUNT(*) as totalCount
       FROM users u
-      WHERE u.is_deleted = false
+      WHERE u.is_deleted = false ${roleFilterCondition}
     `, {
       type: QueryTypes.SELECT,
       raw: true
@@ -105,7 +130,7 @@ export const paginatedTeamMembers = async (_: any, { limit = 12, offset = 0 }: {
     
     const totalCount = parseInt((totalCountResult[0] as any).totalCount) || 0;
     
-    // Get paginated team members with aggregated counts
+    // Get paginated team members with aggregated counts and role filtering
     const teamMembers = await sequelize.query(`
       SELECT 
         u.id,
@@ -134,7 +159,7 @@ export const paginatedTeamMembers = async (_: any, { limit = 12, offset = 0 }: {
         WHERE is_deleted = false
         GROUP BY assigned_to
       ) task_counts ON u.id = task_counts.assigned_to
-      WHERE u.is_deleted = false
+      WHERE u.is_deleted = false ${roleFilterCondition}
       ORDER BY u.created_at DESC
       LIMIT :limit OFFSET :offset
     `, {
