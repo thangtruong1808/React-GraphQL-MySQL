@@ -36,25 +36,27 @@ const TeamFilters: React.FC<TeamFiltersProps> = ({ filter, setFilter, teamStats 
   ];
 
   return (
-    <div className="mb-8">
-      <div className="flex flex-wrap gap-4 justify-center">
-        {filterOptions
-          .filter(option => option.count > 0)
-          .map((filterOption) => (
-            <button
-              key={filterOption.key}
-              onClick={() => setFilter(filterOption.key)}
-              className={`flex items-center px-6 py-3 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
-                ? 'bg-purple-600 text-white shadow-lg transform scale-105'
-                : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 hover:border-purple-500 transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
-                }`}
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={filterOption.icon} />
-              </svg>
-              {filterOption.label} ({filterOption.count})
-            </button>
-          ))}
+    <div className="py-2 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <div className="flex flex-wrap gap-4 justify-center">
+          {filterOptions
+            .filter(option => option.count > 0)
+            .map((filterOption) => (
+              <button
+                key={filterOption.key}
+                onClick={() => setFilter(filterOption.key)}
+                className={`flex items-center px-6 py-3 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
+                  ? 'bg-purple-600 text-white shadow-lg transform scale-105'
+                  : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 hover:border-purple-500 transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
+                  }`}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={filterOption.icon} />
+                </svg>
+                {filterOption.label} ({filterOption.count})
+              </button>
+            ))}
+        </div>
       </div>
     </div>
   );

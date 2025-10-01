@@ -36,7 +36,7 @@ const TeamPage: React.FC = () => {
   });
 
   // Fetch team statistics from entire database for statistics section
-  const { data: statsData } = useQuery(GET_TEAM_STATS, {
+  const { data: statsData, loading: statsLoading, error: statsError } = useQuery(GET_TEAM_STATS, {
     fetchPolicy: 'cache-first',
     errorPolicy: 'all'
   });
@@ -129,6 +129,7 @@ const TeamPage: React.FC = () => {
     );
   }
 
+
   // Get team members and pagination info from GraphQL response
   const teamMembers = data?.paginatedTeamMembers?.teamMembers || [];
   const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
@@ -151,9 +152,11 @@ const TeamPage: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto">
         {/* Team Header */}
-        <TeamHeader />
+        <TeamHeader
+          statsData={statsData}
+        />
 
         {/* Team Filters - Server-side filtering */}
         <TeamFilters
@@ -184,32 +187,44 @@ const TeamPage: React.FC = () => {
 
         {/* Loading More Indicator */}
         {loadingMore && (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="py-2 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* End of Results Indicator */}
         {!hasMore && teamMembers.length > 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <p>You've reached the end of the team members list.</p>
+          <div className="py-2 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+              <div className="text-center text-gray-500">
+                <p>You've reached the end of the team members list.</p>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Loading Skeleton for initial load */}
         {loading && teamMembers.length === 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-            {Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
-                <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-gray-200 rounded"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                </div>
+          <div className="py-2 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 12 }).map((_, index) => (
+                  <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         )}
       </div>

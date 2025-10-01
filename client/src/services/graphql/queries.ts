@@ -402,8 +402,8 @@ export const GET_PROJECTS = gql`
 
 // Paginated projects query for infinite scroll support
 export const GET_PAGINATED_PROJECTS = gql`
-  query GetPaginatedProjects($limit: Int = 12, $offset: Int = 0) {
-    paginatedProjects(limit: $limit, offset: $offset) {
+  query GetPaginatedProjects($limit: Int = 12, $offset: Int = 0, $statusFilter: ProjectStatus) {
+    paginatedProjects(limit: $limit, offset: $offset, statusFilter: $statusFilter) {
       projects {
         id
         name

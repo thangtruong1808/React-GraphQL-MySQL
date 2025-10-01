@@ -255,6 +255,13 @@ export const typeDefs = gql`
     supportEngineers: Int!
   }
 
+  # Project Status Distribution Type - for project statistics
+  type ProjectStatusDistribution {
+    planning: Int!
+    inProgress: Int!
+    completed: Int!
+  }
+
   # Public Project Owner Type - simplified owner info for public display
   type PublicProjectOwner {
     firstName: String!
@@ -271,10 +278,12 @@ export const typeDefs = gql`
     paginatedTeamMembers(limit: Int = 12, offset: Int = 0, roleFilter: UserRole): PaginatedTeamMembersResponse!
     # Team statistics - for database-wide role counts
     teamStats: TeamStats!
+    # Project statistics - for database-wide status counts
+    projectStatusDistribution: ProjectStatusDistribution!
     # Public projects - for public projects page (legacy, loads all)
     projects: [PublicProject!]!
     # Paginated projects - for infinite scroll support
-    paginatedProjects(limit: Int = 12, offset: Int = 0): PaginatedProjectsResponse!
+    paginatedProjects(limit: Int = 12, offset: Int = 0, statusFilter: ProjectStatus): PaginatedProjectsResponse!
     # Search functionality - all parameters are optional
     searchMembers(query: String, roleFilter: [UserRole!]): [User!]!
     searchProjects(statusFilter: [ProjectStatus!]): [Project!]!

@@ -73,15 +73,16 @@ export const projects = async () => {
  * Fetches paginated project data with aggregated statistics
  * Returns projects with pagination metadata for infinite scroll support
  */
-export const paginatedProjects = async (_: any, { limit = 6, offset = 0 }: { limit?: number; offset?: number }) => {
+export const paginatedProjects = async (_: any, { limit = 12, offset = 0, statusFilter }: { limit?: number; offset?: number; statusFilter?: string }) => {
   try {
-    // Fetch paginated projects with aggregated stats
+    // Build status filter condition
+    const statusFilterCondition = statusFilter ? `AND p.status = '${statusFilter}'` : '';
     
-    // Get total count for pagination info
+    // Get total count for pagination info with status filtering
     const totalCountResult = await sequelize.query(`
       SELECT COUNT(*) as totalCount
       FROM projects p
-      WHERE p.is_deleted = false
+      WHERE p.is_deleted = false ${statusFilterCondition}
     `, {
       type: QueryTypes.SELECT,
       raw: true
@@ -103,7 +104,7 @@ export const paginatedProjects = async (_: any, { limit = 6, offset = 0 }: { lim
         (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id AND pm.is_deleted = false) as memberCount
       FROM projects p
       LEFT JOIN users u ON p.owner_id = u.id
-      WHERE p.is_deleted = false
+      WHERE p.is_deleted = false ${statusFilterCondition}
       ORDER BY p.created_at DESC
       LIMIT :limit OFFSET :offset
     `, {
@@ -159,9 +160,44 @@ export const paginatedProjects = async (_: any, { limit = 6, offset = 0 }: { lim
   }
 };
 
+/**
+ * Project Status Distribution Resolver
+ * Fetches project status counts from entire database for statistics
+ */
+export const projectStatusDistribution = async () => {
+  try {
+    const result = await sequelize.query(`
+      SELECT 
+        SUM(CASE WHEN status = 'PLANNING' THEN 1 ELSE 0 END) as planning,
+        SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) as inProgress,
+        SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completed
+      FROM projects 
+      WHERE is_deleted = false
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true
+    });
+
+    const counts = result[0] as any;
+    return {
+      planning: parseInt(counts.planning) || 0,
+      inProgress: parseInt(counts.inProgress) || 0,
+      completed: parseInt(counts.completed) || 0
+    };
+  } catch (error) {
+    // Return default values on error
+    return {
+      planning: 0,
+      inProgress: 0,
+      completed: 0
+    };
+  }
+};
+
 export const projectsResolvers = {
   Query: {
     projects,
     paginatedProjects,
+    projectStatusDistribution,
   },
 };
