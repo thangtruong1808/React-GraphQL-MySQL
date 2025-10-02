@@ -2,11 +2,19 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 /**
+ * Logo Component Props
+ */
+interface LogoProps {
+  collapsed?: boolean;
+}
+
+/**
  * Logo Component
  * Displays the TaskFlow logo and app branding with modern styling
  * Provides navigation to home page with consistent typography
+ * Supports collapsed state for sidebar toggle functionality
  */
-const Logo: React.FC = () => {
+const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
   return (
     <Link
       to="/"
@@ -20,15 +28,17 @@ const Logo: React.FC = () => {
         </svg>
       </div>
 
-      {/* Brand Text - Consistent with navigation typography */}
-      <div className="flex flex-col">
-        <h1 className="text-base font-medium text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
-          TaskFlow
-        </h1>
-        <p className="text-sm text-gray-500 group-hover:text-purple-500 transition-colors duration-300">
-          Project Management
-        </p>
-      </div>
+      {/* Brand Text - Only show when not collapsed */}
+      {!collapsed && (
+        <div className="flex flex-col">
+          <h1 className="text-base font-medium text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
+            TaskFlow
+          </h1>
+          <p className="text-sm text-gray-500 group-hover:text-purple-500 transition-colors duration-300">
+            Project Management
+          </p>
+        </div>
+      )}
     </Link>
   );
 };

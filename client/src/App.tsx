@@ -53,11 +53,7 @@ const RouteAwareLoadingFallback = () => {
   }
 
   if (location.pathname === ROUTE_PATHS.SEARCH) {
-    return (
-      <DashboardLayout>
-        <SearchResultsPageSkeleton />
-      </DashboardLayout>
-    );
+    return <SearchResultsPageSkeleton />;
   }
 
   // Generic loading spinner for other routes (like About, Search, etc.)

@@ -203,14 +203,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {authState.isInitializing ? (
         isOnLoginRoute ? (
           <LoginPageSkeleton />
+        ) : isOnSearchRoute ? (
+          <SearchResultsPageSkeleton />
         ) : (
           <DashboardLayout>
             {isOnProjectsRoute ? (
               <ProjectsPageSkeleton />
             ) : isOnTeamRoute ? (
               <TeamPageSkeleton />
-            ) : isOnSearchRoute ? (
-              <SearchResultsPageSkeleton />
             ) : (
               <AuthInitializationSkeleton />
             )}

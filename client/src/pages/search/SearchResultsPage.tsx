@@ -2,12 +2,11 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSearchResults } from '../../hooks/custom/useSearchResults';
 import SearchResultsContainer from '../../components/search/SearchResultsContainer';
-import { DashboardLayout } from '../../components/layout';
 
 /**
  * Search Results Page Component
  * Main page component for displaying search results
- * Refactored into smaller, maintainable components following React best practices
+ * Uses traditional full-width layout without sidebar for better search experience
  */
 
 /**
@@ -36,7 +35,7 @@ const SearchResultsPage: React.FC = () => {
   });
 
   return (
-    <DashboardLayout>
+    <div className="w-full min-h-screen bg-gray-50">
       <SearchResultsContainer
         searchResults={searchResults}
         loading={loading}
@@ -47,7 +46,7 @@ const SearchResultsPage: React.FC = () => {
         searchQuery={searchQuery}
         roleFilter={roleFilter}
       />
-    </DashboardLayout>
+    </div>
   );
 };
 

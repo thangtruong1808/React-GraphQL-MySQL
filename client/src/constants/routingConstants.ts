@@ -20,6 +20,15 @@ export const ROUTE_PATHS = {
   HOME: '/',
   DASHBOARD: '/dashboard',
   
+  // Dashboard routes (authenticated users only)
+  DASHBOARD_USERS: '/dashboard/users',
+  DASHBOARD_PROJECTS: '/dashboard/projects',
+  DASHBOARD_TASKS: '/dashboard/tasks',
+  DASHBOARD_COMMENTS: '/dashboard/comments',
+  DASHBOARD_ACTIVITY: '/dashboard/activity',
+  DASHBOARD_NOTIFICATIONS: '/dashboard/notifications',
+  DASHBOARD_TAGS: '/dashboard/tags',
+  
   // API routes
   GRAPHQL: '/graphql',
   HEALTH: '/health',
@@ -43,6 +52,13 @@ export const ROUTE_PROTECTION = {
   // Protected routes (authentication required)
   PROTECTED: [
     ROUTE_PATHS.DASHBOARD,
+    ROUTE_PATHS.DASHBOARD_USERS,
+    ROUTE_PATHS.DASHBOARD_PROJECTS,
+    ROUTE_PATHS.DASHBOARD_TASKS,
+    ROUTE_PATHS.DASHBOARD_COMMENTS,
+    ROUTE_PATHS.DASHBOARD_ACTIVITY,
+    ROUTE_PATHS.DASHBOARD_NOTIFICATIONS,
+    ROUTE_PATHS.DASHBOARD_TAGS,
   ],
   
   // API routes (no protection needed)
@@ -64,23 +80,37 @@ export const ROUTE_CONFIG = {
   // Route titles for navigation
   TITLES: {
     [ROUTE_PATHS.LOGIN]: 'Login',
-    [ROUTE_PATHS.HOME]: 'Home',
+    [ROUTE_PATHS.HOME]: 'Dashboard',
     [ROUTE_PATHS.PROJECTS]: 'Projects',
     [ROUTE_PATHS.TEAM]: 'Team',
     [ROUTE_PATHS.ABOUT]: 'About',
     [ROUTE_PATHS.SEARCH]: 'Search',
     [ROUTE_PATHS.DASHBOARD]: 'Dashboard',
+    [ROUTE_PATHS.DASHBOARD_USERS]: 'Users',
+    [ROUTE_PATHS.DASHBOARD_PROJECTS]: 'Projects',
+    [ROUTE_PATHS.DASHBOARD_TASKS]: 'Tasks',
+    [ROUTE_PATHS.DASHBOARD_COMMENTS]: 'Comments',
+    [ROUTE_PATHS.DASHBOARD_ACTIVITY]: 'Activity',
+    [ROUTE_PATHS.DASHBOARD_NOTIFICATIONS]: 'Notifications',
+    [ROUTE_PATHS.DASHBOARD_TAGS]: 'Tags',
   },
   
   // Route descriptions for SEO
   DESCRIPTIONS: {
     [ROUTE_PATHS.LOGIN]: 'Sign in to your account',
-    [ROUTE_PATHS.HOME]: 'Welcome to TaskFlow',
+    [ROUTE_PATHS.HOME]: 'Your personal project dashboard',
     [ROUTE_PATHS.PROJECTS]: 'Explore all projects managed through TaskFlow',
     [ROUTE_PATHS.TEAM]: 'Meet our talented team members',
     [ROUTE_PATHS.ABOUT]: 'Learn more about TaskFlow platform',
     [ROUTE_PATHS.SEARCH]: 'Search for members, projects, and tasks',
     [ROUTE_PATHS.DASHBOARD]: 'Your personal project dashboard',
+    [ROUTE_PATHS.DASHBOARD_USERS]: 'Manage users and team members',
+    [ROUTE_PATHS.DASHBOARD_PROJECTS]: 'Manage and track your projects',
+    [ROUTE_PATHS.DASHBOARD_TASKS]: 'Manage tasks and assignments',
+    [ROUTE_PATHS.DASHBOARD_COMMENTS]: 'Manage comments and discussions',
+    [ROUTE_PATHS.DASHBOARD_ACTIVITY]: 'View recent activity and logs',
+    [ROUTE_PATHS.DASHBOARD_NOTIFICATIONS]: 'Manage your notifications',
+    [ROUTE_PATHS.DASHBOARD_TAGS]: 'Manage task tags and categories',
   },
 } as const;
 
