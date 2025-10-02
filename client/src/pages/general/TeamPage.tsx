@@ -142,13 +142,6 @@ const TeamPage: React.FC = () => {
           statsData={statsData}
         />
 
-        {/* Team Filters - Server-side filtering */}
-        <TeamFilters
-          filter={filter}
-          setFilter={setFilter}
-          teamStats={statsData?.teamStats || null}
-        />
-
         {/* Team Sort Controls - Client-side sorting */}
         <TeamSortControls
           sortOption={sortOption}
@@ -158,6 +151,13 @@ const TeamPage: React.FC = () => {
               direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
             }));
           }}
+        />
+
+        {/* Team Filters - Server-side filtering */}
+        <TeamFilters
+          filter={filter}
+          setFilter={setFilter}
+          teamStats={statsData?.teamStats || null}
         />
 
         {/* Team Members Grid - Server-filtered results with client-side sorting */}
@@ -192,8 +192,7 @@ const TeamPage: React.FC = () => {
           </div>
         )}
 
-        {/* Loading Skeleton for initial load */}
-        {loading && teamMembers.length === 0 && <TeamPageSkeleton />}
+        {/* Loading skeleton handled by App.tsx and AuthContext for optimized UX */}
       </div>
     </div>
   );

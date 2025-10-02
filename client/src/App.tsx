@@ -8,7 +8,7 @@ import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
 
 import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
-import { LoginPageSkeleton } from './components/ui';
+import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton } from './components/ui';
 import { ROUTE_PATHS } from './constants/routingConstants';
 import './App.css';
 
@@ -21,12 +21,34 @@ const Notification = React.lazy(() => import('./components/ui/Notification'));
 const RouteAwareLoadingFallback = () => {
   const location = useLocation();
 
-  // Show LoginPageSkeleton for login route, generic spinner for others
+  // Show LoginPageSkeleton for login route
   if (location.pathname === ROUTE_PATHS.LOGIN) {
     return <LoginPageSkeleton />;
   }
 
-  // Generic loading spinner for other routes
+  // Show ProjectsPageSkeleton for projects route
+  if (location.pathname === ROUTE_PATHS.PROJECTS) {
+    return <ProjectsPageSkeleton />;
+  }
+
+  // Show TeamPageSkeleton for team route
+  if (location.pathname === ROUTE_PATHS.TEAM) {
+    return <TeamPageSkeleton />;
+  }
+
+  // Show AuthInitializationSkeleton with NavBar for homepage route
+  if (location.pathname === ROUTE_PATHS.HOME) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <AuthInitializationSkeleton />
+        </main>
+      </div>
+    );
+  }
+
+  // Generic loading spinner for other routes (like About, Search, etc.)
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>

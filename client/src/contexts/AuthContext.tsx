@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
-import { AuthInitializationSkeleton, LoginPageSkeleton } from '../components/ui';
+import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, NavBarSkeleton } from '../components/ui';
 import { ROUTE_PATHS } from '../constants/routingConstants';
 
 /**
@@ -191,13 +191,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     hasRole: sessionManager.hasRole,
   };
 
-  // Check if user is on login route to show appropriate skeleton
+  // Check current route to show appropriate skeleton during initialization
   const isOnLoginRoute = location.pathname === ROUTE_PATHS.LOGIN;
+  const isOnProjectsRoute = location.pathname === ROUTE_PATHS.PROJECTS;
+  const isOnTeamRoute = location.pathname === ROUTE_PATHS.TEAM;
 
   return (
     <AuthContext.Provider value={contextValue}>
       {authState.isInitializing ? (
-        isOnLoginRoute ? <LoginPageSkeleton /> : <AuthInitializationSkeleton />
+        <div className="min-h-screen flex flex-col">
+          {/* Show NavBar skeleton during initialization */}
+          <NavBarSkeleton />
+
+          {/* Show appropriate page skeleton based on route */}
+          <main className="flex-1">
+            {isOnLoginRoute ? (
+              <LoginPageSkeleton />
+            ) : isOnProjectsRoute ? (
+              <ProjectsPageSkeleton />
+            ) : isOnTeamRoute ? (
+              <TeamPageSkeleton />
+            ) : (
+              <AuthInitializationSkeleton />
+            )}
+          </main>
+        </div>
       ) : children}
     </AuthContext.Provider>
   );

@@ -381,32 +381,21 @@ export const AuthInitializationSkeleton: React.FC = () => {
 export const ProjectsPageSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="h-screen bg-gray-50 mt-16 flex flex-col">
+      <div className="min-h-screen bg-gray-50 mt-16">
 
         {/* Section 1: Header */}
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="text-center">
-              <SkeletonBox className="h-10 w-80 mx-auto mb-4" />
-              <SkeletonBox className="h-5 w-96 mx-auto mb-2" />
+              <SkeletonBox className="h-12 w-80 mx-auto mb-6" />
+              <SkeletonBox className="h-6 w-96 mx-auto mb-8" />
             </div>
           </div>
         </div>
 
-        {/* Section 2: Filter Section */}
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <div className="flex flex-wrap gap-3 justify-center">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <SkeletonBox key={index} className="h-10 w-32 rounded-lg" />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: Sort Section */}
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+        {/* Section 2: Sort Section */}
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="flex flex-wrap gap-3 justify-center items-center">
               <SkeletonBox className="h-4 w-16" />
               {Array.from({ length: 4 }).map((_, index) => (
@@ -416,51 +405,62 @@ export const ProjectsPageSkeleton: React.FC = () => {
           </div>
         </div>
 
+        {/* Section 3: Filter Section */}
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="flex flex-wrap gap-4 justify-center">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <SkeletonBox key={index} className="h-12 w-32 rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Section 4: Projects Grid */}
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-3">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200 h-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md border border-gray-100 p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <SkeletonBox className="h-5 w-3/4" />
-                    <SkeletonBox className="h-5 w-16 rounded-full" />
+                <div key={index} className="bg-white rounded-lg shadow-md border border-gray-100 p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <SkeletonBox className="h-6 w-3/4" />
+                    <SkeletonBox className="h-6 w-16 rounded-full" />
                   </div>
-                  <div className="space-y-2 mb-3">
-                    <SkeletonBox className="h-3 w-full" />
-                    <SkeletonBox className="h-3 w-5/6" />
+                  <div className="space-y-2 mb-4">
+                    <SkeletonBox className="h-4 w-full" />
+                    <SkeletonBox className="h-4 w-5/6" />
                   </div>
-                  <div className="space-y-2 mb-3">
+                  <div className="space-y-3 mb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <SkeletonBox className="w-3 h-3" />
-                        <SkeletonBox className="h-3 w-12" />
+                        <SkeletonBox className="w-4 h-4" />
+                        <SkeletonBox className="h-4 w-12" />
                       </div>
                       <SkeletonBox className="h-4 w-8 rounded-full" />
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <SkeletonBox className="w-3 h-3" />
-                        <SkeletonBox className="h-3 w-16" />
+                        <SkeletonBox className="w-4 h-4" />
+                        <SkeletonBox className="h-4 w-16" />
                       </div>
                       <SkeletonBox className="h-4 w-8 rounded-full" />
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <SkeletonBox className="w-3 h-3" />
-                        <SkeletonBox className="h-3 w-20" />
+                        <SkeletonBox className="w-4 h-4" />
+                        <SkeletonBox className="h-4 w-20" />
                       </div>
-                      <SkeletonBox className="h-3 w-16" />
+                      <SkeletonBox className="h-4 w-16" />
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <SkeletonBox className="w-3 h-3" />
-                        <SkeletonBox className="h-3 w-12" />
+                        <SkeletonBox className="w-4 h-4" />
+                        <SkeletonBox className="h-4 w-12" />
                       </div>
-                      <SkeletonBox className="h-3 w-14" />
+                      <SkeletonBox className="h-4 w-16" />
                     </div>
                   </div>
-                  <div className="pt-3 border-t border-gray-100">
+                  <div className="pt-4 border-t border-gray-100">
                     <SkeletonBox className="h-8 w-full rounded-lg" />
                   </div>
                 </div>
@@ -470,15 +470,15 @@ export const ProjectsPageSkeleton: React.FC = () => {
         </div>
 
         {/* Section 5: Call to Action */}
-        <div className="px-4 sm:px-6 lg:px-8 py-3 pb-6">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-3">
-                <SkeletonBox className="w-8 h-8 rounded-full" />
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="text-center rounded-2xl p-8 border border-gray-100 bg-white shadow-lg">
+              <div className="flex items-center justify-center mb-4">
+                <SkeletonBox className="w-12 h-12 rounded-full" />
               </div>
-              <SkeletonBox className="h-6 w-64 mx-auto mb-3" />
-              <SkeletonBox className="h-4 w-80 mx-auto mb-4" />
-              <SkeletonBox className="h-10 w-48 rounded-lg mx-auto" />
+              <SkeletonBox className="h-8 w-64 mx-auto mb-4" />
+              <SkeletonBox className="h-4 w-96 mx-auto mb-6" />
+              <SkeletonBox className="h-12 w-48 mx-auto rounded-lg" />
             </div>
           </div>
         </div>
@@ -496,32 +496,21 @@ export const ProjectsPageSkeleton: React.FC = () => {
 export const TeamPageSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="h-screen bg-gray-50 mt-16 flex flex-col">
+      <div className="min-h-screen bg-gray-50 mt-16">
 
         {/* Section 1: Header */}
-        <div className="px-4 sm:px-6 lg:px-8 py-4">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="text-center">
-              <SkeletonBox className="h-12 w-80 mx-auto mb-4" />
-              <SkeletonBox className="h-5 w-96 mx-auto mb-2" />
+              <SkeletonBox className="h-12 w-80 mx-auto mb-6" />
+              <SkeletonBox className="h-6 w-96 mx-auto mb-8" />
             </div>
           </div>
         </div>
 
-        {/* Section 2: Filter Section */}
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <div className="flex flex-wrap gap-3 justify-center">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <SkeletonBox key={index} className="h-10 w-36 rounded-lg" />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: Sort Section */}
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+        {/* Section 2: Sort Section */}
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <div className="flex flex-wrap gap-3 justify-center items-center">
               <SkeletonBox className="h-4 w-20" />
               {Array.from({ length: 5 }).map((_, index) => (
@@ -531,10 +520,21 @@ export const TeamPageSkeleton: React.FC = () => {
           </div>
         </div>
 
+        {/* Section 3: Filter Section */}
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="flex flex-wrap gap-4 justify-center">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <SkeletonBox key={index} className="h-12 w-36 rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Section 4: Team Members Grid */}
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-3">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200 h-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
@@ -850,6 +850,132 @@ export const TeamMembersGridSkeleton: React.FC = () => {
                 </div>
               </div>
               <SkeletonBox className="h-8 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Navigation Bar Skeleton Component
+ * Shows skeleton loading state for the navigation bar
+ * Matches the exact structure of the real NavBar with logo, nav items, and user dropdown
+ */
+export const NavBarSkeleton: React.FC = () => {
+  return (
+    <nav className="fixed top-0 left-0 right-0 w-full bg-gray-100 border-b border-gray-200 z-50">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Left Section: Logo Skeleton */}
+          <div className="flex items-center flex-shrink-0">
+            <div className="flex items-center space-x-2">
+              <SkeletonBox className="w-8 h-8 rounded-lg" />
+              <SkeletonBox className="h-6 w-24" />
+            </div>
+          </div>
+
+          {/* Center Section: Navigation Items Skeleton */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-3 lg:space-x-6 xl:space-x-8">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="flex flex-col items-center space-y-1 px-2 lg:px-3 py-2">
+                  <SkeletonBox className="w-4 h-4" />
+                  <SkeletonBox className="h-3 w-12" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Section: User Dropdown Skeleton */}
+          <div className="flex items-center space-x-4">
+            <div className="relative hidden md:block">
+              <div className="flex items-center space-x-2">
+                <SkeletonBox className="w-8 h-8 rounded-full" />
+                <SkeletonBox className="h-4 w-16" />
+              </div>
+            </div>
+
+            {/* Mobile menu button skeleton */}
+            <div className="md:hidden flex items-center">
+              <SkeletonBox className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+/**
+ * Projects Grid Skeleton Component
+ * Loading skeleton for the projects grid section only
+ */
+export const ProjectsGridSkeleton: React.FC = () => {
+  return (
+    <div className="py-4 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6">
+                {/* Project Title and Status */}
+                <div className="flex items-start justify-between mb-4">
+                  <SkeletonBox className="h-6 w-3/4" />
+                  <SkeletonBox className="h-6 w-16 rounded-full" />
+                </div>
+
+                {/* Project Description */}
+                <div className="space-y-2 mb-4">
+                  <SkeletonBox className="h-4 w-full" />
+                  <SkeletonBox className="h-4 w-5/6" />
+                </div>
+
+                {/* Detailed Info Rows */}
+                <div className="space-y-3 mb-4">
+                  {/* Tasks Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <SkeletonBox className="w-4 h-4" />
+                      <SkeletonBox className="h-4 w-12" />
+                    </div>
+                    <SkeletonBox className="h-4 w-8 rounded-full" />
+                  </div>
+
+                  {/* Team Members Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <SkeletonBox className="w-4 h-4" />
+                      <SkeletonBox className="h-4 w-16" />
+                    </div>
+                    <SkeletonBox className="h-4 w-8 rounded-full" />
+                  </div>
+
+                  {/* Project Owner Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <SkeletonBox className="w-4 h-4" />
+                      <SkeletonBox className="h-4 w-20" />
+                    </div>
+                    <SkeletonBox className="h-4 w-16" />
+                  </div>
+
+                  {/* Created Date Row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <SkeletonBox className="w-4 h-4" />
+                      <SkeletonBox className="h-4 w-12" />
+                    </div>
+                    <SkeletonBox className="h-4 w-16" />
+                  </div>
+                </div>
+
+                {/* Button Section */}
+                <div className="pt-4 border-t border-gray-100">
+                  <SkeletonBox className="h-8 w-full rounded-lg" />
+                </div>
+              </div>
             </div>
           ))}
         </div>
