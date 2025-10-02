@@ -2,7 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect } from 'react';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
-import { AuthenticatedSkeleton } from '../pages/home/HomePage';
+import { AuthInitializationSkeleton } from '../components/ui';
 
 /**
  * Authentication Context Interface
@@ -188,7 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {authState.isInitializing ? <AuthenticatedSkeleton /> : children}
+      {authState.isInitializing ? <AuthInitializationSkeleton /> : children}
     </AuthContext.Provider>
   );
 }; 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { SimpleChart } from '../charts';
+import { AuthenticatedDashboardSkeleton } from '../ui';
 
 /**
  * TaskFlow Project Management Overview Component
@@ -86,7 +87,7 @@ const TaskFlowOverview: React.FC = () => {
           { id: '4', title: 'Write API documentation', status: 'IN_PROGRESS', priority: 'LOW', dueDate: '2024-01-22' },
         ]);
       } catch (error) {
-        console.error('Failed to load dashboard data:', error);
+        // Handle error silently - could be displayed via error context in future
       } finally {
         setLoading(false);
       }
@@ -116,11 +117,7 @@ const TaskFlowOverview: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-      </div>
-    );
+    return <AuthenticatedDashboardSkeleton />;
   }
 
   return (

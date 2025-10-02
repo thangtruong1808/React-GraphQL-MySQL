@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_PROJECTS, GET_PROJECT_STATUS_DISTRIBUTION } from '../../services/graphql/queries';
-import { InlineError } from '../../components/ui/InlineError';
+import { InlineError, ProjectsPageSkeleton } from '../../components/ui';
 
 /**
  * Projects Page Component
@@ -205,16 +205,9 @@ const ProjectsPage: React.FC = () => {
     completed: statsData?.projectStatusDistribution?.completed || 0
   };
 
-  // Handle initial loading state - show simple spinner only if no cached data
+  // Handle initial loading state - show skeleton only if no cached data
   if (loading && projects.length === 0 && !data) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading projects...</p>
-        </div>
-      </div>
-    );
+    return <ProjectsPageSkeleton />;
   }
 
   // Handle error state

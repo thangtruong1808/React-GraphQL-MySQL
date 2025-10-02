@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '../../../constants/routingConstants';
 import { TeamMember, FilterType, SortOption } from './types';
 import { useMemo } from 'react';
+import { TeamMembersGridSkeleton } from '../../../components/ui';
 
 /**
  * Team Members Grid Component
@@ -16,6 +17,7 @@ interface TeamMembersGridProps {
   setFilter: (filter: FilterType) => void;
   sortOption: SortOption;
   formatJoinDate: (date: string) => string;
+  loading: boolean;
 }
 
 /**
@@ -27,7 +29,8 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
   filter,
   setFilter,
   sortOption,
-  formatJoinDate
+  formatJoinDate,
+  loading
 }) => {
   // Convert GraphQL enum role to display-friendly format
   const formatRoleForDisplay = (role: string) => {
@@ -106,6 +109,11 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Show skeleton when loading
+  if (loading) {
+    return <TeamMembersGridSkeleton />;
+  }
 
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">

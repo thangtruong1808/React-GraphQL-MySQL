@@ -4,7 +4,7 @@ import { GET_PUBLIC_STATS } from '../../services/graphql/queries';
 import HeroSection from './HeroSection';
 import MainContentSection from './MainContentSection';
 import PublicCallToAction from './PublicCallToAction';
-import { InlineError } from '../ui';
+import { InlineError, PublicDashboardSkeleton } from '../ui';
 
 /**
  * Public Dashboard Component
@@ -97,11 +97,7 @@ const PublicDashboard: React.FC = () => {
 
   // Show loading state while fetching data
   if (loading) {
-    return (
-      <div className="w-full min-h-screen bg-gray-50 public-dashboard flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <PublicDashboardSkeleton />;
   }
 
   // Show error state if GraphQL query fails

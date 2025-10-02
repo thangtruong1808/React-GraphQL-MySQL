@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_TEAM_MEMBERS, GET_TEAM_STATS } from '../../services/graphql/queries';
-import { InlineError } from '../../components/ui/InlineError';
+import { InlineError, TeamPageSkeleton } from '../../components/ui';
 import { TeamHeader, TeamFilters, TeamSortControls, TeamMembersGrid } from './team';
 import { useFormatJoinDate } from './team/teamHooks';
 import { FilterType, SortOption } from './team/types';
@@ -81,7 +81,7 @@ const TeamPage: React.FC = () => {
 
       setCurrentOffset(prev => prev + 12);
     } catch (error) {
-      console.error('Error loading more team members:', error);
+      // Handle error silently - could be displayed via error context in future
     } finally {
       setLoadingMore(false);
     }
@@ -167,6 +167,7 @@ const TeamPage: React.FC = () => {
           setFilter={setFilter}
           sortOption={sortOption}
           formatJoinDate={formatJoinDate}
+          loading={loading}
         />
 
         {/* Loading More Indicator */}
@@ -192,25 +193,7 @@ const TeamPage: React.FC = () => {
         )}
 
         {/* Loading Skeleton for initial load */}
-        {loading && teamMembers.length === 0 && (
-          <div className="py-4 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {Array.from({ length: 12 }).map((_, index) => (
-                  <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-3/4 mb-4"></div>
-                    <div className="space-y-2">
-                      <div className="h-3 bg-gray-200 rounded"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {loading && teamMembers.length === 0 && <TeamPageSkeleton />}
       </div>
     </div>
   );
