@@ -3,6 +3,7 @@
  * Centralized exports for all dashboard pages
  */
 
+export { default as TaskFlowOverviewPage } from './TaskFlowOverviewPage';
 export { default as UsersPage } from './UsersPage';
 export { default as ProjectsPage } from './ProjectsPage';
 export { default as TasksPage } from './TasksPage';

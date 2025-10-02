@@ -122,8 +122,8 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show dashboard and home for authenticated users (not profile/signout)
-    if (item.requiresAuth && user && (item.id === 'dashboard' || item.id === 'home')) {
+    // Show dashboard for authenticated users (not profile/signout)
+    if (item.requiresAuth && user && item.id === 'dashboard') {
       return true;
     }
 
@@ -163,8 +163,8 @@ export const getMobileNavItems = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show dashboard and home for authenticated users
-    if (item.requiresAuth && user && (item.id === 'dashboard' || item.id === 'home')) {
+    // Show dashboard for authenticated users
+    if (item.requiresAuth && user && item.id === 'dashboard') {
       return true;
     }
 

@@ -46,9 +46,12 @@ const RouteAwareLoadingFallback = () => {
 
   if (location.pathname === ROUTE_PATHS.HOME) {
     return (
-      <DashboardLayout>
-        <AuthInitializationSkeleton />
-      </DashboardLayout>
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <AuthInitializationSkeleton />
+        </main>
+      </div>
     );
   }
 
@@ -75,11 +78,11 @@ const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  // Show NavBar only for non-authenticated users or public pages
-  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN;
+  // Show NavBar for non-authenticated users, login page, or authenticated users on homepage
+  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME;
 
-  // For authenticated users, return routes directly without wrapper to enable edge-to-edge
-  if (isAuthenticated) {
+  // For authenticated users on dashboard routes (not homepage), use edge-to-edge layout
+  if (isAuthenticated && location.pathname !== ROUTE_PATHS.HOME) {
     return (
       <>
         {/* Activity tracker - handles user activity monitoring */}
@@ -91,11 +94,11 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // For non-authenticated users, use traditional layout with NavBar
+  // For non-authenticated users or authenticated users on homepage, use layout with NavBar
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Global navigation bar - show only for non-authenticated users */}
-      <NavBar />
+      {/* Global navigation bar - show for non-authenticated users and authenticated users on homepage */}
+      {shouldShowNavBar && <NavBar />}
 
       {/* Activity tracker - handles user activity monitoring */}
       <ActivityTracker />
