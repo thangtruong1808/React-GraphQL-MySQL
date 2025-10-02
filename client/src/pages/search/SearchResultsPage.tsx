@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSearchResults } from '../../hooks/custom/useSearchResults';
 import SearchResultsContainer from '../../components/search/SearchResultsContainer';
+import { DashboardLayout } from '../../components/layout';
 
 /**
  * Search Results Page Component
@@ -35,16 +36,18 @@ const SearchResultsPage: React.FC = () => {
   });
 
   return (
-    <SearchResultsContainer
-      searchResults={searchResults}
-      loading={loading}
-      hasSearchCriteria={hasSearchCriteria}
-      searchType={searchType}
-      projectStatusFilter={projectStatusFilter}
-      taskStatusFilter={taskStatusFilter}
-      searchQuery={searchQuery}
-      roleFilter={roleFilter}
-    />
+    <DashboardLayout>
+      <SearchResultsContainer
+        searchResults={searchResults}
+        loading={loading}
+        hasSearchCriteria={hasSearchCriteria}
+        searchType={searchType}
+        projectStatusFilter={projectStatusFilter}
+        taskStatusFilter={taskStatusFilter}
+        searchQuery={searchQuery}
+        roleFilter={roleFilter}
+      />
+    </DashboardLayout>
   );
 };
 

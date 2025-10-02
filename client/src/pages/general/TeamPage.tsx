@@ -3,6 +3,8 @@ import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_TEAM_MEMBERS, GET_TEAM_STATS } from '../../services/graphql/queries';
 import { InlineError, TeamPageSkeleton } from '../../components/ui';
+import { DashboardLayout } from '../../components/layout';
+import { useAuth } from '../../contexts/AuthContext';
 import { TeamHeader, TeamFilters, TeamSortControls, TeamMembersGrid } from './team';
 import { useFormatJoinDate } from './team/teamHooks';
 import { FilterType, SortOption } from './team/types';
@@ -13,6 +15,8 @@ import { FilterType, SortOption } from './team/types';
  * Uses GraphQL queries with role filter parameters for database-level filtering
  */
 const TeamPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
   // State for server-side filtering and client-side sorting
   const [filter, setFilter] = useState<FilterType>('ALL');
   const [sortOption, setSortOption] = useState<SortOption>({ field: 'name', direction: 'ASC' });
@@ -134,65 +138,176 @@ const TeamPage: React.FC = () => {
   const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
   const totalCount = data?.paginatedTeamMembers?.paginationInfo?.totalCount || 0;
 
+  // Content components for different layouts
+  const AuthenticatedTeamContent = () => (
+    <>
+      {/* Team Header - Edge-to-Edge for Dashboard */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-8 py-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Meet Our{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Team
+              </span>
+            </h1>
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
+              Get to know the talented individuals behind our innovative projects. Our diverse team brings together expertise from various domains.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Team Sort Controls - Edge-to-Edge for Dashboard */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-8 py-6">
+          <TeamSortControls
+            sortOption={sortOption}
+            onSortChange={(field) => {
+              setSortOption(prev => ({
+                field,
+                direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
+              }));
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Team Filters - Edge-to-Edge for Dashboard */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-8 py-6">
+          <TeamFilters
+            filter={filter}
+            setFilter={setFilter}
+            teamStats={statsData?.teamStats || null}
+          />
+        </div>
+      </div>
+
+      {/* Team Members Grid - Edge-to-Edge for Dashboard */}
+      <div className="bg-white">
+        <div className="px-8 py-8">
+          <TeamMembersGrid
+            filteredMembers={teamMembers}
+            filter={filter}
+            setFilter={setFilter}
+            sortOption={sortOption}
+            formatJoinDate={formatJoinDate}
+            loading={loading}
+          />
+        </div>
+      </div>
+
+      {/* Loading More Indicator */}
+      {loadingMore && (
+        <div className="bg-white border-b border-gray-200">
+          <div className="px-8 py-8">
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* End of Results Indicator */}
+      {!hasMore && teamMembers.length > 0 && (
+        <div className="bg-white border-t border-gray-200">
+          <div className="px-8 py-8">
+            <div className="text-center text-gray-500">
+              <p>You've reached the end of the team members list.</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  const PublicTeamContent = () => (
+    <>
+      {/* Team Header */}
+      <TeamHeader
+        statsData={statsData}
+      />
+
+      {/* Team Sort Controls - Client-side sorting */}
+      <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <TeamSortControls
+            sortOption={sortOption}
+            onSortChange={(field) => {
+              setSortOption(prev => ({
+                field,
+                direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
+              }));
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Team Filters - Server-side filtering */}
+      <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <TeamFilters
+            filter={filter}
+            setFilter={setFilter}
+            teamStats={statsData?.teamStats || null}
+          />
+        </div>
+      </div>
+
+      {/* Team Members Grid - Server-filtered results with client-side sorting */}
+      <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200">
+          <TeamMembersGrid
+            filteredMembers={teamMembers}
+            filter={filter}
+            setFilter={setFilter}
+            sortOption={sortOption}
+            formatJoinDate={formatJoinDate}
+            loading={loading}
+          />
+        </div>
+      </div>
+
+      {/* Loading More Indicator */}
+      {loadingMore && (
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* End of Results Indicator */}
+      {!hasMore && teamMembers.length > 0 && (
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="text-center text-gray-500">
+              <p>You've reached the end of the team members list.</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  // Conditional layout based on authentication status
+  if (isAuthenticated) {
+    // Authenticated users see sidebar layout with edge-to-edge content
+    return (
+      <DashboardLayout>
+        <AuthenticatedTeamContent />
+      </DashboardLayout>
+    );
+  }
+
+  // Non-authenticated users see traditional layout with top navbar
   return (
     <div className="w-full public-dashboard bg-gray-50">
       <div className="min-h-screen bg-gray-50 mt-16">
-        {/* Team Header */}
-        <TeamHeader
-          statsData={statsData}
-        />
-
-        {/* Team Sort Controls - Client-side sorting */}
-        <TeamSortControls
-          sortOption={sortOption}
-          onSortChange={(field) => {
-            setSortOption(prev => ({
-              field,
-              direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
-            }));
-          }}
-        />
-
-        {/* Team Filters - Server-side filtering */}
-        <TeamFilters
-          filter={filter}
-          setFilter={setFilter}
-          teamStats={statsData?.teamStats || null}
-        />
-
-        {/* Team Members Grid - Server-filtered results with client-side sorting */}
-        <TeamMembersGrid
-          filteredMembers={teamMembers}
-          filter={filter}
-          setFilter={setFilter}
-          sortOption={sortOption}
-          formatJoinDate={formatJoinDate}
-          loading={loading}
-        />
-
-        {/* Loading More Indicator */}
-        {loadingMore && (
-          <div className="py-4 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* End of Results Indicator */}
-        {!hasMore && teamMembers.length > 0 && (
-          <div className="py-4 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-              <div className="text-center text-gray-500">
-                <p>You've reached the end of the team members list.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Loading skeleton handled by App.tsx and AuthContext for optimized UX */}
+        <PublicTeamContent />
       </div>
     </div>
   );

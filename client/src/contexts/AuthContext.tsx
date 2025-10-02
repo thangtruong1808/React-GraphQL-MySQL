@@ -4,6 +4,7 @@ import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
 import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from '../components/ui';
+import { DashboardLayout } from '../components/layout';
 import { ROUTE_PATHS } from '../constants/routingConstants';
 
 /**
@@ -200,15 +201,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider value={contextValue}>
       {authState.isInitializing ? (
-        <div className="min-h-screen flex flex-col">
-          {/* Show NavBar skeleton during initialization */}
-          <NavBarSkeleton />
-
-          {/* Show appropriate page skeleton based on route */}
-          <main className="flex-1">
-            {isOnLoginRoute ? (
-              <LoginPageSkeleton />
-            ) : isOnProjectsRoute ? (
+        isOnLoginRoute ? (
+          <LoginPageSkeleton />
+        ) : (
+          <DashboardLayout>
+            {isOnProjectsRoute ? (
               <ProjectsPageSkeleton />
             ) : isOnTeamRoute ? (
               <TeamPageSkeleton />
@@ -217,8 +214,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             ) : (
               <AuthInitializationSkeleton />
             )}
-          </main>
-        </div>
+          </DashboardLayout>
+        )
       ) : children}
     </AuthContext.Provider>
   );

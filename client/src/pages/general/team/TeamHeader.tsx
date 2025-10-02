@@ -19,8 +19,8 @@ interface TeamHeaderProps {
  */
 const TeamHeader: React.FC<TeamHeaderProps> = ({ statsData }) => {
   return (
-    <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+    <div className="bg-white border-b border-gray-200">
+      <div className="px-6 py-8">
         <div className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Meet Our{' '}

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { TaskFlowOverview } from '../../components/dashboard';
 import { PublicDashboard } from '../../components/shared';
+import DashboardLayout from '../../components/layout/DashboardLayout';
 
 /**
  * HomePage Component
@@ -22,8 +23,12 @@ const HomePage: React.FC = () => {
     return <PublicDashboard />;
   }
 
-  // User is authenticated and ready - show TaskFlow dashboard
-  return <TaskFlowOverview />;
+  // User is authenticated and ready - show TaskFlow dashboard with sidebar layout
+  return (
+    <DashboardLayout>
+      <TaskFlowOverview />
+    </DashboardLayout>
+  );
 };
 
 export default HomePage; 

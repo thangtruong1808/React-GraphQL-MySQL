@@ -50,22 +50,97 @@
 
 /* Ensure full width for entire application */
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
   overflow-x: hidden;
   background-color: #f9fafb; /* bg-gray-50 */
 }
 
 #root {
-  width: 100%;
+  width: 100% !important;
   min-height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+/* Force edge-to-edge for authenticated users */
+body.authenticated {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+#root.authenticated {
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
 }
 
 /* Ensure PublicDashboard extends full width */
 .public-dashboard {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
+}
+
+/* Ensure Dashboard Layout is truly edge-to-edge */
+.dashboard-layout {
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.dashboard-content {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+/* Force edge-to-edge for ultra-wide monitors */
+.dashboard-layout main {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Break out of any container constraints */
+.dashboard-layout,
+.dashboard-layout * {
+  box-sizing: border-box !important;
+}
+
+/* Force full viewport width for dashboard */
+.dashboard-layout {
+  position: relative !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+}
+
+/* Ensure no parent container constraints */
+.dashboard-layout {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* Custom animations for modern UI effects */
