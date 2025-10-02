@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_CONFIG } from '../../constants/routingConstants';
 
@@ -21,9 +21,7 @@ const PublicRoute: React.FC<PublicRouteProps> = ({
   redirectPath = ROUTE_CONFIG.DEFAULT_AUTHENTICATED_ROUTE
 }) => {
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
-  const location = useLocation();
 
-  // Let the HomePage handle its own loading state with skeleton
   // Only redirect if authenticated and not loading
   if (!isLoading && !isInitializing && isAuthenticated) {
     // Debug logging disabled for better user experience

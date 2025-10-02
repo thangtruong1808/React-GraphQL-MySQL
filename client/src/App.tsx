@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ErrorProvider, useError } from './contexts/ErrorContext';
@@ -8,6 +8,8 @@ import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
 
 import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
+import { LoginPageSkeleton } from './components/ui';
+import { ROUTE_PATHS } from './constants/routingConstants';
 import './App.css';
 
 // Lazy load components for better performance
@@ -15,12 +17,22 @@ const ActivityDebugger = React.lazy(() => import('./components/debug/ActivityDeb
 const SessionExpiryModal = React.lazy(() => import('./components/ui/SessionExpiryModal'));
 const Notification = React.lazy(() => import('./components/ui/Notification'));
 
-// Loading component for Suspense fallback
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-  </div>
-);
+// Loading component for Suspense fallback - route-aware
+const RouteAwareLoadingFallback = () => {
+  const location = useLocation();
+
+  // Show LoginPageSkeleton for login route, generic spinner for others
+  if (location.pathname === ROUTE_PATHS.LOGIN) {
+    return <LoginPageSkeleton />;
+  }
+
+  // Generic loading spinner for other routes
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+    </div>
+  );
+};
 
 /**
  * Main App Content Component
@@ -73,11 +85,9 @@ const AppWithModals: React.FC = () => {
 
   return (
     <>
-      <BrowserRouter>
-        <Suspense fallback={<LoadingSpinner />}>
-          <AppContent />
-        </Suspense>
-      </BrowserRouter>
+      <Suspense fallback={<RouteAwareLoadingFallback />}>
+        <AppContent />
+      </Suspense>
 
       {/* Session Expiry Modal */}
       <Suspense fallback={null}>
@@ -114,6 +124,7 @@ const AppWithModals: React.FC = () => {
 /**
  * App Component
  * Main application wrapper with authentication provider
+ * AuthProvider moved inside BrowserRouter to allow route-based skeleton logic
  * 
  * CALLED BY: main.tsx
  * SCENARIOS: All application scenarios
@@ -122,9 +133,11 @@ function App() {
   return (
     <ApolloProvider client={apolloClient}>
       <ErrorProvider>
-        <AuthProvider>
-          <AppWithModals />
-        </AuthProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <AppWithModals />
+          </AuthProvider>
+        </BrowserRouter>
       </ErrorProvider>
     </ApolloProvider>
   );

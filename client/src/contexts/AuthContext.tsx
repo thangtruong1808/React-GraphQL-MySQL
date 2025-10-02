@@ -1,8 +1,10 @@
 import React, { createContext, ReactNode, useContext, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
-import { AuthInitializationSkeleton } from '../components/ui';
+import { AuthInitializationSkeleton, LoginPageSkeleton } from '../components/ui';
+import { ROUTE_PATHS } from '../constants/routingConstants';
 
 /**
  * Authentication Context Interface
@@ -99,6 +101,9 @@ export const useAuth = (): AuthContextType => {
  *    - User must login again
  */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // Get current location to check if user is on login route
+  const location = useLocation();
+
   // Authentication state management
   const authState = useAuthState();
 
@@ -186,9 +191,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     hasRole: sessionManager.hasRole,
   };
 
+  // Check if user is on login route to show appropriate skeleton
+  const isOnLoginRoute = location.pathname === ROUTE_PATHS.LOGIN;
+
   return (
     <AuthContext.Provider value={contextValue}>
-      {authState.isInitializing ? <AuthInitializationSkeleton /> : children}
+      {authState.isInitializing ? (
+        isOnLoginRoute ? <LoginPageSkeleton /> : <AuthInitializationSkeleton />
+      ) : children}
     </AuthContext.Provider>
   );
 }; 

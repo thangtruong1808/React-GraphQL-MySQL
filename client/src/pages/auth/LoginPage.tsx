@@ -4,9 +4,11 @@ import { LoginForm, LoginHeader, LoginFooter, LoginCredentials } from '../../com
 /**
  * Login Page Component
  * Main login page that combines all login-related components
+ * Skeleton loading is handled by PublicRoute for better UX
  * Provides a clean and organized layout for user authentication
  */
 const LoginPage: React.FC = () => {
+
   return (
     <>
       <div className="min-h-screen  flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
