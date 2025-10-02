@@ -4,6 +4,7 @@ import ActiveFilters from './ActiveFilters';
 import NoSearchCriteria from './NoSearchCriteria';
 import DetailModal from './DetailModal';
 import SearchSectionsContainer from './SearchSectionsContainer';
+import { SearchHeaderSkeleton, ActiveFiltersSkeleton } from '../ui/DashboardSkeletons';
 
 /**
  * Search Results Container Component
@@ -64,6 +65,9 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
   // Calculate total results
   const totalResults = searchResults.members.length + searchResults.projects.length + searchResults.tasks.length;
 
+  // Determine if any section is loading (for header and filters skeleton)
+  const isAnySectionLoading = loading.members || loading.projects || loading.tasks;
+
   // Handle pagination changes
   const handlePageChange = (section: 'members' | 'projects' | 'tasks', page: number) => {
     setCurrentPage(prev => ({ ...prev, [section]: page }));
@@ -101,22 +105,30 @@ const SearchResultsContainer: React.FC<SearchResultsContainerProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-6">
         <div className="space-y-10">
           {/* Page Header */}
-          <SearchHeader
-            totalResults={totalResults}
-            memberCount={searchResults.members.length}
-            projectCount={searchResults.projects.length}
-            taskCount={searchResults.tasks.length}
-            searchType={searchType}
-          />
+          {isAnySectionLoading ? (
+            <SearchHeaderSkeleton />
+          ) : (
+            <SearchHeader
+              totalResults={totalResults}
+              memberCount={searchResults.members.length}
+              projectCount={searchResults.projects.length}
+              taskCount={searchResults.tasks.length}
+              searchType={searchType}
+            />
+          )}
 
           {/* Active Filters */}
-          <ActiveFilters
-            projectStatusFilter={projectStatusFilter}
-            taskStatusFilter={taskStatusFilter}
-            searchQuery={searchQuery}
-            searchType={searchType}
-            roleFilter={roleFilter}
-          />
+          {isAnySectionLoading ? (
+            <ActiveFiltersSkeleton />
+          ) : (
+            <ActiveFilters
+              projectStatusFilter={projectStatusFilter}
+              taskStatusFilter={taskStatusFilter}
+              searchQuery={searchQuery}
+              searchType={searchType}
+              roleFilter={roleFilter}
+            />
+          )}
 
           {/* No search criteria state */}
           {!hasSearchCriteria && <NoSearchCriteria />}

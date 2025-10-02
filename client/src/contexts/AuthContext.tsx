@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
-import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, NavBarSkeleton } from '../components/ui';
+import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from '../components/ui';
 import { ROUTE_PATHS } from '../constants/routingConstants';
 
 /**
@@ -195,6 +195,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isOnLoginRoute = location.pathname === ROUTE_PATHS.LOGIN;
   const isOnProjectsRoute = location.pathname === ROUTE_PATHS.PROJECTS;
   const isOnTeamRoute = location.pathname === ROUTE_PATHS.TEAM;
+  const isOnSearchRoute = location.pathname === ROUTE_PATHS.SEARCH;
 
   return (
     <AuthContext.Provider value={contextValue}>
@@ -211,6 +212,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               <ProjectsPageSkeleton />
             ) : isOnTeamRoute ? (
               <TeamPageSkeleton />
+            ) : isOnSearchRoute ? (
+              <SearchResultsPageSkeleton />
             ) : (
               <AuthInitializationSkeleton />
             )}

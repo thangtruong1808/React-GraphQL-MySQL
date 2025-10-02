@@ -1,4 +1,5 @@
 import React from 'react';
+import { SearchSectionSkeleton } from '../ui/DashboardSkeletons';
 
 /**
  * Search Section Component
@@ -65,16 +66,9 @@ const SearchSection: React.FC<SearchSectionProps> = ({
         </div>
       </div>
 
-      {/* Loading state with enhanced design */}
+      {/* Loading state with elegant skeleton */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200"></div>
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent absolute top-0 left-0"></div>
-          </div>
-          <p className="mt-4 text-sm font-medium text-gray-600">Searching {title.toLowerCase()}...</p>
-          <p className="text-xs text-gray-500">Please wait while we find results</p>
-        </div>
+        <SearchSectionSkeleton title={title} />
       )}
 
       {/* Results with enhanced layout */}

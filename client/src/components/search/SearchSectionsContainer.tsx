@@ -83,20 +83,7 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
   // Tasks section: Show ONLY when explicitly searching by task status
   const shouldShowTasksSection = searchType.isTaskStatusSearch;
 
-  // Debug logging for section visibility decisions
-  console.log('Section Visibility Debug:', {
-    searchType,
-    resultsCount: {
-      members: searchResults.members.length,
-      projects: searchResults.projects.length,
-      tasks: searchResults.tasks.length
-    },
-    sectionVisibility: {
-      shouldShowMembersSection,
-      shouldShowProjectsSection,
-      shouldShowTasksSection
-    }
-  });
+  // Section visibility decisions based on search type
 
   if (!hasSearchCriteria) {
     return null;

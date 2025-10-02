@@ -8,7 +8,7 @@ import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
 
 import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
-import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton } from './components/ui';
+import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from './components/ui';
 import { ROUTE_PATHS } from './constants/routingConstants';
 import './App.css';
 
@@ -43,6 +43,18 @@ const RouteAwareLoadingFallback = () => {
         <NavBarSkeleton />
         <main className="flex-1">
           <AuthInitializationSkeleton />
+        </main>
+      </div>
+    );
+  }
+
+  // Show SearchResultsPageSkeleton for search route
+  if (location.pathname === ROUTE_PATHS.SEARCH) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <SearchResultsPageSkeleton />
         </main>
       </div>
     );
