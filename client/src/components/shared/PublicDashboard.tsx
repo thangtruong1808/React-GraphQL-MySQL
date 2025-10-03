@@ -117,7 +117,7 @@ const PublicDashboard: React.FC = () => {
 
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 mt-16">
+      <div className="min-h-screen bg-gray-50 pt-24">
         {/* Hero Section - Main title and public statistics overview */}
         <HeroSection stats={stats} />
 

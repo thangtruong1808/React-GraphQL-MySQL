@@ -8,7 +8,7 @@ import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
 
 import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
-import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from './components/ui';
+import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AboutPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from './components/ui';
 import { DashboardLayout } from './components/layout';
 import { ROUTE_PATHS } from './constants/routingConstants';
 import './App.css';
@@ -27,20 +27,37 @@ const RouteAwareLoadingFallback = () => {
     return <LoginPageSkeleton />;
   }
 
-  // Show DashboardLayout with appropriate skeletons for authenticated routes
+  // Show NavBar layout for public pages (Projects, Team, About)
   if (location.pathname === ROUTE_PATHS.PROJECTS) {
     return (
-      <DashboardLayout>
-        <ProjectsPageSkeleton />
-      </DashboardLayout>
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <ProjectsPageSkeleton />
+        </main>
+      </div>
     );
   }
 
   if (location.pathname === ROUTE_PATHS.TEAM) {
     return (
-      <DashboardLayout>
-        <TeamPageSkeleton />
-      </DashboardLayout>
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <TeamPageSkeleton />
+        </main>
+      </div>
+    );
+  }
+
+  if (location.pathname === ROUTE_PATHS.ABOUT) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <AboutPageSkeleton />
+        </main>
+      </div>
     );
   }
 
@@ -56,7 +73,14 @@ const RouteAwareLoadingFallback = () => {
   }
 
   if (location.pathname === ROUTE_PATHS.SEARCH) {
-    return <SearchResultsPageSkeleton />;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <SearchResultsPageSkeleton />
+        </main>
+      </div>
+    );
   }
 
   // Generic loading spinner for other routes (like About, Search, etc.)
@@ -78,11 +102,11 @@ const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  // Show NavBar for non-authenticated users, login page, or authenticated users on homepage
-  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME;
+  // Show NavBar for non-authenticated users, login page, homepage, search page, or public pages
+  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT;
 
-  // For authenticated users on dashboard routes (not homepage), use edge-to-edge layout
-  if (isAuthenticated && location.pathname !== ROUTE_PATHS.HOME) {
+  // For authenticated users on dashboard routes (not homepage, search, or public pages), use edge-to-edge layout
+  if (isAuthenticated && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT) {
     return (
       <>
         {/* Activity tracker - handles user activity monitoring */}

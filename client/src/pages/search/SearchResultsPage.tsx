@@ -35,7 +35,7 @@ const SearchResultsPage: React.FC = () => {
   });
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50 pt-20">
       <SearchResultsContainer
         searchResults={searchResults}
         loading={loading}

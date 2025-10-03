@@ -44,38 +44,22 @@ const AppRoutes: React.FC = () => {
 
       <Route
         path={ROUTE_PATHS.PROJECTS}
-        element={
-          <PublicRoute>
-            <ProjectsPage />
-          </PublicRoute>
-        }
+        element={<ProjectsPage />}
       />
 
       <Route
         path={ROUTE_PATHS.TEAM}
-        element={
-          <PublicRoute>
-            <TeamPage />
-          </PublicRoute>
-        }
+        element={<TeamPage />}
       />
 
       <Route
         path={ROUTE_PATHS.ABOUT}
-        element={
-          <PublicRoute>
-            <AboutPage />
-          </PublicRoute>
-        }
+        element={<AboutPage />}
       />
 
       <Route
         path={ROUTE_PATHS.SEARCH}
-        element={
-          <PublicRoute>
-            <SearchResultsPage />
-          </PublicRoute>
-        }
+        element={<SearchResultsPage />}
       />
 
       {/* Home route - accessible to all users */}

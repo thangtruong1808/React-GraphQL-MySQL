@@ -10,7 +10,7 @@ import { SkeletonBox } from './SkeletonLoader';
 export const PublicDashboardSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="h-screen bg-gray-50 mt-16 flex flex-col overflow-hidden">
+      <div className="h-screen bg-gray-50 pt-24 flex flex-col overflow-hidden">
 
         {/* Section 1: Hero Section - Main Title & Introduction (Reduced height ~10%) */}
         <div className="px-4 sm:px-6 lg:px-8 py-2">
@@ -268,7 +268,7 @@ export const AuthenticatedDashboardSkeleton: React.FC = () => {
 export const AuthInitializationSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="h-screen bg-gray-50 mt-16 flex flex-col overflow-hidden">
+      <div className="h-screen bg-gray-50 pt-24 flex flex-col overflow-hidden">
 
         {/* Section 1: Hero Section - Main Title & Introduction (Reduced height ~10%) */}
         <div className="px-4 sm:px-6 lg:px-8 py-2">
@@ -381,7 +381,7 @@ export const AuthInitializationSkeleton: React.FC = () => {
 export const ProjectsPageSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 mt-16">
+      <div className="min-h-screen bg-gray-50 pt-24">
 
         {/* Section 1: Header */}
         <div className="py-4 px-4 sm:px-6 lg:px-8">
@@ -496,7 +496,7 @@ export const ProjectsPageSkeleton: React.FC = () => {
 export const TeamPageSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 mt-16">
+      <div className="min-h-screen bg-gray-50 pt-24">
 
         {/* Section 1: Header */}
         <div className="py-4 px-4 sm:px-6 lg:px-8">
@@ -573,7 +573,7 @@ export const TeamPageSkeleton: React.FC = () => {
 export const AboutPageSkeleton: React.FC = () => {
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="h-screen bg-gray-50 mt-16 flex flex-col">
+      <div className="h-screen bg-gray-50 pt-24 flex flex-col">
 
         {/* Section 1: Hero */}
         <div className="px-4 sm:px-6 lg:px-8 py-3">

@@ -3,8 +3,6 @@ import { useQuery } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_TEAM_MEMBERS, GET_TEAM_STATS } from '../../services/graphql/queries';
 import { InlineError, TeamPageSkeleton } from '../../components/ui';
-import { DashboardLayout } from '../../components/layout';
-import { useAuth } from '../../contexts/AuthContext';
 import { TeamHeader, TeamFilters, TeamSortControls, TeamMembersGrid } from './team';
 import { useFormatJoinDate } from './team/teamHooks';
 import { FilterType, SortOption } from './team/types';
@@ -15,7 +13,6 @@ import { FilterType, SortOption } from './team/types';
  * Uses GraphQL queries with role filter parameters for database-level filtering
  */
 const TeamPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
 
   // State for server-side filtering and client-side sorting
   const [filter, setFilter] = useState<FilterType>('ALL');
@@ -138,89 +135,6 @@ const TeamPage: React.FC = () => {
   const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
   const totalCount = data?.paginatedTeamMembers?.paginationInfo?.totalCount || 0;
 
-  // Content components for different layouts
-  const AuthenticatedTeamContent = () => (
-    <>
-      {/* Team Header - Edge-to-Edge for Dashboard */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Meet Our{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                Team
-              </span>
-            </h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
-              Get to know the talented individuals behind our innovative projects. Our diverse team brings together expertise from various domains.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Team Sort Controls - Edge-to-Edge for Dashboard */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-6">
-          <TeamSortControls
-            sortOption={sortOption}
-            onSortChange={(field) => {
-              setSortOption(prev => ({
-                field,
-                direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
-              }));
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Team Filters - Edge-to-Edge for Dashboard */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-8 py-6">
-          <TeamFilters
-            filter={filter}
-            setFilter={setFilter}
-            teamStats={statsData?.teamStats || null}
-          />
-        </div>
-      </div>
-
-      {/* Team Members Grid - Edge-to-Edge for Dashboard */}
-      <div className="bg-white">
-        <div className="px-8 py-8">
-          <TeamMembersGrid
-            filteredMembers={teamMembers}
-            filter={filter}
-            setFilter={setFilter}
-            sortOption={sortOption}
-            formatJoinDate={formatJoinDate}
-            loading={loading}
-          />
-        </div>
-      </div>
-
-      {/* Loading More Indicator */}
-      {loadingMore && (
-        <div className="bg-white border-b border-gray-200">
-          <div className="px-8 py-8">
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* End of Results Indicator */}
-      {!hasMore && teamMembers.length > 0 && (
-        <div className="bg-white border-t border-gray-200">
-          <div className="px-8 py-8">
-            <div className="text-center text-gray-500">
-              <p>You've reached the end of the team members list.</p>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
 
   const PublicTeamContent = () => (
     <>
@@ -293,20 +207,10 @@ const TeamPage: React.FC = () => {
     </>
   );
 
-  // Conditional layout based on authentication status
-  if (isAuthenticated) {
-    // Authenticated users see sidebar layout with edge-to-edge content
-    return (
-      <DashboardLayout>
-        <AuthenticatedTeamContent />
-      </DashboardLayout>
-    );
-  }
-
-  // Non-authenticated users see traditional layout with top navbar
+  // All users see traditional layout with top navbar (NavBar handled by App.tsx)
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 mt-16">
+      <div className="min-h-screen bg-gray-50 pt-24">
         <PublicTeamContent />
       </div>
     </div>

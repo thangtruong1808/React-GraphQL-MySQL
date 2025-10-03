@@ -42,7 +42,7 @@ const AboutPage: React.FC = () => {
 
   return (
     <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 mt-16">
+      <div className="min-h-screen bg-gray-50 pt-24">
         {/* Hero Section */}
         <div className="py-4 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
