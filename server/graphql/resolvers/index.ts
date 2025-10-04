@@ -2,6 +2,7 @@ import { authResolvers } from './auth';
 import { publicStatsResolvers } from './publicStats';
 import { teamResolvers } from './teamResolvers';
 import { projectsResolvers } from './projectsResolvers';
+import { commentsResolvers } from './commentsResolvers';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 import { Task, User, Project } from '../../db';
 
@@ -34,6 +35,7 @@ export const resolvers = {
   },
   Mutation: {
     ...authResolvers.Mutation,
+    ...commentsResolvers.Mutation,
   },
   // Type resolvers for nested relationships
   User: {
@@ -103,7 +105,6 @@ export const resolvers = {
           ]
         });
       } catch (error) {
-        console.error('Error fetching owned projects for user:', error);
         return [];
       }
     },
@@ -128,7 +129,6 @@ export const resolvers = {
           ]
         });
       } catch (error) {
-        console.error('Error fetching assigned tasks for user:', error);
         return [];
       }
     }
@@ -142,7 +142,7 @@ export const resolvers = {
             projectId: parent.id,
             isDeleted: false
           },
-          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
           include: [
             {
               model: User,
@@ -153,9 +153,18 @@ export const resolvers = {
           ]
         });
       } catch (error) {
-        console.error('Error fetching tasks for project:', error);
         return [];
       }
-    }
+    },
+
+        // Resolver for comments field on Project type
+        comments: async (parent: any, args: any, context: any) => {
+          try {
+            const { getProjectComments } = await import('./commentsResolvers');
+            return await getProjectComments(parseInt(parent.id), context);
+          } catch (error) {
+            return [];
+          }
+        }
   }
 };

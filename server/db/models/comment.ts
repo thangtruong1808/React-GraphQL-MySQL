@@ -9,7 +9,7 @@ import sequelize from '../db';
 export class Comment extends Model<InferAttributes<Comment>, InferCreationAttributes<Comment>> {
   declare id: CreationOptional<number>;
   declare uuid: string;
-  declare taskId: number;
+  declare taskId: number | null;
   declare userId: number;
   declare content: string;
   declare isDeleted: boolean;

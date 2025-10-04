@@ -7,6 +7,7 @@ import { ROUTE_PATHS } from '../../constants/routingConstants';
 const HomePage = React.lazy(() => import('../../pages/home/HomePage'));
 const LoginPage = React.lazy(() => import('../../pages/auth/LoginPage'));
 const ProjectsPage = React.lazy(() => import('../../pages/general/ProjectsPage'));
+const ProjectDetailPage = React.lazy(() => import('../../pages/general/ProjectDetailPage'));
 const TeamPage = React.lazy(() => import('../../pages/general/TeamPage'));
 const AboutPage = React.lazy(() => import('../../pages/general/AboutPage'));
 const SearchResultsPage = React.lazy(() => import('../../pages/search/SearchResultsPage'));
@@ -45,6 +46,11 @@ const AppRoutes: React.FC = () => {
       <Route
         path={ROUTE_PATHS.PROJECTS}
         element={<ProjectsPage />}
+      />
+
+      <Route
+        path={ROUTE_PATHS.PROJECT_DETAIL}
+        element={<ProjectDetailPage />}
       />
 
       <Route

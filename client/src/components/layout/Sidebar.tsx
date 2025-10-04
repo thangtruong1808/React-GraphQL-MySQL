@@ -24,7 +24,7 @@ const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Check if user has admin or project manager role
-  const isAdminOrPM = user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER_PM';
+  const isAdminOrPM = user?.role === 'ADMIN' || user?.role === 'Project Manager';
 
   // Navigation items for authenticated users based on database schema
   const navigationItems: SidebarItem[] = [
@@ -101,23 +101,23 @@ const Sidebar: React.FC = () => {
     await performLogout();
   };
 
-  // Format role for display from GraphQL enum to user-friendly format
+  // Format role for display from database values to user-friendly format
   const formatRoleForDisplay = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'Administrator';
-      case 'PROJECT_MANAGER_PM': return 'Project Manager';
-      case 'SOFTWARE_ARCHITECT': return 'Software Architect';
-      case 'FRONTEND_DEVELOPER': return 'Frontend Developer';
-      case 'BACKEND_DEVELOPER': return 'Backend Developer';
-      case 'FULL_STACK_DEVELOPER': return 'Full-Stack Developer';
-      case 'DEVOPS_ENGINEER': return 'DevOps Engineer';
-      case 'QA_ENGINEER': return 'QA Engineer';
-      case 'QC_ENGINEER': return 'QC Engineer';
-      case 'UX_UI_DESIGNER': return 'UX/UI Designer';
-      case 'BUSINESS_ANALYST': return 'Business Analyst';
-      case 'DATABASE_ADMINISTRATOR': return 'Database Administrator';
-      case 'TECHNICAL_WRITER': return 'Technical Writer';
-      case 'SUPPORT_ENGINEER': return 'Support Engineer';
+      case 'Project Manager': return 'Project Manager';
+      case 'Software Architect': return 'Software Architect';
+      case 'Frontend Developer': return 'Frontend Developer';
+      case 'Backend Developer': return 'Backend Developer';
+      case 'Full-Stack Developer': return 'Full-Stack Developer';
+      case 'DevOps Engineer': return 'DevOps Engineer';
+      case 'QA Engineer': return 'QA Engineer';
+      case 'QC Engineer': return 'QC Engineer';
+      case 'UX/UI Designer': return 'UX/UI Designer';
+      case 'Business Analyst': return 'Business Analyst';
+      case 'Database Administrator': return 'Database Administrator';
+      case 'Technical Writer': return 'Technical Writer';
+      case 'Support Engineer': return 'Support Engineer';
       default: return role;
     }
   };

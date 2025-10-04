@@ -1,0 +1,380 @@
+import { Comment, User, Project, Task, CommentLike } from '../../db';
+import { AuthenticationError } from 'apollo-server-express';
+import sequelize from '../../db/db';
+import { QueryTypes } from 'sequelize';
+
+/**
+ * Comments Resolver for Project Comments
+ * Handles fetching and creating comments for projects using task-based approach
+ * Since comments table only has task_id, we use the first task or create a project discussion task
+ */
+
+/**
+ * Get or create a project discussion task for comments
+ * This allows us to use the existing comments table structure
+ */
+const getProjectDiscussionTask = async (projectId: number): Promise<number | null> => {
+  try {
+    // First, try to find an existing task in the project
+    const existingTask = await Task.findOne({
+      where: {
+        projectId: projectId,
+        isDeleted: false
+      },
+      order: [['createdAt', 'ASC']] // Get the oldest task
+    });
+
+    if (existingTask) {
+      return existingTask.id;
+    }
+
+    // If no tasks exist, we can't create comments for this project
+    // This is a limitation of working with the existing schema
+    return null;
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Fetch comments for a project
+ * Returns all non-deleted comments for tasks in the specified project
+ */
+export const getProjectComments = async (projectId: number, context?: any) => {
+  try {
+    // Get all tasks for this project
+    const projectTasks = await Task.findAll({
+      where: {
+        projectId: projectId,
+        isDeleted: false
+      },
+      attributes: ['id']
+    });
+
+    if (projectTasks.length === 0) {
+      return [];
+    }
+
+    const taskIds = projectTasks.map(task => task.id);
+
+    // Get all comments for tasks in this project
+    const comments = await Comment.findAll({
+      where: {
+        taskId: taskIds,
+        isDeleted: false
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
+          required: true
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Get likes count and user's like status for each comment
+    const commentsWithLikes = await Promise.all(comments.map(async (comment: any) => {
+      const likesCount = await CommentLike.count({
+        where: { commentId: comment.id }
+      });
+
+      // Check if current user has liked this comment
+      let isLikedByUser = false;
+      if (context?.user?.id) {
+        const userLike = await CommentLike.findOne({
+          where: {
+            userId: context.user.id,
+            commentId: comment.id
+          }
+        });
+        isLikedByUser = !!userLike;
+      }
+
+      return {
+        id: comment.id.toString(),
+        uuid: comment.uuid,
+        content: comment.content,
+        author: {
+          id: comment.user.id.toString(),
+          firstName: comment.user.firstName,
+          lastName: comment.user.lastName,
+          email: comment.user.email,
+          role: comment.user.role
+        },
+        projectId: projectId.toString(),
+        taskId: comment.taskId?.toString() || null,
+        isDeleted: comment.isDeleted,
+        version: comment.version,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        likesCount: likesCount,
+        isLikedByUser: isLikedByUser
+      };
+    }));
+
+    return commentsWithLikes;
+  } catch (error) {
+    return [];
+  }
+};
+
+/**
+ * Create a new comment on a project
+ * Requires authentication and validates user permissions
+ * Only ADMIN users or project team members can post comments
+ * Uses the first task in the project as the target for the comment
+ */
+export const createProjectComment = async (input: any, context: any) => {
+  try {
+    // Check if user is authenticated
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to create comments');
+    }
+
+    // Validate input
+    if (!input.content || input.content.trim().length === 0) {
+      throw new Error('Comment content is required');
+    }
+
+    if (!input.projectId) {
+      throw new Error('Project ID is required for project comments');
+    }
+
+    // Verify project exists
+    const project = await Project.findByPk(parseInt(input.projectId), {
+      where: { isDeleted: false }
+    });
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    // Check authorization: Only ADMIN users or project team members can post comments
+    const isAdmin = context.user.role === 'ADMIN' || context.user.role === 'admin';
+    const isProjectOwner = project.ownerId === parseInt(context.user.id.toString());
+    
+    // Check if user is a project member
+    const projectMember = await sequelize.query(`
+      SELECT 1 FROM project_members 
+      WHERE project_id = :projectId 
+        AND user_id = :userId 
+        AND is_deleted = false
+      LIMIT 1
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+      replacements: { 
+        projectId: parseInt(input.projectId),
+        userId: context.user.id
+      }
+    });
+
+    const isProjectMember = projectMember.length > 0;
+
+    // Authorization check
+    if (!isAdmin && !isProjectOwner && !isProjectMember) {
+      throw new AuthenticationError('Only project administrators, owners, and team members can post comments');
+    }
+
+    // Get a task from this project to attach the comment to
+    const discussionTaskId = await getProjectDiscussionTask(parseInt(input.projectId));
+    
+    if (!discussionTaskId) {
+      throw new Error('Cannot create comments for projects without tasks. Please add a task first.');
+    }
+
+    // Create the comment attached to the first task
+    const comment = await Comment.create({
+      content: input.content.trim(),
+      taskId: discussionTaskId,
+      userId: context.user.id,
+      isDeleted: false,
+      version: 1
+    });
+
+    // Fetch the created comment with author information
+    const createdComment = await Comment.findByPk(comment.id, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
+          required: true
+        }
+      ]
+    });
+
+    return {
+      id: createdComment!.id.toString(),
+      uuid: createdComment!.uuid,
+      content: createdComment!.content,
+      author: {
+        id: createdComment!.user.id.toString(),
+        firstName: createdComment!.user.firstName,
+        lastName: createdComment!.user.lastName,
+        email: createdComment!.user.email,
+        role: createdComment!.user.role
+      },
+      projectId: input.projectId,
+      taskId: createdComment!.taskId?.toString() || null,
+      isDeleted: createdComment!.isDeleted,
+      version: createdComment!.version,
+      createdAt: createdComment!.createdAt,
+      updatedAt: createdComment!.updatedAt,
+      likesCount: 0, // New comments start with 0 likes
+      isLikedByUser: false // User hasn't liked their own comment yet
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Toggle like/unlike on a comment
+ * Requires authentication and validates user permissions
+ * Only ADMIN users or project team members can like comments
+ */
+export const toggleCommentLike = async (input: any, context: any) => {
+  try {
+    // Check if user is authenticated
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to like comments');
+    }
+
+    const { commentId } = input;
+
+    if (!commentId) {
+      throw new Error('Comment ID is required');
+    }
+
+    // Check if comment exists and get the associated project
+    const comment = await Comment.findByPk(parseInt(commentId), {
+      where: { isDeleted: false },
+      include: [
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['projectId'],
+          required: true
+        }
+      ]
+    });
+
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+
+    // Get the project ID from the comment's task
+    const projectId = comment.task.projectId;
+
+    // Check authorization: Only ADMIN users or project team members can like comments
+    const isAdmin = context.user.role === 'ADMIN' || context.user.role === 'admin';
+    
+    // Get project owner
+    const project = await Project.findByPk(projectId, {
+      attributes: ['ownerId']
+    });
+    
+    const isProjectOwner = project && project.ownerId === parseInt(context.user.id.toString());
+    
+    // Check if user is a project member
+    const projectMember = await sequelize.query(`
+      SELECT 1 FROM project_members 
+      WHERE project_id = :projectId 
+        AND user_id = :userId 
+        AND is_deleted = false
+      LIMIT 1
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+      replacements: { 
+        projectId: projectId,
+        userId: context.user.id
+      }
+    });
+
+    const isProjectMember = projectMember.length > 0;
+
+    // Authorization check
+    if (!isAdmin && !isProjectOwner && !isProjectMember) {
+      throw new AuthenticationError('Only project administrators, owners, and team members can like comments');
+    }
+
+    // Check if user already liked this comment
+    const existingLike = await CommentLike.findOne({
+      where: {
+        userId: context.user.id,
+        commentId: parseInt(commentId)
+      }
+    });
+
+    if (existingLike) {
+      // Unlike - remove the like
+      await CommentLike.destroy({
+        where: {
+          userId: context.user.id,
+          commentId: parseInt(commentId)
+        }
+      });
+    } else {
+      // Like - create new like
+      await CommentLike.create({
+        userId: context.user.id,
+        commentId: parseInt(commentId)
+      });
+    }
+
+    // Fetch updated comment with likes count
+    const updatedComment = await Comment.findByPk(parseInt(commentId), {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
+          required: true
+        }
+      ]
+    });
+
+    const likesCount = await CommentLike.count({
+      where: { commentId: parseInt(commentId) }
+    });
+
+    const isLikedByUser = !existingLike; // If we just liked it, user has liked it
+
+    return {
+      id: updatedComment!.id.toString(),
+      uuid: updatedComment!.uuid,
+      content: updatedComment!.content,
+      author: {
+        id: updatedComment!.user.id.toString(),
+        firstName: updatedComment!.user.firstName,
+        lastName: updatedComment!.user.lastName,
+        email: updatedComment!.user.email,
+        role: updatedComment!.user.role
+      },
+      projectId: null, // Not needed for like response
+      taskId: updatedComment!.taskId?.toString() || null,
+      isDeleted: updatedComment!.isDeleted,
+      version: updatedComment!.version,
+      createdAt: updatedComment!.createdAt,
+      updatedAt: updatedComment!.updatedAt,
+      likesCount: likesCount,
+      isLikedByUser: isLikedByUser
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const commentsResolvers = {
+  Query: {
+    // Comments will be fetched through Project.comments field
+  },
+  Mutation: {
+    createComment: createProjectComment,
+    toggleCommentLike: toggleCommentLike
+  }
+};

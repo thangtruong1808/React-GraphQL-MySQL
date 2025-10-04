@@ -48,6 +48,8 @@ export const typeDefs = gql`
     # Associated projects and tasks for member search
     ownedProjects: [Project!]!
     assignedTasks: [Task!]!
+    # Member role in project (when used as project member)
+    memberRole: String
   }
 
   # Team Member Type - for public team display with aggregated stats
@@ -98,6 +100,10 @@ export const typeDefs = gql`
     updatedAt: String
     # Tasks belonging to this project
     tasks: [Task!]!
+    # Members of this project
+    members: [User!]!
+    # Comments on this project
+    comments: [Comment!]!
   }
 
   # Task Type - for task management
@@ -108,12 +114,30 @@ export const typeDefs = gql`
     description: String!
     status: TaskStatus!
     priority: TaskPriority!
+    dueDate: String
     project: Project!
     assignedUser: User
     isDeleted: Boolean!
     version: Int!
     createdAt: String
     updatedAt: String
+  }
+
+  # Comment Type - for project and task comments
+  type Comment {
+    id: ID!
+    uuid: String
+    content: String!
+    author: User!
+    projectId: ID
+    taskId: ID
+    isDeleted: Boolean!
+    version: Int!
+    createdAt: String
+    updatedAt: String
+    # Comment likes count and user's like status
+    likesCount: Int!
+    isLikedByUser: Boolean!
   }
 
   # Project Like Info Type - for displaying project names with like counts
@@ -159,6 +183,13 @@ export const typeDefs = gql`
   input LoginInput {
     email: String!
     password: String!
+  }
+
+  # Comment Input Type - for creating new comments
+  input CommentInput {
+    content: String!
+    projectId: ID
+    taskId: ID
   }
 
   # Public Statistics Type - for unauthenticated dashboard
@@ -282,6 +313,8 @@ export const typeDefs = gql`
     projectStatusDistribution: ProjectStatusDistribution!
     # Public projects - for public projects page (legacy, loads all)
     projects: [PublicProject!]!
+    # Single project - for project details page
+    project(id: ID!): Project
     # Paginated projects - for infinite scroll support
     paginatedProjects(limit: Int = 12, offset: Int = 0, statusFilter: ProjectStatus): PaginatedProjectsResponse!
     # Search functionality - all parameters are optional
@@ -290,7 +323,7 @@ export const typeDefs = gql`
     searchTasks(taskStatusFilter: [TaskStatus!]): [Task!]!
   }
 
-  # Mutation Type - only includes authentication mutations that are actually used
+  # Mutation Type - includes authentication and comment mutations
   type Mutation {
     # User login with email/password - returns tokens and user data
     login(input: LoginInput!): AuthResponse!
@@ -304,5 +337,11 @@ export const typeDefs = gql`
     
     # Renew refresh token to extend session - for active users
     refreshTokenRenewal: RefreshTokenRenewalResponse!
+    
+    # Create a new comment on a project or task - requires authentication
+    createComment(input: CommentInput!): Comment!
+    
+    # Like/unlike a comment - requires authentication
+    toggleCommentLike(commentId: ID!): Comment!
   }
 `;

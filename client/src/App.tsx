@@ -103,10 +103,10 @@ const AppContent: React.FC = () => {
   const location = useLocation();
 
   // Show NavBar for non-authenticated users, login page, homepage, search page, or public pages
-  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT;
+  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname.startsWith('/projects/');
 
   // For authenticated users on dashboard routes (not homepage, search, or public pages), use edge-to-edge layout
-  if (isAuthenticated && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT) {
+  if (isAuthenticated && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT && !location.pathname.startsWith('/projects/')) {
     return (
       <>
         {/* Activity tracker - handles user activity monitoring */}

@@ -169,7 +169,7 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({
 
                 <div className="pt-4 border-t border-gray-100">
                   <Link
-                    to={ROUTE_PATHS.LOGIN}
+                    to={`/projects/${project.id}`}
                     className="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

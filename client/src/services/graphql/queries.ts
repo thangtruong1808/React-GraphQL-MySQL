@@ -427,3 +427,93 @@ export const GET_PAGINATED_PROJECTS = gql`
     }
   }
 `;
+
+// Project details query for individual project page
+export const GET_PROJECT_DETAILS = gql`
+  query GetProjectDetails($projectId: ID!) {
+    project(id: $projectId) {
+      id
+      uuid
+      name
+      description
+      status
+      createdAt
+      updatedAt
+      owner {
+        id
+        firstName
+        lastName
+        email
+        role
+      }
+      tasks {
+        id
+        title
+        status
+        priority
+        dueDate
+        assignedUser {
+          firstName
+          lastName
+        }
+      }
+      members {
+        id
+        firstName
+        lastName
+        email
+        role
+        memberRole
+      }
+      comments {
+        id
+        uuid
+        content
+        author {
+          id
+          firstName
+          lastName
+          email
+          role
+        }
+        createdAt
+        updatedAt
+        likesCount
+        isLikedByUser
+      }
+    }
+  }
+`;
+
+export const CREATE_COMMENT = gql`
+  mutation CreateComment($input: CommentInput!) {
+    createComment(input: $input) {
+      id
+      uuid
+      content
+      author {
+        id
+        firstName
+        lastName
+        email
+        role
+      }
+      projectId
+      taskId
+      createdAt
+      updatedAt
+      likesCount
+      isLikedByUser
+    }
+  }
+`;
+
+export const TOGGLE_COMMENT_LIKE = gql`
+  mutation ToggleCommentLike($commentId: ID!) {
+    toggleCommentLike(commentId: $commentId) {
+      id
+      likesCount
+      isLikedByUser
+    }
+  }
+`;
