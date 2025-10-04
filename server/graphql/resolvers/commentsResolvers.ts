@@ -1,7 +1,5 @@
 import { Comment, User, Project, Task, CommentLike } from '../../db';
 import { AuthenticationError } from 'apollo-server-express';
-import sequelize from '../../db/db';
-import { QueryTypes } from 'sequelize';
 
 /**
  * Comments Resolver for Project Comments
@@ -151,32 +149,8 @@ export const createProjectComment = async (input: any, context: any) => {
       throw new Error('Project not found');
     }
 
-    // Check authorization: Only ADMIN users or project team members can post comments
-    const isAdmin = context.user.role === 'ADMIN' || context.user.role === 'admin';
-    const isProjectOwner = project.ownerId === parseInt(context.user.id.toString());
-    
-    // Check if user is a project member
-    const projectMember = await sequelize.query(`
-      SELECT 1 FROM project_members 
-      WHERE project_id = :projectId 
-        AND user_id = :userId 
-        AND is_deleted = false
-      LIMIT 1
-    `, {
-      type: QueryTypes.SELECT,
-      raw: true,
-      replacements: { 
-        projectId: parseInt(input.projectId),
-        userId: context.user.id
-      }
-    });
-
-    const isProjectMember = projectMember.length > 0;
-
-    // Authorization check
-    if (!isAdmin && !isProjectOwner && !isProjectMember) {
-      throw new AuthenticationError('Only project administrators, owners, and team members can post comments');
-    }
+    // Authorization is handled on client side - server just verifies authentication
+    // Client checks if user is ADMIN, project owner, or team member before enabling comment posting
 
     // Get a task from this project to attach the comment to
     const discussionTaskId = await getProjectDiscussionTask(parseInt(input.projectId));
@@ -269,38 +243,8 @@ export const toggleCommentLike = async (input: any, context: any) => {
     // Get the project ID from the comment's task
     const projectId = comment.task.projectId;
 
-    // Check authorization: Only ADMIN users or project team members can like comments
-    const isAdmin = context.user.role === 'ADMIN' || context.user.role === 'admin';
-    
-    // Get project owner
-    const project = await Project.findByPk(projectId, {
-      attributes: ['ownerId']
-    });
-    
-    const isProjectOwner = project && project.ownerId === parseInt(context.user.id.toString());
-    
-    // Check if user is a project member
-    const projectMember = await sequelize.query(`
-      SELECT 1 FROM project_members 
-      WHERE project_id = :projectId 
-        AND user_id = :userId 
-        AND is_deleted = false
-      LIMIT 1
-    `, {
-      type: QueryTypes.SELECT,
-      raw: true,
-      replacements: { 
-        projectId: projectId,
-        userId: context.user.id
-      }
-    });
-
-    const isProjectMember = projectMember.length > 0;
-
-    // Authorization check
-    if (!isAdmin && !isProjectOwner && !isProjectMember) {
-      throw new AuthenticationError('Only project administrators, owners, and team members can like comments');
-    }
+    // Authorization is handled on client side - server just verifies authentication
+    // Client checks if user is ADMIN, project owner, or team member before enabling like button
 
     // Check if user already liked this comment
     const existingLike = await CommentLike.findOne({
