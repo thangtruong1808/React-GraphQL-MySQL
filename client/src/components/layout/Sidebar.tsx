@@ -24,16 +24,16 @@ const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Check if user has admin or project manager role
-  const isAdminOrPM = user?.role === 'ADMIN' || user?.role === 'Project Manager';
+  const isAdminOrPM = user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER_PM';
 
   // Navigation items for authenticated users based on database schema
   const navigationItems: SidebarItem[] = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
-      path: ROUTE_PATHS.HOME,
-      icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z',
-      description: 'Project overview and statistics'
+      id: 'home',
+      label: 'Home',
+      path: ROUTE_PATHS.DASHBOARD,
+      icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
+      description: 'Task flow overview and project statistics'
     },
     // Users management - only for Admin and Project Managers
     ...(isAdminOrPM ? [{
@@ -90,8 +90,8 @@ const Sidebar: React.FC = () => {
 
   // Check if navigation item is active
   const isActiveItem = (item: SidebarItem) => {
-    if (item.path === ROUTE_PATHS.HOME) {
-      return location.pathname === '/' || location.pathname === ROUTE_PATHS.HOME;
+    if (item.path === ROUTE_PATHS.DASHBOARD) {
+      return location.pathname === ROUTE_PATHS.DASHBOARD;
     }
     return location.pathname === item.path;
   };
@@ -99,6 +99,27 @@ const Sidebar: React.FC = () => {
   // Handle logout
   const handleLogout = async () => {
     await performLogout();
+  };
+
+  // Format role for display from GraphQL enum to user-friendly format
+  const formatRoleForDisplay = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'Administrator';
+      case 'PROJECT_MANAGER_PM': return 'Project Manager';
+      case 'SOFTWARE_ARCHITECT': return 'Software Architect';
+      case 'FRONTEND_DEVELOPER': return 'Frontend Developer';
+      case 'BACKEND_DEVELOPER': return 'Backend Developer';
+      case 'FULL_STACK_DEVELOPER': return 'Full-Stack Developer';
+      case 'DEVOPS_ENGINEER': return 'DevOps Engineer';
+      case 'QA_ENGINEER': return 'QA Engineer';
+      case 'QC_ENGINEER': return 'QC Engineer';
+      case 'UX_UI_DESIGNER': return 'UX/UI Designer';
+      case 'BUSINESS_ANALYST': return 'Business Analyst';
+      case 'DATABASE_ADMINISTRATOR': return 'Database Administrator';
+      case 'TECHNICAL_WRITER': return 'Technical Writer';
+      case 'SUPPORT_ENGINEER': return 'Support Engineer';
+      default: return role;
+    }
   };
 
   // Get user initials for avatar
@@ -174,7 +195,7 @@ const Sidebar: React.FC = () => {
                 {user?.email}
               </p>
               <p className="text-sm text-purple-600 font-medium truncate">
-                {user?.role}
+                {user?.role ? formatRoleForDisplay(user.role) : ''}
               </p>
             </div>
           )}

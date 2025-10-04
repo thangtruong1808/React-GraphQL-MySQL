@@ -17,7 +17,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: UserRole;
+  role: string; // GraphQL returns string values, not UserRole enum
   isDeleted: boolean;
   version: number;
   createdAt: string;
