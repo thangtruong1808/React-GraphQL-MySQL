@@ -235,15 +235,24 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
       if (!isAuthOperation && !isAuthInitializing && !isAppInitializing) {
         window.location.href = ROUTE_PATHS.LOGIN;
       }
-    } else if (networkError.message.includes('403') || networkError.message.includes('Forbidden') || networkError.message.includes('CSRF')) {
-      // Handle CSRF/403 errors gracefully - don't show to user during logout
-      // This prevents CSRF error messages during logout operations
-      // 403 errors during logout are expected when access token is expired
+    } else if (networkError.message.includes('403') || networkError.message.includes('Forbidden')) {
+      // Handle 403 errors - could be authentication or CSRF issues
       const isLogoutOperation = operation.operationName === 'Logout';
       if (isLogoutOperation) {
         // Don't show 403 errors during logout - this is expected behavior
         return;
       }
+      
+      // For non-logout operations, 403 could mean expired token
+      // Try to refresh token if we have one
+      const tokens = getTokens();
+      if (tokens.refreshToken) {
+        // The retry link will handle token refresh automatically
+        // Don't redirect to login immediately - let retry attempt first
+        return;
+      }
+    } else if (networkError.message.includes('CSRF')) {
+      // Handle CSRF errors specifically
     } else {
       // Only show non-authentication network errors to user
       // This prevents CSRF errors during logout from showing

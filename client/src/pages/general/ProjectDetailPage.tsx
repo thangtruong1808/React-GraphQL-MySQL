@@ -7,6 +7,8 @@ import { SkeletonBox } from '../../components/ui/SkeletonLoader';
 import { GET_PROJECT_DETAILS, CREATE_COMMENT, TOGGLE_COMMENT_LIKE } from '../../services/graphql/queries';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatRoleForDisplay, isAdminRole } from '../../utils/roleFormatter';
+import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
+import { useError } from '../../contexts/ErrorContext';
 
 /**
  * Project Detail Page Component
@@ -69,7 +71,9 @@ interface ProjectDetails {
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user, isAuthenticated } = useAuth();
+  const { showError, showInfo } = useError();
   const [newComment, setNewComment] = useState('');
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   // Fetch project details
   const { data, loading, error, refetch } = useQuery<{ project: ProjectDetails }>(GET_PROJECT_DETAILS, {
@@ -78,23 +82,26 @@ const ProjectDetailPage: React.FC = () => {
     fetchPolicy: 'cache-first'
   });
 
-  // Create comment mutation with optimized cache update
-  const [createComment, { loading: creatingComment }] = useMutation(CREATE_COMMENT, {
+  // Create comment mutation with optimized cache updates
+  const [createComment] = useMutation(CREATE_COMMENT, {
     onCompleted: (data) => {
       setNewComment('');
-      // Optimized: Update only the comments cache instead of refetching entire project
+      // Optimized: Update only comments cache instead of refetching entire project
     },
     update: (cache, { data }) => {
+      console.log('Cache update called with data:', data);
       if (data?.createComment) {
         try {
-          // Read the current project data from cache
+          // Read current project data from cache
           const existingProject = cache.readQuery({
             query: GET_PROJECT_DETAILS,
             variables: { projectId: id }
           });
 
+          console.log('Existing project data:', existingProject);
+
           if (existingProject?.project) {
-            // Update the project with the new comment (add to beginning for latest-first order)
+            // Update project with new comment (add to beginning for latest-first order)
             cache.writeQuery({
               query: GET_PROJECT_DETAILS,
               variables: { projectId: id },
@@ -105,8 +112,10 @@ const ProjectDetailPage: React.FC = () => {
                 }
               }
             });
+            console.log('Cache updated successfully');
           }
         } catch (error) {
+          console.log('Cache update failed, falling back to refetch:', error);
           // Fallback to refetch if cache update fails
           refetch();
         }
@@ -118,7 +127,7 @@ const ProjectDetailPage: React.FC = () => {
   });
 
   // Toggle comment like mutation with optimized cache update
-  const [toggleCommentLike] = useMutation(TOGGLE_COMMENT_LIKE, {
+  const [toggleCommentLike] = useAuthenticatedMutation(TOGGLE_COMMENT_LIKE, {
     onCompleted: (data) => {
       // Optimized: Update only the comment cache instead of refetching entire project
     },
@@ -163,13 +172,30 @@ const ProjectDetailPage: React.FC = () => {
   });
 
 
-  // Handle comment submission
+  // Handle comment submission with proper async flow and state management
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !isAuthenticated || !id || !canPostComments()) return;
+    
+    // Prevent multiple simultaneous submissions
+    if (isSubmittingComment || !newComment.trim() || !isAuthenticated || !id || !canPostComments()) {
+      return;
+    }
+
+    // Debug: Check authentication state
+    console.log('Comment submission debug:', {
+      isAuthenticated,
+      userId: user?.id,
+      userRole: user?.role,
+      projectId: id,
+      canPost: canPostComments()
+    });
+
+    // Set submitting state to prevent race conditions
+    setIsSubmittingComment(true);
 
     try {
-      await createComment({
+      // Execute comment creation with proper async/await
+      const result = await createComment({
         variables: {
           input: {
             content: newComment.trim(),
@@ -177,8 +203,18 @@ const ProjectDetailPage: React.FC = () => {
           }
         }
       });
-    } catch (error) {
-      // Handle error silently
+
+      // Show success notification
+      showInfo('Comment posted successfully!');
+      
+    } catch (error: any) {
+      // Show error notification
+      const errorMessage = error.message || 'Failed to post comment. Please try again.';
+      showError(errorMessage);
+      
+    } finally {
+      // Always reset submitting state
+      setIsSubmittingComment(false);
     }
   };
 
@@ -188,12 +224,10 @@ const ProjectDetailPage: React.FC = () => {
 
     try {
       await toggleCommentLike({
-        variables: {
-          commentId: commentId
-        }
+        commentId: commentId
       });
     } catch (error) {
-      // Handle error silently
+      // Handle error silently - authentication retry is handled by useAuthenticatedMutation
     }
   };
 
@@ -436,6 +470,7 @@ const ProjectDetailPage: React.FC = () => {
 
   // Check if user can post comments (ADMIN or team member)
   const canPostComments = () => {
+
     if (!isAuthenticated || !user) return false;
 
     // ADMIN users can always post comments
@@ -446,7 +481,6 @@ const ProjectDetailPage: React.FC = () => {
 
     // Check if user is a team member
     const isTeamMember = project.members.some(member => member.id === user.id);
-
 
     return isTeamMember;
   };
@@ -714,7 +748,7 @@ const ProjectDetailPage: React.FC = () => {
                           className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-300 resize-none transition-all duration-200 placeholder-gray-400 text-gray-700 bg-white shadow-sm"
                           rows={4}
                           maxLength={500}
-                          disabled={creatingComment}
+                          disabled={isSubmittingComment}
                         />
 
                         {/* Character Counter */}
@@ -727,11 +761,11 @@ const ProjectDetailPage: React.FC = () => {
                       <div className="flex items-center justify-end mt-4">
                         <button
                           type="submit"
-                          disabled={!newComment.trim() || creatingComment}
+                          disabled={isSubmittingComment || !newComment.trim() || !canPostComments()}
                           className="group relative px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
                         >
                           <div className="flex items-center space-x-2">
-                            {creatingComment ? (
+                            {isSubmittingComment ? (
                               <>
                                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
