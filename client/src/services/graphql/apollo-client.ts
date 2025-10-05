@@ -158,10 +158,10 @@ const authLink = setContext((_, { headers }) => {
       requestHeaders.authorization = `Bearer ${tokens.accessToken}`;
     }
     
-    // Add CSRF token header for mutations - temporarily disabled for debugging
-    // if (csrfToken) {
-    //   requestHeaders['x-csrf-token'] = csrfToken;
-    // }
+    // Add CSRF token header for mutations
+    if (csrfToken) {
+      requestHeaders['x-csrf-token'] = csrfToken;
+    }
     
     return { headers: requestHeaders };
   } catch (error) {

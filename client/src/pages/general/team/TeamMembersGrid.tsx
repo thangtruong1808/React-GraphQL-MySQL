@@ -4,6 +4,7 @@ import { ROUTE_PATHS } from '../../../constants/routingConstants';
 import { TeamMember, FilterType, SortOption } from './types';
 import { useMemo } from 'react';
 import { TeamMembersGridSkeleton } from '../../../components/ui';
+import { formatRoleForDisplay } from '../../../utils/roleFormatter';
 
 /**
  * Team Members Grid Component
@@ -32,26 +33,6 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
   formatJoinDate,
   loading
 }) => {
-  // Convert GraphQL enum role to display-friendly format
-  const formatRoleForDisplay = (role: string) => {
-    switch (role) {
-      case 'ADMIN': return 'Administrator';
-      case 'PROJECT_MANAGER_PM': return 'Project Manager';
-      case 'SOFTWARE_ARCHITECT': return 'Software Architect';
-      case 'FRONTEND_DEVELOPER': return 'Frontend Developer';
-      case 'BACKEND_DEVELOPER': return 'Backend Developer';
-      case 'FULL_STACK_DEVELOPER': return 'Full-Stack Developer';
-      case 'DEVOPS_ENGINEER': return 'DevOps Engineer';
-      case 'QA_ENGINEER': return 'QA Engineer';
-      case 'QC_ENGINEER': return 'QC Engineer';
-      case 'UX_UI_DESIGNER': return 'UX/UI Designer';
-      case 'BUSINESS_ANALYST': return 'Business Analyst';
-      case 'DATABASE_ADMINISTRATOR': return 'Database Administrator';
-      case 'TECHNICAL_WRITER': return 'Technical Writer';
-      case 'SUPPORT_ENGINEER': return 'Support Engineer';
-      default: return role;
-    }
-  };
 
   // Client-side sorting logic for filtered team members
   const sortedMembers = useMemo(() => {

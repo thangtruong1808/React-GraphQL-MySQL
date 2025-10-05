@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { User } from '../../types/graphql';
 import { NavItem } from '../../constants/navigation';
+import { formatRoleForDisplay } from '../../utils/roleFormatter';
 import NavIcon from '../ui/NavIcon';
 
 /**
@@ -34,26 +35,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
 }) => {
   const location = useLocation();
 
-  // Format role for display from database values to user-friendly format
-  const formatRoleForDisplay = (role: string) => {
-    switch (role) {
-      case 'ADMIN': return 'Administrator';
-      case 'Project Manager': return 'Project Manager';
-      case 'Software Architect': return 'Software Architect';
-      case 'Frontend Developer': return 'Frontend Developer';
-      case 'Backend Developer': return 'Backend Developer';
-      case 'Full-Stack Developer': return 'Full-Stack Developer';
-      case 'DevOps Engineer': return 'DevOps Engineer';
-      case 'QA Engineer': return 'QA Engineer';
-      case 'QC Engineer': return 'QC Engineer';
-      case 'UX/UI Designer': return 'UX/UI Designer';
-      case 'Business Analyst': return 'Business Analyst';
-      case 'Database Administrator': return 'Database Administrator';
-      case 'Technical Writer': return 'Technical Writer';
-      case 'Support Engineer': return 'Support Engineer';
-      default: return role;
-    }
-  };
 
   // Don't render if not open
   if (!isOpen) return null;

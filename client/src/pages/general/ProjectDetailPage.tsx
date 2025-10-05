@@ -6,6 +6,7 @@ import { InlineError } from '../../components/ui';
 import { SkeletonBox } from '../../components/ui/SkeletonLoader';
 import { GET_PROJECT_DETAILS, CREATE_COMMENT, TOGGLE_COMMENT_LIKE } from '../../services/graphql/queries';
 import { useAuth } from '../../contexts/AuthContext';
+import { formatRoleForDisplay, isAdminRole } from '../../utils/roleFormatter';
 
 /**
  * Project Detail Page Component
@@ -77,47 +78,90 @@ const ProjectDetailPage: React.FC = () => {
     fetchPolicy: 'cache-first'
   });
 
-  // Create comment mutation
+  // Create comment mutation with optimized cache update
   const [createComment, { loading: creatingComment }] = useMutation(CREATE_COMMENT, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       setNewComment('');
-      refetch(); // Refresh the project data to show new comment
+      // Optimized: Update only the comments cache instead of refetching entire project
+    },
+    update: (cache, { data }) => {
+      if (data?.createComment) {
+        try {
+          // Read the current project data from cache
+          const existingProject = cache.readQuery({
+            query: GET_PROJECT_DETAILS,
+            variables: { projectId: id }
+          });
+
+          if (existingProject?.project) {
+            // Update the project with the new comment (add to beginning for latest-first order)
+            cache.writeQuery({
+              query: GET_PROJECT_DETAILS,
+              variables: { projectId: id },
+              data: {
+                project: {
+                  ...existingProject.project,
+                  comments: [data.createComment, ...existingProject.project.comments]
+                }
+              }
+            });
+          }
+        } catch (error) {
+          // Fallback to refetch if cache update fails
+          refetch();
+        }
+      }
     },
     onError: (error) => {
       // Handle error silently
     }
   });
 
-  // Toggle comment like mutation
+  // Toggle comment like mutation with optimized cache update
   const [toggleCommentLike] = useMutation(TOGGLE_COMMENT_LIKE, {
-    onCompleted: () => {
-      refetch(); // Refresh the project data to update like counts
+    onCompleted: (data) => {
+      // Optimized: Update only the comment cache instead of refetching entire project
+    },
+    update: (cache, { data }) => {
+      if (data?.toggleCommentLike) {
+        try {
+          // Read the current project data from cache
+          const existingProject = cache.readQuery({
+            query: GET_PROJECT_DETAILS,
+            variables: { projectId: id }
+          });
+
+          if (existingProject?.project) {
+            // Update the specific comment with new like count
+            const updatedComments = existingProject.project.comments.map(comment =>
+              comment.id === data.toggleCommentLike.id
+                ? { ...comment, likesCount: data.toggleCommentLike.likesCount, isLikedByUser: data.toggleCommentLike.isLikedByUser }
+                : comment
+            );
+
+            // Update the project with the updated comment
+            cache.writeQuery({
+              query: GET_PROJECT_DETAILS,
+              variables: { projectId: id },
+              data: {
+                project: {
+                  ...existingProject.project,
+                  comments: updatedComments
+                }
+              }
+            });
+          }
+        } catch (error) {
+          // Fallback to refetch if cache update fails
+          refetch();
+        }
+      }
     },
     onError: (error) => {
       // Handle error silently
     }
   });
 
-  // Check if user can post comments (ADMIN or team member)
-  const canPostComments = () => {
-    if (!isAuthenticated || !user || !project) return false;
-
-    // ADMIN users can always post comments
-    if (user.role === 'ADMIN') return true;
-
-    // Check if user is project owner
-    if (project.owner && project.owner.id === user.id) return true;
-
-    // Check if user is a team member
-    const isTeamMember = project.members.some(member => member.id === user.id);
-
-    return isTeamMember;
-  };
-
-  // Check if user can like comments (same as posting comments - ADMIN or team member)
-  const canLikeComments = () => {
-    return canPostComments();
-  };
 
   // Handle comment submission
   const handleSubmitComment = async (e: React.FormEvent) => {
@@ -166,26 +210,6 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  // Format role for display from database values to user-friendly format
-  const formatRoleForDisplay = (role: string) => {
-    switch (role) {
-      case 'ADMIN': return 'Administrator';
-      case 'Project Manager': return 'Project Manager';
-      case 'Software Architect': return 'Software Architect';
-      case 'Frontend Developer': return 'Frontend Developer';
-      case 'Backend Developer': return 'Backend Developer';
-      case 'Full-Stack Developer': return 'Full-Stack Developer';
-      case 'DevOps Engineer': return 'DevOps Engineer';
-      case 'QA Engineer': return 'QA Engineer';
-      case 'QC Engineer': return 'QC Engineer';
-      case 'UX/UI Designer': return 'UX/UI Designer';
-      case 'Business Analyst': return 'Business Analyst';
-      case 'Database Administrator': return 'Database Administrator';
-      case 'Technical Writer': return 'Technical Writer';
-      case 'Support Engineer': return 'Support Engineer';
-      default: return role;
-    }
-  };
 
   // Format member role for display
   const formatMemberRoleForDisplay = (memberRole: string) => {
@@ -409,6 +433,28 @@ const ProjectDetailPage: React.FC = () => {
   }
 
   const project = data.project;
+
+  // Check if user can post comments (ADMIN or team member)
+  const canPostComments = () => {
+    if (!isAuthenticated || !user) return false;
+
+    // ADMIN users can always post comments
+    if (isAdminRole(user.role)) return true;
+
+    // Check if user is project owner
+    if (project.owner && project.owner.id === user.id) return true;
+
+    // Check if user is a team member
+    const isTeamMember = project.members.some(member => member.id === user.id);
+
+
+    return isTeamMember;
+  };
+
+  // Check if user can like comments (same as posting comments - ADMIN or team member)
+  const canLikeComments = () => {
+    return canPostComments();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-8">

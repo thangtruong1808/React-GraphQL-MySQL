@@ -244,32 +244,6 @@ export const useSearchResults = ({
     const allProjects = filteredProjects;
     const allTasks = filteredTasks;
 
-    // Debug logging to help identify the issue
-    console.log('Search Results Debug:', {
-      searchType: {
-        isUserSearch,
-        isProjectStatusSearch: projectStatusFilter.length > 0,
-        isTaskStatusSearch: taskStatusFilter.length > 0,
-        combinedSearch: isUserSearch && (projectStatusFilter.length > 0 || taskStatusFilter.length > 0)
-      },
-      filtering: {
-        projectsFiltered: isUserSearch && isProjectStatusSearch,
-        tasksFiltered: isUserSearch && isTaskStatusSearch,
-        matchingUserIds: isUserSearch ? members.map(member => member.id) : []
-      },
-      directMembers: members.length,
-      relatedMembers: relatedMembers.length,
-      totalMembers: allMembers.length,
-      directProjects: directProjects.length,
-      relatedProjects: relatedProjects.length,
-      totalProjects: allProjects.length,
-      directTasks: directTasks.length,
-      relatedTasks: relatedTasks.length,
-      totalTasks: allTasks.length,
-      searchQuery: memoizedSearchQuery,
-      projectStatusFilter: memoizedProjectStatusFilter,
-      taskStatusFilter: memoizedTaskStatusFilter
-    });
 
     setSearchResults({
       members: allMembers,

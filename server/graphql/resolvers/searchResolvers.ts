@@ -153,7 +153,6 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
       replacements
     });
 
-    console.log(`Found ${projects.length} projects with specified statuses`);
     
     // Map database status values to GraphQL status values (database stores enum values directly)
     const mapDBStatusToGraphQLStatus = (dbStatus: string): string => {
@@ -194,10 +193,8 @@ export const searchProjects = async (_: any, { statusFilter }: { statusFilter?: 
  */
 export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilter?: string[] }) => {
   try {
-    console.log('Searching tasks with status filter:', taskStatusFilter);
     
     if (!taskStatusFilter || taskStatusFilter.length === 0) {
-      console.log('No task status filter provided, returning empty array');
       return [];
     }
 
@@ -209,10 +206,8 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
     };
     
     const dbStatuses = taskStatusFilter.map(status => dbStatusMapping[status]).filter(Boolean);
-    console.log('Mapped to database statuses:', dbStatuses);
     
     if (dbStatuses.length === 0) {
-      console.log('No valid statuses found, returning empty array');
       return [];
     }
     
@@ -252,16 +247,11 @@ export const searchTasks = async (_: any, { taskStatusFilter }: { taskStatusFilt
       ORDER BY t.created_at ASC
     `;
     
-    console.log('Executing task status filter query:', sqlQuery);
-    console.log('With replacements:', replacements);
-    
     const tasks = await sequelize.query(sqlQuery, {
       type: QueryTypes.SELECT,
       raw: true,
       replacements
     });
-
-    console.log(`Found ${tasks.length} tasks with specified statuses`);
     
     // Map database status values to GraphQL status values (database stores enum values directly)
     const mapDBStatusToGraphQLStatus = (dbStatus: string): string => {

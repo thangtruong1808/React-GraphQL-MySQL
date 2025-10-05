@@ -34,11 +34,21 @@ export const projects = async () => {
       ) task_counts ON p.id = task_counts.project_id
       LEFT JOIN (
         SELECT 
-          project_id,
-          COUNT(*) as member_count
-        FROM project_members 
-        WHERE is_deleted = false
-        GROUP BY project_id
+          p.id as project_id,
+          (
+            CASE WHEN p.owner_id IS NOT NULL THEN 1 ELSE 0 END +
+            (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id AND pm.is_deleted = false) +
+            (SELECT COUNT(DISTINCT t.assigned_to) FROM tasks t 
+             WHERE t.project_id = p.id AND t.is_deleted = false AND t.assigned_to IS NOT NULL 
+             AND t.assigned_to != p.owner_id 
+             AND t.assigned_to NOT IN (
+               SELECT pm2.user_id FROM project_members pm2 
+               WHERE pm2.project_id = p.id AND pm2.is_deleted = false
+             )
+            )
+          ) as member_count
+        FROM projects p
+        WHERE p.is_deleted = false
       ) member_counts ON p.id = member_counts.project_id
       WHERE p.is_deleted = false
       ORDER BY p.created_at DESC
@@ -101,7 +111,18 @@ export const paginatedProjects = async (_: any, { limit = 12, offset = 0, status
         u.first_name as ownerFirstName,
         u.last_name as ownerLastName,
         (SELECT COUNT(*) FROM tasks t WHERE t.project_id = p.id AND t.is_deleted = false) as taskCount,
-        (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id AND pm.is_deleted = false) as memberCount
+        (
+          CASE WHEN p.owner_id IS NOT NULL THEN 1 ELSE 0 END +
+          (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id AND pm.is_deleted = false) +
+          (SELECT COUNT(DISTINCT t.assigned_to) FROM tasks t 
+           WHERE t.project_id = p.id AND t.is_deleted = false AND t.assigned_to IS NOT NULL 
+           AND t.assigned_to != p.owner_id 
+           AND t.assigned_to NOT IN (
+             SELECT pm2.user_id FROM project_members pm2 
+             WHERE pm2.project_id = p.id AND pm2.is_deleted = false
+           )
+          )
+        ) as memberCount
       FROM projects p
       LEFT JOIN users u ON p.owner_id = u.id
       WHERE p.is_deleted = false ${statusFilterCondition}

@@ -124,8 +124,12 @@ export const getProjectComments = async (projectId: number, context?: any) => {
  * Only ADMIN users or project team members can post comments
  * Uses the first task in the project as the target for the comment
  */
-export const createProjectComment = async (input: any, context: any) => {
+export const createProjectComment = async (parent: any, args: any, context: any, info: any) => {
   try {
+    // Extract input from args
+    const input = args.input;
+    
+
     // Check if user is authenticated
     if (!context.user) {
       throw new AuthenticationError('You must be logged in to create comments');
@@ -210,14 +214,15 @@ export const createProjectComment = async (input: any, context: any) => {
  * Requires authentication and validates user permissions
  * Only ADMIN users or project team members can like comments
  */
-export const toggleCommentLike = async (input: any, context: any) => {
+export const toggleCommentLike = async (parent: any, args: any, context: any, info: any) => {
   try {
+
     // Check if user is authenticated
     if (!context.user) {
       throw new AuthenticationError('You must be logged in to like comments');
     }
 
-    const { commentId } = input;
+    const { commentId } = args;
 
     if (!commentId) {
       throw new Error('Comment ID is required');

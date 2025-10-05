@@ -12,10 +12,11 @@ export function createContext({ req, res }: { req: Request; res: Response }): Gr
   // Attach user to context if available (handled by auth middleware)
   const user = (req as any).user;
   
+  
   return {
     req,
     res,
     user: user || undefined,
-    isAuthenticated: !!user,  //“If user exists, isAuthenticated is true; otherwise, it’s false.”
+    isAuthenticated: !!user,  //"If user exists, isAuthenticated is true; otherwise, it's false."
   };
 }

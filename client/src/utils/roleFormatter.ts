@@ -1,45 +1,94 @@
 /**
- * Role Formatter Utility
- * Formats GraphQL enum role values to user-friendly display strings
+ * Role Formatting Utility
+ * Handles conversion between database role values and display-friendly formats
+ * Supports both database values (e.g., "Project Manager") and GraphQL enum values (e.g., "PROJECT_MANAGER_PM")
+ * Uses lowercase comparison for consistent role matching
  */
 
 /**
- * Maps GraphQL enum role values to user-friendly display strings
- */
-const ROLE_DISPLAY_MAPPING: { [key: string]: string } = {
-  'ADMIN': 'ADMIN',
-  'PROJECT_MANAGER_PM': 'PROJECT MANAGER',
-  'SOFTWARE_ARCHITECT': 'SOFTWARE ARCHITECT',
-  'FRONTEND_DEVELOPER': 'FRONTEND DEVELOPER',
-  'BACKEND_DEVELOPER': 'BACKEND DEVELOPER',
-  'FULL_STACK_DEVELOPER': 'FULL-STACK DEVELOPER',
-  'DEVOPS_ENGINEER': 'DEVOPS ENGINEER',
-  'QA_ENGINEER': 'QA ENGINEER',
-  'QC_ENGINEER': 'QC ENGINEER',
-  'UX_UI_DESIGNER': 'UX/UI DESIGNER',
-  'BUSINESS_ANALYST': 'BUSINESS ANALYST',
-  'DATABASE_ADMINISTRATOR': 'DATABASE ADMINISTRATOR',
-  'TECHNICAL_WRITER': 'TECHNICAL WRITER',
-  'SUPPORT_ENGINEER': 'SUPPORT ENGINEER'
-};
-
-/**
- * Formats a GraphQL enum role value to a user-friendly display string
- * @param role - The GraphQL enum role value (e.g., "PROJECT_MANAGER_PM")
- * @returns Formatted role string (e.g., "PROJECT MANAGER")
+ * Format role for display from database or GraphQL enum values to user-friendly format
+ * @param role - Role value from database or GraphQL enum
+ * @returns Display-friendly role name
  */
 export const formatRoleForDisplay = (role: string): string => {
-  if (!role) return 'Unknown';
+  const roleLower = role.toLowerCase();
   
-  // Return mapped display value or fallback to formatted enum value
-  return ROLE_DISPLAY_MAPPING[role] || role.replace(/_/g, ' ').toUpperCase();
+  // Handle database values (from users table)
+  switch (roleLower) {
+    case 'admin': return 'Admin';
+    case 'project manager': return 'Project Manager';
+    case 'software architect': return 'Software Architect';
+    case 'frontend developer': return 'Frontend Developer';
+    case 'backend developer': return 'Backend Developer';
+    case 'full-stack developer': return 'Full-Stack Developer';
+    case 'devops engineer': return 'DevOps Engineer';
+    case 'qa engineer': return 'QA Engineer';
+    case 'qc engineer': return 'QC Engineer';
+    case 'ux/ui designer': return 'UX/UI Designer';
+    case 'business analyst': return 'Business Analyst';
+    case 'database administrator': return 'Database Administrator';
+    case 'technical writer': return 'Technical Writer';
+    case 'support engineer': return 'Support Engineer';
+  }
+
+  // Handle GraphQL enum values
+  switch (roleLower) {
+    case 'admin': return 'Admin';
+    case 'project_manager_pm': return 'Project Manager';
+    case 'software_architect': return 'Software Architect';
+    case 'frontend_developer': return 'Frontend Developer';
+    case 'backend_developer': return 'Backend Developer';
+    case 'full_stack_developer': return 'Full-Stack Developer';
+    case 'devops_engineer': return 'DevOps Engineer';
+    case 'qa_engineer': return 'QA Engineer';
+    case 'qc_engineer': return 'QC Engineer';
+    case 'ux_ui_designer': return 'UX/UI Designer';
+    case 'business_analyst': return 'Business Analyst';
+    case 'database_administrator': return 'Database Administrator';
+    case 'technical_writer': return 'Technical Writer';
+    case 'support_engineer': return 'Support Engineer';
+    default: return role; // Return original if no mapping found
+  }
 };
 
 /**
- * Formats a role for display in filter badges (shorter format)
- * @param role - The GraphQL enum role value
- * @returns Short formatted role string
+ * Format role for filter display (used in search filters)
+ * @param role - Role value from database or GraphQL enum
+ * @returns Display-friendly role name for filters
  */
 export const formatRoleForFilter = (role: string): string => {
   return formatRoleForDisplay(role);
+};
+
+/**
+ * Check if user has admin role (handles both database and GraphQL enum values)
+ * @param role - Role value from database or GraphQL enum
+ * @returns Boolean indicating if user is admin
+ */
+export const isAdminRole = (role: string): boolean => {
+  const roleLower = role.toLowerCase();
+  return roleLower === 'admin';
+};
+
+/**
+ * Check if user can post comments (admin, project manager, or developer roles)
+ * @param role - Role value from database or GraphQL enum
+ * @returns Boolean indicating if user can post comments
+ */
+export const canPostComments = (role: string): boolean => {
+  const roleLower = role.toLowerCase();
+  
+  const adminRoles = ['admin'];
+  const managerRoles = ['project manager', 'project_manager_pm'];
+  const developerRoles = [
+    'software architect', 'software_architect',
+    'frontend developer', 'frontend_developer',
+    'backend developer', 'backend_developer',
+    'full-stack developer', 'full_stack_developer',
+    'devops engineer', 'devops_engineer'
+  ];
+  
+  return adminRoles.includes(roleLower) || 
+         managerRoles.includes(roleLower) || 
+         developerRoles.includes(roleLower);
 };
