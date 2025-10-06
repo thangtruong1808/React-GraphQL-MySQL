@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { formatRoleForDisplay, isAdminRole } from '../../utils/roleFormatter';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 import { useError } from '../../contexts/ErrorContext';
+import { updateActivity } from '../../utils/tokenManager';
 
 /**
  * Project Detail Page Component
@@ -89,7 +90,6 @@ const ProjectDetailPage: React.FC = () => {
       // Optimized: Update only comments cache instead of refetching entire project
     },
     update: (cache, { data }) => {
-      console.log('Cache update called with data:', data);
       if (data?.createComment) {
         try {
           // Read current project data from cache
@@ -97,8 +97,6 @@ const ProjectDetailPage: React.FC = () => {
             query: GET_PROJECT_DETAILS,
             variables: { projectId: id }
           });
-
-          console.log('Existing project data:', existingProject);
 
           if (existingProject?.project) {
             // Update project with new comment (add to beginning for latest-first order)
@@ -112,10 +110,14 @@ const ProjectDetailPage: React.FC = () => {
                 }
               }
             });
-            console.log('Cache updated successfully');
+
+            // Show success toast only after both DB insertion and UI rendering are complete
+            showInfo('Comment posted successfully!');
+          } else {
+            // Fallback to refetch if cache update fails
+            refetch();
           }
         } catch (error) {
-          console.log('Cache update failed, falling back to refetch:', error);
           // Fallback to refetch if cache update fails
           refetch();
         }
@@ -175,27 +177,25 @@ const ProjectDetailPage: React.FC = () => {
   // Handle comment submission with proper async flow and state management
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Prevent multiple simultaneous submissions
     if (isSubmittingComment || !newComment.trim() || !isAuthenticated || !id || !canPostComments()) {
       return;
     }
 
-    // Debug: Check authentication state
-    console.log('Comment submission debug:', {
-      isAuthenticated,
-      userId: user?.id,
-      userRole: user?.role,
-      projectId: id,
-      canPost: canPostComments()
-    });
+    // Update user activity before submitting comment
+    try {
+      await updateActivity();
+    } catch (error) {
+      // Continue with comment submission even if activity update fails
+    }
 
     // Set submitting state to prevent race conditions
     setIsSubmittingComment(true);
 
     try {
       // Execute comment creation with proper async/await
-      const result = await createComment({
+      await createComment({
         variables: {
           input: {
             content: newComment.trim(),
@@ -204,14 +204,13 @@ const ProjectDetailPage: React.FC = () => {
         }
       });
 
-      // Show success notification
-      showInfo('Comment posted successfully!');
-      
+      // Success toast will be shown in cache update when UI rendering is complete
+
     } catch (error: any) {
       // Show error notification
       const errorMessage = error.message || 'Failed to post comment. Please try again.';
       showError(errorMessage);
-      
+
     } finally {
       // Always reset submitting state
       setIsSubmittingComment(false);
@@ -221,6 +220,13 @@ const ProjectDetailPage: React.FC = () => {
   // Handle comment like toggle
   const handleToggleLike = async (commentId: string) => {
     if (!isAuthenticated || !canLikeComments()) return;
+
+    // Update user activity before toggling like
+    try {
+      await updateActivity();
+    } catch (error) {
+      // Continue with like toggle even if activity update fails
+    }
 
     try {
       await toggleCommentLike({

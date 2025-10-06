@@ -30,7 +30,7 @@ export const verifyAccessToken = (token: string): { userId: number } | null => {
     }) as { userId: number };
     return decoded;
   } catch (error) {
-    // Only log non-expiration errors to reduce noise
+    // Handle token expiration
     if (error instanceof jwt.TokenExpiredError) {
       // Token expired - this is expected behavior, don't log as error
       return null;

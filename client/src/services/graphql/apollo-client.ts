@@ -2,14 +2,14 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { from } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
-import { API_CONFIG, AUTH_CONFIG, DEBUG_CONFIG } from '../../constants';
+import { API_CONFIG, AUTH_CONFIG } from '../../constants';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import {
   clearTokens,
   getTokens,
-  isActivityBasedTokenExpired,
   isTokenExpired
 } from '../../utils/tokenManager';
+import { REFRESH_TOKEN } from './mutations';
 
 
 // Global error handler - will be set by App.tsx
@@ -38,6 +38,75 @@ export const setAppInitialized = () => {
 
 // CSRF token storage in memory (XSS protection)
 let csrfToken: string | null = null;
+
+// Token refresh state management
+let isRefreshing = false;
+let refreshPromise: Promise<string | null> | null = null;
+
+/**
+ * Automatic token refresh function
+ * Refreshes tokens when they're about to expire or have expired
+ * Returns new access token or null if refresh fails
+ */
+const refreshTokenAutomatically = async (): Promise<string | null> => {
+  // If already refreshing, return the existing promise
+  if (isRefreshing && refreshPromise) {
+    return refreshPromise;
+  }
+
+  // Check if we have a refresh token
+  const tokens = getTokens();
+  if (!tokens.refreshToken) {
+    return null;
+  }
+
+  isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      // Create a temporary client for the refresh request
+      const tempClient = new ApolloClient({
+        link: createHttpLink({
+          uri: API_CONFIG.GRAPHQL_URL,
+          credentials: 'include',
+        }),
+        cache: new InMemoryCache(),
+      });
+
+      // Call refresh token mutation
+      const result = await tempClient.mutate({
+        mutation: REFRESH_TOKEN,
+        variables: {
+          dynamicBuffer: undefined
+        }
+      });
+
+      const refreshData = result.data?.refreshToken;
+      if (refreshData?.accessToken && refreshData?.refreshToken) {
+        // Update tokens in memory
+        const { saveTokens } = await import('../../utils/tokenManager');
+        saveTokens(refreshData.accessToken, refreshData.refreshToken);
+        
+        // Update CSRF token if provided
+        if (refreshData.csrfToken) {
+          csrfToken = refreshData.csrfToken;
+        }
+
+        return refreshData.accessToken;
+      }
+
+      return null;
+    } catch (error) {
+      // Refresh failed, clear tokens
+      clearTokens();
+      return null;
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+};
 
 /**
  * Fetch initial CSRF token from server
@@ -129,21 +198,26 @@ const httpLink = createHttpLink({
  * - No access token: No authorization header added
  * - All scenarios: Adds CSRF token if available
  */
-const authLink = setContext((_, { headers }) => {
+const authLink = setContext(async (_, { headers }) => {
   try {
-    // Get access token from memory (no DB connection)
+    // Get access token from memory
     const tokens = getTokens();
     
-    // Only add authorization header if token exists and is not expired
-    let shouldAddToken = false;
+    let accessToken = tokens.accessToken;
     
-    if (tokens.accessToken) {
-      // Use activity-based token validation if enabled
-      if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
-        shouldAddToken = !isActivityBasedTokenExpired();
-      } else {
-        // Fallback to fixed token expiry check
-        shouldAddToken = !isTokenExpired(tokens.accessToken);
+    // Check if token exists and is about to expire (within 30 seconds)
+    if (accessToken) {
+      const isExpired = isTokenExpired(accessToken);
+      
+      if (isExpired) {
+        // Token is expired, try to refresh automatically
+        const newToken = await refreshTokenAutomatically();
+        if (newToken) {
+          accessToken = newToken;
+        } else {
+          // Refresh failed, no token available
+          accessToken = null;
+        }
       }
     }
     
@@ -153,9 +227,9 @@ const authLink = setContext((_, { headers }) => {
       'Content-Type': 'application/json',
     };
     
-    // Add authorization header if token is valid
-    if (shouldAddToken) {
-      requestHeaders.authorization = `Bearer ${tokens.accessToken}`;
+    // Add authorization header if token is available
+    if (accessToken) {
+      requestHeaders.authorization = `Bearer ${accessToken}`;
     }
     
     // Add CSRF token header for mutations
@@ -182,12 +256,9 @@ const authLink = setContext((_, { headers }) => {
  */
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path, extensions }) => {
+    graphQLErrors.forEach(async ({ message, locations, path, extensions }) => {
       // Handle GraphQL errors
       if (extensions?.code === 'UNAUTHENTICATED') {
-        // Clear tokens on authentication error
-        clearTokens();
-        
         // Don't show authentication errors during initialization or for new users
         // These are expected for users without refresh tokens
         const isAuthOperation = operation.operationName === 'RefreshToken' || 
@@ -199,12 +270,35 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
                                           message.includes('Refresh token') ||
                                           message.includes('refresh token');
         
+        // Check if this is a comment operation that might be failing due to missing auth header
+        const isCommentOperation = operation.operationName === 'CreateComment' || 
+                                  operation.operationName === 'ToggleCommentLike';
+        
         // Completely suppress authentication errors during initialization and after logout
         if (isAuthOperation || isRefreshTokenRequiredError || isAuthInitializing || isAppInitializing) {
           // Don't show any error messages for authentication operations
           // These are expected for new users, during initialization, or after logout
           return;
         }
+        
+        // For comment operations, try to refresh token automatically
+        if (isCommentOperation) {
+          // Try to refresh token automatically for comment operations
+          const newToken = await refreshTokenAutomatically();
+          if (newToken) {
+            // Token refreshed successfully, retry the operation
+            return forward(operation);
+          } else {
+            // Refresh failed, show error
+            if (globalErrorHandler) {
+              globalErrorHandler('Session expired. Please try again.', 'GraphQL');
+            }
+            return;
+          }
+        }
+        
+        // Clear tokens on authentication error for other operations
+        clearTokens();
         
         // Only show other authentication errors
         if (globalErrorHandler) {
