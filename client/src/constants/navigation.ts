@@ -122,7 +122,7 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show dashboard for authenticated users (not profile/signout)
+    // Show dashboard for authenticated users
     if (item.requiresAuth && user && item.id === 'dashboard') {
       return true;
     }

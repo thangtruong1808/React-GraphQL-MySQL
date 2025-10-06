@@ -11,6 +11,7 @@ import {
   EditUserModal,
   DeleteUserModal
 } from '../../components/userManagement';
+import UsersTableSkeleton from '../../components/userManagement/UsersTableSkeleton';
 import {
   GET_USERS_QUERY,
   CREATE_USER_MUTATION,
@@ -34,12 +35,14 @@ import { InlineError } from '../../components/ui';
  * Users Dashboard Page
  * Complete user management interface with search, table, and CRUD operations
  * Features modern, professional layout with pagination and real-time search
+ * Includes skeleton loading states for better UX during data fetching
  * 
  * CALLED BY: AppRoutes component via ProtectedRoute
  * SCENARIOS: User management for administrators and project managers
  */
 const UsersPage: React.FC = () => {
   const navigate = useNavigate();
+
   // State management
   const [state, setState] = useState<UserManagementState>({
     users: [],
@@ -82,13 +85,21 @@ const UsersPage: React.FC = () => {
   const [updateUserMutation] = useMutation(UPDATE_USER_MUTATION);
   const [deleteUserMutation] = useMutation(DELETE_USER_MUTATION);
 
-  // Update state when query data changes
+  /**
+   * Update state when GraphQL data changes
+   * Handles loading states and data updates
+   */
   useEffect(() => {
     if (data?.users) {
       setState(prev => ({
         ...prev,
         users: data.users.users,
         paginationInfo: data.users.paginationInfo,
+        loading: queryLoading
+      }));
+    } else {
+      setState(prev => ({
+        ...prev,
         loading: queryLoading
       }));
     }
@@ -98,111 +109,30 @@ const UsersPage: React.FC = () => {
    * Fetch users with current parameters
    * Refetches data when pagination or search changes
    */
-  const fetchUsers = useCallback(async (page?: number, pageSize?: number, search?: string) => {
-    const currentPage = page || state.currentPage;
-    const currentPageSize = pageSize || state.pageSize;
-    const currentSearch = search !== undefined ? search : state.searchQuery;
-
+  const fetchUsers = useCallback(async (page: number, pageSize: number, search: string) => {
     try {
       await refetch({
-        limit: currentPageSize,
-        offset: (currentPage - 1) * currentPageSize,
-        search: currentSearch || undefined
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+        search: search || undefined,
+        sortBy,
+        sortOrder
       });
     } catch (error) {
       setState(prev => ({
         ...prev,
-        error: USER_ERROR_MESSAGES.fetchFailed
+        error: USER_ERROR_MESSAGES.FETCH
       }));
     }
-  }, [state.currentPage, state.pageSize, state.searchQuery, refetch]);
-
-  /**
-   * Create new user
-   * Handles user creation with success/error feedback
-   */
-  const createUser = useCallback(async (userData: UserInput) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      await createUserMutation({
-        variables: { input: userData }
-      });
-
-      // Refresh users list
-      await fetchUsers(1, state.pageSize, state.searchQuery);
-
-      setState(prev => ({ ...prev, loading: false }));
-      // Success message would be shown via toast notification
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: USER_ERROR_MESSAGES.createFailed
-      }));
-    }
-  }, [createUserMutation, fetchUsers, state.pageSize, state.searchQuery]);
-
-  /**
-   * Update existing user
-   * Handles user updates with success/error feedback
-   */
-  const updateUser = useCallback(async (userId: string, userData: UserUpdateInput) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      await updateUserMutation({
-        variables: { id: userId, input: userData }
-      });
-
-      // Refresh users list
-      await fetchUsers(state.currentPage, state.pageSize, state.searchQuery);
-
-      setState(prev => ({ ...prev, loading: false }));
-      // Success message would be shown via toast notification
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: USER_ERROR_MESSAGES.updateFailed
-      }));
-    }
-  }, [updateUserMutation, fetchUsers, state.currentPage, state.pageSize, state.searchQuery]);
-
-  /**
-   * Delete user
-   * Handles user deletion with confirmation
-   */
-  const deleteUser = useCallback(async (userId: string) => {
-    try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
-
-      await deleteUserMutation({
-        variables: { id: userId }
-      });
-
-      // Refresh users list
-      await fetchUsers(state.currentPage, state.pageSize, state.searchQuery);
-
-      setState(prev => ({ ...prev, loading: false }));
-      // Success message would be shown via toast notification
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: USER_ERROR_MESSAGES.deleteFailed
-      }));
-    }
-  }, [deleteUserMutation, fetchUsers, state.currentPage, state.pageSize, state.searchQuery]);
+  }, [refetch, sortBy, sortOrder]);
 
   /**
    * Handle search query change
-   * Debounced search with automatic refetch
+   * Debounced search with pagination reset
    */
   const handleSearchChange = useCallback((query: string) => {
     setState(prev => ({ ...prev, searchQuery: query, currentPage: 1 }));
-    fetchUsers(1, state.pageSize, query);
-  }, [fetchUsers, state.pageSize]);
+  }, []);
 
   /**
    * Handle page size change
@@ -233,8 +163,77 @@ const UsersPage: React.FC = () => {
   }, [fetchUsers, state.pageSize, state.searchQuery]);
 
   /**
+   * Create a new user
+   * Handles form submission and success/error states
+   */
+  const handleCreateUser = useCallback(async (userData: UserInput) => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+
+      await createUserMutation({
+        variables: { input: userData }
+      });
+
+      setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
+      await refetch();
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: USER_ERROR_MESSAGES.CREATE
+      }));
+    }
+  }, [createUserMutation, refetch]);
+
+  /**
+   * Update an existing user
+   * Handles form submission and success/error states
+   */
+  const handleUpdateUser = useCallback(async (userId: string, userData: UserUpdateInput) => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+
+      await updateUserMutation({
+        variables: { id: userId, input: userData }
+      });
+
+      setState(prev => ({ ...prev, editModalOpen: false, loading: false }));
+      await refetch();
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: USER_ERROR_MESSAGES.UPDATE
+      }));
+    }
+  }, [updateUserMutation, refetch]);
+
+  /**
+   * Delete a user
+   * Handles confirmation and success/error states
+   */
+  const handleDeleteUser = useCallback(async (userId: string) => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+
+      await deleteUserMutation({
+        variables: { id: userId }
+      });
+
+      setState(prev => ({ ...prev, deleteModalOpen: false, loading: false }));
+      await refetch();
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: USER_ERROR_MESSAGES.DELETE
+      }));
+    }
+  }, [deleteUserMutation, refetch]);
+
+  /**
    * Clear error message
-   * Removes error state
+   * Removes error state from UI
    */
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
@@ -242,7 +241,7 @@ const UsersPage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full h-full bg-gray-50 dashboard-content">
+      <div className="w-full h-full bg-white dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">
           <div className="px-8 py-8 w-full">
@@ -252,14 +251,15 @@ const UsersPage: React.FC = () => {
                   Users Management
                 </h1>
                 <p className="text-gray-600 mt-1">
-                  Manage users and team members
+                  Manage and track your users
                 </p>
               </div>
               <button
-                onClick={() => navigate(ROUTE_PATHS.DASHBOARD_USERS_CREATE)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
+                type="button"
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
               >
-                <FaPlus className="h-5 w-5 mr-2" />
+                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 Create User
               </button>
             </div>
@@ -267,76 +267,75 @@ const UsersPage: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="px-8 py-8 w-full">
-          {/* Error Display */}
-          {state.error && (
-            <div className="mb-6">
-              <InlineError message={state.error} onDismiss={clearError} />
+        <div className="bg-white w-full">
+          <div className="px-8 py-8 w-full">
+            {/* Error Display */}
+            {state.error && (
+              <div className="mb-6">
+                <InlineError message={state.error} onDismiss={clearError} />
+              </div>
+            )}
+
+            {/* Search and Table */}
+            <div className="space-y-6">
+              {/* Search Input */}
+              <UserSearchInput
+                value={state.searchQuery}
+                onChange={handleSearchChange}
+                loading={state.loading}
+              />
+
+              {/* Users Table or Skeleton */}
+              {state.loading && state.users.length === 0 ? (
+                <UsersTableSkeleton />
+              ) : (
+                <UsersTable
+                  users={state.users}
+                  paginationInfo={state.paginationInfo}
+                  loading={state.loading}
+                  onEdit={(user) => setState(prev => ({
+                    ...prev,
+                    editModalOpen: true,
+                    selectedUser: user
+                  }))}
+                  onDelete={(user) => setState(prev => ({
+                    ...prev,
+                    deleteModalOpen: true,
+                    selectedUser: user
+                  }))}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  currentPageSize={state.pageSize}
+                  onSort={handleSort}
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                />
+              )}
             </div>
-          )}
-
-          {/* Search Section */}
-          <div className="mb-6">
-            <UserSearchInput
-              value={state.searchQuery}
-              onChange={handleSearchChange}
-              loading={state.loading}
-            />
           </div>
-
-          {/* Users Table */}
-          <UsersTable
-            users={state.users}
-            paginationInfo={state.paginationInfo}
-            loading={state.loading}
-            onEdit={(user) => setState(prev => ({
-              ...prev,
-              editModalOpen: true,
-              selectedUser: user
-            }))}
-            onDelete={(user) => setState(prev => ({
-              ...prev,
-              deleteModalOpen: true,
-              selectedUser: user
-            }))}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            currentPageSize={state.pageSize}
-            onSort={handleSort}
-            currentSortBy={sortBy}
-            currentSortOrder={sortOrder}
-          />
         </div>
 
         {/* Modals */}
         <CreateUserModal
           isOpen={state.createModalOpen}
           onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
-          onSubmit={createUser}
+          onSubmit={handleCreateUser}
           loading={state.loading}
         />
 
         <EditUserModal
           isOpen={state.editModalOpen}
           user={state.selectedUser}
-          onClose={() => setState(prev => ({
-            ...prev,
-            editModalOpen: false,
-            selectedUser: null
-          }))}
-          onSubmit={updateUser}
+          onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedUser: null }))}
+          onSubmit={handleUpdateUser}
           loading={state.loading}
         />
 
         <DeleteUserModal
           isOpen={state.deleteModalOpen}
           user={state.selectedUser}
-          onClose={() => setState(prev => ({
-            ...prev,
-            deleteModalOpen: false,
-            selectedUser: null
-          }))}
-          onConfirm={deleteUser}
+          onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedUser: null }))}
+          onConfirm={handleDeleteUser}
           loading={state.loading}
         />
       </div>

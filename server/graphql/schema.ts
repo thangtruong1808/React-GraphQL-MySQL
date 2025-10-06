@@ -215,6 +215,56 @@ export const typeDefs = gql`
     paginationInfo: PaginationInfo!
   }
 
+  # Project Input Type - for creating new projects
+  input ProjectInput {
+    name: String!
+    description: String!
+    status: ProjectStatus!
+    ownerId: ID
+  }
+
+  # Project Update Input Type - for updating existing projects
+  input ProjectUpdateInput {
+    name: String
+    description: String
+    status: ProjectStatus
+    ownerId: ID
+  }
+
+  # Paginated Dashboard Projects Response Type - for project management with pagination
+  type PaginatedDashboardProjectsResponse {
+    projects: [Project!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Task Input Type - for creating new tasks
+  input TaskInput {
+    title: String!
+    description: String!
+    status: TaskStatus!
+    priority: TaskPriority!
+    dueDate: String
+    projectId: ID!
+    assignedUserId: ID
+  }
+
+  # Task Update Input Type - for updating existing tasks
+  input TaskUpdateInput {
+    title: String
+    description: String
+    status: TaskStatus
+    priority: TaskPriority
+    dueDate: String
+    projectId: ID
+    assignedUserId: ID
+  }
+
+  # Paginated Dashboard Tasks Response Type - for task management with pagination
+  type PaginatedDashboardTasksResponse {
+    tasks: [Task!]!
+    paginationInfo: PaginationInfo!
+  }
+
   # Public Statistics Type - for unauthenticated dashboard
   type PublicStats {
     totalProjects: Int!
@@ -346,6 +396,10 @@ export const typeDefs = gql`
     searchTasks(taskStatusFilter: [TaskStatus!]): [Task!]!
     # User management - for dashboard users page
     users(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedUsersResponse!
+    # Projects management - for dashboard projects page
+    dashboardProjects(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardProjectsResponse!
+    # Tasks management - for dashboard tasks page
+    dashboardTasks(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardTasksResponse!
   }
 
   # Mutation Type - includes authentication and comment mutations
@@ -373,5 +427,13 @@ export const typeDefs = gql`
     createUser(input: UserInput!): User!
     updateUser(id: ID!, input: UserUpdateInput!): User!
     deleteUser(id: ID!): Boolean!
+    # Project management mutations - require authentication
+    createProject(input: ProjectInput!): Project!
+    updateProject(id: ID!, input: ProjectUpdateInput!): Project!
+    deleteProject(id: ID!): Boolean!
+    # Task management mutations - require authentication
+    createTask(input: TaskInput!): Task!
+    updateTask(id: ID!, input: TaskUpdateInput!): Task!
+    deleteTask(id: ID!): Boolean!
   }
 `;

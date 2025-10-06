@@ -5,6 +5,8 @@ import { projectsResolvers } from './projectsResolvers';
 import { commentsResolvers } from './commentsResolvers';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 import { userManagementResolvers } from './userManagement';
+import { projectManagementResolvers } from './projectManagement';
+import { taskManagementResolvers } from './taskManagement';
 import { Task, User, Project } from '../../db';
 
 /**
@@ -31,6 +33,8 @@ export const resolvers = {
     ...teamResolvers.Query,
     ...projectsResolvers.Query,
     ...userManagementResolvers.Query,
+    ...projectManagementResolvers.Query,
+    ...taskManagementResolvers.Query,
     searchMembers,
     searchProjects,
     searchTasks,
@@ -39,6 +43,8 @@ export const resolvers = {
     ...authResolvers.Mutation,
     ...commentsResolvers.Mutation,
     ...userManagementResolvers.Mutation,
+    ...projectManagementResolvers.Mutation,
+    ...taskManagementResolvers.Mutation,
   },
   // Type resolvers for nested relationships
   User: {
@@ -172,5 +178,61 @@ export const resolvers = {
             return [];
           }
         }
+  },
+  // Task type resolvers
+  Task: {
+    // Convert numeric ID to string for GraphQL
+    id: (parent: any) => parent.id ? parent.id.toString() : null,
+    
+    // Ensure isDeleted is always a boolean
+    isDeleted: (parent: any) => parent.is_deleted ?? false,
+    
+    // Map database status values to GraphQL enum values
+    status: (parent: any) => {
+      const statusMapping: { [key: string]: string } = {
+        'TODO': 'TODO',
+        'IN_PROGRESS': 'IN_PROGRESS',
+        'DONE': 'DONE'
+      };
+      return statusMapping[parent.status] || parent.status;
+    },
+    
+    // Map database priority values to GraphQL enum values
+    priority: (parent: any) => {
+      const priorityMapping: { [key: string]: string } = {
+        'LOW': 'LOW',
+        'MEDIUM': 'MEDIUM',
+        'HIGH': 'HIGH'
+      };
+      return priorityMapping[parent.priority] || parent.priority;
+    },
+    
+    // Map database date fields to GraphQL camelCase fields
+    dueDate: (parent: any) => parent.due_date ? new Date(parent.due_date).toISOString() : null,
+    createdAt: (parent: any) => parent.created_at ? new Date(parent.created_at).toISOString() : null,
+    updatedAt: (parent: any) => parent.updated_at ? new Date(parent.updated_at).toISOString() : null,
+    
+    // Resolver for project field on Task type
+    project: async (parent: any) => {
+      try {
+        return await Project.findByPk(parent.project_id, {
+          attributes: ['id', 'uuid', 'name', 'description', 'status', 'ownerId', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+      } catch (error) {
+        return null;
+      }
+    },
+    
+    // Resolver for assignedUser field on Task type
+    assignedUser: async (parent: any) => {
+      try {
+        if (!parent.assigned_to) return null;
+        return await User.findByPk(parent.assigned_to, {
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+      } catch (error) {
+        return null;
+      }
+    }
   }
 };

@@ -5,6 +5,7 @@
 
 export { default as UserSearchInput } from './UserSearchInput';
 export { default as UsersTable } from './UsersTable';
+export { default as UsersTableSkeleton } from './UsersTableSkeleton';
 export { default as CreateUserModal } from './CreateUserModal';
 export { default as EditUserModal } from './EditUserModal';
 export { default as DeleteUserModal } from './DeleteUserModal';
