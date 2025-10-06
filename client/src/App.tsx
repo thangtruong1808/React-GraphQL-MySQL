@@ -11,6 +11,7 @@ import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-c
 import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AboutPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from './components/ui';
 import { DashboardLayout } from './components/layout';
 import { ROUTE_PATHS } from './constants/routingConstants';
+import { ProjectDetailPageSkeleton } from './components/ui';
 import './App.css';
 
 // Lazy load components for better performance
@@ -21,6 +22,12 @@ const Notification = React.lazy(() => import('./components/ui/Notification'));
 // Loading component for Suspense fallback - route-aware
 const RouteAwareLoadingFallback = () => {
   const location = useLocation();
+  const { isInitializing } = useAuth();
+
+  // While auth is initializing, let AuthContext control skeletons to avoid double render
+  if (isInitializing) {
+    return null;
+  }
 
   // Show LoginPageSkeleton for login route
   if (location.pathname === ROUTE_PATHS.LOGIN) {
@@ -78,6 +85,18 @@ const RouteAwareLoadingFallback = () => {
         <NavBarSkeleton />
         <main className="flex-1">
           <SearchResultsPageSkeleton />
+        </main>
+      </div>
+    );
+  }
+
+  // Show project detail skeleton for project detail routes (only if not initializing auth)
+  if (location.pathname.startsWith('/projects/') && location.pathname !== ROUTE_PATHS.PROJECTS && !isInitializing) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <ProjectDetailPageSkeleton />
         </main>
       </div>
     );

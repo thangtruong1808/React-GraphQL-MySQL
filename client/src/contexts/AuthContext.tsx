@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { LoginInput, User } from '../types/graphql';
 import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
 import { TokenManager } from '../utils/tokenManager/TokenManager';
-import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AboutPageSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from '../components/ui';
+import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AboutPageSkeleton, NavBarSkeleton, SearchResultsPageSkeleton, ProjectDetailPageSkeleton } from '../components/ui';
 import { DashboardLayout } from '../components/layout';
 import { ROUTE_PATHS } from '../constants/routingConstants';
 
@@ -193,27 +193,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Check current route to show appropriate skeleton during initialization
-  const isOnLoginRoute = location.pathname === ROUTE_PATHS.LOGIN;
-  const isOnHomeRoute = location.pathname === ROUTE_PATHS.HOME;
-  const isOnProjectsRoute = location.pathname === ROUTE_PATHS.PROJECTS;
-  const isOnTeamRoute = location.pathname === ROUTE_PATHS.TEAM;
-  const isOnAboutRoute = location.pathname === ROUTE_PATHS.ABOUT;
-  const isOnSearchRoute = location.pathname === ROUTE_PATHS.SEARCH;
+  // Use window.location.pathname to avoid transient router state during hard refresh
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : location.pathname;
+  const isOnLoginRoute = currentPath === ROUTE_PATHS.LOGIN;
+  const isOnHomeRoute = currentPath === ROUTE_PATHS.HOME;
+  const isOnProjectsRoute = currentPath === ROUTE_PATHS.PROJECTS;
+  const isOnProjectDetailRoute = currentPath.startsWith('/projects/') && currentPath !== ROUTE_PATHS.PROJECTS && currentPath !== '/projects';
+  const isOnTeamRoute = currentPath === ROUTE_PATHS.TEAM;
+  const isOnAboutRoute = currentPath === ROUTE_PATHS.ABOUT;
+  const isOnSearchRoute = currentPath === ROUTE_PATHS.SEARCH;
 
   return (
     <AuthContext.Provider value={contextValue}>
       {authState.isInitializing ? (
         isOnLoginRoute ? (
           <LoginPageSkeleton />
-        ) : isOnHomeRoute || isOnSearchRoute || isOnProjectsRoute || isOnTeamRoute || isOnAboutRoute ? (
+        ) : isOnProjectDetailRoute || isOnHomeRoute || isOnSearchRoute || isOnProjectsRoute || isOnTeamRoute || isOnAboutRoute ? (
           <div className="min-h-screen flex flex-col">
             <NavBarSkeleton />
             <main className="flex-1">
-              {isOnHomeRoute ? <AuthInitializationSkeleton /> :
-                isOnSearchRoute ? <SearchResultsPageSkeleton /> :
-                  isOnProjectsRoute ? <ProjectsPageSkeleton /> :
-                    isOnTeamRoute ? <TeamPageSkeleton /> :
-                      <AboutPageSkeleton />}
+              {isOnProjectDetailRoute ? <ProjectDetailPageSkeleton /> :
+                isOnHomeRoute ? <AuthInitializationSkeleton /> :
+                  isOnSearchRoute ? <SearchResultsPageSkeleton /> :
+                    isOnProjectsRoute ? <ProjectsPageSkeleton /> :
+                      isOnTeamRoute ? <TeamPageSkeleton /> :
+                        <AboutPageSkeleton />}
             </main>
           </div>
         ) : (

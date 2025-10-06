@@ -40,9 +40,9 @@ const sequelize = new Sequelize({
   username: DB_USER,
   password: DB_PASSWORD,
   
-  // Connection pool settings
+  // Connection pool settings - optimized for hosting limits
   pool: {
-    max: 15, // Maximum number of connection instances
+    max: 10, // Reduced from 15 to 10 to stay within hosting limits
     min: 0, // Minimum number of connection instances
     acquire: 30000, // Maximum time to acquire connection
     idle: 10000, // Maximum time connection can be idle
