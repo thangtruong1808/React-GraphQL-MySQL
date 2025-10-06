@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { User, Project, Task, ActivityLog, Comment, TaskLike } from '../../db';
+import { User, Project, Task, ActivityLog, Comment, TaskLike, sequelize } from '../../db';
 import { ProjectLike, CommentLike } from '../../db';
 
 /**
@@ -106,47 +106,38 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       where: { isDeleted: false }
     });
 
-    // Get comments on completed tasks (join comments with tasks where status = 'DONE')
-    const commentsOnCompletedTasks = await Comment.count({
-      where: { isDeleted: false },
-      include: [{
-        model: Task,
-        as: 'task',
-        where: { 
-          status: 'DONE',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
+    // Get comments on completed tasks using raw SQL to avoid association issues
+    const commentsOnCompletedTasksResult = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM comments c
+      INNER JOIN tasks t ON c.task_id = t.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'DONE' 
+        AND t.is_deleted = false
+    `, { type: sequelize.QueryTypes.SELECT });
+    const commentsOnCompletedTasks = parseInt((commentsOnCompletedTasksResult[0] as any).count);
 
-    // Get comments on in progress tasks (join comments with tasks where status = 'IN_PROGRESS')
-    const commentsOnInProgressTasks = await Comment.count({
-      where: { isDeleted: false },
-      include: [{
-        model: Task,
-        as: 'task',
-        where: { 
-          status: 'IN_PROGRESS',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
+    // Get comments on in progress tasks using raw SQL
+    const commentsOnInProgressTasksResult = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM comments c
+      INNER JOIN tasks t ON c.task_id = t.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'IN_PROGRESS' 
+        AND t.is_deleted = false
+    `, { type: sequelize.QueryTypes.SELECT });
+    const commentsOnInProgressTasks = parseInt((commentsOnInProgressTasksResult[0] as any).count);
 
-    // Get comments on todo tasks (join comments with tasks where status = 'TODO')
-    const commentsOnTodoTasks = await Comment.count({
-      where: { isDeleted: false },
-      include: [{
-        model: Task,
-        as: 'task',
-        where: { 
-          status: 'TODO',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
+    // Get comments on todo tasks using raw SQL
+    const commentsOnTodoTasksResult = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM comments c
+      INNER JOIN tasks t ON c.task_id = t.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'TODO' 
+        AND t.is_deleted = false
+    `, { type: sequelize.QueryTypes.SELECT });
+    const commentsOnTodoTasks = parseInt((commentsOnTodoTasksResult[0] as any).count);
 
     // Get total users count (excluding deleted)
     const totalUsers = await User.count({
@@ -460,139 +451,91 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       return acc;
     }, [] as Array<{ projectName: string; likeCount: number }>);
 
-    // Get comment likes data for each task status
+    // Get comment likes data for each task status using raw SQL to avoid association issues
     // Get likes on comments of completed tasks
-    const commentsOnCompletedTasksLikes = await CommentLike.findAll({
-      include: [{
-        model: Comment,
-        as: 'comment',
-        attributes: ['content'],
-        include: [{
-          model: Task,
-          as: 'task',
-          where: { 
-            status: 'DONE',
-            isDeleted: false 
-          },
-          required: true
-        }],
-        where: { isDeleted: false },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']]
-    });
+    const commentsOnCompletedTasksLikesResult = await sequelize.query(`
+      SELECT c.content
+      FROM comment_likes cl
+      INNER JOIN comments c ON cl.comment_id = c.id
+      INNER JOIN tasks t ON c.task_id = t.id
+      INNER JOIN users u ON cl.user_id = u.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'DONE' 
+        AND t.is_deleted = false
+        AND u.is_deleted = false
+      ORDER BY cl.created_at DESC
+    `, { type: sequelize.QueryTypes.SELECT });
+    const commentsOnCompletedTasksLikes = commentsOnCompletedTasksLikesResult.map((row: any) => ({
+      comment: { content: row.content }
+    }));
 
     // Get likes on comments of in progress tasks
-    const commentsOnInProgressTasksLikes = await CommentLike.findAll({
-      include: [{
-        model: Comment,
-        as: 'comment',
-        attributes: ['content'],
-        include: [{
-          model: Task,
-          as: 'task',
-          where: { 
-            status: 'IN_PROGRESS',
-            isDeleted: false 
-          },
-          required: true
-        }],
-        where: { isDeleted: false },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']]
-    });
+    const commentsOnInProgressTasksLikesResult = await sequelize.query(`
+      SELECT c.content
+      FROM comment_likes cl
+      INNER JOIN comments c ON cl.comment_id = c.id
+      INNER JOIN tasks t ON c.task_id = t.id
+      INNER JOIN users u ON cl.user_id = u.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'IN_PROGRESS' 
+        AND t.is_deleted = false
+        AND u.is_deleted = false
+      ORDER BY cl.created_at DESC
+    `, { type: sequelize.QueryTypes.SELECT });
+    const commentsOnInProgressTasksLikes = commentsOnInProgressTasksLikesResult.map((row: any) => ({
+      comment: { content: row.content }
+    }));
 
     // Get likes on comments of todo tasks
-    const commentsOnTodoTasksLikes = await CommentLike.findAll({
-      include: [{
-        model: Comment,
-        as: 'comment',
-        attributes: ['content'],
-        include: [{
-          model: Task,
-          as: 'task',
-          where: { 
-            status: 'TODO',
-            isDeleted: false 
-          },
-          required: true
-        }],
-        where: { isDeleted: false },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']]
-    });
+    const commentsOnTodoTasksLikesResult = await sequelize.query(`
+      SELECT c.content
+      FROM comment_likes cl
+      INNER JOIN comments c ON cl.comment_id = c.id
+      INNER JOIN tasks t ON c.task_id = t.id
+      INNER JOIN users u ON cl.user_id = u.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'TODO' 
+        AND t.is_deleted = false
+        AND u.is_deleted = false
+      ORDER BY cl.created_at DESC
+    `, { type: sequelize.QueryTypes.SELECT });
+    const commentsOnTodoTasksLikes = commentsOnTodoTasksLikesResult.map((row: any) => ({
+      comment: { content: row.content }
+    }));
 
-    // Count comment likes for each task status using direct count queries
-    const likesOnCommentsOnCompletedTasksCount = await CommentLike.count({
-      include: [{
-        model: Comment,
-        as: 'comment',
-        include: [{
-          model: Task,
-          as: 'task',
-          where: { 
-            status: 'DONE',
-            isDeleted: false 
-          },
-          required: true
-        }],
-        where: { isDeleted: false },
-        required: true
-      }]
-    });
+    // Count comment likes for each task status using raw SQL to avoid association issues
+    const likesOnCommentsOnCompletedTasksResult = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM comment_likes cl
+      INNER JOIN comments c ON cl.comment_id = c.id
+      INNER JOIN tasks t ON c.task_id = t.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'DONE' 
+        AND t.is_deleted = false
+    `, { type: sequelize.QueryTypes.SELECT });
+    const likesOnCommentsOnCompletedTasksCount = parseInt((likesOnCommentsOnCompletedTasksResult[0] as any).count);
 
-    const likesOnCommentsOnInProgressTasksCount = await CommentLike.count({
-      include: [{
-        model: Comment,
-        as: 'comment',
-        include: [{
-          model: Task,
-          as: 'task',
-          where: { 
-            status: 'IN_PROGRESS',
-            isDeleted: false 
-          },
-          required: true
-        }],
-        where: { isDeleted: false },
-        required: true
-      }]
-    });
+    const likesOnCommentsOnInProgressTasksResult = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM comment_likes cl
+      INNER JOIN comments c ON cl.comment_id = c.id
+      INNER JOIN tasks t ON c.task_id = t.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'IN_PROGRESS' 
+        AND t.is_deleted = false
+    `, { type: sequelize.QueryTypes.SELECT });
+    const likesOnCommentsOnInProgressTasksCount = parseInt((likesOnCommentsOnInProgressTasksResult[0] as any).count);
 
-    const likesOnCommentsOnTodoTasksCount = await CommentLike.count({
-      include: [{
-        model: Comment,
-        as: 'comment',
-        include: [{
-          model: Task,
-          as: 'task',
-          where: { 
-            status: 'TODO',
-            isDeleted: false 
-          },
-          required: true
-        }],
-        where: { isDeleted: false },
-        required: true
-      }]
-    });
+    const likesOnCommentsOnTodoTasksResult = await sequelize.query(`
+      SELECT COUNT(*) as count
+      FROM comment_likes cl
+      INNER JOIN comments c ON cl.comment_id = c.id
+      INNER JOIN tasks t ON c.task_id = t.id
+      WHERE c.is_deleted = false 
+        AND t.status = 'TODO' 
+        AND t.is_deleted = false
+    `, { type: sequelize.QueryTypes.SELECT });
+    const likesOnCommentsOnTodoTasksCount = parseInt((likesOnCommentsOnTodoTasksResult[0] as any).count);
 
     // Use the direct count results for comment likes
     const likesOnCommentsOnCompletedTasks = likesOnCommentsOnCompletedTasksCount;

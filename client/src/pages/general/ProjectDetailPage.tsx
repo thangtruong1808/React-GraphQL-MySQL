@@ -10,6 +10,7 @@ import { formatRoleForDisplay, isAdminRole } from '../../utils/roleFormatter';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 import { useError } from '../../contexts/ErrorContext';
 import { updateActivity } from '../../utils/tokenManager';
+import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
 
 /**
  * Project Detail Page Component
@@ -183,17 +184,24 @@ const ProjectDetailPage: React.FC = () => {
       return;
     }
 
-    // Update user activity before submitting comment
-    try {
-      await updateActivity();
-    } catch (error) {
-      // Continue with comment submission even if activity update fails
-    }
-
     // Set submitting state to prevent race conditions
     setIsSubmittingComment(true);
 
     try {
+      // Ensure all authentication data is ready before mutation
+      const authDataReady = await ensureAuthDataReady();
+      if (!authDataReady) {
+        showError('Authentication data not ready. Please try again.');
+        return;
+      }
+
+      // Update user activity after ensuring auth data is ready
+      try {
+        await updateActivity();
+      } catch (error) {
+        // Continue with comment submission even if activity update fails
+      }
+
       // Execute comment creation with proper async/await
       await createComment({
         variables: {
@@ -221,14 +229,21 @@ const ProjectDetailPage: React.FC = () => {
   const handleToggleLike = async (commentId: string) => {
     if (!isAuthenticated || !canLikeComments()) return;
 
-    // Update user activity before toggling like
     try {
-      await updateActivity();
-    } catch (error) {
-      // Continue with like toggle even if activity update fails
-    }
+      // Ensure all authentication data is ready before mutation
+      const authDataReady = await ensureAuthDataReady();
+      if (!authDataReady) {
+        showError('Authentication data not ready. Please try again.');
+        return;
+      }
 
-    try {
+      // Update user activity after ensuring auth data is ready
+      try {
+        await updateActivity();
+      } catch (error) {
+        // Continue with like toggle even if activity update fails
+      }
+
       await toggleCommentLike({
         commentId: commentId
       });

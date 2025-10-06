@@ -47,17 +47,12 @@ let refreshPromise: Promise<string | null> | null = null;
  * Automatic token refresh function
  * Refreshes tokens when they're about to expire or have expired
  * Returns new access token or null if refresh fails
+ * Note: Refresh token is stored in httpOnly cookie, not in memory
  */
 const refreshTokenAutomatically = async (): Promise<string | null> => {
   // If already refreshing, return the existing promise
   if (isRefreshing && refreshPromise) {
     return refreshPromise;
-  }
-
-  // Check if we have a refresh token
-  const tokens = getTokens();
-  if (!tokens.refreshToken) {
-    return null;
   }
 
   isRefreshing = true;
@@ -67,12 +62,12 @@ const refreshTokenAutomatically = async (): Promise<string | null> => {
       const tempClient = new ApolloClient({
         link: createHttpLink({
           uri: API_CONFIG.GRAPHQL_URL,
-          credentials: 'include',
+          credentials: 'include', // This includes the httpOnly refresh token cookie
         }),
         cache: new InMemoryCache(),
       });
 
-      // Call refresh token mutation
+      // Call refresh token mutation - server will use httpOnly cookie
       const result = await tempClient.mutate({
         mutation: REFRESH_TOKEN,
         variables: {
@@ -106,6 +101,48 @@ const refreshTokenAutomatically = async (): Promise<string | null> => {
   })();
 
   return refreshPromise;
+};
+
+/**
+ * Collect all necessary authentication data asynchronously
+ * Ensures all required data is available before mutations
+ * Returns object with accessToken and csrfToken
+ */
+const collectAuthData = async (): Promise<{ accessToken: string | null; csrfToken: string | null }> => {
+  try {
+    // Get current tokens
+    const tokens = getTokens();
+    let accessToken = tokens.accessToken;
+    
+    // Refresh token if expired
+    if (accessToken && isTokenExpired(accessToken)) {
+      accessToken = await refreshTokenAutomatically();
+    }
+    
+    // Ensure CSRF token is available
+    if (!csrfToken) {
+      try {
+        const baseUrl = API_CONFIG.GRAPHQL_URL.replace('/graphql', '');
+        const response = await fetch(`${baseUrl}/csrf-token`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.csrfToken) {
+            csrfToken = data.csrfToken;
+          }
+        }
+      } catch (error) {
+        // CSRF token fetch failed
+      }
+    }
+    
+    return { accessToken, csrfToken };
+  } catch (error) {
+    return { accessToken: null, csrfToken: null };
+  }
 };
 
 /**
@@ -200,26 +237,8 @@ const httpLink = createHttpLink({
  */
 const authLink = setContext(async (_, { headers }) => {
   try {
-    // Get access token from memory
-    const tokens = getTokens();
-    
-    let accessToken = tokens.accessToken;
-    
-    // Check if token exists and is about to expire (within 30 seconds)
-    if (accessToken) {
-      const isExpired = isTokenExpired(accessToken);
-      
-      if (isExpired) {
-        // Token is expired, try to refresh automatically
-        const newToken = await refreshTokenAutomatically();
-        if (newToken) {
-          accessToken = newToken;
-        } else {
-          // Refresh failed, no token available
-          accessToken = null;
-        }
-      }
-    }
+    // Collect all necessary authentication data asynchronously
+    const { accessToken, csrfToken: currentCSRFToken } = await collectAuthData();
     
     // Prepare headers
     const requestHeaders: any = {
@@ -233,8 +252,8 @@ const authLink = setContext(async (_, { headers }) => {
     }
     
     // Add CSRF token header for mutations
-    if (csrfToken) {
-      requestHeaders['x-csrf-token'] = csrfToken;
+    if (currentCSRFToken) {
+      requestHeaders['x-csrf-token'] = currentCSRFToken;
     }
     
     return { headers: requestHeaders };
@@ -395,8 +414,8 @@ const client = new ApolloClient({
 
 // Enhanced logging for GraphQL operations (disabled for better user experience)
 
-// Fetch initial CSRF token (only once on startup) - temporarily disabled for debugging
-// fetchInitialCSRFToken();
+// Fetch initial CSRF token (only once on startup)
+fetchInitialCSRFToken();
 
 /**
  * Set CSRF token in Apollo Client memory
@@ -420,6 +439,22 @@ export const setCSRFToken = (token: string) => {
 export const clearCSRFToken = () => {
   csrfToken = null;
   // Debug logging disabled for better user experience
+};
+
+/**
+ * Collect all necessary authentication data asynchronously
+ * Can be used by components to ensure auth data is ready before mutations
+ * 
+ * CALLED BY: Components that need to ensure authentication before mutations
+ * SCENARIOS: Comment posting, like toggling, and other authenticated operations
+ */
+export const ensureAuthDataReady = async (): Promise<boolean> => {
+  try {
+    const { accessToken, csrfToken: currentCSRFToken } = await collectAuthData();
+    return !!(accessToken && currentCSRFToken);
+  } catch (error) {
+    return false;
+  }
 };
 
 export default client; 

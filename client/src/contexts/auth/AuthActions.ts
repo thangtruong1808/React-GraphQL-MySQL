@@ -154,6 +154,11 @@ export const useAuthActions = (
       setUser(refreshedUser);
       setIsAuthenticated(true);
       
+      // Update CSRF token in Apollo Client for future mutations
+      if (csrfToken) {
+        setApolloCSRFToken(csrfToken);
+      }
+      
       // Reset activity timer to ensure proper synchronization (like first-time login)
       await TokenManager.updateActivity();
       
