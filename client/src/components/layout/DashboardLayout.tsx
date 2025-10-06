@@ -25,7 +25,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className="flex h-screen bg-white dashboard-layout"
+      className="flex h-screen dashboard-layout"
       style={{
         width: '100vw',
         margin: 0,
@@ -42,7 +42,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
       {/* Main Content Area - True Edge-to-Edge */}
       <main
-        className="flex-1 overflow-auto bg-white dashboard-content"
+        className="flex-1 overflow-auto dashboard-content"
         style={{
           width: '100%',
           margin: 0,

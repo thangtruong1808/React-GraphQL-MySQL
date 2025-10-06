@@ -23,6 +23,10 @@ const Sidebar: React.FC = () => {
   const { user, performLogout } = useAuth();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [theme, setTheme] = useState<string>(() => (
+    typeof window !== 'undefined' ? (localStorage.getItem('theme') || 'brand') : 'brand'
+  ));
 
   // Check if user has admin or project manager role
   const isAdminOrPM = isAdminRole(user?.role || '') ||
@@ -101,7 +105,56 @@ const Sidebar: React.FC = () => {
 
   // Handle logout
   const handleLogout = async () => {
-    await performLogout();
+    // Show transition state while logging out
+    setLogoutLoading(true);
+    try {
+      await performLogout();
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
+
+  // Apply and persist theme
+  React.useEffect(() => {
+    // Apply to both <html> and <body> for maximum coverage
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
+
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // ignore storage errors
+    }
+  }, [theme]);
+
+  /**
+   * Handle theme change
+   * Updates theme state and applies to document
+   */
+  const handleThemeChange = (newTheme: string) => {
+    // Update state and apply immediately for instant feedback
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    document.body.setAttribute('data-theme', newTheme);
+
+    // Force style recalculation
+    const dashboardLayout = document.querySelector('.dashboard-layout') as HTMLElement;
+    const dashboardContent = document.querySelector('.dashboard-content') as HTMLElement;
+
+    if (dashboardLayout) {
+      dashboardLayout.style.backgroundColor = '';
+      dashboardLayout.style.backgroundImage = '';
+    }
+    if (dashboardContent) {
+      dashboardContent.style.backgroundColor = '';
+      dashboardContent.style.backgroundImage = '';
+    }
+
+    try {
+      localStorage.setItem('theme', newTheme);
+    } catch {
+      // ignore storage errors
+    }
   };
 
 
@@ -185,12 +238,83 @@ const Sidebar: React.FC = () => {
         </div>
 
         {!isCollapsed && (
-          <button
-            onClick={handleLogout}
-            className="w-full mt-3 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
-          >
-            Sign Out
-          </button>
+          <>
+            {/* Theme Switcher - compact pills */}
+            <div className="mt-3">
+              <div className="text-xs text-gray-500 mb-1">Theme</div>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  title="Light theme"
+                  aria-label="Light theme"
+                  onClick={() => handleThemeChange('light')}
+                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'light'
+                    ? 'border-gray-400 bg-gray-50 shadow-sm'
+                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                    }`}
+                >
+                  <span
+                    className={`w-3 h-3 rounded-full border ${theme === 'light' ? 'ring-2 ring-offset-1 ring-gray-400' : 'border-gray-300'}`}
+                    style={{ background: '#ffffff' }}
+                  />
+                  <span className={`text-xs font-medium ${theme === 'light' ? 'text-gray-800' : 'text-gray-600'}`}>
+                    Light
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  title="Dark theme"
+                  aria-label="Dark theme"
+                  onClick={() => handleThemeChange('dark')}
+                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'dark'
+                    ? 'border-indigo-400 bg-indigo-50 shadow-sm'
+                    : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                    }`}
+                >
+                  <span
+                    className={`w-3 h-3 rounded-full ${theme === 'dark' ? 'ring-2 ring-offset-1 ring-indigo-400' : 'border border-gray-300'}`}
+                    style={{ background: 'linear-gradient(135deg, #0f172a, #111827)' }}
+                  />
+                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-indigo-800' : 'text-gray-600'}`}>
+                    Dark
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  title="Brand theme"
+                  aria-label="Brand theme"
+                  onClick={() => handleThemeChange('brand')}
+                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'brand'
+                    ? 'border-purple-400 bg-purple-50 shadow-sm'
+                    : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                    }`}
+                >
+                  <span
+                    className={`w-3 h-3 rounded-full ${theme === 'brand' ? 'ring-2 ring-offset-1 ring-purple-400' : 'border border-gray-300'}`}
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)' }}
+                  />
+                  <span className={`text-xs font-medium ${theme === 'brand' ? 'text-purple-800' : 'text-gray-600'}`}>
+                    Brand
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              disabled={logoutLoading}
+              className="w-full mt-3 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+            >
+              {logoutLoading ? (
+                <>
+                  <span className="inline-block mr-2 h-4 w-4 border-2 border-transparent border-t-current rounded-full animate-spin text-gray-600"></span>
+                  Signing out...
+                </>
+              ) : (
+                'Sign Out'
+              )}
+            </button>
+          </>
         )}
       </div>
     </div>

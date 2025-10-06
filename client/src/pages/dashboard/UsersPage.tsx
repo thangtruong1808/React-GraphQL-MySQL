@@ -241,7 +241,7 @@ const UsersPage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full h-full bg-white dashboard-content">
+      <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">
           <div className="px-8 py-8 w-full">
@@ -267,7 +267,7 @@ const UsersPage: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white w-full">
+        <div className="w-full">
           <div className="px-8 py-8 w-full">
             {/* Error Display */}
             {state.error && (

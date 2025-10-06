@@ -3,6 +3,319 @@
 @tailwind utilities;
 
 /* Enhanced Skeleton Animations */
+/* Dashboard theme variables */
+:root {
+  --accent-from: #7c3aed; /* brand default */
+  --accent-to: #ec4899;
+  --accent-ring: #7c3aed;
+  --bg-base: #ffffff;             /* default dashboard background */
+  --bg-gradient: none;            /* optional gradient layer */
+  --text-primary: #1f2937;        /* primary text color */
+  --text-secondary: #6b7280;      /* secondary text color */
+  --text-muted: #9ca3af;          /* muted text color */
+  --border-color: #e5e7eb;        /* border color */
+  --border-light: #f3f4f6;        /* light border color */
+  --card-bg: #ffffff;             /* card background */
+  --input-bg: #ffffff;            /* input background */
+  --modal-bg: #ffffff;            /* modal background */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* shadow color */
+}
+
+[data-theme="light"] {
+  --accent-from: #7c3aed; /* keep brand accent for light */
+  --accent-to: #ec4899;
+  --accent-ring: #7c3aed;
+  --bg-base: #ffffff;
+  --bg-gradient: none;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: #e5e7eb;
+  --border-light: #f3f4f6;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --accent-from: #3b82f6; /* blue-500 - better visibility */
+  --accent-to: #8b5cf6;   /* violet-500 */
+  --accent-ring: #3b82f6;
+  --bg-base: #111827;     /* gray-900 - darker base */
+  --bg-gradient: radial-gradient(1200px 800px at 10% -20%, rgba(59,130,246,0.1), transparent), radial-gradient(1000px 700px at 110% 10%, rgba(139,92,246,0.08), transparent);
+  --text-primary: #ffffff; /* pure white for maximum contrast */
+  --text-secondary: #e5e7eb; /* gray-200 - high contrast */
+  --text-muted: #9ca3af;   /* gray-400 - still readable */
+  --border-color: #4b5563; /* gray-600 - more visible borders */
+  --border-light: #6b7280; /* gray-500 - lighter borders */
+  --card-bg: #1f2937;      /* gray-800 - lighter than base */
+  --input-bg: #1f2937;     /* gray-800 - consistent with cards */
+  --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
+  --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
+}
+
+[data-theme="brand"] {
+  --accent-from: #7c3aed; /* brand signature */
+  --accent-to: #ec4899;
+  --accent-ring: #7c3aed;
+  --bg-base: #f3e8ff;     /* purple-100 - more visible than violet-50 */
+  --bg-gradient: radial-gradient(1200px 800px at 10% -20%, rgba(124,58,237,0.12), transparent), radial-gradient(1000px 700px at 110% 10%, rgba(236,72,153,0.10), transparent);
+  --text-primary: #581c87;
+  --text-secondary: #7c3aed;
+  --text-muted: #a855f7;
+  --border-color: #c084fc;
+  --border-light: #ddd6fe;
+  --card-bg: #faf5ff;
+  --input-bg: #faf5ff;
+  --modal-bg: #faf5ff;
+  --shadow-color: rgba(124, 58, 237, 0.2);
+}
+
+/* Helper class to apply theme accent gradient */
+.theme-accent-gradient {
+  background-image: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+}
+
+/* Make Tailwind bg-white respect the active theme's base color */
+.bg-white {
+  background-color: var(--bg-base) !important;
+}
+
+/* Theme-aware text colors */
+.text-gray-900, .text-gray-800, .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-600, .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-400, .text-gray-300 {
+  color: var(--text-muted) !important;
+}
+
+/* Theme-aware border colors */
+.border-gray-200, .border-gray-300 {
+  border-color: var(--border-color) !important;
+}
+
+.border-gray-100 {
+  border-color: var(--border-light) !important;
+}
+
+/* Theme-aware card backgrounds */
+.bg-white.shadow, .bg-white.rounded, .card {
+  background-color: var(--card-bg) !important;
+  box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px 0 var(--shadow-color) !important;
+}
+
+/* Theme-aware input backgrounds */
+input[type="text"], input[type="email"], input[type="password"], 
+textarea, select, .bg-white input {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Theme-aware modal backgrounds */
+.modal, .modal-content, .bg-white.modal {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Theme-aware table backgrounds */
+table, .bg-white table {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+table th, table td {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Theme-aware button hover states */
+button:hover, .btn:hover {
+  background-color: var(--border-light) !important;
+}
+
+/* Theme-aware sidebar */
+.sidebar, .bg-white.sidebar {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Theme-aware form elements */
+.form-input, .form-select, .form-textarea {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent-ring) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+}
+
+/* Theme-aware dropdowns and menus */
+.dropdown-menu, .menu-content {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color) !important;
+}
+
+.dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+.dropdown-item:hover {
+  background-color: var(--border-light) !important;
+}
+
+/* Theme-aware navigation */
+.nav-item, .nav-link {
+  color: var(--text-primary) !important;
+}
+
+.nav-item:hover, .nav-link:hover {
+  background-color: var(--border-light) !important;
+}
+
+/* Theme-aware badges and labels */
+.badge, .label {
+  background-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Theme-aware progress bars */
+.progress-bar {
+  background-color: var(--accent-from) !important;
+}
+
+.progress-bg {
+  background-color: var(--border-light) !important;
+}
+
+/* Theme-aware tooltips */
+.tooltip {
+  background-color: var(--text-primary) !important;
+  color: var(--bg-base) !important;
+}
+
+/* Theme-aware charts and graphs */
+.chart-container, .graph-container {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Theme-aware code blocks */
+.code-block, pre, code {
+  background-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Enhanced dark theme contrast */
+[data-theme="dark"] {
+  /* Ensure all text has sufficient contrast */
+  .text-gray-900, .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500 {
+    color: #ffffff !important;
+  }
+  
+  .text-gray-400, .text-gray-300 {
+    color: #d1d5db !important;
+  }
+  
+  /* Enhanced border visibility */
+  .border-gray-200, .border-gray-300, .border-gray-400 {
+    border-color: #6b7280 !important;
+  }
+  
+  .border-gray-100 {
+    border-color: #4b5563 !important;
+  }
+  
+  /* Better card contrast */
+  .bg-white, .bg-gray-50, .bg-gray-100 {
+    background-color: #1f2937 !important;
+  }
+  
+  /* Enhanced input visibility */
+  input, textarea, select {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    border-color: #6b7280 !important;
+  }
+  
+  input::placeholder, textarea::placeholder {
+    color: #9ca3af !important;
+  }
+  
+  /* Better table contrast */
+  table {
+    background-color: #1f2937 !important;
+  }
+  
+  table th {
+    background-color: #374151 !important;
+    color: #ffffff !important;
+  }
+  
+  table td {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Enhanced modal contrast */
+  .modal, .modal-content {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    border-color: #6b7280 !important;
+  }
+  
+  /* Better button contrast */
+  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600) {
+    background-color: #374151 !important;
+    color: #ffffff !important;
+    border-color: #6b7280 !important;
+  }
+  
+  button:hover:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600) {
+    background-color: #4b5563 !important;
+  }
+}
+
+/* Apply themed backgrounds to dashboard surfaces */
+.dashboard-layout,
+.dashboard-content {
+  background-color: var(--bg-base) !important;
+  background-image: var(--bg-gradient) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  transition: background-color 0.3s ease, background-image 0.3s ease;
+}
+
+/* Higher specificity for theme application */
+html[data-theme] .dashboard-layout,
+html[data-theme] .dashboard-content,
+body[data-theme] .dashboard-layout,
+body[data-theme] .dashboard-content {
+  background-color: var(--bg-base) !important;
+  background-image: var(--bg-gradient) !important;
+}
+
+/* Apply theme to body and html for full coverage */
+html[data-theme] {
+  background-color: var(--bg-base) !important;
+  transition: background-color 0.3s ease;
+}
+
+body[data-theme] {
+  background-color: var(--bg-base) !important;
+  transition: background-color 0.3s ease;
+}
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -54,7 +367,7 @@ html, body {
   padding: 0 !important;
   width: 100% !important;
   overflow-x: hidden;
-  background-color: #f9fafb; /* bg-gray-50 */
+  background-color: var(--bg-base) !important;
 }
 
 #root {
@@ -177,36 +490,87 @@ html {
 }
 
 /* Custom focus styles for better accessibility */
-.focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #10b981, 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 /* Glass morphism effect */
 .glass {
-  @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Gradient text effect */
 .gradient-text {
-  @apply bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent;
+  background: linear-gradient(to right, #059669, #0d9488);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 /* Hover effects for interactive elements */
 .hover-lift {
-  @apply transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+  transform: translateY(0);
+  transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: scale(1.02);
+}
+
+.hover-lift:active {
+  transform: scale(0.98);
 }
 
 /* Custom button styles */
 .btn-primary {
-  @apply bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 shadow-lg hover:shadow-xl;
+  background: linear-gradient(to right, #059669, #0d9488);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #047857, #0f766e);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #10b981, 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 /* Input field styles */
 .input-field {
-  @apply block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm;
+  display: block;
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-ring), 0 0 0 4px rgba(124, 58, 237, 0.1);
+  border-color: var(--accent-ring);
 }
 
 /* Card styles */
 .card {
-  @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8;
+  background-color: var(--card-bg);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  padding: 2rem;
 }
