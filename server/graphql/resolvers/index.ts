@@ -4,6 +4,7 @@ import { teamResolvers } from './teamResolvers';
 import { projectsResolvers } from './projectsResolvers';
 import { commentsResolvers } from './commentsResolvers';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
+import { userManagementResolvers } from './userManagement';
 import { Task, User, Project } from '../../db';
 
 /**
@@ -29,6 +30,7 @@ export const resolvers = {
     ...publicStatsResolvers.Query,
     ...teamResolvers.Query,
     ...projectsResolvers.Query,
+    ...userManagementResolvers.Query,
     searchMembers,
     searchProjects,
     searchTasks,
@@ -36,11 +38,15 @@ export const resolvers = {
   Mutation: {
     ...authResolvers.Mutation,
     ...commentsResolvers.Mutation,
+    ...userManagementResolvers.Mutation,
   },
   // Type resolvers for nested relationships
   User: {
     // Convert numeric ID to string for GraphQL
     id: (parent: any) => parent.id ? parent.id.toString() : null,
+    
+    // Ensure isDeleted is always a boolean
+    isDeleted: (parent: any) => parent.isDeleted ?? false,
     
     // Map database role values to GraphQL enum values
     role: (parent: any) => {

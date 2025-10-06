@@ -15,6 +15,7 @@ const SearchResultsPage = React.lazy(() => import('../../pages/search/SearchResu
 // Dashboard pages for authenticated users
 const TaskFlowOverviewPage = React.lazy(() => import('../../pages/dashboard/TaskFlowOverviewPage'));
 const DashboardUsersPage = React.lazy(() => import('../../pages/dashboard/UsersPage'));
+const DashboardUserCreatePage = React.lazy(() => import('../../pages/dashboard/UserCreatePage'));
 const DashboardProjectsPage = React.lazy(() => import('../../pages/dashboard/ProjectsPage'));
 const DashboardTasksPage = React.lazy(() => import('../../pages/dashboard/TasksPage'));
 const DashboardCommentsPage = React.lazy(() => import('../../pages/dashboard/CommentsPage'));
@@ -89,6 +90,15 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <DashboardUsersPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={ROUTE_PATHS.DASHBOARD_USERS_CREATE}
+        element={
+          <ProtectedRoute>
+            <DashboardUserCreatePage />
           </ProtectedRoute>
         }
       />

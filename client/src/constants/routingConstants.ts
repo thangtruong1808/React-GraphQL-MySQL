@@ -23,6 +23,7 @@ export const ROUTE_PATHS = {
   
   // Dashboard routes (authenticated users only)
   DASHBOARD_USERS: '/dashboard/users',
+  DASHBOARD_USERS_CREATE: '/dashboard/users/create',
   DASHBOARD_PROJECTS: '/dashboard/projects',
   DASHBOARD_TASKS: '/dashboard/tasks',
   DASHBOARD_COMMENTS: '/dashboard/comments',

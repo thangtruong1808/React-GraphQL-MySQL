@@ -192,6 +192,29 @@ export const typeDefs = gql`
     taskId: ID
   }
 
+  # User Input Type - for creating new users
+  input UserInput {
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+    role: UserRole!
+  }
+
+  # User Update Input Type - for updating existing users
+  input UserUpdateInput {
+    email: String
+    firstName: String
+    lastName: String
+    role: UserRole
+  }
+
+  # Paginated Users Response Type - for user management with pagination
+  type PaginatedUsersResponse {
+    users: [User!]!
+    paginationInfo: PaginationInfo!
+  }
+
   # Public Statistics Type - for unauthenticated dashboard
   type PublicStats {
     totalProjects: Int!
@@ -321,6 +344,8 @@ export const typeDefs = gql`
     searchMembers(query: String, roleFilter: [UserRole!]): [User!]!
     searchProjects(statusFilter: [ProjectStatus!]): [Project!]!
     searchTasks(taskStatusFilter: [TaskStatus!]): [Task!]!
+    # User management - for dashboard users page
+    users(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedUsersResponse!
   }
 
   # Mutation Type - includes authentication and comment mutations
@@ -343,5 +368,10 @@ export const typeDefs = gql`
     
     # Like/unlike a comment - requires authentication
     toggleCommentLike(commentId: ID!): Comment!
+    
+    # User management mutations - require authentication
+    createUser(input: UserInput!): User!
+    updateUser(id: ID!, input: UserUpdateInput!): User!
+    deleteUser(id: ID!): Boolean!
   }
 `;
