@@ -188,46 +188,25 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
-              <th className="w-32 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleSort('updatedAt')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updatedAt')}
+                </div>
+              </th>
+              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
-              // Loading skeleton
-              Array.from({ length: currentPageSize }).map((_, index) => (
-                <tr key={index} className="animate-pulse">
-                  <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <div className="h-4 bg-gray-200 rounded w-12"></div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <div className="h-4 bg-gray-200 rounded w-24"></div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <div className="h-4 bg-gray-200 rounded w-24"></div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <div className="h-4 bg-gray-200 rounded w-40"></div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <div className="h-4 bg-gray-200 rounded w-28"></div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <div className="h-4 bg-gray-200 rounded w-20"></div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-center">
-                    <div className="flex justify-center space-x-2">
-                      <div className="h-8 w-16 bg-gray-200 rounded"></div>
-                      <div className="h-8 w-16 bg-gray-200 rounded"></div>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : users.length === 0 ? (
+            {users.length === 0 ? (
               // Empty state
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center">
+                <td colSpan={8} className="px-6 py-12 text-center">
                   <div className="text-gray-500">
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -273,9 +252,14 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     {formatDate(user.createdAt)}
                   </td>
 
+                  {/* Updated Date Column */}
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    {formatDate(user.updatedAt)}
+                  </td>
+
                   {/* Actions Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-center">
-                    <div className="flex justify-center space-x-2">
+                  <td className="px-4 py-4 whitespace-nowrap text-left">
+                    <div className="flex justify-start space-x-2">
                       {/* Edit button */}
                       <button
                         onClick={() => onEdit(user)}
@@ -375,6 +359,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   </option>
                 ))}
               </select>
+              <span className="text-sm text-gray-600">entries</span>
             </div>
           </div>
 

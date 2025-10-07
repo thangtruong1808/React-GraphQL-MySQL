@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { DashboardLayout } from '../../components/layout';
+import { DashboardSkeleton } from '../../components/ui';
 import {
   TagSearchInput,
   TagsTable,
@@ -184,8 +185,13 @@ const TagsPage: React.FC = () => {
     setSelectedTag(null);
   }, []);
 
+  // Show unified skeleton during loading (both sidebar and content)
+  if (loading && tags.length === 0) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">

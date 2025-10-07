@@ -118,14 +118,17 @@ const RouteAwareLoadingFallback = () => {
  * SCENARIOS: All application scenarios
  */
 const AppContent: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isInitializing } = useAuth();
   const location = useLocation();
 
   // Show NavBar for non-authenticated users, login page, homepage, search page, or public pages
+  // But not during authentication initialization for dashboard routes
   const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname.startsWith('/projects/');
 
   // For authenticated users on dashboard routes (not homepage, search, or public pages), use edge-to-edge layout
-  if (isAuthenticated && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT && !location.pathname.startsWith('/projects/')) {
+  // Also handle dashboard routes during authentication initialization
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  if ((isAuthenticated || (isInitializing && isDashboardRoute)) && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT && !location.pathname.startsWith('/projects/')) {
     return (
       <>
         {/* Activity tracker - handles user activity monitoring */}

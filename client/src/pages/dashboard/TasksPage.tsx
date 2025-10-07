@@ -3,7 +3,9 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
+import { DashboardSkeleton } from '../../components/ui';
 import {
   TaskSearchInput,
   TasksTable,
@@ -40,6 +42,7 @@ import { InlineError } from '../../components/ui';
  */
 const TasksPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isInitializing } = useAuth();
 
   // State management
   const [state, setState] = useState<TaskManagementState>({
@@ -237,8 +240,13 @@ const TasksPage: React.FC = () => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
+  // Show unified skeleton during loading (both sidebar and content)
+  if (state.loading && state.tasks.length === 0) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">

@@ -16,3 +16,6 @@ export { EnhancedInput } from './EnhancedInput';
 // Skeleton Components
 export * from './SkeletonLoader';
 export * from './DashboardSkeletons';
+export { default as SidebarSkeleton } from './SidebarSkeleton';
+export { default as UsersPageSkeleton } from './UsersPageSkeleton';
+export { default as DashboardSkeleton } from './DashboardSkeleton';

@@ -202,12 +202,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isOnTeamRoute = currentPath === ROUTE_PATHS.TEAM;
   const isOnAboutRoute = currentPath === ROUTE_PATHS.ABOUT;
   const isOnSearchRoute = currentPath === ROUTE_PATHS.SEARCH;
+  const isOnDashboardRoute = currentPath.startsWith('/dashboard');
 
   return (
     <AuthContext.Provider value={contextValue}>
       {authState.isInitializing ? (
         isOnLoginRoute ? (
           <LoginPageSkeleton />
+        ) : isOnDashboardRoute ? (
+          // Dashboard routes handle their own loading states
+          children
         ) : isOnProjectDetailRoute || isOnHomeRoute || isOnSearchRoute || isOnProjectsRoute || isOnTeamRoute || isOnAboutRoute ? (
           <div className="min-h-screen flex flex-col">
             <NavBarSkeleton />
@@ -221,9 +225,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             </main>
           </div>
         ) : (
-          <DashboardLayout>
-            <AuthInitializationSkeleton />
-          </DashboardLayout>
+          // Fallback for any other routes
+          children
         )
       ) : children}
     </AuthContext.Provider>

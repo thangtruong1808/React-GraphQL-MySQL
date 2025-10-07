@@ -3,7 +3,9 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
+import { DashboardSkeleton } from '../../components/ui';
 import {
   ActivitySearchInput,
   ActivitiesTable,
@@ -30,7 +32,6 @@ import {
 } from '../../constants/activityManagement';
 import { InlineError } from '../../components/ui';
 import { useError } from '../../contexts/ErrorContext';
-import { useAuth } from '../../contexts/AuthContext';
 
 /**
  * Activities Dashboard Page
@@ -42,6 +43,7 @@ import { useAuth } from '../../contexts/AuthContext';
  */
 const ActivitiesPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isInitializing } = useAuth();
   const { showError, showSuccess } = useError();
   const { user } = useAuth();
 
@@ -185,8 +187,13 @@ const ActivitiesPage: React.FC = () => {
     }
   }, [user, navigate]);
 
+  // Show unified skeleton during loading (both sidebar and content)
+  if (loading && activities.length === 0) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout showSidebarSkeleton={false}>
       <div className="space-y-6">
         {/* Header */}
         <div className="md:flex md:items-center md:justify-between">

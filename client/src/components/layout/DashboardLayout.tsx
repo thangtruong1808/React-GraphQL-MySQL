@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import Sidebar from './Sidebar';
+import { useAuth } from '../../contexts/AuthContext';
+import { SidebarSkeleton } from '../ui';
 
 /**
  * Dashboard Layout Component
@@ -9,9 +11,12 @@ import Sidebar from './Sidebar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
+  showSidebarSkeleton?: boolean;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, showSidebarSkeleton = true }) => {
+  const { user, isInitializing } = useAuth();
+
   // Add authenticated class to body for edge-to-edge CSS
   useEffect(() => {
     document.body.classList.add('authenticated');
@@ -22,6 +27,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       document.getElementById('root')?.classList.remove('authenticated');
     };
   }, []);
+
+  // Show sidebar skeleton if user data is not loaded yet and showSidebarSkeleton is true
+  const shouldShowSidebarSkeleton = showSidebarSkeleton && (isInitializing || !user);
 
   return (
     <div
@@ -37,8 +45,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         bottom: 0
       }}
     >
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar or Sidebar Skeleton */}
+      {shouldShowSidebarSkeleton ? <SidebarSkeleton /> : <Sidebar />}
 
       {/* Main Content Area - True Edge-to-Edge */}
       <main

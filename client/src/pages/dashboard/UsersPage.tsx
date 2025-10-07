@@ -3,7 +3,9 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
+import { DashboardSkeleton } from '../../components/ui';
 import {
   UserSearchInput,
   UsersTable,
@@ -42,6 +44,7 @@ import { InlineError } from '../../components/ui';
  */
 const UsersPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isInitializing } = useAuth();
 
   // State management
   const [state, setState] = useState<UserManagementState>({
@@ -65,8 +68,8 @@ const UsersPage: React.FC = () => {
   });
 
   // Sorting state
-  const [sortBy, setSortBy] = useState<string>('createdAt');
-  const [sortOrder, setSortOrder] = useState<string>('DESC');
+  const [sortBy, setSortBy] = useState<string>('id');
+  const [sortOrder, setSortOrder] = useState<string>('ASC');
 
   // GraphQL queries and mutations
   const { data, loading: queryLoading, refetch } = useQuery(GET_USERS_QUERY, {
@@ -239,8 +242,13 @@ const UsersPage: React.FC = () => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
+  // Show unified skeleton during loading (both sidebar and content)
+  if (state.loading && state.users.length === 0) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">
@@ -285,32 +293,28 @@ const UsersPage: React.FC = () => {
                 loading={state.loading}
               />
 
-              {/* Users Table or Skeleton */}
-              {state.loading && state.users.length === 0 ? (
-                <UsersTableSkeleton />
-              ) : (
-                <UsersTable
-                  users={state.users}
-                  paginationInfo={state.paginationInfo}
-                  loading={state.loading}
-                  onEdit={(user) => setState(prev => ({
-                    ...prev,
-                    editModalOpen: true,
-                    selectedUser: user
-                  }))}
-                  onDelete={(user) => setState(prev => ({
-                    ...prev,
-                    deleteModalOpen: true,
-                    selectedUser: user
-                  }))}
-                  onPageChange={handlePageChange}
-                  onPageSizeChange={handlePageSizeChange}
-                  currentPageSize={state.pageSize}
-                  onSort={handleSort}
-                  currentSortBy={sortBy}
-                  currentSortOrder={sortOrder}
-                />
-              )}
+              {/* Users Table */}
+              <UsersTable
+                users={state.users}
+                paginationInfo={state.paginationInfo}
+                loading={state.loading}
+                onEdit={(user) => setState(prev => ({
+                  ...prev,
+                  editModalOpen: true,
+                  selectedUser: user
+                }))}
+                onDelete={(user) => setState(prev => ({
+                  ...prev,
+                  deleteModalOpen: true,
+                  selectedUser: user
+                }))}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                currentPageSize={state.pageSize}
+                onSort={handleSort}
+                currentSortBy={sortBy}
+                currentSortOrder={sortOrder}
+              />
             </div>
           </div>
         </div>

@@ -95,15 +95,6 @@ const UserSearchInput: React.FC<UserSearchInputProps> = ({
         )}
       </div>
 
-      {/* Loading indicator */}
-      {loading && (
-        <div className="absolute top-full left-0 right-0 mt-1">
-          <div className="flex items-center justify-center space-x-2 text-sm text-purple-600">
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent"></div>
-            <span>Searching...</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

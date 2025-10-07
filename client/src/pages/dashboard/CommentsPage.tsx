@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { DashboardLayout } from '../../components/layout';
 import { useError } from '../../contexts/ErrorContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { DashboardSkeleton } from '../../components/ui';
 import {
   CommentSearchInput,
   CommentsTable,
@@ -198,8 +199,13 @@ const CommentsPage: React.FC = () => {
     totalPages: 1,
   };
 
+  // Show unified skeleton during loading (both sidebar and content)
+  if (loading && (!data?.comments || data.comments.length === 0)) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="border-b border-gray-200 w-full">
