@@ -129,6 +129,7 @@ export const typeDefs = gql`
     uuid: String
     content: String!
     author: User!
+    task: Task!
     projectId: ID
     taskId: ID
     isDeleted: Boolean!
@@ -185,12 +186,6 @@ export const typeDefs = gql`
     password: String!
   }
 
-  # Comment Input Type - for creating new comments
-  input CommentInput {
-    content: String!
-    projectId: ID
-    taskId: ID
-  }
 
   # User Input Type - for creating new users
   input UserInput {
@@ -262,6 +257,24 @@ export const typeDefs = gql`
   # Paginated Dashboard Tasks Response Type - for task management with pagination
   type PaginatedDashboardTasksResponse {
     tasks: [Task!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Comment Input Type - for creating new comments
+  input CommentInput {
+    content: String!
+    projectId: ID
+    taskId: ID
+  }
+
+  # Comment Update Input Type - for updating existing comments
+  input CommentUpdateInput {
+    content: String
+  }
+
+  # Paginated Dashboard Comments Response Type - for comment management with pagination
+  type PaginatedDashboardCommentsResponse {
+    comments: [Comment!]!
     paginationInfo: PaginationInfo!
   }
 
@@ -400,6 +413,8 @@ export const typeDefs = gql`
     dashboardProjects(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardProjectsResponse!
     # Tasks management - for dashboard tasks page
     dashboardTasks(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardTasksResponse!
+    # Comments management - for dashboard comments page
+    dashboardComments(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardCommentsResponse!
   }
 
   # Mutation Type - includes authentication and comment mutations
@@ -435,5 +450,8 @@ export const typeDefs = gql`
     createTask(input: TaskInput!): Task!
     updateTask(id: ID!, input: TaskUpdateInput!): Task!
     deleteTask(id: ID!): Boolean!
+    # Comment management mutations - require authentication
+    updateComment(id: ID!, input: CommentUpdateInput!): Comment!
+    deleteComment(id: ID!): Boolean!
   }
 `;

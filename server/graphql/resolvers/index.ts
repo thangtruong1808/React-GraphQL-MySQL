@@ -7,7 +7,8 @@ import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 import { userManagementResolvers } from './userManagement';
 import { projectManagementResolvers } from './projectManagement';
 import { taskManagementResolvers } from './taskManagement';
-import { Task, User, Project } from '../../db';
+import { commentManagementResolvers } from './commentManagement';
+import { Task, User, Project, Comment } from '../../db';
 
 /**
  * GraphQL Resolvers Index
@@ -35,6 +36,7 @@ export const resolvers = {
     ...userManagementResolvers.Query,
     ...projectManagementResolvers.Query,
     ...taskManagementResolvers.Query,
+    ...commentManagementResolvers.Query,
     searchMembers,
     searchProjects,
     searchTasks,
@@ -45,6 +47,7 @@ export const resolvers = {
     ...userManagementResolvers.Mutation,
     ...projectManagementResolvers.Mutation,
     ...taskManagementResolvers.Mutation,
+    ...commentManagementResolvers.Mutation,
   },
   // Type resolvers for nested relationships
   User: {
@@ -232,6 +235,75 @@ export const resolvers = {
         });
       } catch (error) {
         return null;
+      }
+    }
+  },
+  // Comment type resolvers
+  Comment: {
+    // Convert numeric ID to string for GraphQL
+    id: (parent: any) => parent.id ? parent.id.toString() : null,
+    
+    // Ensure isDeleted is always a boolean
+    isDeleted: (parent: any) => parent.isDeleted ?? false,
+    
+    // Map database date fields to GraphQL camelCase fields
+    createdAt: (parent: any) => parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
+    updatedAt: (parent: any) => parent.updatedAt ? new Date(parent.updatedAt).toISOString() : null,
+    
+    // Resolver for author field on Comment type
+    author: async (parent: any) => {
+      try {
+        // Use the correct database field name (user_id is snake_case in database)
+        const userId = parent.user_id || parent.userId;
+        if (!userId) {
+          throw new Error('User ID not found for comment');
+        }
+        
+        const user = await User.findByPk(userId, {
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        if (!user) {
+          throw new Error(`User with ID ${userId} not found`);
+        }
+        
+        return user;
+      } catch (error) {
+        // Log the error for debugging but throw it to prevent null return
+        console.error('Error fetching comment author:', error);
+        throw new Error(`Failed to fetch comment author: ${error.message}`);
+      }
+    },
+    
+    // Resolver for task field on Comment type
+    task: async (parent: any) => {
+      try {
+        // Use the correct database field name (task_id is snake_case in database)
+        const taskId = parent.task_id || parent.taskId;
+        if (!taskId) {
+          throw new Error('Task ID not found for comment');
+        }
+        
+        const task = await Task.findByPk(taskId, {
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate', 'projectId', 'assignedTo', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
+          include: [
+            {
+              model: Project,
+              as: 'project',
+              attributes: ['id', 'uuid', 'name', 'description', 'status', 'ownerId', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+            }
+          ]
+        });
+        
+        if (!task) {
+          throw new Error(`Task with ID ${taskId} not found`);
+        }
+        
+        return task;
+      } catch (error) {
+        // Log the error for debugging but throw it to prevent null return
+        console.error('Error fetching comment task:', error);
+        throw new Error(`Failed to fetch comment task: ${error.message}`);
       }
     }
   }
