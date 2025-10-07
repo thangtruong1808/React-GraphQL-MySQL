@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import { DashboardLayout } from '../../components/layout';
 import { DashboardSkeleton } from '../../components/ui';
 import {
@@ -32,197 +34,204 @@ import {
 
 /**
  * Notifications Management Page
- * Main page for managing notifications with search, table display, pagination, and CRUD operations
- * Features comprehensive notification management functionality
+ * Mirrors UsersPage pattern for predictable loading and skeleton behavior
  */
 const NotificationsPage: React.FC = () => {
-  // Get notification function from auth context
-  const { showNotification } = useAuth();
+  const { showNotification, isInitializing, user } = useAuth();
+  const { hasDashboardAccess } = useRolePermissions();
 
-  // State management
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
-    hasNextPage: false,
-    hasPreviousPage: false,
-    totalCount: 0,
+  // Centralized state management (UsersPage pattern)
+  const [state, setState] = useState({
+    notifications: [] as Notification[],
+    paginationInfo: {
+      hasNextPage: false,
+      hasPreviousPage: false,
+      totalCount: 0,
+      currentPage: 1,
+      totalPages: 0,
+    } as PaginationInfo,
+    loading: false,
+    searchQuery: '',
     currentPage: 1,
-    totalPages: 1,
+    pageSize: DEFAULT_NOTIFICATION_PAGINATION.limit,
+    createModalOpen: false,
+    editModalOpen: false,
+    deleteModalOpen: false,
+    selectedNotification: null as Notification | null,
+    error: null as string | null,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_NOTIFICATION_PAGINATION.limit);
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sorting state
   const [sortBy, setSortBy] = useState(DEFAULT_NOTIFICATION_PAGINATION.sortBy);
   const [sortOrder, setSortOrder] = useState(DEFAULT_NOTIFICATION_PAGINATION.sortOrder);
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
-  // Modal states
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // GraphQL queries and mutations
-  const { loading, refetch } = useQuery(GET_DASHBOARD_NOTIFICATIONS_QUERY, {
+  // GraphQL query
+  const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_NOTIFICATIONS_QUERY, {
     variables: {
-      limit: pageSize,
-      offset: (currentPage - 1) * pageSize,
-      search: searchQuery || undefined,
+      limit: state.pageSize,
+      offset: (state.currentPage - 1) * state.pageSize,
+      search: state.searchQuery || undefined,
       sortBy,
       sortOrder,
     },
-    onCompleted: (data) => {
-      setNotifications(data.dashboardNotifications.notifications);
-      setPaginationInfo(data.dashboardNotifications.paginationInfo);
-    },
-    onError: (error) => {
-      showNotification(NOTIFICATION_ERROR_MESSAGES.FETCH, 'error');
-    },
+    errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+    skip: isInitializing || !hasDashboardAccess || !user,
   });
 
-  const [createNotification] = useMutation(CREATE_NOTIFICATION_MUTATION);
-  const [updateNotification] = useMutation(UPDATE_NOTIFICATION_MUTATION);
-  const [deleteNotification] = useMutation(DELETE_NOTIFICATION_MUTATION);
-  const [markNotificationRead] = useMutation(MARK_NOTIFICATION_READ_MUTATION);
-  const [markNotificationUnread] = useMutation(MARK_NOTIFICATION_UNREAD_MUTATION);
+  // Sync state with GraphQL results
+  useEffect(() => {
+    if (data?.dashboardNotifications) {
+      setState(prev => ({
+        ...prev,
+        notifications: data.dashboardNotifications.notifications,
+        paginationInfo: data.dashboardNotifications.paginationInfo,
+        loading: queryLoading,
+      }));
+    } else {
+      setState(prev => ({
+        ...prev,
+        loading: queryLoading,
+      }));
+    }
+  }, [data, queryLoading]);
+
+  // Explicit refetch helper (UsersPage pattern)
+  const fetchNotifications = useCallback(async (page: number, pageSize: number, search: string) => {
+    try {
+      await refetch({
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+        search: search || undefined,
+        sortBy,
+        sortOrder,
+      });
+    } catch (error) {
+      setState(prev => ({ ...prev, error: NOTIFICATION_ERROR_MESSAGES.FETCH }));
+    }
+  }, [refetch, sortBy, sortOrder]);
 
   // Handle search
-  const handleSearch = useCallback((searchTerm: string) => {
-    setSearchQuery(searchTerm);
-    setCurrentPage(1); // Reset to first page when searching
+  const handleSearchChange = useCallback((q: string) => {
+    setState(prev => ({ ...prev, searchQuery: q, currentPage: 1 }));
   }, []);
 
   // Handle pagination
   const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+    setState(prev => ({ ...prev, currentPage: page }));
+    fetchNotifications(page, state.pageSize, state.searchQuery);
+  }, [fetchNotifications, state.pageSize, state.searchQuery]);
 
   const handlePageSizeChange = useCallback((newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
-  }, []);
+    setState(prev => ({ ...prev, pageSize: newPageSize, currentPage: 1 }));
+    fetchNotifications(1, newPageSize, state.searchQuery);
+  }, [fetchNotifications, state.searchQuery]);
 
   // Handle sorting
   const handleSort = useCallback((newSortBy: string, newSortOrder: string) => {
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
-    setCurrentPage(1); // Reset to first page when sorting
+    setState(prev => ({ ...prev, currentPage: 1 }));
   }, []);
 
-  // Handle create notification
+  // Mutations
+  const [createNotificationMutation] = useMutation(CREATE_NOTIFICATION_MUTATION);
+  const [updateNotificationMutation] = useMutation(UPDATE_NOTIFICATION_MUTATION);
+  const [deleteNotificationMutation] = useMutation(DELETE_NOTIFICATION_MUTATION);
+  const [markNotificationReadMutation] = useMutation(MARK_NOTIFICATION_READ_MUTATION);
+  const [markNotificationUnreadMutation] = useMutation(MARK_NOTIFICATION_UNREAD_MUTATION);
+
+  // Create
   const handleCreateNotification = useCallback(async (input: NotificationInput) => {
     try {
-      await createNotification({
-        variables: { input },
-        update: (cache, { data }) => {
-          if (data?.createNotification) {
-            // Refetch notifications to update the list
-            refetch();
-          }
-        },
-      });
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await createNotificationMutation({ variables: { input } });
+      setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
+      await refetch();
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.CREATE, 'success');
     } catch (error: any) {
+      setState(prev => ({ ...prev, loading: false, error: NOTIFICATION_ERROR_MESSAGES.CREATE }));
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.CREATE, 'error');
-      throw error;
     }
-  }, [createNotification, refetch, showNotification]);
+  }, [createNotificationMutation, refetch, showNotification]);
 
-  // Handle update notification
+  // Update
   const handleUpdateNotification = useCallback(async (id: string, input: NotificationUpdateInput) => {
     try {
-      await updateNotification({
-        variables: { id, input },
-        update: (cache, { data }) => {
-          if (data?.updateNotification) {
-            // Refetch notifications to update the list
-            refetch();
-          }
-        },
-      });
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await updateNotificationMutation({ variables: { id, input } });
+      setState(prev => ({ ...prev, editModalOpen: false, loading: false, selectedNotification: null }));
+      await refetch();
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.UPDATE, 'success');
     } catch (error: any) {
+      setState(prev => ({ ...prev, loading: false, error: NOTIFICATION_ERROR_MESSAGES.UPDATE }));
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.UPDATE, 'error');
-      throw error;
     }
-  }, [updateNotification, refetch, showNotification]);
+  }, [updateNotificationMutation, refetch, showNotification]);
 
-  // Handle delete notification
+  // Delete
   const handleDeleteNotification = useCallback(async (id: string) => {
     try {
-      await deleteNotification({
-        variables: { id },
-        update: (cache, { data }) => {
-          if (data?.deleteNotification) {
-            // Refetch notifications to update the list
-            refetch();
-          }
-        },
-      });
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await deleteNotificationMutation({ variables: { id } });
+      setState(prev => ({ ...prev, deleteModalOpen: false, loading: false, selectedNotification: null }));
+      await refetch();
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.DELETE, 'success');
     } catch (error: any) {
+      setState(prev => ({ ...prev, loading: false, error: NOTIFICATION_ERROR_MESSAGES.DELETE }));
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.DELETE, 'error');
-      throw error;
     }
-  }, [deleteNotification, refetch, showNotification]);
+  }, [deleteNotificationMutation, refetch, showNotification]);
 
-  // Handle mark notification as read
+  // Mark read
   const handleMarkRead = useCallback(async (notification: Notification) => {
     try {
-      await markNotificationRead({
-        variables: { id: notification.id },
-        update: (cache, { data }) => {
-          if (data?.markNotificationRead) {
-            // Refetch notifications to update the list
-            refetch();
-          }
-        },
-      });
+      await markNotificationReadMutation({ variables: { id: notification.id } });
+      await refetch();
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.MARK_READ, 'success');
     } catch (error: any) {
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.MARK_READ, 'error');
     }
-  }, [markNotificationRead, refetch, showNotification]);
+  }, [markNotificationReadMutation, refetch, showNotification]);
 
-  // Handle mark notification as unread
+  // Mark unread
   const handleMarkUnread = useCallback(async (notification: Notification) => {
     try {
-      await markNotificationUnread({
-        variables: { id: notification.id },
-        update: (cache, { data }) => {
-          if (data?.markNotificationUnread) {
-            // Refetch notifications to update the list
-            refetch();
-          }
-        },
-      });
+      await markNotificationUnreadMutation({ variables: { id: notification.id } });
+      await refetch();
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.MARK_UNREAD, 'success');
     } catch (error: any) {
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.MARK_UNREAD, 'error');
     }
-  }, [markNotificationUnread, refetch, showNotification]);
+  }, [markNotificationUnreadMutation, refetch, showNotification]);
 
-  // Handle edit notification
+  // Edit/Delete modal open helpers
   const handleEditNotification = useCallback((notification: Notification) => {
-    setSelectedNotification(notification);
-    setIsEditModalOpen(true);
+    setState(prev => ({ ...prev, selectedNotification: notification, editModalOpen: true }));
   }, []);
 
-  // Handle delete notification
   const handleDeleteNotificationClick = useCallback((notification: Notification) => {
-    setSelectedNotification(notification);
-    setIsDeleteModalOpen(true);
+    setState(prev => ({ ...prev, selectedNotification: notification, deleteModalOpen: true }));
   }, []);
 
-  // Close modals
-  const closeModals = useCallback(() => {
-    setIsCreateModalOpen(false);
-    setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false);
-    setSelectedNotification(null);
+  // Clear error
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }));
   }, []);
 
-  // Show unified skeleton during loading (both sidebar and content)
-  if (loading && notifications.length === 0) {
+  // During auth initialization, show skeleton
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
+
+  // Access control
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Notifications Management" />;
+  }
+
+  // Initial data load skeleton (avoid double sidebar like UsersPage)
+  if (queryLoading && (!state.notifications || state.notifications.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -243,7 +252,7 @@ const NotificationsPage: React.FC = () => {
               </div>
               <button
                 type="button"
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,18 +269,19 @@ const NotificationsPage: React.FC = () => {
           <div className="px-8 py-8 w-full">
             {/* Search and Table */}
             <div className="space-y-6">
+              {/* Optional error display reserved for parity with UsersPage */}
               {/* Search Input */}
               <NotificationSearchInput
-                onSearch={handleSearch}
+                onSearch={handleSearchChange}
                 placeholder="Search notifications..."
-                loading={loading}
+                loading={state.loading}
               />
 
               {/* Notifications Table */}
               <NotificationsTable
-                notifications={notifications}
-                loading={loading}
-                paginationInfo={paginationInfo}
+                notifications={state.notifications}
+                loading={state.loading}
+                paginationInfo={state.paginationInfo}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 onSort={handleSort}
@@ -282,33 +292,33 @@ const NotificationsPage: React.FC = () => {
                 onMarkRead={handleMarkRead}
                 onMarkUnread={handleMarkUnread}
               />
-
-              {/* Modals */}
-              <CreateNotificationModal
-                isOpen={isCreateModalOpen}
-                onClose={closeModals}
-                onCreate={handleCreateNotification}
-                loading={loading}
-              />
-
-              <EditNotificationModal
-                isOpen={isEditModalOpen}
-                onClose={closeModals}
-                onUpdate={handleUpdateNotification}
-                notification={selectedNotification}
-                loading={loading}
-              />
-
-              <DeleteNotificationModal
-                isOpen={isDeleteModalOpen}
-                onClose={closeModals}
-                onDelete={handleDeleteNotification}
-                notification={selectedNotification}
-                loading={loading}
-              />
             </div>
           </div>
         </div>
+
+        {/* Modals */}
+        <CreateNotificationModal
+          isOpen={state.createModalOpen}
+          onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
+          onCreate={handleCreateNotification}
+          loading={state.loading}
+        />
+
+        <EditNotificationModal
+          isOpen={state.editModalOpen}
+          onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedNotification: null }))}
+          onUpdate={handleUpdateNotification}
+          notification={state.selectedNotification}
+          loading={state.loading}
+        />
+
+        <DeleteNotificationModal
+          isOpen={state.deleteModalOpen}
+          onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedNotification: null }))}
+          onDelete={() => state.selectedNotification && handleDeleteNotification(state.selectedNotification.id)}
+          notification={state.selectedNotification}
+          loading={state.loading}
+        />
       </div>
     </DashboardLayout>
   );

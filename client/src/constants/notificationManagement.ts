@@ -45,6 +45,7 @@ export const NOTIFICATION_TABLE_COLUMNS = {
   MESSAGE: { width: 'w-96', sortable: false },
   STATUS: { width: 'w-24', sortable: true },
   CREATED: { width: 'w-32', sortable: true },
+  UPDATED: { width: 'w-32', sortable: true },
   ACTIONS: { width: 'w-24', sortable: false },
 };
 

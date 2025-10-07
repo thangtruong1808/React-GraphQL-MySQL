@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import {
   UserSearchInput,
   UsersTable,
@@ -45,6 +47,7 @@ import { InlineError } from '../../components/ui';
 const UsersPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing } = useAuth();
+  const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // State management
   const [state, setState] = useState<UserManagementState>({
@@ -81,7 +84,8 @@ const UsersPage: React.FC = () => {
       sortOrder
     },
     errorPolicy: 'all',
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
+    skip: isInitializing || !hasDashboardAccess
   });
 
   const [createUserMutation] = useMutation(CREATE_USER_MUTATION);
@@ -242,8 +246,18 @@ const UsersPage: React.FC = () => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
-  // Show unified skeleton during loading (both sidebar and content)
-  if (state.loading && state.users.length === 0) {
+  // During auth initialization, show skeleton to avoid Access Denied flash
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
+
+  // Check if user has dashboard access
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Users Management" />;
+  }
+
+  // Show skeleton only during initial data loading (not during auth init)
+  if (queryLoading && (!state.users || state.users.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -262,14 +276,16 @@ const UsersPage: React.FC = () => {
                   Manage and track your users
                 </p>
               </div>
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-              >
-                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Create User
-              </button>
+              {canCreate && (
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
+                >
+                  <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                  Create User
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -298,16 +314,16 @@ const UsersPage: React.FC = () => {
                 users={state.users}
                 paginationInfo={state.paginationInfo}
                 loading={state.loading}
-                onEdit={(user) => setState(prev => ({
+                onEdit={canEdit ? (user) => setState(prev => ({
                   ...prev,
                   editModalOpen: true,
                   selectedUser: user
-                }))}
-                onDelete={(user) => setState(prev => ({
+                })) : undefined}
+                onDelete={canDelete ? (user) => setState(prev => ({
                   ...prev,
                   deleteModalOpen: true,
                   selectedUser: user
-                }))}
+                })) : undefined}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 currentPageSize={state.pageSize}
@@ -319,29 +335,35 @@ const UsersPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Modals */}
-        <CreateUserModal
-          isOpen={state.createModalOpen}
-          onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
-          onSubmit={handleCreateUser}
-          loading={state.loading}
-        />
+        {/* Modals - Only show for users with CRUD permissions */}
+        {canCreate && (
+          <CreateUserModal
+            isOpen={state.createModalOpen}
+            onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
+            onSubmit={handleCreateUser}
+            loading={state.loading}
+          />
+        )}
 
-        <EditUserModal
-          isOpen={state.editModalOpen}
-          user={state.selectedUser}
-          onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedUser: null }))}
-          onSubmit={handleUpdateUser}
-          loading={state.loading}
-        />
+        {canEdit && (
+          <EditUserModal
+            isOpen={state.editModalOpen}
+            user={state.selectedUser}
+            onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedUser: null }))}
+            onSubmit={handleUpdateUser}
+            loading={state.loading}
+          />
+        )}
 
-        <DeleteUserModal
-          isOpen={state.deleteModalOpen}
-          user={state.selectedUser}
-          onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedUser: null }))}
-          onConfirm={handleDeleteUser}
-          loading={state.loading}
-        />
+        {canDelete && (
+          <DeleteUserModal
+            isOpen={state.deleteModalOpen}
+            user={state.selectedUser}
+            onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedUser: null }))}
+            onConfirm={handleDeleteUser}
+            loading={state.loading}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

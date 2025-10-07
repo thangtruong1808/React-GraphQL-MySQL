@@ -49,7 +49,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
       'name': 'name',
       'type': 'type',
       'category': 'category',
-      'created': 'createdAt'
+      'created': 'createdAt',
+      'updated': 'updatedAt'
     };
 
     const dbField = fieldMapping[column] || column;
@@ -81,7 +82,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
       'name': 'name',
       'type': 'type',
       'category': 'category',
-      'created': 'createdAt'
+      'created': 'createdAt',
+      'updated': 'updatedAt'
     };
 
     const dbField = fieldMapping[column] || column;
@@ -106,21 +108,27 @@ const TagsTable: React.FC<TagsTableProps> = ({
           <div className="h-4 bg-gray-200 rounded w-24"></div>
         </td>
         <td className={`px-4 py-4 text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.DESCRIPTION.width}`}>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-left ${TAGS_TABLE_COLUMNS.TYPE.width}`}>
-          <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.TYPE.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-16"></div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-left ${TAGS_TABLE_COLUMNS.CATEGORY.width}`}>
-          <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.CATEGORY.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-16"></div>
         </td>
         <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${TAGS_TABLE_COLUMNS.CREATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${TAGS_TABLE_COLUMNS.UPDATED.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-20"></div>
+        </td>
         <td className={`px-4 py-4 whitespace-nowrap text-left ${TAGS_TABLE_COLUMNS.ACTIONS.width}`}>
-          <div className="flex justify-start space-x-2">
-            <div className="h-6 bg-gray-200 rounded w-12"></div>
-            <div className="h-6 bg-gray-200 rounded w-16"></div>
+          <div className="flex space-x-2">
+            <div className="h-8 w-8 bg-gray-200 rounded"></div>
+            <div className="h-8 w-8 bg-gray-200 rounded"></div>
           </div>
         </td>
       </tr>
@@ -151,6 +159,9 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${TAGS_TABLE_COLUMNS.CREATED.width}`}>
                   Created
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${TAGS_TABLE_COLUMNS.UPDATED.width}`}>
+                  Updated
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${TAGS_TABLE_COLUMNS.ACTIONS.width}`}>
                   Actions
@@ -213,11 +224,20 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </th>
               <th
                 className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${TAGS_TABLE_COLUMNS.CREATED.width}`}
-                onClick={() => handleSort('created')}
+                onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
                   <span>Created</span>
-                  {getSortIcon('created')}
+                  {getSortIcon('createdAt')}
+                </div>
+              </th>
+              <th
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${TAGS_TABLE_COLUMNS.UPDATED.width}`}
+                onClick={() => handleSort('updatedAt')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updatedAt')}
                 </div>
               </th>
               <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${TAGS_TABLE_COLUMNS.ACTIONS.width}`}>
@@ -226,9 +246,45 @@ const TagsTable: React.FC<TagsTableProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {tags.length === 0 ? (
+            {loading ? (
+              // Loading skeleton rows
+              Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index} className="animate-pulse">
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.ID.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-8"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.NAME.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  </td>
+                  <td className={`px-4 py-4 text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.DESCRIPTION.width}`}>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.TYPE.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${TAGS_TABLE_COLUMNS.CATEGORY.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${TAGS_TABLE_COLUMNS.CREATED.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${TAGS_TABLE_COLUMNS.UPDATED.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-left ${TAGS_TABLE_COLUMNS.ACTIONS.width}`}>
+                    <div className="flex space-x-2">
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : tags.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={9} className="px-4 py-6 text-center text-sm text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -288,6 +344,11 @@ const TagsTable: React.FC<TagsTableProps> = ({
                   {/* Created */}
                   <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${TAGS_TABLE_COLUMNS.CREATED.width}`}>
                     {formatDate(tag.createdAt)}
+                  </td>
+
+                  {/* Updated */}
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${TAGS_TABLE_COLUMNS.UPDATED.width}`}>
+                    {formatDate(tag.updatedAt)}
                   </td>
 
                   {/* Actions */}

@@ -109,6 +109,7 @@ export const COMMENT_TABLE_COLUMNS = {
   PROJECT: { width: 'w-32', sortable: true },
   LIKES: { width: 'w-20', sortable: true },
   CREATED: { width: 'w-32', sortable: true },
+  UPDATED: { width: 'w-32', sortable: true },
   ACTIONS: { width: 'w-24', sortable: false },
 };
 

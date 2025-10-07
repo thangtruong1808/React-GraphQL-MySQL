@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import {
   TaskSearchInput,
   TasksTable,
@@ -43,6 +45,7 @@ import { InlineError } from '../../components/ui';
 const TasksPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing } = useAuth();
+  const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // State management
   const [state, setState] = useState<TaskManagementState>({
@@ -79,7 +82,8 @@ const TasksPage: React.FC = () => {
       sortOrder
     },
     errorPolicy: 'all',
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
+    skip: isInitializing || !hasDashboardAccess
   });
 
   const [createTaskMutation] = useMutation(CREATE_TASK_MUTATION);
@@ -240,8 +244,18 @@ const TasksPage: React.FC = () => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
+  // During auth initialization, show skeleton to avoid Access Denied flash
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
+
+  // Check if user has dashboard access
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Tasks Management" />;
+  }
+
   // Show unified skeleton during loading (both sidebar and content)
-  if (state.loading && state.tasks.length === 0) {
+  if (queryLoading && (!state.tasks || state.tasks.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -260,14 +274,16 @@ const TasksPage: React.FC = () => {
                   Manage and track your tasks
                 </p>
               </div>
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-              >
-                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Create Task
-              </button>
+              {canCreate && (
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
+                >
+                  <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                  Create Task
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -296,16 +312,16 @@ const TasksPage: React.FC = () => {
                 tasks={state.tasks}
                 paginationInfo={state.paginationInfo}
                 loading={state.loading}
-                onEdit={(task) => setState(prev => ({
+                onEdit={canEdit ? (task) => setState(prev => ({
                   ...prev,
                   editModalOpen: true,
                   selectedTask: task
-                }))}
-                onDelete={(task) => setState(prev => ({
+                })) : undefined}
+                onDelete={canDelete ? (task) => setState(prev => ({
                   ...prev,
                   deleteModalOpen: true,
                   selectedTask: task
-                }))}
+                })) : undefined}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 currentPageSize={state.pageSize}
@@ -317,29 +333,35 @@ const TasksPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Modals */}
-        <CreateTaskModal
-          isOpen={state.createModalOpen}
-          onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
-          onSubmit={handleCreateTask}
-          loading={state.loading}
-        />
+        {/* Modals - Only show for users with CRUD permissions */}
+        {canCreate && (
+          <CreateTaskModal
+            isOpen={state.createModalOpen}
+            onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
+            onSubmit={handleCreateTask}
+            loading={state.loading}
+          />
+        )}
 
-        <EditTaskModal
-          isOpen={state.editModalOpen}
-          task={state.selectedTask}
-          onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedTask: null }))}
-          onSubmit={handleUpdateTask}
-          loading={state.loading}
-        />
+        {canEdit && (
+          <EditTaskModal
+            isOpen={state.editModalOpen}
+            task={state.selectedTask}
+            onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedTask: null }))}
+            onSubmit={handleUpdateTask}
+            loading={state.loading}
+          />
+        )}
 
-        <DeleteTaskModal
-          isOpen={state.deleteModalOpen}
-          task={state.selectedTask}
-          onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedTask: null }))}
-          onConfirm={handleDeleteTask}
-          loading={state.loading}
-        />
+        {canDelete && (
+          <DeleteTaskModal
+            isOpen={state.deleteModalOpen}
+            task={state.selectedTask}
+            onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedTask: null }))}
+            onConfirm={handleDeleteTask}
+            loading={state.loading}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

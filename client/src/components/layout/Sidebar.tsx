@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
 import Logo from './Logo';
 
 /**
@@ -21,6 +22,7 @@ interface SidebarItem {
 
 const Sidebar: React.FC = () => {
   const { user, performLogout } = useAuth();
+  const { canViewAllMenuItems } = useRolePermissions();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -28,7 +30,7 @@ const Sidebar: React.FC = () => {
     typeof window !== 'undefined' ? (localStorage.getItem('theme') || 'brand') : 'brand'
   ));
 
-  // Navigation items for all authenticated users
+  // Navigation items for users with dashboard access
   const navigationItems: SidebarItem[] = [
     {
       id: 'home',
@@ -158,6 +160,11 @@ const Sidebar: React.FC = () => {
     const lastName = user.lastName || '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
   };
+
+  // Don't render sidebar if user doesn't have dashboard access
+  if (!canViewAllMenuItems) {
+    return null;
+  }
 
   return (
     <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 relative ${isCollapsed ? 'w-20' : 'w-72'

@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { CommentsTableProps } from '../../types/commentManagement';
 import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, COMMENT_DISPLAY_SETTINGS, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
+import { formatRoleForDisplay } from '../../utils/roleFormatter';
 
 /**
  * CommentsTable Component
  * Displays comments in a table with pagination, sorting, and CRUD actions
  * Includes word wrapping for content and proper date formatting
+ * Memoized to prevent unnecessary re-renders when only sorting changes
  */
-const CommentsTable: React.FC<CommentsTableProps> = ({
+const CommentsTable: React.FC<CommentsTableProps> = memo(({
   comments,
   loading,
   paginationInfo,
@@ -147,6 +149,9 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
         <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-20"></div>
+        </td>
         <td className={`px-4 py-4 whitespace-nowrap text-left ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
           <div className="flex justify-start space-x-2">
             <div className="h-6 bg-gray-200 rounded w-12"></div>
@@ -190,6 +195,9 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
                   Created
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
+                  Updated
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
                   Actions
@@ -268,6 +276,15 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              <th
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}
+                onClick={() => handleSort('updatedAt')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updatedAt')}
+                </div>
+              </th>
               <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
                 Actions
               </th>
@@ -276,7 +293,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {comments.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -315,7 +332,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                         <p className="font-medium">
                           {comment.author.firstName} {comment.author.lastName}
                         </p>
-                        <p className="text-xs text-gray-500">{comment.author.role}</p>
+                        <p className="text-xs text-gray-500">{formatRoleForDisplay(comment.author.role)}</p>
                       </div>
                     </td>
 
@@ -348,6 +365,11 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                     {/* Created */}
                     <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
                       {formatDate(comment.createdAt)}
+                    </td>
+
+                    {/* Updated */}
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
+                      {formatDate(comment.updatedAt)}
                     </td>
 
                     {/* Actions */}
@@ -424,6 +446,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                     </option>
                   ))}
                 </select>
+                <span className="text-sm text-gray-600">entries</span>
               </div>
             </div>
 
@@ -508,6 +531,8 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
       )}
     </div>
   );
-};
+});
+
+CommentsTable.displayName = 'CommentsTable';
 
 export default CommentsTable;

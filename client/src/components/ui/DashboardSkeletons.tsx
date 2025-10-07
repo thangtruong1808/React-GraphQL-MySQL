@@ -14,16 +14,16 @@ export const PublicDashboardSkeleton: React.FC = () => {
 
         {/* Section 1: Hero Section - Main Title & Introduction (Reduced height ~10%) */}
         <div className="px-4 sm:px-6 lg:px-8 py-2">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl p-4 shadow-lg border border-gray-200">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl p-4 shadow-lg border border-gray-200 skeleton-fade-in">
             <div className="text-center">
-              <SkeletonBox className="h-10 w-80 mx-auto mb-3" />
-              <SkeletonBox className="h-4 w-96 mx-auto mb-4" />
+              <SkeletonBox className="h-10 w-80 mx-auto mb-3" variant="wave" delay={100} />
+              <SkeletonBox className="h-4 w-96 mx-auto mb-4" variant="wave" delay={200} />
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="bg-gray-100 rounded-xl p-3 border border-gray-300 text-center">
-                    <div className="w-8 h-8 bg-gray-200 rounded-lg mx-auto mb-2"></div>
-                    <SkeletonBox className="h-6 w-16 mx-auto mb-1" />
-                    <SkeletonBox className="h-3 w-20 mx-auto" />
+                  <div key={index} className="bg-gray-100 rounded-xl p-3 border border-gray-300 text-center skeleton-hover-lift" style={{ animationDelay: `${300 + index * 150}ms` }}>
+                    <div className="w-8 h-8 bg-gray-200 rounded-lg mx-auto mb-2 skeleton-breathe"></div>
+                    <SkeletonBox className="h-6 w-16 mx-auto mb-1" variant="slide" delay={400 + index * 100} />
+                    <SkeletonBox className="h-3 w-20 mx-auto" variant="slide" delay={500 + index * 100} />
                   </div>
                 ))}
               </div>

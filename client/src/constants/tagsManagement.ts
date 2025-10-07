@@ -75,6 +75,7 @@ export const TAGS_TABLE_COLUMNS = {
   TYPE: { width: 'w-24', sortable: true },
   CATEGORY: { width: 'w-24', sortable: true },
   CREATED: { width: 'w-32', sortable: true },
+  UPDATED: { width: 'w-32', sortable: true },
   ACTIONS: { width: 'w-24', sortable: false },
 };
 

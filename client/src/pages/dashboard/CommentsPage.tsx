@@ -1,9 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { DashboardLayout } from '../../components/layout';
 import { useError } from '../../contexts/ErrorContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { DashboardSkeleton } from '../../components/ui';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import {
   CommentSearchInput,
   CommentsTable,
@@ -29,44 +31,130 @@ import { DEFAULT_COMMENTS_PAGINATION } from '../../constants/commentManagement';
  */
 const CommentsPage: React.FC = () => {
   const { showError, showSuccess } = useError();
-  const { user } = useAuth();
+  const { user, isInitializing } = useAuth();
+  const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
-  // State management
-  const [searchTerm, setSearchTerm] = useState('');
+  // Centralized state management
+  const [state, setState] = useState({
+    comments: [] as Comment[],
+    paginationInfo: {
+      hasNextPage: false,
+      hasPreviousPage: false,
+      totalCount: 0,
+      currentPage: 1,
+      totalPages: 0
+    },
+    loading: false,
+    searchTerm: '',
+    currentPage: 1,
+    pageSize: DEFAULT_COMMENTS_PAGINATION.limit,
+    createModalOpen: false,
+    editModalOpen: false,
+    deleteModalOpen: false,
+    selectedComment: null as Comment | null,
+    error: null as string | null
+  });
+
+  // Sorting state - separate to prevent unnecessary re-renders
   const [sortBy, setSortBy] = useState(DEFAULT_COMMENTS_PAGINATION.sortBy);
   const [sortOrder, setSortOrder] = useState(DEFAULT_COMMENTS_PAGINATION.sortOrder);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_COMMENTS_PAGINATION.limit);
+  const [isSorting, setIsSorting] = useState(false);
 
-  // Modal states
-  const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-
-  // Loading states
+  // Loading states for mutations
   const [createLoading, setCreateLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Calculate offset for pagination
-  const offset = (currentPage - 1) * pageSize;
-
   // GraphQL query variables
   const queryVariables: GetDashboardCommentsQueryVariables = {
-    limit: pageSize,
-    offset,
-    search: searchTerm || undefined,
+    limit: state.pageSize,
+    offset: (state.currentPage - 1) * state.pageSize,
+    search: state.searchTerm || undefined,
     sortBy,
     sortOrder,
   };
 
   // Fetch comments
-  const { data, loading, error, refetch } = useQuery(GET_DASHBOARD_COMMENTS_QUERY, {
+  const { data, loading: queryLoading, error, refetch } = useQuery(GET_DASHBOARD_COMMENTS_QUERY, {
     variables: queryVariables,
     errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+    // Skip querying until auth is initialized and user has access to avoid flash/empty state
+    skip: isInitializing || !hasDashboardAccess || !user
   });
+
+  /**
+   * Update state when GraphQL data changes
+   * Handles loading states and data updates
+   */
+  useEffect(() => {
+    if (data?.dashboardComments) {
+      setState(prev => ({
+        ...prev,
+        comments: data.dashboardComments.comments,
+        paginationInfo: data.dashboardComments.paginationInfo,
+        loading: false // Data loaded, no longer loading
+      }));
+    } else if (!isInitializing && user && hasDashboardAccess) {
+      // Only update loading state if we're past auth initialization
+      setState(prev => ({
+        ...prev,
+        loading: queryLoading
+      }));
+    }
+  }, [data, queryLoading, isInitializing, user, hasDashboardAccess]);
+
+  /**
+   * Handle GraphQL errors gracefully
+   * Only show errors if not during auth initialization
+   */
+  useEffect(() => {
+    if (error && !isInitializing && user && hasDashboardAccess) {
+      setState(prev => ({
+        ...prev,
+        error: error.message || 'Failed to load comments'
+      }));
+    }
+  }, [error, isInitializing, user, hasDashboardAccess]);
+
+  /**
+   * Fetch comments with current parameters
+   * Refetches data when pagination or search changes
+   */
+  const fetchComments = useCallback(async (page: number, pageSize: number, search: string) => {
+    // Only fetch if user is authenticated and has access
+    if (!user || !hasDashboardAccess || isInitializing) {
+      return;
+    }
+
+    try {
+      await refetch({
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+        search: search || undefined,
+        sortBy,
+        sortOrder
+      });
+    } catch (error) {
+      // Only show error if not during auth initialization
+      if (!isInitializing) {
+        setState(prev => ({
+          ...prev,
+          error: 'Failed to fetch comments'
+        }));
+      }
+    }
+  }, [refetch, sortBy, sortOrder, user, hasDashboardAccess, isInitializing]);
+
+  /**
+   * Handle search and pagination changes
+   * Triggers refetch when search term or page changes
+   */
+  useEffect(() => {
+    if (isSorting) return; // avoid duplicate refetch when sorting already refetched
+    fetchComments(state.currentPage, state.pageSize, state.searchTerm);
+  }, [state.currentPage, state.searchTerm, fetchComments, isSorting]);
 
   // Mutations
   const [createCommentMutation] = useMutation(CREATE_COMMENT_MUTATION);
@@ -75,38 +163,58 @@ const CommentsPage: React.FC = () => {
 
   // Handle search
   const handleSearch = useCallback((search: string) => {
-    setSearchTerm(search);
-    setCurrentPage(1); // Reset to first page when searching
+    setState(prev => ({ ...prev, searchTerm: search, currentPage: 1 }));
   }, []);
 
-  // Handle sort
-  const handleSort = useCallback((newSortBy: string, newSortOrder: string) => {
+  // Handle sort - optimized to prevent unnecessary re-renders
+  const handleSort = useCallback(async (newSortBy: string, newSortOrder: string) => {
+    setIsSorting(true);
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
-    setCurrentPage(1); // Reset to first page when sorting
-  }, []);
+    setState(prev => ({ ...prev, currentPage: 1 }));
+
+    try {
+      await refetch({
+        limit: state.pageSize,
+        offset: 0,
+        search: state.searchTerm || undefined,
+        sortBy: newSortBy,
+        sortOrder: newSortOrder
+      });
+    } catch {
+      // errors handled by error effect
+    } finally {
+      setIsSorting(false);
+    }
+  }, [refetch, state.pageSize, state.searchTerm]);
 
   // Handle page change
   const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
+    setState(prev => ({ ...prev, currentPage: page }));
   }, []);
 
   // Handle page size change
   const handlePageSizeChange = useCallback((newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
-  }, []);
+    setState(prev => ({ ...prev, pageSize: newPageSize, currentPage: 1 }));
+    fetchComments(1, newPageSize, state.searchTerm);
+  }, [fetchComments, state.searchTerm]);
 
   // Handle edit comment
   const handleEdit = useCallback((comment: Comment) => {
-    setSelectedComment(comment);
-    setEditModalOpen(true);
+    setState(prev => ({
+      ...prev,
+      selectedComment: comment,
+      editModalOpen: true
+    }));
   }, []);
 
   // Handle delete comment
   const handleDelete = useCallback((comment: Comment) => {
-    setSelectedComment(comment);
-    setDeleteModalOpen(true);
+    setState(prev => ({
+      ...prev,
+      selectedComment: comment,
+      deleteModalOpen: true
+    }));
   }, []);
 
   // Handle create comment
@@ -123,7 +231,7 @@ const CommentsPage: React.FC = () => {
       });
 
       showSuccess('Comment created successfully');
-      setCreateModalOpen(false);
+      setState(prev => ({ ...prev, createModalOpen: false }));
       refetch();
     } catch (error: any) {
       showError(error.message || 'Failed to create comment');
@@ -134,13 +242,13 @@ const CommentsPage: React.FC = () => {
 
   // Handle update comment
   const handleUpdateComment = useCallback(async (formData: CommentFormData) => {
-    if (!selectedComment) return;
+    if (!state.selectedComment) return;
 
     setUpdateLoading(true);
     try {
       await updateCommentMutation({
         variables: {
-          id: selectedComment.id,
+          id: state.selectedComment.id,
           input: {
             content: formData.content,
           },
@@ -148,59 +256,60 @@ const CommentsPage: React.FC = () => {
       });
 
       showSuccess('Comment updated successfully');
-      setEditModalOpen(false);
-      setSelectedComment(null);
+      setState(prev => ({ ...prev, editModalOpen: false, selectedComment: null }));
       refetch();
     } catch (error: any) {
       showError(error.message || 'Failed to update comment');
     } finally {
       setUpdateLoading(false);
     }
-  }, [selectedComment, updateCommentMutation, showSuccess, showError, refetch]);
+  }, [state.selectedComment, updateCommentMutation, showSuccess, showError, refetch]);
 
   // Handle delete comment
   const handleDeleteComment = useCallback(async () => {
-    if (!selectedComment) return;
+    if (!state.selectedComment) return;
 
     setDeleteLoading(true);
     try {
       await deleteCommentMutation({
         variables: {
-          id: selectedComment.id,
+          id: state.selectedComment.id,
         },
       });
 
       showSuccess('Comment deleted successfully');
-      setDeleteModalOpen(false);
-      setSelectedComment(null);
+      setState(prev => ({ ...prev, deleteModalOpen: false, selectedComment: null }));
       refetch();
     } catch (error: any) {
       showError(error.message || 'Failed to delete comment');
     } finally {
       setDeleteLoading(false);
     }
-  }, [selectedComment, deleteCommentMutation, showSuccess, showError, refetch]);
+  }, [state.selectedComment, deleteCommentMutation, showSuccess, showError, refetch]);
 
   // Handle modal close
   const handleCloseModals = useCallback(() => {
-    setCreateModalOpen(false);
-    setEditModalOpen(false);
-    setDeleteModalOpen(false);
-    setSelectedComment(null);
+    setState(prev => ({
+      ...prev,
+      createModalOpen: false,
+      editModalOpen: false,
+      deleteModalOpen: false,
+      selectedComment: null
+    }));
   }, []);
 
-  // Get comments and pagination info from query result
-  const comments = data?.dashboardComments?.comments || [];
-  const paginationInfo = data?.dashboardComments?.paginationInfo || {
-    hasNextPage: false,
-    hasPreviousPage: false,
-    totalCount: 0,
-    currentPage: 1,
-    totalPages: 1,
-  };
+  // During auth initialization, show skeleton instead of AccessDenied to avoid flash
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
 
-  // Show unified skeleton during loading (both sidebar and content)
-  if (loading && (!data?.comments || data.comments.length === 0)) {
+  // Check if user has dashboard access (after initialization)
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Comments Management" />;
+  }
+
+  // Show skeleton only during initial data loading (not during auth init)
+  if (queryLoading && (!state.comments || state.comments.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -221,15 +330,17 @@ const CommentsPage: React.FC = () => {
               </div>
               <div className="flex items-center space-x-4">
                 {/* Create Comment Button */}
-                <button
-                  onClick={() => setCreateModalOpen(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Create Comment
-                </button>
+                {canCreate && (
+                  <button
+                    onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl shadow-sm text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Create Comment
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -241,52 +352,58 @@ const CommentsPage: React.FC = () => {
             <div className="space-y-6">
               {/* Search Input */}
               <CommentSearchInput
-                value={searchTerm}
-                onChange={setSearchTerm}
+                value={state.searchTerm}
+                onChange={(value) => setState(prev => ({ ...prev, searchTerm: value }))}
                 onSearch={handleSearch}
-                loading={loading}
+                loading={state.loading && !isSorting}
               />
 
               {/* Comments Table */}
               <CommentsTable
-                comments={comments}
-                loading={loading}
-                paginationInfo={paginationInfo}
+                comments={state.comments}
+                loading={state.loading || isSorting}
+                paginationInfo={state.paginationInfo}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 onSort={handleSort}
                 currentSortBy={sortBy}
                 currentSortOrder={sortOrder}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                onEdit={canEdit ? handleEdit : undefined}
+                onDelete={canDelete ? handleDelete : undefined}
               />
             </div>
           </div>
         </div>
 
-        {/* Modals */}
-        <CreateCommentModal
-          isOpen={createModalOpen}
-          onClose={handleCloseModals}
-          onSubmit={handleCreateComment}
-          loading={createLoading}
-        />
+        {/* Modals - Only show for users with CRUD permissions */}
+        {canCreate && (
+          <CreateCommentModal
+            isOpen={state.createModalOpen}
+            onClose={handleCloseModals}
+            onSubmit={handleCreateComment}
+            loading={createLoading}
+          />
+        )}
 
-        <EditCommentModal
-          isOpen={editModalOpen}
-          onClose={handleCloseModals}
-          onSubmit={handleUpdateComment}
-          comment={selectedComment}
-          loading={updateLoading}
-        />
+        {canEdit && (
+          <EditCommentModal
+            isOpen={state.editModalOpen}
+            onClose={handleCloseModals}
+            onSubmit={handleUpdateComment}
+            comment={state.selectedComment}
+            loading={updateLoading}
+          />
+        )}
 
-        <DeleteCommentModal
-          isOpen={deleteModalOpen}
-          onClose={handleCloseModals}
-          onConfirm={handleDeleteComment}
-          comment={selectedComment}
-          loading={deleteLoading}
-        />
+        {canDelete && (
+          <DeleteCommentModal
+            isOpen={state.deleteModalOpen}
+            onClose={handleCloseModals}
+            onConfirm={handleDeleteComment}
+            comment={state.selectedComment}
+            loading={deleteLoading}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

@@ -3,6 +3,8 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
 import {
@@ -42,6 +44,7 @@ import { useError } from '../../contexts/ErrorContext';
  */
 const ActivitiesPage: React.FC = () => {
   const { isInitializing, user } = useAuth();
+  const { hasDashboardAccess } = useRolePermissions();
   const { showError, showSuccess } = useError();
 
   // State management
@@ -74,15 +77,11 @@ const ActivitiesPage: React.FC = () => {
     variables: queryVariables,
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
+    skip: isInitializing || !hasDashboardAccess || !user,
   });
-
-  // Mutations
-  const [createActivityMutation] = useMutation(CREATE_ACTIVITY_MUTATION);
-  const [updateActivityMutation] = useMutation(UPDATE_ACTIVITY_MUTATION);
-  const [deleteActivityMutation] = useMutation(DELETE_ACTIVITY_MUTATION);
+  const activities = data?.dashboardActivities?.activities || [];
 
   // Extract data from query response
-  const activities = data?.dashboardActivities?.activities || [];
   const paginationInfo = data?.dashboardActivities?.paginationInfo || {
     hasNextPage: false,
     hasPreviousPage: false,
@@ -90,6 +89,11 @@ const ActivitiesPage: React.FC = () => {
     currentPage: 1,
     totalPages: 1,
   };
+
+  // Mutations
+  const [createActivityMutation] = useMutation(CREATE_ACTIVITY_MUTATION);
+  const [updateActivityMutation] = useMutation(UPDATE_ACTIVITY_MUTATION);
+  const [deleteActivityMutation] = useMutation(DELETE_ACTIVITY_MUTATION);
 
   // Handle search with debouncing
   const handleSearch = useCallback((search: string) => {
@@ -176,6 +180,16 @@ const ActivitiesPage: React.FC = () => {
 
   // Note: Activity page is accessible to all authenticated users
   // Role-based restrictions can be implemented at the component level if needed
+
+  // During auth initialization, show skeleton
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
+
+  // Access control after initialization
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Activity Management" />;
+  }
 
   // Show unified skeleton during loading (both sidebar and content)
   if (loading && activities.length === 0) {

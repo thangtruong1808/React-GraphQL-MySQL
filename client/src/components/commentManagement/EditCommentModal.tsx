@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaTimes, FaEdit, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { EditCommentModalProps, CommentFormData } from '../../types/commentManagement';
 import { COMMENT_LIMITS } from '../../constants/commentManagement';
 
@@ -84,84 +85,94 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
+      <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+        {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity"
           onClick={handleClose}
         />
 
-        {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <form onSubmit={handleSubmit}>
-            {/* Header */}
-            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
-                  <svg className="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+        {/* Modal */}
+        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+          {/* Header with gradient background */}
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <FaEdit className="h-5 w-5 text-white" />
+                  </div>
                 </div>
-                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                <div>
+                  <h3 className="text-xl font-semibold leading-6 text-white">
                     Edit Comment
                   </h3>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Update the comment content. Changes will be visible to all users.
+                  <p className="text-purple-100 text-sm mt-1">
+                    Update the comment content. Changes will be visible to all users.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={loading}
+                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaTimes className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="px-6 py-6">
+            <div className="space-y-6">
+              {/* Comment Info */}
+              <div className="bg-gradient-to-r from-purple-50 to-gray-50 p-6 rounded-xl border border-purple-100">
+                <div className="grid grid-cols-2 gap-6 text-sm">
+                  <div>
+                    <span className="font-semibold text-gray-700">Author:</span>
+                    <p className="text-gray-900 mt-1">{comment.author.firstName} {comment.author.lastName}</p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Task:</span>
+                    <p className="text-gray-900 truncate mt-1" title={comment.task.title}>
+                      {comment.task.title}
                     </p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Project:</span>
+                    <p className="text-gray-900 truncate mt-1" title={comment.task.project.name}>
+                      {comment.task.project.name}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-700">Likes:</span>
+                    <p className="text-gray-900 mt-1">{comment.likesCount}</p>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Form content */}
-            <div className="bg-white px-4 pb-4 sm:p-6">
-              <div className="space-y-4">
-                {/* Comment Info */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-700">Author:</span>
-                      <p className="text-gray-900">{comment.author.firstName} {comment.author.lastName}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Task:</span>
-                      <p className="text-gray-900 truncate" title={comment.task.title}>
-                        {comment.task.title}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Project:</span>
-                      <p className="text-gray-900 truncate" title={comment.task.project.name}>
-                        {comment.task.project.name}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Likes:</span>
-                      <p className="text-gray-900">{comment.likesCount}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Input */}
-                <div>
-                  <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-                    Comment Content *
-                  </label>
+              {/* Content Input */}
+              <div>
+                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+                  Comment Content *
+                </label>
+                <div className="relative">
                   <textarea
                     id="content"
                     rows={6}
                     value={formData.content}
                     onChange={(e) => handleInputChange('content', e.target.value)}
                     placeholder="Enter your comment here..."
-                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${errors.content ? 'border-red-300' : 'border-gray-300'
+                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors resize-none ${errors.content ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
                       }`}
                     disabled={loading}
                   />
-                  <div className="mt-1 flex justify-between text-sm text-gray-500">
-                    <span>{errors.content || 'Update the comment content'}</span>
-                    <span className={formData.content.length > COMMENT_LIMITS.MAX_CONTENT_LENGTH ? 'text-red-500' : ''}>
+                  <div className="mt-2 flex justify-between text-sm">
+                    <span className={errors.content ? 'text-red-600' : 'text-gray-500'}>
+                      {errors.content || 'Update the comment content'}
+                    </span>
+                    <span className={formData.content.length > COMMENT_LIMITS.MAX_CONTENT_LENGTH ? 'text-red-500' : 'text-gray-500'}>
                       {formData.content.length}/{COMMENT_LIMITS.MAX_CONTENT_LENGTH}
                     </span>
                   </div>
@@ -169,32 +180,32 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Updating...
-                  </>
-                ) : (
-                  'Update Comment'
-                )}
-              </button>
+            {/* Actions */}
+            <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-4">
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-xl shadow-sm hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                    Updating Comment...
+                  </>
+                ) : (
+                  <>
+                    <FaEdit className="h-4 w-4 mr-2" />
+                    Update Comment
+                  </>
+                )}
               </button>
             </div>
           </form>

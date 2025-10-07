@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import {
   ProjectSearchInput,
   ProjectsTable,
@@ -43,6 +45,7 @@ import { InlineError } from '../../components/ui';
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing } = useAuth();
+  const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // State management
   const [state, setState] = useState<ProjectManagementState>({
@@ -79,7 +82,8 @@ const ProjectsPage: React.FC = () => {
       sortOrder
     },
     errorPolicy: 'all',
-    notifyOnNetworkStatusChange: true
+    notifyOnNetworkStatusChange: true,
+    skip: isInitializing || !hasDashboardAccess
   });
 
   const [createProjectMutation] = useMutation(CREATE_PROJECT_MUTATION);
@@ -240,8 +244,18 @@ const ProjectsPage: React.FC = () => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
+  // During auth initialization, show skeleton to avoid Access Denied flash
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
+
+  // Check if user has dashboard access
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Projects Management" />;
+  }
+
   // Show unified skeleton during loading (both sidebar and content)
-  if (state.loading && state.projects.length === 0) {
+  if (queryLoading && (!state.projects || state.projects.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -260,14 +274,16 @@ const ProjectsPage: React.FC = () => {
                   Manage and track your projects
                 </p>
               </div>
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-              >
-                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Create Project
-              </button>
+              {canCreate && (
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
+                >
+                  <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                  Create Project
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -296,16 +312,16 @@ const ProjectsPage: React.FC = () => {
                 projects={state.projects}
                 paginationInfo={state.paginationInfo}
                 loading={state.loading}
-                onEdit={(project) => setState(prev => ({
+                onEdit={canEdit ? (project) => setState(prev => ({
                   ...prev,
                   editModalOpen: true,
                   selectedProject: project
-                }))}
-                onDelete={(project) => setState(prev => ({
+                })) : undefined}
+                onDelete={canDelete ? (project) => setState(prev => ({
                   ...prev,
                   deleteModalOpen: true,
                   selectedProject: project
-                }))}
+                })) : undefined}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 currentPageSize={state.pageSize}
@@ -317,29 +333,35 @@ const ProjectsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Modals */}
-        <CreateProjectModal
-          isOpen={state.createModalOpen}
-          onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
-          onSubmit={handleCreateProject}
-          loading={state.loading}
-        />
+        {/* Modals - Only show for users with CRUD permissions */}
+        {canCreate && (
+          <CreateProjectModal
+            isOpen={state.createModalOpen}
+            onClose={() => setState(prev => ({ ...prev, createModalOpen: false }))}
+            onSubmit={handleCreateProject}
+            loading={state.loading}
+          />
+        )}
 
-        <EditProjectModal
-          isOpen={state.editModalOpen}
-          project={state.selectedProject}
-          onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedProject: null }))}
-          onSubmit={handleUpdateProject}
-          loading={state.loading}
-        />
+        {canEdit && (
+          <EditProjectModal
+            isOpen={state.editModalOpen}
+            project={state.selectedProject}
+            onClose={() => setState(prev => ({ ...prev, editModalOpen: false, selectedProject: null }))}
+            onSubmit={handleUpdateProject}
+            loading={state.loading}
+          />
+        )}
 
-        <DeleteProjectModal
-          isOpen={state.deleteModalOpen}
-          project={state.selectedProject}
-          onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedProject: null }))}
-          onConfirm={handleDeleteProject}
-          loading={state.loading}
-        />
+        {canDelete && (
+          <DeleteProjectModal
+            isOpen={state.deleteModalOpen}
+            project={state.selectedProject}
+            onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedProject: null }))}
+            onConfirm={handleDeleteProject}
+            loading={state.loading}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

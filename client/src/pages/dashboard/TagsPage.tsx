@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import { DashboardLayout } from '../../components/layout';
 import { DashboardSkeleton } from '../../components/ui';
 import {
@@ -30,163 +32,170 @@ import {
 
 /**
  * Tags Management Page
- * Main page for managing tags with search, table display, pagination, and CRUD operations
- * Features comprehensive tags management functionality
+ * Follows UsersPage pattern for predictable loading and skeleton behavior
  */
 const TagsPage: React.FC = () => {
-  // Get notification function from auth context
-  const { showNotification } = useAuth();
+  const { showNotification, isInitializing, user } = useAuth();
+  const { hasDashboardAccess } = useRolePermissions();
 
-  // State management
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
-    hasNextPage: false,
-    hasPreviousPage: false,
-    totalCount: 0,
+  // Centralized state (UsersPage pattern)
+  const [state, setState] = useState({
+    tags: [] as Tag[],
+    paginationInfo: {
+      hasNextPage: false,
+      hasPreviousPage: false,
+      totalCount: 0,
+      currentPage: 1,
+      totalPages: 0,
+    } as PaginationInfo,
+    loading: false,
+    searchQuery: '',
     currentPage: 1,
-    totalPages: 1,
+    pageSize: DEFAULT_TAGS_PAGINATION.limit,
+    createModalOpen: false,
+    editModalOpen: false,
+    deleteModalOpen: false,
+    selectedTag: null as Tag | null,
+    error: null as string | null,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_TAGS_PAGINATION.limit);
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sorting state
   const [sortBy, setSortBy] = useState(DEFAULT_TAGS_PAGINATION.sortBy);
   const [sortOrder, setSortOrder] = useState(DEFAULT_TAGS_PAGINATION.sortOrder);
-  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
 
-  // Modal states
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // GraphQL queries and mutations
-  const { loading, refetch } = useQuery(GET_DASHBOARD_TAGS_QUERY, {
+  // Query
+  const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_TAGS_QUERY, {
     variables: {
-      limit: pageSize,
-      offset: (currentPage - 1) * pageSize,
-      search: searchQuery || undefined,
+      limit: state.pageSize,
+      offset: (state.currentPage - 1) * state.pageSize,
+      search: state.searchQuery || undefined,
       sortBy,
       sortOrder,
     },
-    onCompleted: (data) => {
-      setTags(data.dashboardTags.tags);
-      setPaginationInfo(data.dashboardTags.paginationInfo);
-    },
-    onError: (error) => {
-      console.error('Error fetching tags:', error);
-      showNotification(TAGS_ERROR_MESSAGES.FETCH, 'error');
-    },
+    errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+    skip: isInitializing || !hasDashboardAccess || !user,
   });
 
-  const [createTag] = useMutation(CREATE_TAG_MUTATION);
-  const [updateTag] = useMutation(UPDATE_TAG_MUTATION);
-  const [deleteTag] = useMutation(DELETE_TAG_MUTATION);
+  // Sync state from GraphQL
+  useEffect(() => {
+    if (data?.dashboardTags) {
+      setState(prev => ({
+        ...prev,
+        tags: data.dashboardTags.tags,
+        paginationInfo: data.dashboardTags.paginationInfo,
+        loading: queryLoading,
+      }));
+    } else {
+      setState(prev => ({ ...prev, loading: queryLoading }));
+    }
+  }, [data, queryLoading]);
 
-  // Handle search
-  const handleSearch = useCallback((searchTerm: string) => {
-    setSearchQuery(searchTerm);
-    setCurrentPage(1); // Reset to first page when searching
+  // Fetch helper
+  const fetchTags = useCallback(async (page: number, pageSize: number, search: string) => {
+    try {
+      await refetch({
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
+        search: search || undefined,
+        sortBy,
+        sortOrder,
+      });
+    } catch (error) {
+      setState(prev => ({ ...prev, error: TAGS_ERROR_MESSAGES.FETCH }));
+    }
+  }, [refetch, sortBy, sortOrder]);
+
+  // Handlers
+  const handleSearchChange = useCallback((searchTerm: string) => {
+    setState(prev => ({ ...prev, searchQuery: searchTerm, currentPage: 1 }));
   }, []);
 
-  // Handle pagination
   const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+    setState(prev => ({ ...prev, currentPage: page }));
+    fetchTags(page, state.pageSize, state.searchQuery);
+  }, [fetchTags, state.pageSize, state.searchQuery]);
 
   const handlePageSizeChange = useCallback((newPageSize: number) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1); // Reset to first page when changing page size
-  }, []);
+    setState(prev => ({ ...prev, pageSize: newPageSize, currentPage: 1 }));
+    fetchTags(1, newPageSize, state.searchQuery);
+  }, [fetchTags, state.searchQuery]);
 
-  // Handle sorting
   const handleSort = useCallback((newSortBy: string, newSortOrder: string) => {
     setSortBy(newSortBy);
     setSortOrder(newSortOrder);
-    setCurrentPage(1); // Reset to first page when sorting
+    setState(prev => ({ ...prev, currentPage: 1 }));
   }, []);
 
-  // Handle create tag
+  // Mutations
+  const [createTagMutation] = useMutation(CREATE_TAG_MUTATION);
+  const [updateTagMutation] = useMutation(UPDATE_TAG_MUTATION);
+  const [deleteTagMutation] = useMutation(DELETE_TAG_MUTATION);
+
   const handleCreateTag = useCallback(async (input: TagInput) => {
     try {
-      await createTag({
-        variables: { input },
-        update: (cache, { data }) => {
-          if (data?.createTag) {
-            // Refetch tags to update the list
-            refetch();
-          }
-        },
-      });
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await createTagMutation({ variables: { input } });
+      setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
+      await refetch();
       showNotification(TAGS_SUCCESS_MESSAGES.CREATE, 'success');
     } catch (error: any) {
-      console.error('Error creating tag:', error);
+      setState(prev => ({ ...prev, loading: false, error: TAGS_ERROR_MESSAGES.CREATE }));
       showNotification(error.message || TAGS_ERROR_MESSAGES.CREATE, 'error');
-      throw error;
     }
-  }, [createTag, refetch, showNotification]);
+  }, [createTagMutation, refetch, showNotification]);
 
-  // Handle update tag
   const handleUpdateTag = useCallback(async (id: string, input: TagUpdateInput) => {
     try {
-      await updateTag({
-        variables: { id, input },
-        update: (cache, { data }) => {
-          if (data?.updateTag) {
-            // Refetch tags to update the list
-            refetch();
-          }
-        },
-      });
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await updateTagMutation({ variables: { id, input } });
+      setState(prev => ({ ...prev, editModalOpen: false, loading: false, selectedTag: null }));
+      await refetch();
       showNotification(TAGS_SUCCESS_MESSAGES.UPDATE, 'success');
     } catch (error: any) {
-      console.error('Error updating tag:', error);
+      setState(prev => ({ ...prev, loading: false, error: TAGS_ERROR_MESSAGES.UPDATE }));
       showNotification(error.message || TAGS_ERROR_MESSAGES.UPDATE, 'error');
-      throw error;
     }
-  }, [updateTag, refetch, showNotification]);
+  }, [updateTagMutation, refetch, showNotification]);
 
-  // Handle delete tag
   const handleDeleteTag = useCallback(async (id: string) => {
     try {
-      await deleteTag({
-        variables: { id },
-        update: (cache, { data }) => {
-          if (data?.deleteTag) {
-            // Refetch tags to update the list
-            refetch();
-          }
-        },
-      });
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await deleteTagMutation({ variables: { id } });
+      setState(prev => ({ ...prev, deleteModalOpen: false, loading: false, selectedTag: null }));
+      await refetch();
       showNotification(TAGS_SUCCESS_MESSAGES.DELETE, 'success');
     } catch (error: any) {
-      console.error('Error deleting tag:', error);
+      setState(prev => ({ ...prev, loading: false, error: TAGS_ERROR_MESSAGES.DELETE }));
       showNotification(error.message || TAGS_ERROR_MESSAGES.DELETE, 'error');
-      throw error;
     }
-  }, [deleteTag, refetch, showNotification]);
+  }, [deleteTagMutation, refetch, showNotification]);
 
-  // Handle edit tag
   const handleEditTag = useCallback((tag: Tag) => {
-    setSelectedTag(tag);
-    setIsEditModalOpen(true);
+    setState(prev => ({ ...prev, selectedTag: tag, editModalOpen: true }));
   }, []);
 
-  // Handle delete tag
   const handleDeleteTagClick = useCallback((tag: Tag) => {
-    setSelectedTag(tag);
-    setIsDeleteModalOpen(true);
+    setState(prev => ({ ...prev, selectedTag: tag, deleteModalOpen: true } as any));
   }, []);
 
-  // Close modals
   const closeModals = useCallback(() => {
-    setIsCreateModalOpen(false);
-    setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false);
-    setSelectedTag(null);
+    setState(prev => ({ ...prev, createModalOpen: false, editModalOpen: false, deleteModalOpen: false, selectedTag: null }));
   }, []);
 
-  // Show unified skeleton during loading (both sidebar and content)
-  if (loading && tags.length === 0) {
+  // Auth init skeleton
+  if (isInitializing) {
+    return <DashboardSkeleton />;
+  }
+
+  // Access control
+  if (!hasDashboardAccess) {
+    return <AccessDenied feature="Tags Management" />;
+  }
+
+  // Initial data load skeleton
+  if (queryLoading && (!state.tags || state.tags.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -207,7 +216,7 @@ const TagsPage: React.FC = () => {
               </div>
               <button
                 type="button"
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,18 +233,16 @@ const TagsPage: React.FC = () => {
           <div className="px-8 py-8 w-full">
             {/* Search and Table */}
             <div className="space-y-6">
-              {/* Search Input */}
               <TagSearchInput
-                onSearch={handleSearch}
+                onSearch={handleSearchChange}
                 placeholder="Search tags..."
-                loading={loading}
+                loading={state.loading}
               />
 
-              {/* Tags Table */}
               <TagsTable
-                tags={tags}
-                loading={loading}
-                paginationInfo={paginationInfo}
+                tags={state.tags}
+                loading={state.loading}
+                paginationInfo={state.paginationInfo}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 onSort={handleSort}
@@ -250,26 +257,26 @@ const TagsPage: React.FC = () => {
 
         {/* Modals */}
         <CreateTagModal
-          isOpen={isCreateModalOpen}
+          isOpen={state.createModalOpen}
           onClose={closeModals}
           onCreate={handleCreateTag}
-          loading={loading}
+          loading={state.loading}
         />
 
         <EditTagModal
-          isOpen={isEditModalOpen}
+          isOpen={state.editModalOpen}
           onClose={closeModals}
           onUpdate={handleUpdateTag}
-          tag={selectedTag}
-          loading={loading}
+          tag={state.selectedTag}
+          loading={state.loading}
         />
 
         <DeleteTagModal
-          isOpen={isDeleteModalOpen}
+          isOpen={state.deleteModalOpen}
           onClose={closeModals}
-          onDelete={handleDeleteTag}
-          tag={selectedTag}
-          loading={loading}
+          onDelete={() => state.selectedTag && handleDeleteTag(state.selectedTag.id)}
+          tag={state.selectedTag}
+          loading={state.loading}
         />
       </div>
     </DashboardLayout>

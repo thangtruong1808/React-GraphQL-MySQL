@@ -115,6 +115,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
         <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.CREATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-20"></div>
+        </td>
         <td className={`px-4 py-4 whitespace-nowrap text-left ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
           <div className="flex justify-start space-x-2">
             <div className="h-6 bg-gray-200 rounded w-12"></div>
@@ -146,6 +149,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${NOTIFICATION_TABLE_COLUMNS.CREATED.width}`}>
                   Created
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}>
+                  Updated
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
                   Actions
@@ -199,11 +205,20 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
               </th>
               <th
                 className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${NOTIFICATION_TABLE_COLUMNS.CREATED.width}`}
-                onClick={() => handleSort('created')}
+                onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
                   <span>Created</span>
-                  {getSortIcon('created')}
+                  {getSortIcon('createdAt')}
+                </div>
+              </th>
+              <th
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}
+                onClick={() => handleSort('updatedAt')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updatedAt')}
                 </div>
               </th>
               <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
@@ -212,9 +227,42 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {notifications.length === 0 ? (
+            {loading ? (
+              // Loading skeleton rows
+              Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index} className="animate-pulse">
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.ID.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-8"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.USER.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  </td>
+                  <td className={`px-4 py-4 text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.MESSAGE.width}`}>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.STATUS.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.CREATED.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
+                  <td className={`px-4 py-4 whitespace-nowrap text-left ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
+                    <div className="flex space-x-2">
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : notifications.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.828 7l2.586 2.586a2 2 0 002.828 0L12.828 7H4.828z" />
@@ -234,11 +282,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
 
                   {/* User */}
                   <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.USER.width}`}>
-                    <div className="flex flex-col">
-                      <p className="font-medium">
-                        {notification.user.firstName} {notification.user.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500">{notification.user.role}</p>
+                    <div className="flex items-center space-x-2">
+                      <FaEnvelope className="text-gray-400" />
+                      <span>{notification.user.firstName} {notification.user.lastName}</span>
                     </div>
                   </td>
 
@@ -251,7 +297,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
 
                   {/* Status */}
                   <td className={`px-4 py-4 whitespace-nowrap text-left ${NOTIFICATION_TABLE_COLUMNS.STATUS.width}`}>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${NOTIFICATION_STATUS_BADGES[notification.isRead ? 'read' : 'unread']}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${NOTIFICATION_STATUS_BADGES[notification.isRead ? 'read' : 'unread']}`}>
                       {notification.isRead ? 'Read' : 'Unread'}
                     </span>
                   </td>
@@ -261,9 +307,14 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                     {formatDate(notification.createdAt)}
                   </td>
 
+                  {/* Updated */}
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}>
+                    {formatDate(notification.updatedAt)}
+                  </td>
+
                   {/* Actions */}
                   <td className={`px-4 py-4 whitespace-nowrap text-left ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
-                    <div className="flex justify-start space-x-2">
+                    <div className="flex items-center space-x-2">
                       <button
                         onClick={() => onEdit(notification)}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"

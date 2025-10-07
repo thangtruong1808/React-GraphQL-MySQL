@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { getNavItemsForUser, getMobileNavItems } from '../../constants/navigation';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
 import { NAVBAR_UI } from '../../constants/navbar';
 import Logo from './Logo';
 import MobileMenuButton from './MobileMenuButton';
@@ -32,6 +33,11 @@ const NavBar: React.FC = () => {
   // Get navigation items based on user authentication status
   const navItems = getNavItemsForUser(user); // Desktop navigation items
   const mobileNavItems = getMobileNavItems(user); // Mobile navigation items
+
+  // Role-based filtering: hide Dashboard for non-admin/PM users
+  const { hasDashboardAccess } = useRolePermissions();
+  const filteredNavItems = hasDashboardAccess ? navItems : navItems.filter(i => i.id !== 'dashboard');
+  const filteredMobileNavItems = hasDashboardAccess ? mobileNavItems : mobileNavItems.filter((i: any) => i.id !== 'dashboard');
 
   /**
    * Check if a navigation item is currently active
@@ -168,7 +174,7 @@ const NavBar: React.FC = () => {
           {/* Center Section: Primary Navigation */}
           <div className="hidden md:flex items-center justify-center flex-1">
             <div className="flex items-center space-x-3 lg:space-x-6 xl:space-x-8">
-              {navItems.map((item) => {
+              {filteredNavItems.map((item) => {
                 const isActive = isNavItemActive(item);
                 return item.id === 'search' ? (
                   <button
@@ -257,7 +263,7 @@ const NavBar: React.FC = () => {
             onLogout={handleLogout}
             logoutLoading={logoutLoading}
             getUserInitials={getUserInitials}
-            navItems={mobileNavItems}
+            navItems={filteredMobileNavItems}
             onSearchToggle={handleSearchToggle}
           />
         </div>
