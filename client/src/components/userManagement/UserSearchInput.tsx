@@ -19,7 +19,10 @@ const UserSearchInput: React.FC<UserSearchInputProps> = ({
 }) => {
   const [localValue, setLocalValue] = useState(value);
 
-  // Debounced search effect
+  /**
+   * Debounce search input to avoid excessive API calls
+   * Updates parent component after 1 second of no typing
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localValue !== value) {

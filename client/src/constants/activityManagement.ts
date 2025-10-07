@@ -87,6 +87,9 @@ export const ACTIVITY_LIMITS = {
   MAX_METADATA_SIZE: 10000,
 };
 
+// Search debounce delay in milliseconds
+export const ACTIVITY_SEARCH_DEBOUNCE_DELAY = 1000;
+
 // Success messages for activity operations
 export const ACTIVITY_SUCCESS_MESSAGES = {
   CREATE: 'Activity created successfully',

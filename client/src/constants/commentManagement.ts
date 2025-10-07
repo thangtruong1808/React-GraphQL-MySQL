@@ -95,7 +95,7 @@ export const COMMENT_MODERATION_SETTINGS = {
 
 // Comment search settings
 export const COMMENT_SEARCH_SETTINGS = {
-  DEBOUNCE_DELAY: 300, // ms
+  DEBOUNCE_DELAY: 1000, // ms
   MIN_SEARCH_LENGTH: 2,
   MAX_SEARCH_RESULTS: 100,
 };

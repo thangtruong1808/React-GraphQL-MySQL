@@ -88,6 +88,40 @@ export const DELETE_TASK_MUTATION = gql`
   }
 `;
 
+// Query to fetch all projects for dropdown selection
+export const GET_PROJECTS_FOR_DROPDOWN_QUERY = gql`
+  query GetProjectsForDropdown {
+    dashboardProjects(limit: 100, offset: 0, sortBy: "id", sortOrder: "ASC") {
+      projects {
+        id
+        name
+        description
+        status
+      }
+      paginationInfo {
+        totalCount
+      }
+    }
+  }
+`;
+
+// Query to fetch all users for dropdown selection
+export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
+  query GetUsersForDropdown {
+    users(limit: 100, offset: 0, sortBy: "id", sortOrder: "ASC") {
+      users {
+        id
+        firstName
+        lastName
+        email
+      }
+      paginationInfo {
+        totalCount
+      }
+    }
+  }
+`;
+
 // TypeScript interfaces for query variables and responses
 export interface GetDashboardTasksQueryVariables {
   limit: number;
@@ -181,4 +215,32 @@ export interface UpdateTaskMutationResponse {
 
 export interface DeleteTaskMutationResponse {
   deleteTask: boolean;
+}
+
+export interface GetProjectsForDropdownQueryResponse {
+  dashboardProjects: {
+    projects: Array<{
+      id: string;
+      name: string;
+      description: string;
+      status: string;
+    }>;
+    paginationInfo: {
+      totalCount: number;
+    };
+  };
+}
+
+export interface GetUsersForDropdownQueryResponse {
+  users: {
+    users: Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    }>;
+    paginationInfo: {
+      totalCount: number;
+    };
+  };
 }

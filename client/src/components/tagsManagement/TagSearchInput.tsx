@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { TAGS_LIMITS } from '../../constants/tagsManagement';
+import { TAGS_LIMITS, TAGS_SEARCH_DEBOUNCE_DELAY } from '../../constants/tagsManagement';
 
 /**
  * Tag Search Input Component
@@ -19,11 +19,14 @@ const TagSearchInput: React.FC<TagSearchInputProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Debounced search effect
+  /**
+   * Debounce search input to avoid excessive API calls
+   * Updates parent component after 1 second of no typing
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       onSearch(searchTerm);
-    }, 300);
+    }, TAGS_SEARCH_DEBOUNCE_DELAY);
 
     return () => clearTimeout(timer);
   }, [searchTerm, onSearch]);

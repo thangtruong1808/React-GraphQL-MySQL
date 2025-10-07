@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaEdit, FaTrash, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { TasksTableProps } from '../../types/taskManagement';
 import { TASKS_PAGINATION_OPTIONS, TASK_STATUS_COLORS, TASK_PRIORITY_COLORS } from '../../constants/taskManagement';
@@ -21,6 +21,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
   currentSortBy,
   currentSortOrder
 }) => {
+  // State for tracking expanded text for each task
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
   /**
    * Handle column sorting
    * Toggles between ASC and DESC order
@@ -49,6 +51,42 @@ const TasksTable: React.FC<TasksTableProps> = ({
    */
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onPageSizeChange(parseInt(e.target.value));
+  };
+
+  /**
+   * Handle first page navigation
+   * Goes to page 1
+   */
+  const handleFirstPage = () => {
+    onPageChange(1);
+  };
+
+  /**
+   * Handle previous page navigation
+   * Goes to previous page if available
+   */
+  const handlePreviousPage = () => {
+    if (paginationInfo.hasPreviousPage) {
+      onPageChange(paginationInfo.currentPage - 1);
+    }
+  };
+
+  /**
+   * Handle next page navigation
+   * Goes to next page if available
+   */
+  const handleNextPage = () => {
+    if (paginationInfo.hasNextPage) {
+      onPageChange(paginationInfo.currentPage + 1);
+    }
+  };
+
+  /**
+   * Handle last page navigation
+   * Goes to the last page
+   */
+  const handleLastPage = () => {
+    onPageChange(paginationInfo.totalPages);
   };
 
   /**
@@ -100,20 +138,59 @@ const TasksTable: React.FC<TasksTableProps> = ({
   };
 
   /**
-   * Format description with word wrapping
-   * Breaks description into lines with maximum 8 words per line
+   * Toggle expanded state for task text
+   * Manages which tasks have their text expanded
    */
-  const formatDescriptionWithWordWrap = (description: string) => {
-    if (!description) return '';
+  const toggleExpanded = (taskId: string) => {
+    setExpandedTasks(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskId)) {
+        newSet.delete(taskId);
+      } else {
+        newSet.add(taskId);
+      }
+      return newSet;
+    });
+  };
 
-    const words = description.split(' ');
-    const lines = [];
+  /**
+   * Format text with truncation and toggle functionality
+   * Shows first 4 words with more/less toggle
+   */
+  const formatTextWithToggle = (text: string, taskId: string, type: 'title' | 'description') => {
+    if (!text) return '';
 
-    for (let i = 0; i < words.length; i += 8) {
-      lines.push(words.slice(i, i + 8).join(' '));
+    const words = text.split(' ');
+    const isExpanded = expandedTasks.has(`${taskId}-${type}`);
+
+    if (words.length <= 4 || isExpanded) {
+      return (
+        <div className="space-y-1">
+          <span>{text}</span>
+          {words.length > 4 && (
+            <button
+              onClick={() => toggleExpanded(`${taskId}-${type}`)}
+              className="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors"
+            >
+              less
+            </button>
+          )}
+        </div>
+      );
     }
 
-    return lines;
+    const truncatedText = words.slice(0, 4).join(' ');
+    return (
+      <div className="space-y-1">
+        <span>{truncatedText}...</span>
+        <button
+          onClick={() => toggleExpanded(`${taskId}-${type}`)}
+          className="text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors"
+        >
+          more
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -178,6 +255,15 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              <th
+                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleSort('updatedAt')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updatedAt')}
+                </div>
+              </th>
               <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
@@ -217,6 +303,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   <td className="w-32 px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </td>
+                  <td className="w-32 px-4 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
                   <td className="w-40 px-4 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       <div className="h-8 bg-gray-200 rounded w-16"></div>
@@ -228,7 +317,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : tasks.length === 0 ? (
               // No data row
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
                   No tasks found
                 </td>
               </tr>
@@ -239,19 +328,11 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   <td className="w-16 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {task.id}
                   </td>
-                  <td className="w-48 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
-                    <div className="truncate" title={task.title}>
-                      {task.title}
-                    </div>
+                  <td className="w-48 px-4 py-4 text-sm text-gray-900 text-left">
+                    {formatTextWithToggle(task.title, task.id, 'title')}
                   </td>
                   <td className="w-64 px-4 py-4 text-sm text-gray-900 text-left">
-                    <div className="space-y-1" title={task.description}>
-                      {formatDescriptionWithWordWrap(task.description).map((line, index) => (
-                        <div key={index} className="leading-tight">
-                          {line}
-                        </div>
-                      ))}
-                    </div>
+                    {formatTextWithToggle(task.description, task.id, 'description')}
                   </td>
                   <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_STATUS_COLORS[task.status]}`}>
@@ -275,6 +356,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </td>
                   <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(task.createdAt)}
+                  </td>
+                  <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    {formatDate(task.updatedAt)}
                   </td>
                   <td className="w-40 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     <div className="flex items-center space-x-2">
@@ -304,23 +388,59 @@ const TasksTable: React.FC<TasksTableProps> = ({
       {/* Pagination */}
       <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
         <div className="flex-1 flex justify-between sm:hidden">
-          <button
-            onClick={() => onPageChange(paginationInfo.currentPage - 1)}
-            disabled={!paginationInfo.hasPreviousPage || loading}
-            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => onPageChange(paginationInfo.currentPage + 1)}
-            disabled={!paginationInfo.hasNextPage || loading}
-            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
+          {/* Mobile pagination */}
+          <div className="flex space-x-2">
+            <button
+              onClick={handleFirstPage}
+              disabled={paginationInfo.currentPage === 1 || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="First"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={handlePreviousPage}
+              disabled={!paginationInfo.hasPreviousPage || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Previous"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={!paginationInfo.hasNextPage || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Next"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button
+              onClick={handleLastPage}
+              disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Last"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
+
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div>
+          {/* Compact page info */}
+          <div className="flex items-center space-x-4">
+            <p className="text-sm text-gray-600">
+              Showing <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span> to <span className="font-medium">{Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)}</span> of <span className="font-medium">{paginationInfo.totalCount}</span>
+            </p>
+
+            {/* Compact page size selector */}
             <div className="flex items-center space-x-1">
               <span className="text-sm text-gray-600">Show</span>
               <select
@@ -336,54 +456,85 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-sm text-gray-600">
-                Showing {((paginationInfo.currentPage - 1) * currentPageSize) + 1} to {Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)} of {paginationInfo.totalCount} results
-              </span>
+              <span className="text-sm text-gray-600">entries</span>
             </div>
           </div>
-          <div>
-            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-              <button
-                onClick={() => onPageChange(1)}
-                disabled={!paginationInfo.hasPreviousPage || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                </svg>
-                <span>First</span>
-              </button>
-              <button
-                onClick={() => onPageChange(paginationInfo.currentPage - 1)}
-                disabled={!paginationInfo.hasPreviousPage || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>Previous</span>
-              </button>
-              <button
-                onClick={() => onPageChange(paginationInfo.currentPage + 1)}
-                disabled={!paginationInfo.hasNextPage || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              >
-                <span>Next</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => onPageChange(paginationInfo.totalPages)}
-                disabled={!paginationInfo.hasNextPage || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              >
-                <span>Last</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                </svg>
-              </button>
-            </nav>
+
+          {/* Navigation buttons */}
+          <div className="flex items-center space-x-1">
+            {/* First page button */}
+            <button
+              onClick={handleFirstPage}
+              disabled={paginationInfo.currentPage === 1 || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Go to first page"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline">First</span>
+            </button>
+
+            {/* Previous button */}
+            <button
+              onClick={handlePreviousPage}
+              disabled={!paginationInfo.hasPreviousPage || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Go to previous page"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline">Previous</span>
+            </button>
+
+            {/* Page numbers */}
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: Math.min(5, paginationInfo.totalPages) }, (_, i) => {
+                const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 4, paginationInfo.currentPage - 2)) + i;
+                if (pageNum > paginationInfo.totalPages) return null;
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => onPageChange(pageNum)}
+                    disabled={loading}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNum === paginationInfo.currentPage
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:border-purple-300'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Next button */}
+            <button
+              onClick={handleNextPage}
+              disabled={!paginationInfo.hasNextPage || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Go to next page"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Last page button */}
+            <button
+              onClick={handleLastPage}
+              disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
+              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Go to last page"
+            >
+              <span className="hidden sm:inline">Last</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>

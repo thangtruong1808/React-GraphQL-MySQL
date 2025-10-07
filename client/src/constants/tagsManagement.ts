@@ -111,6 +111,9 @@ export const TAGS_LIMITS = {
   MAX_TITLE_LENGTH: 255,
 };
 
+// Search debounce delay in milliseconds
+export const TAGS_SEARCH_DEBOUNCE_DELAY = 1000;
+
 // Success messages for tags operations
 export const TAGS_SUCCESS_MESSAGES = {
   CREATE: 'Tag created successfully',

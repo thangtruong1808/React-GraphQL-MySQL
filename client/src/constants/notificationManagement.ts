@@ -66,6 +66,9 @@ export const NOTIFICATION_LIMITS = {
   MAX_MESSAGE_LENGTH: 1000,
 };
 
+// Search debounce delay in milliseconds
+export const NOTIFICATION_SEARCH_DEBOUNCE_DELAY = 1000;
+
 // Success messages for notification operations
 export const NOTIFICATION_SUCCESS_MESSAGES = {
   CREATE: 'Notification created successfully',

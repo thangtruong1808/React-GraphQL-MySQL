@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { CommentsTableProps } from '../../types/commentManagement';
 import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, COMMENT_DISPLAY_SETTINGS, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
 
@@ -357,6 +358,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                           title="Edit comment"
                         >
+                          <FaEdit className="w-3 h-3 mr-1" />
                           Edit
                         </button>
                         <button
@@ -364,6 +366,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                           title="Delete comment"
                         >
+                          <FaTrash className="w-3 h-3 mr-1" />
                           Delete
                         </button>
                       </div>

@@ -90,6 +90,23 @@ export const GET_PROJECT_QUERY = gql`
   ${PROJECT_FRAGMENT}
 `;
 
+// Query to fetch all users for dropdown selection
+export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
+  query GetUsersForDropdown {
+    users(limit: 100, offset: 0, sortBy: "id", sortOrder: "ASC") {
+      users {
+        id
+        firstName
+        lastName
+        email
+      }
+      paginationInfo {
+        totalCount
+      }
+    }
+  }
+`;
+
 // Type definitions for the queries and mutations
 export interface GetDashboardProjectsQueryVariables {
   limit: number;
@@ -193,4 +210,18 @@ export interface DeleteProjectMutationVariables {
 
 export interface DeleteProjectMutationResponse {
   deleteProject: boolean;
+}
+
+export interface GetUsersForDropdownQueryResponse {
+  users: {
+    users: Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    }>;
+    paginationInfo: {
+      totalCount: number;
+    };
+  };
 }

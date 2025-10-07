@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { ProjectsTableProps } from '../../types/projectManagement';
 import { PROJECTS_PAGINATION_OPTIONS } from '../../constants/projectManagement';
 
@@ -195,7 +196,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
-              <th className="w-32 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th
+                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleSort('updatedAt')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updatedAt')}
+                </div>
+              </th>
+              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -220,8 +230,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     <div className="h-4 bg-gray-200 rounded w-16"></div>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-center">
-                    <div className="flex justify-center space-x-2">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-left">
+                    <div className="flex justify-start space-x-2">
                       <div className="h-6 bg-gray-200 rounded w-12"></div>
                       <div className="h-6 bg-gray-200 rounded w-16"></div>
                     </div>
@@ -231,7 +244,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ) : projects.length === 0 ? (
               // Empty state
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-sm text-gray-500">
+                <td colSpan={7} className="px-4 py-12 text-center text-sm text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -260,13 +273,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     {project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">{formatDate(project.createdAt)}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-center">
-                    <div className="flex justify-center space-x-2">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">{formatDate(project.updatedAt)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-left">
+                    <div className="flex justify-start space-x-2">
                       <button
                         onClick={() => onEdit(project)}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                         title="Edit project"
                       >
+                        <FaEdit className="w-3 h-3 mr-1" />
                         Edit
                       </button>
                       <button
@@ -274,6 +289,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                         title="Delete project"
                       >
+                        <FaTrash className="w-3 h-3 mr-1" />
                         Delete
                       </button>
                     </div>
@@ -356,6 +372,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </option>
                 ))}
               </select>
+              <span className="text-sm text-gray-600">entries</span>
             </div>
           </div>
 
@@ -399,8 +416,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
                     className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNum === paginationInfo.currentPage
-                        ? 'bg-purple-600 text-white shadow-md'
-                        : 'text-gray-500 bg-white border border-gray-300 hover:border-purple-300'
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:border-purple-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {pageNum}

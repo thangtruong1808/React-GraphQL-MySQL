@@ -21,7 +21,10 @@ const CommentSearchInput: React.FC<CommentSearchInputProps> = ({
     setLocalValue(value);
   }, [value]);
 
-  // Debounced search effect
+  /**
+   * Debounce search input to avoid excessive API calls
+   * Updates parent component after 1 second of no typing
+   */
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (localValue.length >= COMMENT_SEARCH_SETTINGS.MIN_SEARCH_LENGTH || localValue.length === 0) {

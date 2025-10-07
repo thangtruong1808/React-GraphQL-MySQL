@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ACTIVITY_LIMITS } from '../../constants/activityManagement';
+import { ACTIVITY_LIMITS, ACTIVITY_SEARCH_DEBOUNCE_DELAY } from '../../constants/activityManagement';
 
 /**
  * Activity Search Input Component
@@ -19,11 +19,14 @@ const ActivitySearchInput: React.FC<ActivitySearchInputProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Debounced search effect
+  /**
+   * Debounce search input to avoid excessive API calls
+   * Updates parent component after 1 second of no typing
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       onSearch(searchTerm);
-    }, 300);
+    }, ACTIVITY_SEARCH_DEBOUNCE_DELAY);
 
     return () => clearTimeout(timer);
   }, [searchTerm, onSearch]);

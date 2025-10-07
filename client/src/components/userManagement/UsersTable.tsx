@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaEdit, FaTrash } from 'react-icons/fa';
 import { UsersTableProps } from '../../types/userManagement';
 import { USERS_PAGINATION_OPTIONS } from '../../constants/userManagement';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
@@ -266,6 +266,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                         title="Edit user"
                       >
+                        <FaEdit className="w-3 h-3 mr-1" />
                         Edit
                       </button>
 
@@ -275,6 +276,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                         title="Delete user"
                       >
+                        <FaTrash className="w-3 h-3 mr-1" />
                         Delete
                       </button>
                     </div>

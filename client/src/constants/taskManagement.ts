@@ -7,7 +7,12 @@
 export const DEFAULT_TASKS_PAGINATION = {
   limit: 10,
   offset: 0,
+  sortBy: 'id',
+  sortOrder: 'ASC' as const,
 };
+
+// Search debounce delay in milliseconds
+export const TASK_SEARCH_DEBOUNCE_DELAY = 1000;
 
 // Pagination options for tasks table
 export const TASKS_PAGINATION_OPTIONS = [

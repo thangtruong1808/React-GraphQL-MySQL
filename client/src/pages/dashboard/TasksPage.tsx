@@ -66,8 +66,8 @@ const TasksPage: React.FC = () => {
   });
 
   // Sorting state
-  const [sortBy, setSortBy] = useState<string>('createdAt');
-  const [sortOrder, setSortOrder] = useState<string>('DESC');
+  const [sortBy, setSortBy] = useState<string>(DEFAULT_TASKS_PAGINATION.sortBy);
+  const [sortOrder, setSortOrder] = useState<string>(DEFAULT_TASKS_PAGINATION.sortOrder);
 
   // GraphQL queries and mutations
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_TASKS_QUERY, {

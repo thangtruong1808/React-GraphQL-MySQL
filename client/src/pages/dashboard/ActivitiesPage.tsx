@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
@@ -42,10 +41,8 @@ import { useError } from '../../contexts/ErrorContext';
  * SCENARIOS: Activity management for administrators and project managers
  */
 const ActivitiesPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { isInitializing } = useAuth();
+  const { isInitializing, user } = useAuth();
   const { showError, showSuccess } = useError();
-  const { user } = useAuth();
 
   // State management
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,7 +125,6 @@ const ActivitiesPage: React.FC = () => {
       showSuccess(ACTIVITY_SUCCESS_MESSAGES.CREATE);
     } catch (error: any) {
       showError(ACTIVITY_ERROR_MESSAGES.CREATE);
-      console.error('Error creating activity:', error);
     }
   };
 
@@ -148,7 +144,6 @@ const ActivitiesPage: React.FC = () => {
       showSuccess(ACTIVITY_SUCCESS_MESSAGES.UPDATE);
     } catch (error: any) {
       showError(ACTIVITY_ERROR_MESSAGES.UPDATE);
-      console.error('Error updating activity:', error);
     }
   };
 
@@ -168,7 +163,6 @@ const ActivitiesPage: React.FC = () => {
       showSuccess(ACTIVITY_SUCCESS_MESSAGES.DELETE);
     } catch (error: any) {
       showError(ACTIVITY_ERROR_MESSAGES.DELETE);
-      console.error('Error deleting activity:', error);
     }
   };
 
@@ -180,12 +174,8 @@ const ActivitiesPage: React.FC = () => {
     setSelectedActivity(null);
   };
 
-  // Redirect if not authorized
-  useEffect(() => {
-    if (user && !['ADMIN', 'Project Manager'].includes(user.role)) {
-      navigate(ROUTE_PATHS.DASHBOARD);
-    }
-  }, [user, navigate]);
+  // Note: Activity page is accessible to all authenticated users
+  // Role-based restrictions can be implemented at the component level if needed
 
   // Show unified skeleton during loading (both sidebar and content)
   if (loading && activities.length === 0) {

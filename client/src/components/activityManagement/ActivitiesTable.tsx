@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import {
   ACTIVITY_TABLE_COLUMNS,
   ACTIVITY_TYPE_BADGES,
@@ -353,6 +354,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                         title="Edit activity"
                       >
+                        <FaEdit className="w-3 h-3 mr-1" />
                         Edit
                       </button>
                       <button
@@ -360,6 +362,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                         title="Delete activity"
                       >
+                        <FaTrash className="w-3 h-3 mr-1" />
                         Delete
                       </button>
                     </div>
@@ -470,8 +473,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   onClick={() => onPageChange(pageNumber)}
                   disabled={loading}
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNumber === paginationInfo.currentPage
-                      ? 'bg-purple-600 text-white'
-                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                     }`}
                 >
                   {pageNumber}

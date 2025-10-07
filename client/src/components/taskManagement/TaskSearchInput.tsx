@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { TaskSearchInputProps } from '../../types/taskManagement';
+import { TASK_SEARCH_DEBOUNCE_DELAY } from '../../constants/taskManagement';
 
 /**
  * Task Search Input Component
@@ -20,14 +21,14 @@ const TaskSearchInput: React.FC<TaskSearchInputProps> = ({
 
   /**
    * Debounce search input to avoid excessive API calls
-   * Updates parent component after 300ms of no typing
+   * Updates parent component after 1 second of no typing
    */
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localValue !== value) {
         onChange(localValue);
       }
-    }, 300);
+    }, TASK_SEARCH_DEBOUNCE_DELAY);
 
     return () => clearTimeout(timer);
   }, [localValue, value, onChange]);
@@ -58,7 +59,7 @@ const TaskSearchInput: React.FC<TaskSearchInputProps> = ({
         type="text"
         value={localValue}
         onChange={handleInputChange}
-        className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm transition-colors duration-200"
         placeholder={placeholder}
         disabled={loading}
       />
@@ -68,7 +69,7 @@ const TaskSearchInput: React.FC<TaskSearchInputProps> = ({
             type="button"
             onClick={handleClear}
             disabled={loading}
-            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150"
+            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
             aria-label="Clear search"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

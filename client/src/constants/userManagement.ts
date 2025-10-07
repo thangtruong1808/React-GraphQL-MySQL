@@ -43,7 +43,7 @@ export const DEFAULT_USERS_PAGINATION = {
 } as const;
 
 // Search debounce delay in milliseconds
-export const USER_SEARCH_DEBOUNCE_DELAY = 300;
+export const USER_SEARCH_DEBOUNCE_DELAY = 1000;
 
 // Table column configuration
 export const USERS_TABLE_COLUMNS = [

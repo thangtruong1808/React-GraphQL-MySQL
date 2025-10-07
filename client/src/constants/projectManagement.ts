@@ -65,11 +65,15 @@ export const PROJECTS_TABLE_COLUMNS = [
   { key: 'status', label: 'Status', sortable: true },
   { key: 'owner', label: 'Owner', sortable: false },
   { key: 'createdAt', label: 'Created', sortable: true },
+  { key: 'updatedAt', label: 'Updated', sortable: true },
   { key: 'actions', label: 'Actions', sortable: false }
 ];
 
 // Search placeholder text
 export const PROJECT_SEARCH_PLACEHOLDER = 'Search projects by name or description...';
+
+// Search debounce delay in milliseconds
+export const PROJECT_SEARCH_DEBOUNCE_DELAY = 1000;
 
 // Modal titles
 export const PROJECT_MODAL_TITLES = {

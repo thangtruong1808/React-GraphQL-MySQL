@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaEdit, FaTrash, FaCheck, FaEnvelope } from 'react-icons/fa';
 import {
   NOTIFICATION_TABLE_COLUMNS,
   NOTIFICATION_STATUS_BADGES,
@@ -268,6 +269,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                         title="Edit notification"
                       >
+                        <FaEdit className="w-3 h-3 mr-1" />
                         Edit
                       </button>
                       {notification.isRead ? (
@@ -276,6 +278,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-150"
                           title="Mark as unread"
                         >
+                          <FaEnvelope className="w-3 h-3 mr-1" />
                           Unread
                         </button>
                       ) : (
@@ -284,6 +287,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
                           title="Mark as read"
                         >
+                          <FaCheck className="w-3 h-3 mr-1" />
                           Read
                         </button>
                       )}
@@ -292,6 +296,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                         title="Delete notification"
                       >
+                        <FaTrash className="w-3 h-3 mr-1" />
                         Delete
                       </button>
                     </div>
@@ -402,8 +407,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   onClick={() => onPageChange(pageNumber)}
                   disabled={loading}
                   className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNumber === paginationInfo.currentPage
-                      ? 'bg-purple-600 text-white'
-                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                     }`}
                 >
                   {pageNumber}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { NOTIFICATION_LIMITS } from '../../constants/notificationManagement';
+import { NOTIFICATION_LIMITS, NOTIFICATION_SEARCH_DEBOUNCE_DELAY } from '../../constants/notificationManagement';
 
 /**
  * Notification Search Input Component
@@ -19,11 +19,14 @@ const NotificationSearchInput: React.FC<NotificationSearchInputProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Debounced search effect
+  /**
+   * Debounce search input to avoid excessive API calls
+   * Updates parent component after 1 second of no typing
+   */
   useEffect(() => {
     const timer = setTimeout(() => {
       onSearch(searchTerm);
-    }, 300);
+    }, NOTIFICATION_SEARCH_DEBOUNCE_DELAY);
 
     return () => clearTimeout(timer);
   }, [searchTerm, onSearch]);

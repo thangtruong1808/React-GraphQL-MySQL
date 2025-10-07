@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import { FaTimes, FaFolder, FaAlignLeft, FaFlag, FaUser, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import { EditProjectModalProps, ProjectFormData } from '../../types/projectManagement';
 import { PROJECT_STATUS_OPTIONS, PROJECT_VALIDATION_RULES } from '../../constants/projectManagement';
+import { GET_USERS_FOR_DROPDOWN_QUERY } from '../../services/graphql/projectQueries';
 
 /**
  * Edit Project Modal Component
@@ -27,6 +30,11 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
 
   // Form validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Fetch users for dropdown
+  const { data: usersData, loading: usersLoading } = useQuery(GET_USERS_FOR_DROPDOWN_QUERY, {
+    skip: !isOpen // Only fetch when modal is open
+  });
 
   /**
    * Initialize form data when project changes
@@ -191,133 +199,215 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
         </div>
 
         {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header */}
-          <div className="bg-white px-6 py-4 border-b border-gray-200">
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
-                Edit Project
-              </h3>
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <FaFolder className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    Edit Project
+                  </h3>
+                  <p className="text-purple-100 text-sm mt-1">
+                    Update project information
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150"
+                className="text-white hover:text-purple-200 focus:outline-none focus:text-purple-200 transition ease-in-out duration-150 p-2 rounded-lg hover:bg-white hover:bg-opacity-10"
               >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <FaTimes className="h-5 w-5" />
               </button>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 pb-6 sm:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="px-6 py-6">
+            <div className="space-y-6">
               {/* Project Name */}
-              <div className="md:col-span-2">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <div>
+                <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <FaFolder className="inline h-4 w-4 mr-2 text-purple-600" />
                   Project Name *
                 </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  onBlur={handleInputBlur}
-                  disabled={loading}
-                  className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm ${errors.name ? 'border-red-300' : 'border-gray-300'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  placeholder="Enter project name"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    disabled={loading}
+                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.name
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    placeholder="Enter project name"
+                  />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaFolder className={`h-4 w-4 ${errors.name ? 'text-red-400' : 'text-gray-400'}`} />
+                  </div>
+                  {formData.name && !errors.name && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <FaCheck className="h-4 w-4 text-green-500" />
+                    </div>
+                  )}
+                </div>
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  <div className="mt-2 flex items-center text-sm text-red-600">
+                    <FaExclamationTriangle className="h-4 w-4 mr-1" />
+                    {errors.name}
+                  </div>
                 )}
               </div>
 
               {/* Project Description */}
-              <div className="md:col-span-2">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              <div>
+                <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <FaAlignLeft className="inline h-4 w-4 mr-2 text-purple-600" />
                   Description *
                 </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  onBlur={handleInputBlur}
-                  disabled={loading}
-                  className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm ${errors.description ? 'border-red-300' : 'border-gray-300'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  placeholder="Enter project description"
-                />
+                <div className="relative">
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={4}
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    disabled={loading}
+                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors resize-none ${errors.description
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    placeholder="Enter project description"
+                  />
+                  <div className="absolute top-3 left-3 flex items-start pointer-events-none">
+                    <FaAlignLeft className={`h-4 w-4 ${errors.description ? 'text-red-400' : 'text-gray-400'}`} />
+                  </div>
+                  {formData.description && !errors.description && (
+                    <div className="absolute top-3 right-3 flex items-start">
+                      <FaCheck className="h-4 w-4 text-green-500" />
+                    </div>
+                  )}
+                </div>
                 {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+                  <div className="mt-2 flex items-center text-sm text-red-600">
+                    <FaExclamationTriangle className="h-4 w-4 mr-1" />
+                    {errors.description}
+                  </div>
                 )}
               </div>
 
               {/* Project Status */}
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <FaFlag className="inline h-4 w-4 mr-2 text-purple-600" />
                   Status *
                 </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  onBlur={handleInputBlur}
-                  disabled={loading}
-                  className={`block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm ${errors.status ? 'border-red-300' : 'border-gray-300'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {PROJECT_STATUS_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    disabled={loading}
+                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.status
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {PROJECT_STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaFlag className={`h-4 w-4 ${errors.status ? 'text-red-400' : 'text-gray-400'}`} />
+                  </div>
+                </div>
                 {errors.status && (
-                  <p className="mt-1 text-sm text-red-600">{errors.status}</p>
+                  <div className="mt-2 flex items-center text-sm text-red-600">
+                    <FaExclamationTriangle className="h-4 w-4 mr-1" />
+                    {errors.status}
+                  </div>
                 )}
               </div>
 
-              {/* Owner ID (optional) */}
+              {/* Owner Selection (optional) */}
               <div>
-                <label htmlFor="ownerId" className="block text-sm font-medium text-gray-700 mb-2">
-                  Owner ID (Optional)
+                <label htmlFor="ownerId" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <FaUser className="inline h-4 w-4 mr-2 text-purple-600" />
+                  Project Owner (Optional)
                 </label>
-                <input
-                  type="text"
-                  id="ownerId"
-                  name="ownerId"
-                  value={formData.ownerId}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="Enter owner user ID"
-                />
+                <div className="relative">
+                  <select
+                    id="ownerId"
+                    name="ownerId"
+                    value={formData.ownerId}
+                    onChange={handleInputChange}
+                    disabled={loading || usersLoading}
+                    className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:border-gray-400"
+                  >
+                    <option value="">Select a project owner...</option>
+                    {usersData?.users?.users?.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.id} - {user.firstName} {user.lastName}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUser className={`h-4 w-4 ${usersLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                  </div>
+                  {usersLoading && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+                    </div>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Select a user to assign as the project owner
+                </p>
               </div>
             </div>
 
-            {/* Form Actions */}
-            <div className="mt-6 flex justify-end space-x-3">
+            {/* Actions */}
+            <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-4">
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-xl shadow-sm hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
               >
-                {loading ? 'Updating...' : 'Update Project'}
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                    Updating Project...
+                  </>
+                ) : (
+                  <>
+                    <FaFolder className="h-4 w-4 mr-2" />
+                    Update Project
+                  </>
+                )}
               </button>
             </div>
           </form>

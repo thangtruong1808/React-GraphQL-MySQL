@@ -74,7 +74,6 @@ const NotificationsPage: React.FC = () => {
       setPaginationInfo(data.dashboardNotifications.paginationInfo);
     },
     onError: (error) => {
-      console.error('Error fetching notifications:', error);
       showNotification(NOTIFICATION_ERROR_MESSAGES.FETCH, 'error');
     },
     fetchPolicy: 'cache-and-network',
@@ -123,7 +122,6 @@ const NotificationsPage: React.FC = () => {
       });
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.CREATE, 'success');
     } catch (error: any) {
-      console.error('Error creating notification:', error);
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.CREATE, 'error');
       throw error;
     }
@@ -143,7 +141,6 @@ const NotificationsPage: React.FC = () => {
       });
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.UPDATE, 'success');
     } catch (error: any) {
-      console.error('Error updating notification:', error);
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.UPDATE, 'error');
       throw error;
     }
@@ -163,7 +160,6 @@ const NotificationsPage: React.FC = () => {
       });
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.DELETE, 'success');
     } catch (error: any) {
-      console.error('Error deleting notification:', error);
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.DELETE, 'error');
       throw error;
     }
@@ -183,7 +179,6 @@ const NotificationsPage: React.FC = () => {
       });
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.MARK_READ, 'success');
     } catch (error: any) {
-      console.error('Error marking notification as read:', error);
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.MARK_READ, 'error');
     }
   }, [markNotificationRead, refetch, showNotification]);
@@ -202,7 +197,6 @@ const NotificationsPage: React.FC = () => {
       });
       showNotification(NOTIFICATION_SUCCESS_MESSAGES.MARK_UNREAD, 'success');
     } catch (error: any) {
-      console.error('Error marking notification as unread:', error);
       showNotification(error.message || NOTIFICATION_ERROR_MESSAGES.MARK_UNREAD, 'error');
     }
   }, [markNotificationUnread, refetch, showNotification]);
