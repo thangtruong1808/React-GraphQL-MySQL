@@ -198,64 +198,69 @@ const ActivitiesPage: React.FC = () => {
 
   return (
     <DashboardLayout showSidebarSkeleton={false}>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="md:flex md:items-center md:justify-between">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-              Activity Management
-            </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Manage and monitor system activities and user actions
-            </p>
-          </div>
-          <div className="mt-4 flex md:mt-0 md:ml-4">
-            <button
-              type="button"
-              onClick={() => setCreateModalOpen(true)}
-              className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-            >
-              <FaPlus className="w-4 h-4 mr-2" />
-              Create Activity
-            </button>
-          </div>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <InlineError
-            message={error.message || ACTIVITY_ERROR_MESSAGES.FETCH}
-            onRetry={() => refetch()}
-          />
-        )}
-
-        {/* Search and Filters */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="space-y-4">
-            <div>
-              <ActivitySearchInput
-                onSearch={handleSearch}
-                placeholder="Search activities by user, action, type, or content..."
-                loading={loading}
-              />
+      <div className="w-full h-full dashboard-content">
+        {/* Header Section */}
+        <div className="bg-white border-b border-gray-200 w-full">
+          <div className="px-8 py-8 w-full">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Activity Management
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Manage and monitor system activities and user actions
+                </p>
+              </div>
+              <button
+                type="button"
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                onClick={() => setCreateModalOpen(true)}
+              >
+                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                Create Activity
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Activities Table */}
-        <div className="bg-white shadow rounded-lg">
-          <ActivitiesTable
-            activities={activities}
-            loading={loading}
-            paginationInfo={paginationInfo}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            onSort={handleSort}
-            currentSortBy={sortBy}
-            currentSortOrder={sortOrder}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+        {/* Main Content */}
+        <div className="w-full">
+          <div className="px-8 py-8 w-full">
+            <div className="space-y-6">
+              {/* Error Display */}
+              {error && (
+                <InlineError
+                  message={error.message || ACTIVITY_ERROR_MESSAGES.FETCH}
+                  onRetry={() => refetch()}
+                />
+              )}
+
+              {/* Search and Filters */}
+              <div>
+                <ActivitySearchInput
+                  onSearch={handleSearch}
+                  placeholder="Search activities by user, action, type, or content..."
+                  loading={loading}
+                />
+              </div>
+
+              {/* Activities Table */}
+              <div className="bg-white shadow rounded-lg">
+                <ActivitiesTable
+                  activities={activities}
+                  loading={loading}
+                  paginationInfo={paginationInfo}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  onSort={handleSort}
+                  currentSortBy={sortBy}
+                  currentSortOrder={sortOrder}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Modals */}

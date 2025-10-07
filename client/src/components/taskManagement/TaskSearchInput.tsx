@@ -59,7 +59,7 @@ const TaskSearchInput: React.FC<TaskSearchInputProps> = ({
         type="text"
         value={localValue}
         onChange={handleInputChange}
-        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-50 disabled:cursor-not-allowed text-sm transition-colors duration-200"
+        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
         placeholder={placeholder}
         disabled={loading}
       />

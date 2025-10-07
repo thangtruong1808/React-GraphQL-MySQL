@@ -61,7 +61,7 @@ const UserSearchInput: React.FC<UserSearchInputProps> = ({
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <FaSearch
-            className={`h-5 w-5 ${loading ? 'text-purple-500 animate-pulse' : 'text-gray-400'}`}
+            className={`h-5 w-5 ${loading ? 'text-blue-500 animate-spin' : 'text-gray-400'}`}
             aria-hidden="true"
           />
         </div>
@@ -72,11 +72,7 @@ const UserSearchInput: React.FC<UserSearchInputProps> = ({
           onChange={handleInputChange}
           placeholder={placeholder}
           disabled={loading}
-          className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg 
-                     focus:ring-2 focus:ring-purple-500 focus:border-purple-500 
-                     disabled:bg-gray-50 disabled:cursor-not-allowed
-                     text-sm placeholder-gray-500
-                     transition-colors duration-200"
+          className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
         />
 
         {/* Clear button */}

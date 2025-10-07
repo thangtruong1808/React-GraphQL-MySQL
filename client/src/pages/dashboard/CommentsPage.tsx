@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { DashboardSkeleton } from '../../components/ui';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
 import AccessDenied from '../../components/auth/AccessDenied';
+import { FaPlus } from 'react-icons/fa';
 import {
   CommentSearchInput,
   CommentsTable,
@@ -317,7 +318,7 @@ const CommentsPage: React.FC = () => {
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
-        <div className="border-b border-gray-200 w-full">
+        <div className="bg-white border-b border-gray-200 w-full">
           <div className="px-8 py-8 w-full">
             <div className="flex items-center justify-between">
               <div>
@@ -328,20 +329,16 @@ const CommentsPage: React.FC = () => {
                   Manage comments and discussions across all tasks and projects
                 </p>
               </div>
-              <div className="flex items-center space-x-4">
-                {/* Create Comment Button */}
-                {canCreate && (
-                  <button
-                    onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl shadow-sm text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 transform hover:scale-105"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Create Comment
-                  </button>
-                )}
-              </div>
+              {canCreate && (
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
+                >
+                  <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                  Create Comment
+                </button>
+              )}
             </div>
           </div>
         </div>

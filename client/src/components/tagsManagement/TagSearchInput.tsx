@@ -59,7 +59,7 @@ const TagSearchInput: React.FC<TagSearchInputProps> = ({
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder={placeholder}
         maxLength={TAGS_LIMITS.MAX_NAME_LENGTH}
-        className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-sm"
+        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
         disabled={loading}
       />
       {searchTerm && (
