@@ -29,7 +29,7 @@ export const getDashboardComments = async (
       throw new AuthenticationError('You must be logged in to view comments');
     }
 
-    const { limit = 10, offset = 0, search, sortBy = 'createdAt', sortOrder = 'DESC' } = args;
+    const { limit = 10, offset = 0, search, sortBy = 'id', sortOrder = 'ASC' } = args;
 
     // Validate pagination parameters
     const validLimit = Math.min(Math.max(limit, 1), 100);
@@ -53,8 +53,8 @@ export const getDashboardComments = async (
     }
 
     // Validate and set sort parameters
-    const allowedSortFields = ['createdAt', 'updatedAt', 'content'];
-    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const allowedSortFields = ['id', 'createdAt', 'updatedAt', 'content'];
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'id';
     const validSortOrder = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     // Get total count for pagination info
@@ -125,6 +125,10 @@ export const getDashboardComments = async (
           id: comment.id.toString(),
           uuid: comment.uuid,
           content: comment.content,
+          // Include raw database fields for Comment type resolvers
+          user_id: comment.userId || comment.user_id,
+          task_id: comment.taskId || comment.task_id,
+          // Include populated objects for direct access
           author: comment.user,
           task: comment.task,
           isDeleted: comment.isDeleted,
@@ -231,6 +235,10 @@ export const updateComment = async (
       id: comment.id.toString(),
       uuid: comment.uuid,
       content: comment.content,
+      // Include raw database fields for Comment type resolvers
+      user_id: comment.userId || comment.user_id,
+      task_id: comment.taskId || comment.task_id,
+      // Include populated objects for direct access
       author: comment.user,
       task: comment.task,
       isDeleted: comment.isDeleted,

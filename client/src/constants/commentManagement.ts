@@ -7,16 +7,16 @@
 export const DEFAULT_COMMENTS_PAGINATION = {
   limit: 10,
   offset: 0,
-  sortBy: 'createdAt',
-  sortOrder: 'DESC' as const,
+  sortBy: 'id',
+  sortOrder: 'ASC' as const,
 };
 
 // Page size options for pagination
 export const PAGE_SIZE_OPTIONS = [
-  { value: 5, label: '5 per page' },
-  { value: 10, label: '10 per page' },
-  { value: 20, label: '20 per page' },
-  { value: 50, label: '50 per page' },
+  { value: 5, label: '5' },
+  { value: 10, label: '10' },
+  { value: 25, label: '25' },
+  { value: 50, label: '50' },
 ];
 
 // Sort options for comments
@@ -102,13 +102,14 @@ export const COMMENT_SEARCH_SETTINGS = {
 
 // Comment table column configurations
 export const COMMENT_TABLE_COLUMNS = {
-  CONTENT: { width: 'w-2/5', sortable: false },
-  AUTHOR: { width: 'w-1/6', sortable: true },
-  TASK: { width: 'w-1/6', sortable: true },
-  PROJECT: { width: 'w-1/6', sortable: true },
-  LIKES: { width: 'w-16', sortable: true },
-  CREATED: { width: 'w-24', sortable: true },
-  ACTIONS: { width: 'w-20', sortable: false },
+  ID: { width: 'w-16', sortable: true },
+  CONTENT: { width: 'w-64', sortable: false },
+  AUTHOR: { width: 'w-32', sortable: true },
+  TASK: { width: 'w-40', sortable: true },
+  PROJECT: { width: 'w-32', sortable: true },
+  LIKES: { width: 'w-20', sortable: true },
+  CREATED: { width: 'w-32', sortable: true },
+  ACTIONS: { width: 'w-24', sortable: false },
 };
 
 // Comment form validation rules

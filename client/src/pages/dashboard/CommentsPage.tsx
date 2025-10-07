@@ -19,7 +19,7 @@ import {
   CommentFormData,
   GetDashboardCommentsQueryVariables,
 } from '../../services/graphql/commentQueries';
-import { DEFAULT_COMMENTS_PAGINATION, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
+import { DEFAULT_COMMENTS_PAGINATION } from '../../constants/commentManagement';
 
 /**
  * Comments Dashboard Page
@@ -214,25 +214,6 @@ const CommentsPage: React.FC = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-4">
-                {/* Page Size Selector */}
-                <div className="flex items-center space-x-2">
-                  <label htmlFor="pageSize" className="text-sm font-medium text-gray-700">
-                    Show:
-                  </label>
-                  <select
-                    id="pageSize"
-                    value={pageSize}
-                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                    className="block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    {PAGE_SIZE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
                 {/* Create Comment Button */}
                 <button
                   onClick={() => setCreateModalOpen(true)}

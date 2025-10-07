@@ -141,6 +141,54 @@ export const typeDefs = gql`
     isLikedByUser: Boolean!
   }
 
+  # Activity Type Enum - for activity log types
+  enum ActivityType {
+    TASK_CREATED
+    TASK_UPDATED
+    TASK_ASSIGNED
+    COMMENT_ADDED
+    PROJECT_CREATED
+    PROJECT_COMPLETED
+    USER_MENTIONED
+  }
+
+  # Activity Type - for activity logs
+  type Activity {
+    id: ID!
+    uuid: String
+    user: User!
+    targetUser: User
+    project: Project
+    task: Task
+    action: String!
+    type: ActivityType!
+    metadata: JSON
+    createdAt: String
+    updatedAt: String
+  }
+
+  # Notification Type - for user notifications
+  type Notification {
+    id: ID!
+    user: User!
+    message: String!
+    isRead: Boolean!
+    createdAt: String
+    updatedAt: String
+  }
+
+  # Tag Type - for task tags and categorization
+  type Tag {
+    id: ID!
+    name: String!
+    description: String!
+    title: String
+    type: String
+    category: String
+    createdAt: String
+    updatedAt: String
+  }
+
   # Project Like Info Type - for displaying project names with like counts
   type ProjectLikeInfo {
     projectName: String!
@@ -272,9 +320,74 @@ export const typeDefs = gql`
     content: String
   }
 
+  # Activity Input Type - for creating new activities
+  input ActivityInput {
+    action: String!
+    type: ActivityType!
+    targetUserId: ID
+    projectId: ID
+    taskId: ID
+    metadata: JSON
+  }
+
+  # Activity Update Input Type - for updating existing activities
+  input ActivityUpdateInput {
+    action: String
+    type: ActivityType
+    metadata: JSON
+  }
+
+  # Notification Input Type - for creating new notifications
+  input NotificationInput {
+    message: String!
+    userId: ID!
+  }
+
+  # Notification Update Input Type - for updating existing notifications
+  input NotificationUpdateInput {
+    message: String
+    isRead: Boolean
+  }
+
+  # Tag Input Type - for creating new tags
+  input TagInput {
+    name: String!
+    description: String!
+    title: String
+    type: String
+    category: String
+  }
+
+  # Tag Update Input Type - for updating existing tags
+  input TagUpdateInput {
+    name: String
+    description: String
+    title: String
+    type: String
+    category: String
+  }
+
   # Paginated Dashboard Comments Response Type - for comment management with pagination
   type PaginatedDashboardCommentsResponse {
     comments: [Comment!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Paginated Dashboard Activities Response Type - for activity management with pagination
+  type PaginatedDashboardActivitiesResponse {
+    activities: [Activity!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Paginated Dashboard Notifications Response Type - for notification management with pagination
+  type PaginatedDashboardNotificationsResponse {
+    notifications: [Notification!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Paginated Dashboard Tags Response Type - for tags management with pagination
+  type PaginatedDashboardTagsResponse {
+    tags: [Tag!]!
     paginationInfo: PaginationInfo!
   }
 
@@ -415,6 +528,12 @@ export const typeDefs = gql`
     dashboardTasks(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardTasksResponse!
     # Comments management - for dashboard comments page
     dashboardComments(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardCommentsResponse!
+    # Activities management - for dashboard activities page
+    dashboardActivities(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardActivitiesResponse!
+    # Notifications management - for dashboard notifications page
+    dashboardNotifications(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardNotificationsResponse!
+    # Tags management - for dashboard tags page
+    dashboardTags(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardTagsResponse!
   }
 
   # Mutation Type - includes authentication and comment mutations
@@ -453,5 +572,19 @@ export const typeDefs = gql`
     # Comment management mutations - require authentication
     updateComment(id: ID!, input: CommentUpdateInput!): Comment!
     deleteComment(id: ID!): Boolean!
+    # Activity management mutations - require authentication
+    createActivity(input: ActivityInput!): Activity!
+    updateActivity(id: ID!, input: ActivityUpdateInput!): Activity!
+    deleteActivity(id: ID!): Boolean!
+    # Notification management mutations - require authentication
+    createNotification(input: NotificationInput!): Notification!
+    updateNotification(id: ID!, input: NotificationUpdateInput!): Notification!
+    deleteNotification(id: ID!): Boolean!
+    markNotificationRead(id: ID!): Notification!
+    markNotificationUnread(id: ID!): Notification!
+    # Tag management mutations - require authentication
+    createTag(input: TagInput!): Tag!
+    updateTag(id: ID!, input: TagUpdateInput!): Tag!
+    deleteTag(id: ID!): Boolean!
   }
 `;

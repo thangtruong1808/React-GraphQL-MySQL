@@ -1,6 +1,6 @@
 import React from 'react';
 import { CommentsTableProps } from '../../types/commentManagement';
-import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, COMMENT_DISPLAY_SETTINGS } from '../../constants/commentManagement';
+import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, COMMENT_DISPLAY_SETTINGS, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
 
 /**
  * CommentsTable Component
@@ -28,9 +28,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+        day: 'numeric'
       });
     } catch (error) {
       return 'N/A';
@@ -62,7 +60,21 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
 
   // Get sort icon for column headers
   const getSortIcon = (column: string) => {
-    if (currentSortBy !== column) {
+    // Map UI column names to database field names for icon display
+    const fieldMapping: { [key: string]: string } = {
+      'id': 'id',
+      'author': 'createdAt',
+      'task': 'createdAt',
+      'project': 'createdAt',
+      'likes': 'createdAt',
+      'created': 'createdAt',
+      'updated': 'updatedAt',
+      'content': 'content'
+    };
+
+    const dbField = fieldMapping[column] || column;
+
+    if (currentSortBy !== dbField) {
       return (
         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -71,11 +83,11 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
     }
 
     return currentSortOrder === 'ASC' ? (
-      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
       </svg>
     ) : (
-      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     );
@@ -83,39 +95,62 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
 
   // Handle sort click
   const handleSort = (column: string) => {
-    if (!COMMENT_TABLE_COLUMNS[column as keyof typeof COMMENT_TABLE_COLUMNS]?.sortable) return;
+    // Map UI column names to database field names
+    const fieldMapping: { [key: string]: string } = {
+      'id': 'id',
+      'author': 'createdAt',
+      'task': 'createdAt',
+      'project': 'createdAt',
+      'likes': 'createdAt',
+      'created': 'createdAt',
+      'updated': 'updatedAt',
+      'content': 'content'
+    };
 
-    const newOrder = currentSortBy === column && currentSortOrder === 'ASC' ? 'DESC' : 'ASC';
-    onSort(column, newOrder);
+    const dbField = fieldMapping[column] || column;
+    let newSortOrder = 'ASC';
+
+    if (currentSortBy === dbField) {
+      // If already sorting by this field, toggle order
+      newSortOrder = currentSortOrder === 'ASC' ? 'DESC' : 'ASC';
+    }
+
+    onSort(dbField, newSortOrder);
   };
 
   // Loading skeleton rows
   const renderLoadingRows = () => {
     return Array.from({ length: 5 }).map((_, index) => (
-      <tr key={index} className="border-b border-gray-200 animate-pulse">
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
+      <tr key={index} className="animate-pulse">
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.ID.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-8"></div>
+        </td>
+        <td className={`px-4 py-4 text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
           <div className="space-y-2">
             <div className="h-4 bg-gray-200 rounded w-3/4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2"></div>
           </div>
         </td>
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
           <div className="h-4 bg-gray-200 rounded w-24"></div>
         </td>
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
           <div className="h-4 bg-gray-200 rounded w-16"></div>
         </td>
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
           <div className="h-4 bg-gray-200 rounded w-8"></div>
         </td>
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
-        <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
+        <td className={`px-4 py-4 whitespace-nowrap text-left ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
+          <div className="flex justify-start space-x-2">
+            <div className="h-6 bg-gray-200 rounded w-12"></div>
+            <div className="h-6 bg-gray-200 rounded w-16"></div>
+          </div>
         </td>
       </tr>
     ));
@@ -128,25 +163,34 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
           <table className="min-w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-gray-50">
               <tr>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
+                <th
+                  className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
+                  onClick={() => handleSort('id')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>ID</span>
+                    {getSortIcon('id')}
+                  </div>
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
                   Content
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
                   Author
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
                   Task
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
                   Project
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
                   Likes
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
                   Created
                 </th>
-                <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
                   Actions
                 </th>
               </tr>
@@ -166,47 +210,56 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
         <table className="min-w-full divide-y divide-gray-200 table-fixed">
           <thead className="bg-gray-50">
             <tr>
-              <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
+              <th
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
+                onClick={() => handleSort('id')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>ID</span>
+                  {getSortIcon('id')}
+                </div>
+              </th>
+              <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
                 Content
               </th>
               <th
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}
-                onClick={() => handleSort('author')}
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}
+                onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
                   <span>Author</span>
-                  {getSortIcon('author')}
+                  {getSortIcon('createdAt')}
                 </div>
               </th>
               <th
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.TASK.width}`}
-                onClick={() => handleSort('task')}
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.TASK.width}`}
+                onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
                   <span>Task</span>
-                  {getSortIcon('task')}
+                  {getSortIcon('createdAt')}
                 </div>
               </th>
               <th
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}
-                onClick={() => handleSort('project')}
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}
+                onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
                   <span>Project</span>
-                  {getSortIcon('project')}
+                  {getSortIcon('createdAt')}
                 </div>
               </th>
               <th
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}
-                onClick={() => handleSort('likesCount')}
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}
+                onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
                   <span>Likes</span>
-                  {getSortIcon('likesCount')}
+                  {getSortIcon('createdAt')}
                 </div>
               </th>
               <th
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -214,7 +267,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
+              <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
                 Actions
               </th>
             </tr>
@@ -222,7 +275,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {comments.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -239,11 +292,16 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
 
                 return (
                   <tr key={comment.id} className="hover:bg-gray-50 transition-colors duration-200">
+                    {/* ID */}
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.ID.width}`}>
+                      {comment.id}
+                    </td>
+
                     {/* Content */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
+                    <td className={`px-4 py-4 text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
                       <div className="space-y-1">
                         {contentLines.map((line, index) => (
-                          <p key={index} className="text-sm text-gray-900 leading-relaxed">
+                          <p key={index} className="leading-relaxed">
                             {line}
                           </p>
                         ))}
@@ -251,9 +309,9 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                     </td>
 
                     {/* Author */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
                       <div className="flex flex-col">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="font-medium">
                           {comment.author.firstName} {comment.author.lastName}
                         </p>
                         <p className="text-xs text-gray-500">{comment.author.role}</p>
@@ -261,58 +319,52 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
                     </td>
 
                     {/* Task */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
-                      <p className="text-sm text-gray-900 truncate" title={comment.task.title}>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
+                      <p className="truncate" title={comment.task.title}>
                         {comment.task.title}
                       </p>
                     </td>
 
                     {/* Project */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
-                      <p className="text-sm text-gray-900 truncate" title={comment.task.project.name}>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
+                      <p className="truncate" title={comment.task.project.name}>
                         {comment.task.project.name}
                       </p>
                     </td>
 
                     {/* Likes */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
                       <div className="flex items-center space-x-1">
                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        <span className={`text-sm font-medium ${COMMENT_PRIORITY_COLORS[priority]}`}>
+                        <span className={`font-medium ${COMMENT_PRIORITY_COLORS[priority]}`}>
                           {comment.likesCount}
                         </span>
                       </div>
                     </td>
 
                     {/* Created */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
-                      <p className="text-sm text-gray-900">
-                        {formatDate(comment.createdAt)}
-                      </p>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
+                      {formatDate(comment.createdAt)}
                     </td>
 
                     {/* Actions */}
-                    <td className={`px-6 py-4 ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
-                      <div className="flex items-center space-x-2">
+                    <td className={`px-4 py-4 whitespace-nowrap text-left ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
+                      <div className="flex justify-start space-x-2">
                         <button
                           onClick={() => onEdit(comment)}
-                          className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                           title="Edit comment"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
+                          Edit
                         </button>
                         <button
                           onClick={() => onDelete(comment)}
-                          className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                           title="Delete comment"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          Delete
                         </button>
                       </div>
                     </td>
@@ -327,6 +379,7 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
       {/* Pagination */}
       {paginationInfo.totalCount > 0 && (
         <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          {/* Mobile pagination */}
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
@@ -343,65 +396,109 @@ const CommentsTable: React.FC<CommentsTableProps> = ({
               Next
             </button>
           </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing{' '}
-                <span className="font-medium">
-                  {((paginationInfo.currentPage - 1) * 10) + 1}
-                </span>{' '}
-                to{' '}
-                <span className="font-medium">
-                  {Math.min(paginationInfo.currentPage * 10, paginationInfo.totalCount)}
-                </span>{' '}
-                of{' '}
-                <span className="font-medium">{paginationInfo.totalCount}</span>{' '}
-                results
-              </p>
-            </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button
-                  onClick={() => onPageChange(paginationInfo.currentPage - 1)}
-                  disabled={!paginationInfo.hasPreviousPage}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="sr-only">Previous</span>
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </button>
 
-                {/* Page numbers */}
+          {/* Desktop pagination */}
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            {/* Compact page info */}
+            <div className="flex items-center space-x-4">
+              <p className="text-sm text-gray-600">
+                Showing <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * 10 + 1}</span> to <span className="font-medium">{Math.min(paginationInfo.currentPage * 10, paginationInfo.totalCount)}</span> of <span className="font-medium">{paginationInfo.totalCount}</span>
+              </p>
+
+              {/* Compact page size selector */}
+              <div className="flex items-center space-x-1">
+                <span className="text-sm text-gray-600">Show</span>
+                <select
+                  id="page-size"
+                  value={10}
+                  onChange={(e) => onPageSizeChange(parseInt(e.target.value))}
+                  disabled={loading}
+                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                >
+                  {PAGE_SIZE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Navigation buttons */}
+            <div className="flex items-center space-x-1">
+              {/* First page button */}
+              <button
+                onClick={() => onPageChange(1)}
+                disabled={paginationInfo.currentPage === 1 || loading}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                title="Go to first page"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+                <span className="hidden sm:inline">First</span>
+              </button>
+
+              {/* Previous button */}
+              <button
+                onClick={() => onPageChange(paginationInfo.currentPage - 1)}
+                disabled={!paginationInfo.hasPreviousPage || loading}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                title="Go to previous page"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+
+              {/* Page numbers */}
+              <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, paginationInfo.totalPages) }, (_, i) => {
-                  const pageNumber = i + 1;
-                  const isCurrentPage = pageNumber === paginationInfo.currentPage;
+                  const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 4, paginationInfo.currentPage - 2)) + i;
+                  if (pageNum > paginationInfo.totalPages) return null;
 
                   return (
                     <button
-                      key={pageNumber}
-                      onClick={() => onPageChange(pageNumber)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${isCurrentPage
-                          ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                        }`}
+                      key={pageNum}
+                      onClick={() => onPageChange(pageNum)}
+                      disabled={loading}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNum === paginationInfo.currentPage
+                        ? 'bg-purple-600 text-white shadow-md'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:border-purple-300'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      {pageNumber}
+                      {pageNum}
                     </button>
                   );
                 })}
+              </div>
 
-                <button
-                  onClick={() => onPageChange(paginationInfo.currentPage + 1)}
-                  disabled={!paginationInfo.hasNextPage}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="sr-only">Next</span>
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </nav>
+              {/* Next button */}
+              <button
+                onClick={() => onPageChange(paginationInfo.currentPage + 1)}
+                disabled={!paginationInfo.hasNextPage || loading}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                title="Go to next page"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Last page button */}
+              <button
+                onClick={() => onPageChange(paginationInfo.totalPages)}
+                disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
+                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                title="Go to last page"
+              >
+                <span className="hidden sm:inline">Last</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>

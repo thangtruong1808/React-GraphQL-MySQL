@@ -19,7 +19,7 @@ const DashboardUserCreatePage = React.lazy(() => import('../../pages/dashboard/U
 const DashboardProjectsPage = React.lazy(() => import('../../pages/dashboard/ProjectsPage'));
 const DashboardTasksPage = React.lazy(() => import('../../pages/dashboard/TasksPage'));
 const DashboardCommentsPage = React.lazy(() => import('../../pages/dashboard/CommentsPage'));
-const DashboardActivityPage = React.lazy(() => import('../../pages/dashboard/ActivityPage'));
+const DashboardActivitiesPage = React.lazy(() => import('../../pages/dashboard/ActivitiesPage'));
 const DashboardNotificationsPage = React.lazy(() => import('../../pages/dashboard/NotificationsPage'));
 const DashboardTagsPage = React.lazy(() => import('../../pages/dashboard/TagsPage'));
 
@@ -134,7 +134,7 @@ const AppRoutes: React.FC = () => {
         path={ROUTE_PATHS.DASHBOARD_ACTIVITY}
         element={
           <ProtectedRoute>
-            <DashboardActivityPage />
+            <DashboardActivitiesPage />
           </ProtectedRoute>
         }
       />

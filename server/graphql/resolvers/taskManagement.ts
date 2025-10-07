@@ -79,7 +79,6 @@ export const getDashboardTasks = async (
       paginationInfo
     };
   } catch (error) {
-    console.error('Error fetching dashboard tasks:', error);
     throw new Error('Failed to fetch tasks');
   }
 };

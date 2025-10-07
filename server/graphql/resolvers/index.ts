@@ -8,7 +8,10 @@ import { userManagementResolvers } from './userManagement';
 import { projectManagementResolvers } from './projectManagement';
 import { taskManagementResolvers } from './taskManagement';
 import { commentManagementResolvers } from './commentManagement';
-import { Task, User, Project, Comment } from '../../db';
+import { activityManagementResolvers } from './activityManagement';
+import { notificationManagementResolvers } from './notificationManagement';
+import { tagsManagementResolvers } from './tagsManagement';
+import { Task, User, Project, Comment, ActivityLog, Notification, Tag } from '../../db';
 
 /**
  * GraphQL Resolvers Index
@@ -37,6 +40,9 @@ export const resolvers = {
     ...projectManagementResolvers.Query,
     ...taskManagementResolvers.Query,
     ...commentManagementResolvers.Query,
+    ...activityManagementResolvers.Query,
+    ...notificationManagementResolvers.Query,
+    ...tagsManagementResolvers.Query,
     searchMembers,
     searchProjects,
     searchTasks,
@@ -48,6 +54,9 @@ export const resolvers = {
     ...projectManagementResolvers.Mutation,
     ...taskManagementResolvers.Mutation,
     ...commentManagementResolvers.Mutation,
+    ...activityManagementResolvers.Mutation,
+    ...notificationManagementResolvers.Mutation,
+    ...tagsManagementResolvers.Mutation,
   },
   // Type resolvers for nested relationships
   User: {
@@ -218,18 +227,44 @@ export const resolvers = {
     // Resolver for project field on Task type
     project: async (parent: any) => {
       try {
-        return await Project.findByPk(parent.project_id, {
+        // If project is already included (from Sequelize include), return it directly
+        if (parent.project) {
+          return parent.project;
+        }
+        
+        // Otherwise, fetch the project using the foreign key
+        const projectId = parent.project_id || parent.projectId;
+        if (!projectId) {
+          throw new Error('Project ID not found for task');
+        }
+        
+        const project = await Project.findByPk(projectId, {
           attributes: ['id', 'uuid', 'name', 'description', 'status', 'ownerId', 'isDeleted', 'version', 'createdAt', 'updatedAt']
         });
+        
+        if (!project) {
+          throw new Error(`Project with ID ${projectId} not found`);
+        }
+        
+        return project;
       } catch (error) {
-        return null;
+        // Throw error to prevent null return for non-nullable field
+        throw new Error(`Failed to fetch task project: ${error.message}`);
       }
     },
     
     // Resolver for assignedUser field on Task type
     assignedUser: async (parent: any) => {
       try {
+        // If assignedUser is already included (from Sequelize include), return it directly
+        if (parent.assignedUser) {
+          return parent.assignedUser;
+        }
+        
+        // If no assigned user, return null (this field is nullable)
         if (!parent.assigned_to) return null;
+        
+        // Otherwise, fetch the user using the foreign key
         return await User.findByPk(parent.assigned_to, {
           attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
         });
@@ -269,8 +304,7 @@ export const resolvers = {
         
         return user;
       } catch (error) {
-        // Log the error for debugging but throw it to prevent null return
-        console.error('Error fetching comment author:', error);
+        // Throw error to prevent null return for non-nullable field
         throw new Error(`Failed to fetch comment author: ${error.message}`);
       }
     },
@@ -301,10 +335,166 @@ export const resolvers = {
         
         return task;
       } catch (error) {
-        // Log the error for debugging but throw it to prevent null return
-        console.error('Error fetching comment task:', error);
+        // Throw error to prevent null return for non-nullable field
         throw new Error(`Failed to fetch comment task: ${error.message}`);
       }
     }
+  },
+  // Activity type resolvers
+  Activity: {
+    // Convert numeric ID to string for GraphQL
+    id: (parent: any) => parent.id ? parent.id.toString() : null,
+    
+    // Map database date fields to GraphQL camelCase fields
+    createdAt: (parent: any) => parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
+    updatedAt: (parent: any) => parent.updatedAt ? new Date(parent.updatedAt).toISOString() : null,
+    
+    // Resolver for user field on Activity type
+    user: async (parent: any) => {
+      try {
+        // If user is already included (from Sequelize include), return it directly
+        if (parent.user) {
+          return parent.user;
+        }
+        
+        const userId = parent.user_id || parent.userId;
+        if (!userId) {
+          throw new Error('User ID not found for activity');
+        }
+        
+        const user = await User.findByPk(userId, {
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        if (!user) {
+          throw new Error(`User with ID ${userId} not found`);
+        }
+        
+        return user;
+      } catch (error) {
+        throw new Error(`Failed to fetch activity user: ${error.message}`);
+      }
+    },
+    
+    // Resolver for targetUser field on Activity type
+    targetUser: async (parent: any) => {
+      try {
+        // If targetUser is already included (from Sequelize include), return it directly
+        if (parent.targetUser) {
+          return parent.targetUser;
+        }
+        
+        const targetUserId = parent.target_user_id || parent.targetUserId;
+        if (!targetUserId) {
+          return null;
+        }
+        
+        const user = await User.findByPk(targetUserId, {
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        return user;
+      } catch (error) {
+        return null;
+      }
+    },
+    
+    // Resolver for project field on Activity type
+    project: async (parent: any) => {
+      try {
+        // If project is already included (from Sequelize include), return it directly
+        if (parent.project) {
+          return parent.project;
+        }
+        
+        const projectId = parent.project_id || parent.projectId;
+        if (!projectId) {
+          return null;
+        }
+        
+        const project = await Project.findByPk(projectId, {
+          attributes: ['id', 'uuid', 'name', 'description', 'status', 'ownerId', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        return project;
+      } catch (error) {
+        return null;
+      }
+    },
+    
+    // Resolver for task field on Activity type
+    task: async (parent: any) => {
+      try {
+        // If task is already included (from Sequelize include), return it directly
+        if (parent.task) {
+          return parent.task;
+        }
+        
+        const taskId = parent.task_id || parent.taskId;
+        if (!taskId) {
+          return null;
+        }
+        
+        const task = await Task.findByPk(taskId, {
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate', 'projectId', 'assignedTo', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
+          include: [
+            {
+              model: Project,
+              as: 'project',
+              attributes: ['id', 'uuid', 'name', 'description', 'status', 'ownerId', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+            }
+          ]
+        });
+        
+        return task;
+      } catch (error) {
+        return null;
+      }
+    }
+  },
+  // Notification type resolvers
+  Notification: {
+    // Convert numeric ID to string for GraphQL
+    id: (parent: any) => parent.id ? parent.id.toString() : null,
+    
+    // Map database date fields to GraphQL camelCase fields
+    createdAt: (parent: any) => parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
+    updatedAt: (parent: any) => parent.updatedAt ? new Date(parent.updatedAt).toISOString() : null,
+    
+    // Resolver for user field on Notification type
+    user: async (parent: any) => {
+      try {
+        // If user is already included (from Sequelize include), return it directly
+        if (parent.user) {
+          return parent.user;
+        }
+        
+        const userId = parent.user_id || parent.userId;
+        if (!userId) {
+          throw new Error('User ID not found for notification');
+        }
+        
+        const user = await User.findByPk(userId, {
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        if (!user) {
+          throw new Error(`User with ID ${userId} not found`);
+        }
+        
+        return user;
+      } catch (error) {
+        throw new Error(`Failed to fetch notification user: ${error.message}`);
+      }
+    }
+  },
+  // Tag type resolvers
+  Tag: {
+    // Convert numeric ID to string for GraphQL
+    id: (parent: any) => parent.id ? parent.id.toString() : null,
+    
+    // Map database date fields to GraphQL camelCase fields
+    createdAt: (parent: any) => parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
+    updatedAt: (parent: any) => parent.updatedAt ? new Date(parent.updatedAt).toISOString() : null,
   }
 };
