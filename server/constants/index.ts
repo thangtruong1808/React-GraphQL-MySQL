@@ -107,23 +107,7 @@ export const SERVER_CONFIG = {
   GRAPHQL_TIMEOUT: 15000, // 15 seconds for GraphQL operations
 } as const;
 
-/**
- * Database Configuration Constants
- * Defines database-related settings
- */
-export const DB_CONFIG = {
-  // Connection settings
-  HOST: process.env.DB_HOST || 'localhost',
-  PORT: parseInt(process.env.DB_PORT || '3306'),
-  NAME: process.env.DB_NAME || 'graphql_app',
-  USER: process.env.DB_USER || 'root',
-  
-  // Connection pool
-  POOL_MAX: 15,
-  POOL_MIN: 0,
-  POOL_ACQUIRE: 30000,
-  POOL_IDLE: 10000,
-} as const;
+// Database configuration is handled in server/db/db.ts
 
 /**
  * Validation Configuration Constants

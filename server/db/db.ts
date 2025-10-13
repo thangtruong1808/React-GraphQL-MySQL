@@ -40,39 +40,10 @@ const sequelize = new Sequelize({
   username: DB_USER,
   password: DB_PASSWORD,
   
-  // Enhanced connection pool settings for stability
+  // Basic pool settings
   pool: {
-    max: 15, // Increased max connections
-    min: 2, // Keep minimum connections alive
-    acquire: 60000, // Increased acquire timeout to 60s
-    idle: 20000, // Increased idle timeout to 20s
-    evict: 30000, // Evict connections after 30s
-  },
-  
-  // Connection retry settings
-  retry: {
-    match: [
-      /ETIMEDOUT/,
-      /EHOSTUNREACH/,
-      /ECONNRESET/,
-      /ECONNREFUSED/,
-      /ENOTFOUND/,
-      /SequelizeConnectionError/,
-      /SequelizeConnectionRefusedError/,
-      /SequelizeHostNotFoundError/,
-      /SequelizeHostNotReachableError/,
-      /SequelizeInvalidConnectionError/,
-      /SequelizeConnectionTimedOutError/,
-    ],
-    max: 3,
-  },
-  
-  // Connection options for MySQL stability
-  dialectOptions: {
-    acquireTimeout: 60000,
-    timeout: 60000,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
+    max: 15,
+    min: 2,
   },
   
   // Query options
@@ -83,23 +54,13 @@ const sequelize = new Sequelize({
   
   // Logging configuration - disabled for cleaner output
   logging: false,
-  
-  // Timezone configuration
-  timezone: '+00:00',
 });
-
-// Log database connection status
-const logMessage = (msg: string) => {
-  console.log(msg);
-};
 
 // Test database connection
 export const testConnection = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
-    logMessage('✅ Database connection established successfully.');
   } catch (error) {
-    logMessage(`❌ Database connection failed: ${error}`);
     throw error;
   }
 };

@@ -116,7 +116,6 @@ async function startServer() {
       await testConnection();
       // Setup model associations
       setupAssociations();
-      console.log('✅ Database models and associations initialized');
     } catch (dbError) {
       console.warn('⚠️  Database connection failed, server will start with mock data:', dbError);
     }
@@ -138,19 +137,16 @@ async function startServer() {
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
     app.listen(PORT, () => {
-      console.log(`✅ Server started successfully on ${SERVER_HOST}:${PORT}`);
-      console.log(`✅ GraphQL endpoint: http://${SERVER_HOST}:${PORT}/graphql`);
+      // Server started successfully
     });
 
     // Graceful shutdown handling
     process.on('SIGTERM', async () => {
-      console.log('🔄 Received SIGTERM, shutting down gracefully...');
       await server.stop();
       process.exit(0);
     });
 
     process.on('SIGINT', async () => {
-      console.log('🔄 Received SIGINT, shutting down gracefully...');
       await server.stop();
       process.exit(0);
     });
