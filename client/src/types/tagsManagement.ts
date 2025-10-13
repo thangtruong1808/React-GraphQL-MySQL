@@ -53,6 +53,7 @@ export interface TagsTableProps {
   tags: Tag[];
   loading: boolean;
   paginationInfo: PaginationInfo;
+  pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onSort: (sortBy: string, sortOrder: string) => void;

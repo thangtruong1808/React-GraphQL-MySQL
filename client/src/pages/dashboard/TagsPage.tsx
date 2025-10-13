@@ -242,6 +242,7 @@ const TagsPage: React.FC = () => {
                 tags={state.tags}
                 loading={state.loading}
                 paginationInfo={state.paginationInfo}
+                pageSize={state.pageSize}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 onSort={handleSort}

@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import { User, Project, Task, ActivityLog, Comment, TaskLike, sequelize } from '../../db';
 import { ProjectLike, CommentLike } from '../../db';
 
@@ -46,581 +46,297 @@ export interface PublicStats {
 }
 
 /**
- * Calculate public statistics from database using Sequelize models
- * Uses actual data from projects, tasks, users, and activity_logs tables
+ * Retry function with exponential backoff for database operations
+ */
+const retryWithBackoff = async <T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> => {
+  let lastError: Error;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      
+      // Check if error is connection-related
+      const isConnectionError = /ECONNRESET|ETIMEDOUT|EHOSTUNREACH|SequelizeConnectionError/i.test(lastError.message);
+      
+      if (!isConnectionError || attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      // Exponential backoff delay
+      const delay = baseDelay * Math.pow(2, attempt);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+};
+
+/**
+ * Optimized public statistics calculation using fewer, more efficient queries
+ * Reduces database connection usage and implements retry logic
  */
 export const calculatePublicStats = async (): Promise<PublicStats> => {
+  const transaction = await sequelize.transaction();
+  
   try {
-    // Get total projects count (excluding deleted)
-    const totalProjects = await Project.count({
-      where: { isDeleted: false }
-    });
+    return await retryWithBackoff(async () => {
+      // Use single comprehensive query for all basic counts
+      const basicStatsQuery = `
+        SELECT 
+          -- Project counts by status
+          SUM(CASE WHEN p.is_deleted = false THEN 1 ELSE 0 END) as totalProjects,
+          SUM(CASE WHEN p.status = 'IN_PROGRESS' AND p.is_deleted = false THEN 1 ELSE 0 END) as activeProjects,
+          SUM(CASE WHEN p.status = 'COMPLETED' AND p.is_deleted = false THEN 1 ELSE 0 END) as completedProjects,
+          
+          -- Task counts by status
+          (SELECT COUNT(*) FROM tasks WHERE is_deleted = false) as totalTasks,
+          (SELECT COUNT(*) FROM tasks WHERE status = 'DONE' AND is_deleted = false) as completedTasks,
+          (SELECT COUNT(*) FROM tasks WHERE status = 'IN_PROGRESS' AND is_deleted = false) as inProgressTasks,
+          (SELECT COUNT(*) FROM tasks WHERE status = 'TODO' AND is_deleted = false) as todoTasks,
+          
+          -- Comment counts
+          (SELECT COUNT(*) FROM comments WHERE is_deleted = false) as totalComments,
+          
+          -- User count
+          (SELECT COUNT(*) FROM users WHERE is_deleted = false) as totalUsers
+        FROM projects p
+      `;
 
-    // Get active projects count (IN_PROGRESS status)
-    const activeProjects = await Project.count({
-      where: { 
-        status: 'IN_PROGRESS',
-        isDeleted: false 
-      }
-    });
+      const [basicStats] = await sequelize.query(basicStatsQuery, { 
+        transaction, 
+        type: sequelize.QueryTypes.SELECT 
+      }) as any[];
 
-    // Get completed projects count (COMPLETED status)
-    const completedProjects = await Project.count({
-      where: { 
-        status: 'COMPLETED',
-        isDeleted: false 
-      }
-    });
-
-    // Get total tasks count (excluding deleted)
-    const totalTasks = await Task.count({
-      where: { isDeleted: false }
-    });
-
-    // Get completed tasks count (DONE status)
-    const completedTasks = await Task.count({
-      where: { 
-        status: 'DONE',
-        isDeleted: false 
-      }
-    });
-
-    // Get in progress tasks count (IN_PROGRESS status)
-    const inProgressTasks = await Task.count({
-      where: { 
-        status: 'IN_PROGRESS',
-        isDeleted: false 
-      }
-    });
-
-    // Get todo tasks count (TODO status)
-    const todoTasks = await Task.count({
-      where: { 
-        status: 'TODO',
-        isDeleted: false 
-      }
-    });
-
-    // Get total comments count (excluding deleted)
-    const totalComments = await Comment.count({
-      where: { isDeleted: false }
-    });
-
-    // Get comments on completed tasks using raw SQL to avoid association issues
-    const commentsOnCompletedTasksResult = await sequelize.query(`
+      // Get recent activity count (last 7 days) in parallel
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const [recentActivityResult, commentsStatsResult, likesStatsResult] = await Promise.all([
+        // Recent activity query
+        sequelize.query(`
       SELECT COUNT(*) as count
+          FROM activity_logs 
+          WHERE created_at >= ?
+        `, {
+          replacements: [sevenDaysAgo],
+          transaction,
+          type: sequelize.QueryTypes.SELECT
+        }),
+        
+        // Comments by task status in single query
+        sequelize.query(`
+          SELECT 
+            t.status,
+            COUNT(c.id) as count
       FROM comments c
       INNER JOIN tasks t ON c.task_id = t.id
       WHERE c.is_deleted = false 
-        AND t.status = 'DONE' 
         AND t.is_deleted = false
-    `, { type: sequelize.QueryTypes.SELECT });
-    const commentsOnCompletedTasks = parseInt((commentsOnCompletedTasksResult[0] as any).count);
+          GROUP BY t.status
+        `, { transaction, type: sequelize.QueryTypes.SELECT }),
+        
+        // All likes data in single comprehensive query
+        sequelize.query(`
+          SELECT 
+            -- Task likes by status
+            SUM(CASE WHEN t.status = 'DONE' AND t.is_deleted = false THEN 1 ELSE 0 END) as likesOnCompletedTasks,
+            SUM(CASE WHEN t.status = 'IN_PROGRESS' AND t.is_deleted = false THEN 1 ELSE 0 END) as likesOnInProgressTasks,
+            SUM(CASE WHEN t.status = 'TODO' AND t.is_deleted = false THEN 1 ELSE 0 END) as likesOnTodoTasks,
+            
+            -- Project likes by status
+            (SELECT COUNT(*) FROM project_likes pl 
+             INNER JOIN projects p ON pl.project_id = p.id 
+             WHERE p.status = 'COMPLETED' AND p.is_deleted = false) as likesOnCompletedProjects,
+            (SELECT COUNT(*) FROM project_likes pl 
+             INNER JOIN projects p ON pl.project_id = p.id 
+             WHERE p.status = 'IN_PROGRESS' AND p.is_deleted = false) as likesOnActiveProjects,
+            (SELECT COUNT(*) FROM project_likes pl 
+             INNER JOIN projects p ON pl.project_id = p.id 
+             WHERE p.status = 'PLANNING' AND p.is_deleted = false) as likesOnPlanningProjects,
+             
+            -- Comment likes by task status
+            (SELECT COUNT(*) FROM comment_likes cl 
+             INNER JOIN comments c ON cl.comment_id = c.id 
+             INNER JOIN tasks t ON c.task_id = t.id 
+             WHERE c.is_deleted = false AND t.status = 'DONE' AND t.is_deleted = false) as likesOnCommentsOnCompletedTasks,
+            (SELECT COUNT(*) FROM comment_likes cl 
+             INNER JOIN comments c ON cl.comment_id = c.id 
+             INNER JOIN tasks t ON c.task_id = t.id 
+             WHERE c.is_deleted = false AND t.status = 'IN_PROGRESS' AND t.is_deleted = false) as likesOnCommentsOnInProgressTasks,
+            (SELECT COUNT(*) FROM comment_likes cl 
+             INNER JOIN comments c ON cl.comment_id = c.id 
+             INNER JOIN tasks t ON c.task_id = t.id 
+             WHERE c.is_deleted = false AND t.status = 'TODO' AND t.is_deleted = false) as likesOnCommentsOnTodoTasks
+          FROM task_likes tl
+          INNER JOIN tasks t ON tl.task_id = t.id
+        `, { transaction, type: sequelize.QueryTypes.SELECT })
+      ]);
 
-    // Get comments on in progress tasks using raw SQL
-    const commentsOnInProgressTasksResult = await sequelize.query(`
-      SELECT COUNT(*) as count
-      FROM comments c
-      INNER JOIN tasks t ON c.task_id = t.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'IN_PROGRESS' 
-        AND t.is_deleted = false
-    `, { type: sequelize.QueryTypes.SELECT });
-    const commentsOnInProgressTasks = parseInt((commentsOnInProgressTasksResult[0] as any).count);
-
-    // Get comments on todo tasks using raw SQL
-    const commentsOnTodoTasksResult = await sequelize.query(`
-      SELECT COUNT(*) as count
-      FROM comments c
-      INNER JOIN tasks t ON c.task_id = t.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'TODO' 
-        AND t.is_deleted = false
-    `, { type: sequelize.QueryTypes.SELECT });
-    const commentsOnTodoTasks = parseInt((commentsOnTodoTasksResult[0] as any).count);
-
-    // Get total users count (excluding deleted)
-    const totalUsers = await User.count({
-      where: { isDeleted: false }
-    });
-
-    // Get recent activity count (last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
-    const recentActivity = await ActivityLog.count({
-      where: {
-        createdAt: {
-          [Op.gte]: sevenDaysAgo
-        }
-      }
-    });
-
-    // Calculate average project completion rate
-    // Based on completed projects vs total projects
-    const averageProjectCompletion = totalProjects > 0 
-      ? Math.round((completedProjects / totalProjects) * 100) 
-      : 0;
-
-    // Get likes on completed tasks with task information
-    const completedTasksLikes = await TaskLike.findAll({
-      include: [{
-        model: Task,
-        as: 'task',
-        attributes: ['title'],
-        where: { 
-          status: 'DONE',
-          isDeleted: false 
-        },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']] // Order by most recent likes first
-    });
-
-    // Get likes on in progress tasks with task information
-    const inProgressTasksLikes = await TaskLike.findAll({
-      include: [{
-        model: Task,
-        as: 'task',
-        attributes: ['title'],
-        where: { 
-          status: 'IN_PROGRESS',
-          isDeleted: false 
-        },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']] // Order by most recent likes first
-    });
-
-    // Get likes on todo tasks with task information
-    const todoTasksLikes = await TaskLike.findAll({
-      include: [{
-        model: Task,
-        as: 'task',
-        attributes: ['title'],
-        where: { 
-          status: 'TODO',
-          isDeleted: false 
-        },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']] // Order by most recent likes first
-    });
-
-    // Count total likes for each task status from task_likes table using direct count queries
-    // This ensures we're counting actual likes from the database, not reusing task counts
-    const likesOnCompletedTasksCount = await TaskLike.count({
-      include: [{
-        model: Task,
-        as: 'task',
-        where: { 
-          status: 'DONE',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
-
-    const likesOnInProgressTasksCount = await TaskLike.count({
-      include: [{
-        model: Task,
-        as: 'task',
-        where: { 
-          status: 'IN_PROGRESS',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
-
-    const likesOnTodoTasksCount = await TaskLike.count({
-      include: [{
-        model: Task,
-        as: 'task',
-        where: { 
-          status: 'TODO',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
-
-    // Use the direct count results to ensure accuracy
-    const likesOnCompletedTasks = likesOnCompletedTasksCount;
-    const likesOnInProgressTasks = likesOnInProgressTasksCount;
-    const likesOnTodoTasks = likesOnTodoTasksCount;
-
-    // Verification: likes counts are now explicitly calculated from task_likes table
-    // Each count represents actual like records in the database, not task counts
-
-    // Count likes per task name for each task status
-    const tasksWithLikesCompleted = completedTasksLikes.reduce((acc, like) => {
-      const taskName = like.task?.title?.trim();
-      if (taskName) {
-        const existing = acc.find(t => t.taskName === taskName);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ taskName, likeCount: 1 });
-        }
-      }
+      // Process results
+      const recentActivity = parseInt((recentActivityResult[0] as any).count) || 0;
+      const likesStats = (likesStatsResult[0] as any) || {};
+      
+      // Process comments by task status
+      const commentsStats = (commentsStatsResult as any[]).reduce((acc, row) => {
+        acc[`commentsOn${row.status === 'DONE' ? 'Completed' : row.status === 'IN_PROGRESS' ? 'InProgress' : 'Todo'}Tasks`] = parseInt(row.count);
       return acc;
-    }, [] as Array<{ taskName: string; likeCount: number }>);
-
-    const tasksWithLikesInProgress = inProgressTasksLikes.reduce((acc, like) => {
-      const taskName = like.task?.title?.trim();
-      if (taskName) {
-        const existing = acc.find(t => t.taskName === taskName);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ taskName, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ taskName: string; likeCount: number }>);
-
-    const tasksWithLikesTodo = todoTasksLikes.reduce((acc, like) => {
-      const taskName = like.task?.title?.trim();
-      if (taskName) {
-        const existing = acc.find(t => t.taskName === taskName);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ taskName, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ taskName: string; likeCount: number }>);
-
-    // Get project likes data for each project status with like counts per project
-    // Get likes on completed projects with project information and count likes per project
-    const completedProjectsLikes = await ProjectLike.findAll({
-      include: [{
-        model: Project,
-        as: 'project',
-        attributes: ['name'],
-        where: { 
-          status: 'COMPLETED',
-          isDeleted: false 
-        },
-        required: true
       }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']]
-    });
+        commentsOnCompletedTasks: 0,
+        commentsOnInProgressTasks: 0,
+        commentsOnTodoTasks: 0
+      });
 
-    // Get likes on active projects with project information and count likes per project
-    const activeProjectsLikes = await ProjectLike.findAll({
-      include: [{
-        model: Project,
-        as: 'project',
-        attributes: ['name'],
-        where: { 
-          status: 'IN_PROGRESS',
-          isDeleted: false 
-        },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']]
-    });
-
-    // Get likes on planning projects with project information and count likes per project
-    const planningProjectsLikes = await ProjectLike.findAll({
-      include: [{
-        model: Project,
-        as: 'project',
-        attributes: ['name'],
-        where: { 
-          status: 'PLANNING',
-          isDeleted: false 
-        },
-        required: true
-      }, {
-        model: User,
-        as: 'user',
-        where: { isDeleted: false },
-        required: true
-      }],
-      order: [['createdAt', 'DESC']]
-    });
-
-    // Count project likes for each status using direct count queries
-    const likesOnCompletedProjectsCount = await ProjectLike.count({
-      include: [{
-        model: Project,
-        as: 'project',
-        where: { 
-          status: 'COMPLETED',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
-
-    const likesOnActiveProjectsCount = await ProjectLike.count({
-      include: [{
-        model: Project,
-        as: 'project',
-        where: { 
-          status: 'IN_PROGRESS',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
-
-    const likesOnPlanningProjectsCount = await ProjectLike.count({
-      include: [{
-        model: Project,
-        as: 'project',
-        where: { 
-          status: 'PLANNING',
-          isDeleted: false 
-        },
-        required: true
-      }]
-    });
-
-    // Use the direct count results for project likes
-    const likesOnCompletedProjects = likesOnCompletedProjectsCount;
-    const likesOnActiveProjects = likesOnActiveProjectsCount;
-    const likesOnPlanningProjects = likesOnPlanningProjectsCount;
-
-    // Count likes per project name for each project status
-    const projectsWithLikesCompleted = completedProjectsLikes.reduce((acc, like) => {
-      const projectName = like.project?.name?.trim();
-      if (projectName) {
-        const existing = acc.find(p => p.projectName === projectName);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ projectName, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ projectName: string; likeCount: number }>);
-
-    const projectsWithLikesActive = activeProjectsLikes.reduce((acc, like) => {
-      const projectName = like.project?.name?.trim();
-      if (projectName) {
-        const existing = acc.find(p => p.projectName === projectName);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ projectName, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ projectName: string; likeCount: number }>);
-
-    const projectsWithLikesPlanning = planningProjectsLikes.reduce((acc, like) => {
-      const projectName = like.project?.name?.trim();
-      if (projectName) {
-        const existing = acc.find(p => p.projectName === projectName);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ projectName, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ projectName: string; likeCount: number }>);
-
-    // Get comment likes data for each task status using raw SQL to avoid association issues
-    // Get likes on comments of completed tasks
-    const commentsOnCompletedTasksLikesResult = await sequelize.query(`
-      SELECT c.content
+      // Get detailed likes data for tasks, projects, and comments (with names/content)
+      const [taskLikesData, projectLikesData, commentLikesData] = await Promise.all([
+        // Task likes with names
+        sequelize.query(`
+          SELECT 
+            t.title as taskName,
+            t.status,
+            COUNT(tl.id) as likeCount
+          FROM task_likes tl
+          INNER JOIN tasks t ON tl.task_id = t.id
+          INNER JOIN users u ON tl.user_id = u.id
+          WHERE t.is_deleted = false AND u.is_deleted = false
+          GROUP BY t.id, t.title, t.status
+          ORDER BY likeCount DESC
+        `, { transaction, type: sequelize.QueryTypes.SELECT }),
+        
+        // Project likes with names
+        sequelize.query(`
+          SELECT 
+            p.name as projectName,
+            p.status,
+            COUNT(pl.id) as likeCount
+          FROM project_likes pl
+          INNER JOIN projects p ON pl.project_id = p.id
+          INNER JOIN users u ON pl.user_id = u.id
+          WHERE p.is_deleted = false AND u.is_deleted = false
+          GROUP BY p.id, p.name, p.status
+          ORDER BY likeCount DESC
+        `, { transaction, type: sequelize.QueryTypes.SELECT }),
+        
+        // Comment likes with content
+        sequelize.query(`
+          SELECT 
+            c.content as commentContent,
+            t.status as taskStatus,
+            COUNT(cl.id) as likeCount
       FROM comment_likes cl
       INNER JOIN comments c ON cl.comment_id = c.id
       INNER JOIN tasks t ON c.task_id = t.id
       INNER JOIN users u ON cl.user_id = u.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'DONE' 
-        AND t.is_deleted = false
-        AND u.is_deleted = false
-      ORDER BY cl.created_at DESC
-    `, { type: sequelize.QueryTypes.SELECT });
-    const commentsOnCompletedTasksLikes = commentsOnCompletedTasksLikesResult.map((row: any) => ({
-      comment: { content: row.content }
-    }));
+          WHERE c.is_deleted = false AND t.is_deleted = false AND u.is_deleted = false
+          GROUP BY c.id, c.content, t.status
+          ORDER BY likeCount DESC
+        `, { transaction, type: sequelize.QueryTypes.SELECT })
+      ]);
 
-    // Get likes on comments of in progress tasks
-    const commentsOnInProgressTasksLikesResult = await sequelize.query(`
-      SELECT c.content
-      FROM comment_likes cl
-      INNER JOIN comments c ON cl.comment_id = c.id
-      INNER JOIN tasks t ON c.task_id = t.id
-      INNER JOIN users u ON cl.user_id = u.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'IN_PROGRESS' 
-        AND t.is_deleted = false
-        AND u.is_deleted = false
-      ORDER BY cl.created_at DESC
-    `, { type: sequelize.QueryTypes.SELECT });
-    const commentsOnInProgressTasksLikes = commentsOnInProgressTasksLikesResult.map((row: any) => ({
-      comment: { content: row.content }
-    }));
+      // Process task likes by status
+      const tasksWithLikesCompleted = (taskLikesData as any[])
+        .filter(row => row.status === 'DONE')
+        .map(row => ({ taskName: row.taskName?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.taskName);
+      
+      const tasksWithLikesInProgress = (taskLikesData as any[])
+        .filter(row => row.status === 'IN_PROGRESS')
+        .map(row => ({ taskName: row.taskName?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.taskName);
+      
+      const tasksWithLikesTodo = (taskLikesData as any[])
+        .filter(row => row.status === 'TODO')
+        .map(row => ({ taskName: row.taskName?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.taskName);
 
-    // Get likes on comments of todo tasks
-    const commentsOnTodoTasksLikesResult = await sequelize.query(`
-      SELECT c.content
-      FROM comment_likes cl
-      INNER JOIN comments c ON cl.comment_id = c.id
-      INNER JOIN tasks t ON c.task_id = t.id
-      INNER JOIN users u ON cl.user_id = u.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'TODO' 
-        AND t.is_deleted = false
-        AND u.is_deleted = false
-      ORDER BY cl.created_at DESC
-    `, { type: sequelize.QueryTypes.SELECT });
-    const commentsOnTodoTasksLikes = commentsOnTodoTasksLikesResult.map((row: any) => ({
-      comment: { content: row.content }
-    }));
+      // Process project likes by status
+      const projectsWithLikesCompleted = (projectLikesData as any[])
+        .filter(row => row.status === 'COMPLETED')
+        .map(row => ({ projectName: row.projectName?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.projectName);
+      
+      const projectsWithLikesActive = (projectLikesData as any[])
+        .filter(row => row.status === 'IN_PROGRESS')
+        .map(row => ({ projectName: row.projectName?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.projectName);
+      
+      const projectsWithLikesPlanning = (projectLikesData as any[])
+        .filter(row => row.status === 'PLANNING')
+        .map(row => ({ projectName: row.projectName?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.projectName);
 
-    // Count comment likes for each task status using raw SQL to avoid association issues
-    const likesOnCommentsOnCompletedTasksResult = await sequelize.query(`
-      SELECT COUNT(*) as count
-      FROM comment_likes cl
-      INNER JOIN comments c ON cl.comment_id = c.id
-      INNER JOIN tasks t ON c.task_id = t.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'DONE' 
-        AND t.is_deleted = false
-    `, { type: sequelize.QueryTypes.SELECT });
-    const likesOnCommentsOnCompletedTasksCount = parseInt((likesOnCommentsOnCompletedTasksResult[0] as any).count);
+      // Process comment likes by task status
+      const commentsWithLikesOnCompletedTasks = (commentLikesData as any[])
+        .filter(row => row.taskStatus === 'DONE')
+        .map(row => ({ commentContent: row.commentContent?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.commentContent);
+      
+      const commentsWithLikesOnInProgressTasks = (commentLikesData as any[])
+        .filter(row => row.taskStatus === 'IN_PROGRESS')
+        .map(row => ({ commentContent: row.commentContent?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.commentContent);
+      
+      const commentsWithLikesOnTodoTasks = (commentLikesData as any[])
+        .filter(row => row.taskStatus === 'TODO')
+        .map(row => ({ commentContent: row.commentContent?.trim() || '', likeCount: parseInt(row.likeCount) }))
+        .filter(item => item.commentContent);
 
-    const likesOnCommentsOnInProgressTasksResult = await sequelize.query(`
-      SELECT COUNT(*) as count
-      FROM comment_likes cl
-      INNER JOIN comments c ON cl.comment_id = c.id
-      INNER JOIN tasks t ON c.task_id = t.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'IN_PROGRESS' 
-        AND t.is_deleted = false
-    `, { type: sequelize.QueryTypes.SELECT });
-    const likesOnCommentsOnInProgressTasksCount = parseInt((likesOnCommentsOnInProgressTasksResult[0] as any).count);
+      // Calculate average project completion rate
+      const averageProjectCompletion = basicStats.totalProjects > 0 
+        ? Math.round((basicStats.completedProjects / basicStats.totalProjects) * 100) 
+        : 0;
 
-    const likesOnCommentsOnTodoTasksResult = await sequelize.query(`
-      SELECT COUNT(*) as count
-      FROM comment_likes cl
-      INNER JOIN comments c ON cl.comment_id = c.id
-      INNER JOIN tasks t ON c.task_id = t.id
-      WHERE c.is_deleted = false 
-        AND t.status = 'TODO' 
-        AND t.is_deleted = false
-    `, { type: sequelize.QueryTypes.SELECT });
-    const likesOnCommentsOnTodoTasksCount = parseInt((likesOnCommentsOnTodoTasksResult[0] as any).count);
-
-    // Use the direct count results for comment likes
-    const likesOnCommentsOnCompletedTasks = likesOnCommentsOnCompletedTasksCount;
-    const likesOnCommentsOnInProgressTasks = likesOnCommentsOnInProgressTasksCount;
-    const likesOnCommentsOnTodoTasks = likesOnCommentsOnTodoTasksCount;
-
-    // Count likes per comment content for each task status
-    const commentsWithLikesOnCompletedTasks = commentsOnCompletedTasksLikes.reduce((acc, like) => {
-      const commentContent = like.comment?.content?.trim();
-      if (commentContent) {
-        const existing = acc.find(c => c.commentContent === commentContent);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ commentContent, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ commentContent: string; likeCount: number }>);
-
-    const commentsWithLikesOnInProgressTasks = commentsOnInProgressTasksLikes.reduce((acc, like) => {
-      const commentContent = like.comment?.content?.trim();
-      if (commentContent) {
-        const existing = acc.find(c => c.commentContent === commentContent);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ commentContent, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ commentContent: string; likeCount: number }>);
-
-    const commentsWithLikesOnTodoTasks = commentsOnTodoTasksLikes.reduce((acc, like) => {
-      const commentContent = like.comment?.content?.trim();
-      if (commentContent) {
-        const existing = acc.find(c => c.commentContent === commentContent);
-        if (existing) {
-          existing.likeCount += 1;
-        } else {
-          acc.push({ commentContent, likeCount: 1 });
-        }
-      }
-      return acc;
-    }, [] as Array<{ commentContent: string; likeCount: number }>);
+      await transaction.commit();
 
     return {
-      totalProjects,
-      activeProjects,
-      completedProjects,
-      totalTasks,
-      completedTasks,
-      inProgressTasks,
-      todoTasks,
-      totalComments,
-      commentsOnCompletedTasks,
-      commentsOnInProgressTasks,
-      commentsOnTodoTasks,
-      totalUsers,
+        // Basic stats
+        totalProjects: parseInt(basicStats.totalProjects) || 0,
+        activeProjects: parseInt(basicStats.activeProjects) || 0,
+        completedProjects: parseInt(basicStats.completedProjects) || 0,
+        totalTasks: parseInt(basicStats.totalTasks) || 0,
+        completedTasks: parseInt(basicStats.completedTasks) || 0,
+        inProgressTasks: parseInt(basicStats.inProgressTasks) || 0,
+        todoTasks: parseInt(basicStats.todoTasks) || 0,
+        totalComments: parseInt(basicStats.totalComments) || 0,
+        totalUsers: parseInt(basicStats.totalUsers) || 0,
       recentActivity,
       averageProjectCompletion,
-      likesOnCompletedTasks,
-      likesOnInProgressTasks,
-      likesOnTodoTasks,
+        
+        // Comments by task status
+        ...commentsStats,
+        
+        // Likes counts
+        likesOnCompletedTasks: parseInt(likesStats.likesOnCompletedTasks) || 0,
+        likesOnInProgressTasks: parseInt(likesStats.likesOnInProgressTasks) || 0,
+        likesOnTodoTasks: parseInt(likesStats.likesOnTodoTasks) || 0,
+        likesOnCompletedProjects: parseInt(likesStats.likesOnCompletedProjects) || 0,
+        likesOnActiveProjects: parseInt(likesStats.likesOnActiveProjects) || 0,
+        likesOnPlanningProjects: parseInt(likesStats.likesOnPlanningProjects) || 0,
+        likesOnCommentsOnCompletedTasks: parseInt(likesStats.likesOnCommentsOnCompletedTasks) || 0,
+        likesOnCommentsOnInProgressTasks: parseInt(likesStats.likesOnCommentsOnInProgressTasks) || 0,
+        likesOnCommentsOnTodoTasks: parseInt(likesStats.likesOnCommentsOnTodoTasks) || 0,
+        
+        // Detailed likes data
       tasksWithLikesCompleted,
       tasksWithLikesInProgress,
       tasksWithLikesTodo,
-      // Project likes data by status
-      likesOnCompletedProjects,
-      likesOnActiveProjects,
-      likesOnPlanningProjects,
       projectsWithLikesCompleted,
       projectsWithLikesActive,
       projectsWithLikesPlanning,
-      // Comment likes data by task status
-      likesOnCommentsOnCompletedTasks,
-      likesOnCommentsOnInProgressTasks,
-      likesOnCommentsOnTodoTasks,
       commentsWithLikesOnCompletedTasks,
       commentsWithLikesOnInProgressTasks,
       commentsWithLikesOnTodoTasks,
     };
+    });
   } catch (error) {
-    console.error('❌ Error calculating public stats:', error);
-    // Return empty data structure if database query fails
+    await transaction.rollback();
+    
+    // Return empty stats on error to prevent crashes
     return {
       totalProjects: 0,
       activeProjects: 0,
@@ -642,14 +358,12 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       tasksWithLikesCompleted: [],
       tasksWithLikesInProgress: [],
       tasksWithLikesTodo: [],
-      // Project likes data by status
       likesOnCompletedProjects: 0,
       likesOnActiveProjects: 0,
       likesOnPlanningProjects: 0,
       projectsWithLikesCompleted: [],
       projectsWithLikesActive: [],
       projectsWithLikesPlanning: [],
-      // Comment likes data by task status
       likesOnCommentsOnCompletedTasks: 0,
       likesOnCommentsOnInProgressTasks: 0,
       likesOnCommentsOnTodoTasks: 0,

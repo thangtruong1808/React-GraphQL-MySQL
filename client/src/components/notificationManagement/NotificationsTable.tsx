@@ -16,6 +16,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
   notifications,
   loading,
   paginationInfo,
+  pageSize,
   onPageChange,
   onPageSizeChange,
   onSort,
@@ -389,6 +390,18 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
 
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center space-x-4">
+            {/* Results info - moved to appear first */}
+            <div className="text-sm text-gray-700">
+              {paginationInfo.totalCount > 0 ? (
+                <>
+                  Showing {((paginationInfo.currentPage - 1) * pageSize) + 1} to{' '}
+                  {Math.min(paginationInfo.currentPage * pageSize, paginationInfo.totalCount)} of {paginationInfo.totalCount}
+                </>
+              ) : (
+                'Showing 0 to 0 of 0'
+              )}
+            </div>
+
             {/* Show entries dropdown */}
             <div className="flex items-center space-x-2">
               <label htmlFor="page-size" className="text-sm text-gray-700">
@@ -396,7 +409,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
               </label>
               <select
                 id="page-size"
-                value={paginationInfo.totalCount > 0 ? Math.ceil(paginationInfo.totalCount / paginationInfo.totalPages) : 10}
+                value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 className="block w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 disabled={loading}
@@ -408,13 +421,6 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                 ))}
               </select>
               <span className="text-sm text-gray-700">entries</span>
-            </div>
-
-            {/* Results info */}
-            <div className="text-sm text-gray-700">
-              Showing {((paginationInfo.currentPage - 1) * Math.ceil(paginationInfo.totalCount / paginationInfo.totalPages)) + 1} to{' '}
-              {Math.min(paginationInfo.currentPage * Math.ceil(paginationInfo.totalCount / paginationInfo.totalPages), paginationInfo.totalCount)} of{' '}
-              {paginationInfo.totalCount} results
             </div>
           </div>
 

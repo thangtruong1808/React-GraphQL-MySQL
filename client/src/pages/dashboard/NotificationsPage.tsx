@@ -281,6 +281,7 @@ const NotificationsPage: React.FC = () => {
                 notifications={state.notifications}
                 loading={state.loading}
                 paginationInfo={state.paginationInfo}
+                pageSize={state.pageSize}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 onSort={handleSort}

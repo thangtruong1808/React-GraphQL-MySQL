@@ -55,6 +55,7 @@ export interface NotificationsTableProps {
   notifications: Notification[];
   loading: boolean;
   paginationInfo: PaginationInfo;
+  pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onSort: (sortBy: string, sortOrder: string) => void;

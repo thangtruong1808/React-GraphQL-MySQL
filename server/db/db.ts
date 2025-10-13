@@ -40,12 +40,45 @@ const sequelize = new Sequelize({
   username: DB_USER,
   password: DB_PASSWORD,
   
-  // Connection pool settings - optimized for hosting limits
+  // Enhanced connection pool settings for stability
   pool: {
-    max: 10, // Reduced from 15 to 10 to stay within hosting limits
-    min: 0, // Minimum number of connection instances
-    acquire: 30000, // Maximum time to acquire connection
-    idle: 10000, // Maximum time connection can be idle
+    max: 15, // Increased max connections
+    min: 2, // Keep minimum connections alive
+    acquire: 60000, // Increased acquire timeout to 60s
+    idle: 20000, // Increased idle timeout to 20s
+    evict: 30000, // Evict connections after 30s
+  },
+  
+  // Connection retry settings
+  retry: {
+    match: [
+      /ETIMEDOUT/,
+      /EHOSTUNREACH/,
+      /ECONNRESET/,
+      /ECONNREFUSED/,
+      /ENOTFOUND/,
+      /SequelizeConnectionError/,
+      /SequelizeConnectionRefusedError/,
+      /SequelizeHostNotFoundError/,
+      /SequelizeHostNotReachableError/,
+      /SequelizeInvalidConnectionError/,
+      /SequelizeConnectionTimedOutError/,
+    ],
+    max: 3,
+  },
+  
+  // Connection options for MySQL stability
+  dialectOptions: {
+    acquireTimeout: 60000,
+    timeout: 60000,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+  },
+  
+  // Query options
+  define: {
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci',
   },
   
   // Logging configuration - disabled for cleaner output
