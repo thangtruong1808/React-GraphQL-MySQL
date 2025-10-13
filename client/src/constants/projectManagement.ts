@@ -26,20 +26,21 @@ export const PROJECT_STATUS_OPTIONS = [
 
 // Success messages for project operations
 export const PROJECT_SUCCESS_MESSAGES = {
-  CREATE: 'Project created successfully!',
-  UPDATE: 'Project updated successfully!',
-  DELETE: 'Project deleted successfully!'
-};
+  CREATE: 'Project created successfully',
+  UPDATE: 'Project updated successfully',
+  DELETE: 'Project deleted successfully'
+} as const;
 
 // Error messages for project operations
 export const PROJECT_ERROR_MESSAGES = {
-  CREATE: 'Failed to create project. Please try again.',
-  UPDATE: 'Failed to update project. Please try again.',
-  DELETE: 'Failed to delete project. Please try again.',
-  FETCH: 'Failed to fetch projects. Please try again.',
+  FETCH: 'Failed to fetch projects',
+  CREATE: 'Failed to create project',
+  UPDATE: 'Failed to update project',
+  DELETE: 'Failed to delete project',
+  projectNotFound: 'Project not found',
   VALIDATION: 'Please fill in all required fields.',
   NETWORK: 'Network error. Please check your connection.'
-};
+} as const;
 
 // Form validation rules
 export const PROJECT_VALIDATION_RULES = {

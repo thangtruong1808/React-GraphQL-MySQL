@@ -44,7 +44,7 @@ import { InlineError } from '../../components/ui';
  */
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isInitializing } = useAuth();
+  const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // State management
@@ -68,9 +68,9 @@ const ProjectsPage: React.FC = () => {
     error: null
   });
 
-  // Sorting state
-  const [sortBy, setSortBy] = useState<string>('createdAt');
-  const [sortOrder, setSortOrder] = useState<string>('DESC');
+  // Sorting state - Sort by ID ASC so new projects appear at bottom
+  const [sortBy, setSortBy] = useState<string>('id');
+  const [sortOrder, setSortOrder] = useState<string>('ASC');
 
   // GraphQL queries and mutations
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_PROJECTS_QUERY, {
@@ -170,6 +170,7 @@ const ProjectsPage: React.FC = () => {
   /**
    * Create a new project
    * Handles form submission and success/error states
+   * Navigates to last page to show newly created project
    */
   const handleCreateProject = useCallback(async (projectData: ProjectInput) => {
     try {
@@ -180,15 +181,32 @@ const ProjectsPage: React.FC = () => {
       });
 
       setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
-      await refetch();
-    } catch (error) {
+
+      // Refetch data to get updated pagination info
+      const { data: updatedData } = await refetch();
+
+      // Navigate to last page to show the newly created project
+      if (updatedData?.dashboardProjects?.paginationInfo) {
+        const { totalPages } = updatedData.dashboardProjects.paginationInfo;
+        if (totalPages > 0) {
+          setState(prev => ({ ...prev, currentPage: totalPages }));
+          await fetchProjects(totalPages, state.pageSize, state.searchQuery);
+        }
+      } else {
+        // Fallback: refetch current page if pagination info is not available
+        await refetch();
+      }
+
+      showNotification(PROJECT_SUCCESS_MESSAGES.CREATE, 'success');
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: PROJECT_ERROR_MESSAGES.CREATE
       }));
+      showNotification(error.message || PROJECT_ERROR_MESSAGES.CREATE, 'error');
     }
-  }, [createProjectMutation, refetch]);
+  }, [createProjectMutation, refetch, showNotification, fetchProjects, state.pageSize, state.searchQuery]);
 
   /**
    * Update an existing project
@@ -204,14 +222,16 @@ const ProjectsPage: React.FC = () => {
 
       setState(prev => ({ ...prev, editModalOpen: false, loading: false }));
       await refetch();
-    } catch (error) {
+      showNotification(PROJECT_SUCCESS_MESSAGES.UPDATE, 'success');
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: PROJECT_ERROR_MESSAGES.UPDATE
       }));
+      showNotification(error.message || PROJECT_ERROR_MESSAGES.UPDATE, 'error');
     }
-  }, [updateProjectMutation, refetch]);
+  }, [updateProjectMutation, refetch, showNotification]);
 
   /**
    * Delete a project
@@ -227,14 +247,16 @@ const ProjectsPage: React.FC = () => {
 
       setState(prev => ({ ...prev, deleteModalOpen: false, loading: false }));
       await refetch();
-    } catch (error) {
+      showNotification(PROJECT_SUCCESS_MESSAGES.DELETE, 'success');
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: PROJECT_ERROR_MESSAGES.DELETE
       }));
+      showNotification(error.message || PROJECT_ERROR_MESSAGES.DELETE, 'error');
     }
-  }, [deleteProjectMutation, refetch]);
+  }, [deleteProjectMutation, refetch, showNotification]);
 
   /**
    * Clear error message
@@ -264,24 +286,25 @@ const ProjectsPage: React.FC = () => {
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">
-          <div className="px-8 py-8 w-full">
-            <div className="flex items-center justify-between">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Projects Management
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
                   Manage and track your projects
                 </p>
               </div>
               {canCreate && (
                 <button
                   type="button"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto"
                   onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 >
                   <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                  Create Project
+                  <span className="hidden xs:inline">Create Project</span>
+                  <span className="xs:hidden">Create</span>
                 </button>
               )}
             </div>
@@ -290,7 +313,7 @@ const ProjectsPage: React.FC = () => {
 
         {/* Main Content */}
         <div className="w-full">
-          <div className="px-8 py-8 w-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             {/* Error Display */}
             {state.error && (
               <div className="mb-6">

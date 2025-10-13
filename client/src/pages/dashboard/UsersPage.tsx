@@ -222,7 +222,7 @@ const UsersPage: React.FC = () => {
   /**
    * Delete a user
    * Handles confirmation and success/error states
-   * Clears search query and resets to first page after successful deletion
+   * Preserves search query and current page for better user experience
    */
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
@@ -232,20 +232,18 @@ const UsersPage: React.FC = () => {
         variables: { id: userId }
       });
 
-      // Clear search query and reset to first page after successful deletion
+      // Close modal and stop loading, preserve search and pagination state
       setState(prev => ({
         ...prev,
         deleteModalOpen: false,
-        loading: false,
-        searchQuery: '',
-        currentPage: 1
+        loading: false
       }));
 
-      // Refetch with cleared search query to show all users
+      // Refetch current page with same search query to maintain filtered view
       await refetch({
         limit: state.pageSize,
-        offset: 0,
-        search: undefined,
+        offset: (state.currentPage - 1) * state.pageSize,
+        search: state.searchQuery || undefined,
         sortBy,
         sortOrder
       });
@@ -259,7 +257,7 @@ const UsersPage: React.FC = () => {
       }));
       showNotification(error.message || USER_ERROR_MESSAGES.DELETE, 'error');
     }
-  }, [deleteUserMutation, refetch, state.pageSize, sortBy, sortOrder, showNotification]);
+  }, [deleteUserMutation, refetch, state.pageSize, state.currentPage, state.searchQuery, sortBy, sortOrder, showNotification]);
 
   /**
    * Clear error message
