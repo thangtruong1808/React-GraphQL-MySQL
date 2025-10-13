@@ -15,23 +15,11 @@ export const typeDefs = gql`
     role: String
   ) on FIELD_DEFINITION
 
-  # User Role Enum - matches database schema
-  enum UserRole {
-    ADMIN
-    PROJECT_MANAGER_PM
-    SOFTWARE_ARCHITECT
-    FRONTEND_DEVELOPER
-    BACKEND_DEVELOPER
-    FULL_STACK_DEVELOPER
-    DEVOPS_ENGINEER
-    QA_ENGINEER
-    QC_ENGINEER
-    UX_UI_DESIGNER
-    BUSINESS_ANALYST
-    DATABASE_ADMINISTRATOR
-    TECHNICAL_WRITER
-    SUPPORT_ENGINEER
-  }
+  # User Role - uses database values directly as string
+  # Values: ADMIN, Project Manager, Software Architect, Frontend Developer, 
+  # Backend Developer, Full-Stack Developer, DevOps Engineer, QA Engineer, 
+  # QC Engineer, UX/UI Designer, Business Analyst, Database Administrator, 
+  # Technical Writer, Support Engineer
 
   # User Type - matches database users table structure
   type User {
@@ -40,7 +28,7 @@ export const typeDefs = gql`
     email: String!
     firstName: String!
     lastName: String!
-    role: UserRole!
+    role: String!
     isDeleted: Boolean!
     version: Int!
     createdAt: String
@@ -58,7 +46,7 @@ export const typeDefs = gql`
     uuid: String!
     firstName: String!
     lastName: String!
-    role: UserRole!
+    role: String!
     projectCount: Int!
     taskCount: Int!
     joinDate: String!
@@ -241,7 +229,7 @@ export const typeDefs = gql`
     password: String!
     firstName: String!
     lastName: String!
-    role: UserRole!
+    role: String!
   }
 
   # User Update Input Type - for updating existing users
@@ -249,7 +237,7 @@ export const typeDefs = gql`
     email: String
     firstName: String
     lastName: String
-    role: UserRole
+    role: String
   }
 
   # Paginated Users Response Type - for user management with pagination
@@ -505,7 +493,7 @@ export const typeDefs = gql`
     # Team functionality - for public team page
     teamMembers: [TeamMember!]! # Legacy - loads all team members
     # Paginated team members - for load more support with role filtering
-    paginatedTeamMembers(limit: Int = 12, offset: Int = 0, roleFilter: UserRole): PaginatedTeamMembersResponse!
+    paginatedTeamMembers(limit: Int = 12, offset: Int = 0, roleFilter: String): PaginatedTeamMembersResponse!
     # Team statistics - for database-wide role counts
     teamStats: TeamStats!
     # Project statistics - for database-wide status counts
@@ -517,7 +505,7 @@ export const typeDefs = gql`
     # Paginated projects - for infinite scroll support
     paginatedProjects(limit: Int = 12, offset: Int = 0, statusFilter: ProjectStatus): PaginatedProjectsResponse!
     # Search functionality - all parameters are optional
-    searchMembers(query: String, roleFilter: [UserRole!]): [User!]!
+    searchMembers(query: String, roleFilter: [String!]): [User!]!
     searchProjects(statusFilter: [ProjectStatus!]): [Project!]!
     searchTasks(taskStatusFilter: [TaskStatus!]): [Task!]!
     # User management - for dashboard users page

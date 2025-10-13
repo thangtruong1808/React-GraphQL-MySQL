@@ -134,8 +134,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
         <table className="min-w-full divide-y divide-gray-200 table-fixed">
           <thead className="bg-gray-50">
             <tr>
+              {/* ID Column - Hidden on mobile */}
               <th
-                className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -152,8 +153,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   {getSortIcon('firstName')}
                 </div>
               </th>
+              {/* Last Name Column - Hidden on small screens */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden sm:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('lastName')}
               >
                 <div className="flex items-center space-x-1">
@@ -179,8 +181,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   {getSortIcon('role')}
                 </div>
               </th>
+              {/* Created Date Column - Hidden on extra small screens */}
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -188,8 +191,9 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -220,8 +224,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
               // User rows
               users.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors duration-150">
-                  {/* ID Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* ID Column - Hidden on mobile */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {user.id}
                   </td>
 
@@ -230,8 +234,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     {user.firstName}
                   </td>
 
-                  {/* Last Name Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* Last Name Column - Hidden on small screens */}
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {user.lastName}
                   </td>
 
@@ -247,13 +251,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Created Date Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  {/* Created Date Column - Hidden on extra small screens */}
+                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(user.createdAt)}
                   </td>
 
-                  {/* Updated Date Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  {/* Updated Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(user.updatedAt)}
                   </td>
 

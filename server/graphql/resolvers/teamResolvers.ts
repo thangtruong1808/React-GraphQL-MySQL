@@ -8,26 +8,10 @@ import { QueryTypes } from 'sequelize';
  */
 
 /**
- * Map database role values to GraphQL enum values
+ * Return database role values directly (no mapping needed since we use String instead of enum)
  */
 const mapRoleToEnum = (dbRole: string): string => {
-  const roleMapping: { [key: string]: string } = {
-    'ADMIN': 'ADMIN',
-    'Project Manager': 'PROJECT_MANAGER_PM',
-    'Software Architect': 'SOFTWARE_ARCHITECT',
-    'Frontend Developer': 'FRONTEND_DEVELOPER',
-    'Backend Developer': 'BACKEND_DEVELOPER',
-    'Full-Stack Developer': 'FULL_STACK_DEVELOPER',
-    'DevOps Engineer': 'DEVOPS_ENGINEER',
-    'QA Engineer': 'QA_ENGINEER',
-    'QC Engineer': 'QC_ENGINEER',
-    'UX/UI Designer': 'UX_UI_DESIGNER',
-    'Business Analyst': 'BUSINESS_ANALYST',
-    'Database Administrator': 'DATABASE_ADMINISTRATOR',
-    'Technical Writer': 'TECHNICAL_WRITER',
-    'Support Engineer': 'SUPPORT_ENGINEER'
-  };
-  return roleMapping[dbRole] || 'FRONTEND_DEVELOPER'; // Default fallback
+  return dbRole; // Return database value directly
 };
 
 /**

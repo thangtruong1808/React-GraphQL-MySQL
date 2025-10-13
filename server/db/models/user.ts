@@ -117,7 +117,7 @@ User.init(
     role: {
       type: DataTypes.ENUM(
         'ADMIN',
-        'Project Manager (PM)',
+        'Project Manager',
         'Software Architect',
         'Frontend Developer',
         'Backend Developer',
@@ -136,7 +136,7 @@ User.init(
         isIn: {
           args: [[
             'ADMIN',
-            'Project Manager (PM)',
+            'Project Manager',
             'Software Architect',
             'Frontend Developer',
             'Backend Developer',

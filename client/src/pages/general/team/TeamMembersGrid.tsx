@@ -79,9 +79,9 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
       case 'FRONTEND_DEVELOPER': return 'bg-green-100 text-green-800';
       case 'BACKEND_DEVELOPER': return 'bg-green-100 text-green-800';
       case 'FULL_STACK_DEVELOPER': return 'bg-green-100 text-green-800';
-      case 'DEVOPS_ENGINEER': return 'bg-yellow-100 text-yellow-800';
-      case 'QA_ENGINEER': return 'bg-indigo-100 text-indigo-800';
-      case 'QC_ENGINEER': return 'bg-indigo-100 text-indigo-800';
+      case 'DevOps Engineer': return 'bg-yellow-100 text-yellow-800';
+      case 'QA Engineer': return 'bg-indigo-100 text-indigo-800';
+      case 'QC Engineer': return 'bg-indigo-100 text-indigo-800';
       case 'UX_UI_DESIGNER': return 'bg-pink-100 text-pink-800';
       case 'BUSINESS_ANALYST': return 'bg-cyan-100 text-cyan-800';
       case 'DATABASE_ADMINISTRATOR': return 'bg-orange-100 text-orange-800';

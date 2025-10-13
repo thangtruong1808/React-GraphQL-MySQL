@@ -45,5 +45,5 @@ export interface SortOption {
 }
 
 // Role filter type - matches GraphQL UserRole enum values exactly
-export type FilterType = 'ALL' | 'ADMIN' | 'PROJECT_MANAGER_PM' | 'SOFTWARE_ARCHITECT' | 'FRONTEND_DEVELOPER' | 'BACKEND_DEVELOPER' | 'FULL_STACK_DEVELOPER' | 'DEVOPS_ENGINEER' | 'QA_ENGINEER' | 'QC_ENGINEER' | 'UX_UI_DESIGNER' | 'BUSINESS_ANALYST' | 'DATABASE_ADMINISTRATOR' | 'TECHNICAL_WRITER' | 'SUPPORT_ENGINEER';
+export type FilterType = 'ALL' | 'ADMIN' | 'Project Manager' | 'Software Architect' | 'Frontend Developer' | 'Backend Developer' | 'Full-Stack Developer' | 'DevOps Engineer' | 'QA Engineer' | 'QC Engineer' | 'UX/UI Designer' | 'Business Analyst' | 'Database Administrator' | 'Technical Writer' | 'Support Engineer';
 

@@ -66,40 +66,8 @@ export const resolvers = {
     // Ensure isDeleted is always a boolean
     isDeleted: (parent: any) => parent.isDeleted ?? false,
     
-    // Map database role values to GraphQL enum values
-    role: (parent: any) => {
-      const roleMapping: { [key: string]: string } = {
-        'ADMIN': 'ADMIN',
-        'Project Manager': 'PROJECT_MANAGER_PM',
-        'Software Architect': 'SOFTWARE_ARCHITECT',
-        'Frontend Developer': 'FRONTEND_DEVELOPER',
-        'Backend Developer': 'BACKEND_DEVELOPER',
-        'Full-Stack Developer': 'FULL_STACK_DEVELOPER',
-        'DevOps Engineer': 'DEVOPS_ENGINEER',
-        'QA Engineer': 'QA_ENGINEER',
-        'QC Engineer': 'QC_ENGINEER',
-        'UX/UI Designer': 'UX_UI_DESIGNER',
-        'Business Analyst': 'BUSINESS_ANALYST',
-        'Database Administrator': 'DATABASE_ADMINISTRATOR',
-        'Technical Writer': 'TECHNICAL_WRITER',
-        'Support Engineer': 'SUPPORT_ENGINEER',
-        // Also handle GraphQL enum values directly (for cases where resolver already mapped them)
-        'PROJECT_MANAGER_PM': 'PROJECT_MANAGER_PM',
-        'SOFTWARE_ARCHITECT': 'SOFTWARE_ARCHITECT',
-        'FRONTEND_DEVELOPER': 'FRONTEND_DEVELOPER',
-        'BACKEND_DEVELOPER': 'BACKEND_DEVELOPER',
-        'FULL_STACK_DEVELOPER': 'FULL_STACK_DEVELOPER',
-        'DEVOPS_ENGINEER': 'DEVOPS_ENGINEER',
-        'QA_ENGINEER': 'QA_ENGINEER',
-        'QC_ENGINEER': 'QC_ENGINEER',
-        'UX_UI_DESIGNER': 'UX_UI_DESIGNER',
-        'BUSINESS_ANALYST': 'BUSINESS_ANALYST',
-        'DATABASE_ADMINISTRATOR': 'DATABASE_ADMINISTRATOR',
-        'TECHNICAL_WRITER': 'TECHNICAL_WRITER',
-        'SUPPORT_ENGINEER': 'SUPPORT_ENGINEER'
-      };
-      return roleMapping[parent.role] || 'FRONTEND_DEVELOPER'; // Default fallback
-    },
+    // Return database role values directly (no mapping needed since we use String instead of enum)
+    role: (parent: any) => parent.role,
     
     // Resolver for ownedProjects field on User type
     ownedProjects: async (parent: any) => {

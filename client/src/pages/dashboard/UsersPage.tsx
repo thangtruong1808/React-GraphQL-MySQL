@@ -46,7 +46,7 @@ import { InlineError } from '../../components/ui';
  */
 const UsersPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isInitializing } = useAuth();
+  const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // State management
@@ -183,14 +183,16 @@ const UsersPage: React.FC = () => {
 
       setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
       await refetch();
-    } catch (error) {
+      showNotification(USER_SUCCESS_MESSAGES.CREATE, 'success');
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: USER_ERROR_MESSAGES.CREATE
       }));
+      showNotification(error.message || USER_ERROR_MESSAGES.CREATE, 'error');
     }
-  }, [createUserMutation, refetch]);
+  }, [createUserMutation, refetch, showNotification]);
 
   /**
    * Update an existing user
@@ -206,18 +208,21 @@ const UsersPage: React.FC = () => {
 
       setState(prev => ({ ...prev, editModalOpen: false, loading: false }));
       await refetch();
-    } catch (error) {
+      showNotification(USER_SUCCESS_MESSAGES.UPDATE, 'success');
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: USER_ERROR_MESSAGES.UPDATE
       }));
+      showNotification(error.message || USER_ERROR_MESSAGES.UPDATE, 'error');
     }
-  }, [updateUserMutation, refetch]);
+  }, [updateUserMutation, refetch, showNotification]);
 
   /**
    * Delete a user
    * Handles confirmation and success/error states
+   * Clears search query and resets to first page after successful deletion
    */
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
@@ -227,16 +232,34 @@ const UsersPage: React.FC = () => {
         variables: { id: userId }
       });
 
-      setState(prev => ({ ...prev, deleteModalOpen: false, loading: false }));
-      await refetch();
-    } catch (error) {
+      // Clear search query and reset to first page after successful deletion
+      setState(prev => ({
+        ...prev,
+        deleteModalOpen: false,
+        loading: false,
+        searchQuery: '',
+        currentPage: 1
+      }));
+
+      // Refetch with cleared search query to show all users
+      await refetch({
+        limit: state.pageSize,
+        offset: 0,
+        search: undefined,
+        sortBy,
+        sortOrder
+      });
+
+      showNotification(USER_SUCCESS_MESSAGES.DELETE, 'success');
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: USER_ERROR_MESSAGES.DELETE
       }));
+      showNotification(error.message || USER_ERROR_MESSAGES.DELETE, 'error');
     }
-  }, [deleteUserMutation, refetch]);
+  }, [deleteUserMutation, refetch, state.pageSize, sortBy, sortOrder, showNotification]);
 
   /**
    * Clear error message

@@ -29,28 +29,8 @@ export const searchMembers = async (_: any, { query, roleFilter }: { query?: str
     
     // Add role filter if provided
     if (roleFilter && roleFilter.length > 0) {
-      // Map GraphQL enum values to database role strings (from db-schema.txt)
-      const mapGraphQLRoleToDBRole = (graphqlRole: string): string => {
-        const dbRoleMapping: { [key: string]: string } = {
-          'ADMIN': 'ADMIN',
-          'PROJECT_MANAGER_PM': 'Project Manager',
-          'SOFTWARE_ARCHITECT': 'Software Architect',
-          'FRONTEND_DEVELOPER': 'Frontend Developer',
-          'BACKEND_DEVELOPER': 'Backend Developer',
-          'FULL_STACK_DEVELOPER': 'Full-Stack Developer',
-          'DEVOPS_ENGINEER': 'DevOps Engineer',
-          'QA_ENGINEER': 'QA Engineer',
-          'QC_ENGINEER': 'QC Engineer',
-          'UX_UI_DESIGNER': 'UX/UI Designer',
-          'BUSINESS_ANALYST': 'Business Analyst',
-          'DATABASE_ADMINISTRATOR': 'Database Administrator',
-          'TECHNICAL_WRITER': 'Technical Writer',
-          'SUPPORT_ENGINEER': 'Support Engineer'
-        };
-        return dbRoleMapping[graphqlRole] || '';
-      };
-      
-      const dbRoles = roleFilter.map(mapGraphQLRoleToDBRole).filter(Boolean);
+      // Use role filter values directly since we now use String instead of enum
+      const dbRoles = roleFilter.filter(Boolean);
       
       if (dbRoles.length > 0) {
         const placeholders = dbRoles.map((_, index) => `:role${index}`).join(', ');

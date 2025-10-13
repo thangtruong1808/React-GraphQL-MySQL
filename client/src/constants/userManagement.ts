@@ -6,7 +6,7 @@
 
 // User roles mapping from database to display names
 export const USER_ROLES = {
-  ADMIN: 'Administrator',
+  ADMIN: 'Admin',
   'Project Manager': 'Project Manager',
   'Software Architect': 'Software Architect',
   'Frontend Developer': 'Frontend Developer',
@@ -99,17 +99,17 @@ export const USER_MODAL_CONFIG = {
 
 // Success messages
 export const USER_SUCCESS_MESSAGES = {
-  created: 'User created successfully',
-  updated: 'User updated successfully',
-  deleted: 'User deleted successfully'
+  CREATE: 'User created successfully',
+  UPDATE: 'User updated successfully',
+  DELETE: 'User deleted successfully'
 } as const;
 
 // Error messages
 export const USER_ERROR_MESSAGES = {
-  fetchFailed: 'Failed to fetch users',
-  createFailed: 'Failed to create user',
-  updateFailed: 'Failed to update user',
-  deleteFailed: 'Failed to delete user',
+  FETCH: 'Failed to fetch users',
+  CREATE: 'Failed to create user',
+  UPDATE: 'Failed to update user',
+  DELETE: 'Failed to delete user',
   userNotFound: 'User not found',
   emailExists: 'User with this email already exists'
 } as const;

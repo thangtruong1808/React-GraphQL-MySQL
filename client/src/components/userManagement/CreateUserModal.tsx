@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaUser, FaEnvelope, FaLock, FaUserTag, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { FaTimes, FaUser, FaEnvelope, FaLock, FaUserTag, FaCheck, FaExclamationTriangle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { CreateUserModalProps, UserInput, UserRole } from '../../types/userManagement';
 import { USER_ROLE_OPTIONS, USER_FORM_VALIDATION, USER_MODAL_CONFIG } from '../../constants/userManagement';
 
@@ -27,6 +27,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
   const [errors, setErrors] = useState<Partial<UserInput>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof UserInput, boolean>>>({});
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -40,6 +41,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
       });
       setErrors({});
       setTouched({});
+      setShowPassword(false); // Reset password visibility
     }
   }, [isOpen]);
 
@@ -174,6 +176,14 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     }
   };
 
+  /**
+   * Toggle password visibility
+   * Shows or hides password text
+   */
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -235,8 +245,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     onBlur={handleInputBlur}
                     disabled={loading}
                     className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.email
-                        ? 'border-red-300 bg-red-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 hover:border-gray-400'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     placeholder="user@example.com"
                   />
@@ -265,24 +275,38 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     disabled={loading}
-                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.password
-                        ? 'border-red-300 bg-red-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                    className={`block w-full pl-10 pr-12 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.password
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 hover:border-gray-400'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     placeholder="Minimum 8 characters"
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <FaLock className={`h-4 w-4 ${errors.password ? 'text-red-400' : 'text-gray-400'}`} />
                   </div>
-                  {formData.password && !errors.password && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  {/* Password toggle button */}
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    disabled={loading}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="h-4 w-4" />
+                    ) : (
+                      <FaEye className="h-4 w-4" />
+                    )}
+                  </button>
+                  {formData.password && !errors.password && !showPassword && (
+                    <div className="absolute inset-y-0 right-8 pr-3 flex items-center">
                       <FaCheck className="h-4 w-4 text-green-500" />
                     </div>
                   )}
@@ -319,8 +343,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       onBlur={handleInputBlur}
                       disabled={loading}
                       className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.firstName
-                          ? 'border-red-300 bg-red-50'
-                          : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-red-300 bg-red-50'
+                        : 'border-gray-300 hover:border-gray-400'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                       placeholder="John"
                     />
@@ -357,8 +381,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       onBlur={handleInputBlur}
                       disabled={loading}
                       className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors ${errors.lastName
-                          ? 'border-red-300 bg-red-50'
-                          : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-red-300 bg-red-50'
+                        : 'border-gray-300 hover:border-gray-400'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                       placeholder="Doe"
                     />
@@ -395,8 +419,8 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     onBlur={handleInputBlur}
                     disabled={loading}
                     className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors appearance-none bg-white ${errors.role
-                        ? 'border-red-300 bg-red-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300 hover:border-gray-400'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {USER_ROLE_OPTIONS.map((option) => (
