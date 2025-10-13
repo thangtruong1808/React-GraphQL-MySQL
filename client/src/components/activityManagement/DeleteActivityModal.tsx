@@ -21,7 +21,7 @@ const DeleteActivityModal: React.FC<DeleteActivityModalProps> = ({
       await onDelete(activity.id);
       onClose();
     } catch (error) {
-      console.error('Error deleting activity:', error);
+      // Error handling without console.log for production
     }
   };
 

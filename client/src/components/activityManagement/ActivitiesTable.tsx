@@ -27,6 +27,11 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
   onEdit,
   onDelete,
 }) => {
+  // Ensure all values are valid numbers to prevent NaN errors
+  const safeCurrentPage = Math.max(1, Number(currentPage) || 1);
+  const safePageSize = Math.max(1, Number(currentPageSize) || 10);
+  const safeTotalCount = Math.max(0, Number(paginationInfo.totalCount) || 0);
+  const safeTotalPages = Math.max(1, Number(paginationInfo.totalPages) || 1);
   // Format date with error handling
   const formatDate = (dateString: string | null | undefined): string => {
     if (!dateString) return 'N/A';
@@ -54,6 +59,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
       'project': 'createdAt',
       'task': 'createdAt',
       'created': 'createdAt',
+      'updated': 'updatedAt',
       'action': 'action'
     };
 
@@ -89,6 +95,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
       'project': 'createdAt',
       'task': 'createdAt',
       'created': 'createdAt',
+      'updated': 'updatedAt',
       'action': 'action'
     };
 
@@ -131,6 +138,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
         <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${ACTIVITY_TABLE_COLUMNS.CREATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
+        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}>
+          <div className="h-4 bg-gray-200 rounded w-20"></div>
+        </td>
         <td className={`px-4 py-4 whitespace-nowrap text-left ${ACTIVITY_TABLE_COLUMNS.ACTIONS.width}`}>
           <div className="flex justify-start space-x-2">
             <div className="h-6 bg-gray-200 rounded w-12"></div>
@@ -171,6 +181,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.CREATED.width}`}>
                   Created
+                </th>
+                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}>
+                  Updated
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ACTIONS.width}`}>
                   Actions
@@ -258,6 +271,15 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   {getSortIcon('created')}
                 </div>
               </th>
+              <th
+                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}
+                onClick={() => handleSort('updated')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Updated</span>
+                  {getSortIcon('updated')}
+                </div>
+              </th>
               <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ACTIONS.width}`}>
                 Actions
               </th>
@@ -266,7 +288,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {activities.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -349,6 +371,11 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                     {formatDate(activity.createdAt)}
                   </td>
 
+                  {/* Updated */}
+                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}>
+                    {formatDate(activity.updatedAt)}
+                  </td>
+
                   {/* Actions */}
                   <td className={`px-4 py-4 whitespace-nowrap text-left ${ACTIVITY_TABLE_COLUMNS.ACTIONS.width}`}>
                     <div className="flex justify-start space-x-2">
@@ -383,8 +410,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
           {/* Mobile pagination */}
           <div className="flex space-x-2">
             <button
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={!paginationInfo.hasPreviousPage || loading}
+              onClick={() => onPageChange(safeCurrentPage - 1)}
+              disabled={!paginationInfo.hasPreviousPage || loading || safeCurrentPage <= 1}
               className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,8 +420,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
               <span>Previous</span>
             </button>
             <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={!paginationInfo.hasNextPage || loading}
+              onClick={() => onPageChange(safeCurrentPage + 1)}
+              disabled={!paginationInfo.hasNextPage || loading || safeCurrentPage >= safeTotalPages}
               className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
               <span>Next</span>
@@ -409,9 +436,15 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
           <div className="flex items-center space-x-4">
             {/* Results info - now shown first */}
             <div className="text-sm text-gray-700">
-              Showing {((currentPage - 1) * currentPageSize) + 1} to{' '}
-              {Math.min(currentPage * currentPageSize, paginationInfo.totalCount)} of{' '}
-              {paginationInfo.totalCount} results
+              {safeTotalCount > 0 ? (
+                <>
+                  Showing {((safeCurrentPage - 1) * safePageSize) + 1} to{' '}
+                  {Math.min(safeCurrentPage * safePageSize, safeTotalCount)} of{' '}
+                  {safeTotalCount} results
+                </>
+              ) : (
+                'No results'
+              )}
             </div>
 
             {/* Show entries dropdown */}
@@ -421,7 +454,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
               </label>
               <select
                 id="page-size"
-                value={currentPageSize}
+                value={safePageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 className="block w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 disabled={loading}
@@ -441,7 +474,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             {/* First page */}
             <button
               onClick={() => onPageChange(1)}
-              disabled={currentPage === 1 || loading}
+              disabled={safeCurrentPage === 1 || loading}
               className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="First"
             >
@@ -453,8 +486,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
             {/* Previous page */}
             <button
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={!paginationInfo.hasPreviousPage || loading}
+              onClick={() => onPageChange(safeCurrentPage - 1)}
+              disabled={!paginationInfo.hasPreviousPage || loading || safeCurrentPage <= 1}
               className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Previous"
             >
@@ -465,30 +498,40 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             </button>
 
             {/* Page numbers */}
-            {Array.from({ length: Math.min(5, paginationInfo.totalPages) }, (_, i) => {
-              const startPage = Math.max(1, currentPage - 2);
-              const pageNumber = startPage + i;
-              if (pageNumber > paginationInfo.totalPages) return null;
+            {(() => {
+              const maxVisiblePages = Math.min(5, safeTotalPages);
 
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => onPageChange(pageNumber)}
-                  disabled={loading}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNumber === currentPage
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
+              // Calculate proper start page to center current page when possible
+              let startPage = Math.max(1, safeCurrentPage - Math.floor(maxVisiblePages / 2));
+
+              // Ensure we don't exceed total pages
+              if (startPage + maxVisiblePages > safeTotalPages) {
+                startPage = Math.max(1, safeTotalPages - maxVisiblePages + 1);
+              }
+
+              return Array.from({ length: maxVisiblePages }, (_, i) => {
+                const pageNumber = startPage + i;
+
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => onPageChange(pageNumber)}
+                    disabled={loading}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNumber === safeCurrentPage
+                      ? 'bg-purple-600 text-white'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              });
+            })()}
 
             {/* Next page */}
             <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={!paginationInfo.hasNextPage || loading}
+              onClick={() => onPageChange(safeCurrentPage + 1)}
+              disabled={!paginationInfo.hasNextPage || loading || safeCurrentPage >= safeTotalPages}
               className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Next"
             >
@@ -500,8 +543,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
             {/* Last page */}
             <button
-              onClick={() => onPageChange(paginationInfo.totalPages)}
-              disabled={currentPage === paginationInfo.totalPages || loading}
+              onClick={() => onPageChange(safeTotalPages)}
+              disabled={safeCurrentPage === safeTotalPages || loading}
               className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Last"
             >

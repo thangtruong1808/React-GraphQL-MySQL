@@ -154,6 +154,9 @@ export interface ActivityManagementState {
   loading: boolean;
   error: string | null;
   selectedActivity: Activity | null;
+  createModalOpen: boolean;
+  editModalOpen: boolean;
+  deleteModalOpen: boolean;
 }
 
 // Activity management actions

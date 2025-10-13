@@ -62,6 +62,7 @@ export const ACTIVITY_TABLE_COLUMNS = {
   PROJECT: { width: 'w-32', sortable: true },
   TASK: { width: 'w-40', sortable: true },
   CREATED: { width: 'w-32', sortable: true },
+  UPDATED: { width: 'w-32', sortable: true },
   ACTIONS: { width: 'w-24', sortable: false },
 };
 
