@@ -115,6 +115,52 @@ export const DELETE_ACTIVITY_MUTATION = gql`
   }
 `;
 
+// Query to fetch users for dropdown selection
+export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
+  query GetUsersForDropdown {
+    users(limit: 100, offset: 0, sortBy: "firstName", sortOrder: "ASC") {
+      users {
+        id
+        firstName
+        lastName
+        email
+        role
+      }
+    }
+  }
+`;
+
+// Query to fetch projects for dropdown selection
+export const GET_PROJECTS_FOR_DROPDOWN_QUERY = gql`
+  query GetProjectsForDropdown {
+    dashboardProjects(limit: 100, offset: 0, sortBy: "name", sortOrder: "ASC") {
+      projects {
+        id
+        name
+        description
+        status
+      }
+    }
+  }
+`;
+
+// Query to fetch tasks for dropdown selection
+export const GET_TASKS_FOR_DROPDOWN_QUERY = gql`
+  query GetTasksForDropdown {
+    dashboardTasks(limit: 100, offset: 0, sortBy: "title", sortOrder: "ASC") {
+      tasks {
+        id
+        title
+        status
+        project {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 // TypeScript interfaces for GraphQL operations
 export interface GetDashboardActivitiesQueryVariables {
   limit?: number;
@@ -288,4 +334,48 @@ export interface DeleteActivityMutationVariables {
 
 export interface DeleteActivityMutationResponse {
   deleteActivity: boolean;
+}
+
+// TypeScript interfaces for dropdown queries
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  status: string;
+  project: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface GetUsersForDropdownResponse {
+  users: {
+    users: User[];
+  };
+}
+
+export interface GetProjectsForDropdownResponse {
+  dashboardProjects: {
+    projects: Project[];
+  };
+}
+
+export interface GetTasksForDropdownResponse {
+  dashboardTasks: {
+    tasks: Task[];
+  };
 }

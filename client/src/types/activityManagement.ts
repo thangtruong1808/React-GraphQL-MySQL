@@ -90,6 +90,8 @@ export interface ActivitiesTableProps {
   activities: Activity[];
   loading: boolean;
   paginationInfo: PaginationInfo;
+  currentPage: number;
+  currentPageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onSort: (sortBy: string, sortOrder: string) => void;

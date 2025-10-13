@@ -75,6 +75,7 @@ const ActivitiesPage: React.FC = () => {
   // Fetch activities
   const { data, loading, error, refetch } = useQuery(GET_DASHBOARD_ACTIVITIES_QUERY, {
     variables: queryVariables,
+    fetchPolicy: 'cache-and-network',
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
     skip: isInitializing || !hasDashboardAccess || !user,
@@ -250,6 +251,8 @@ const ActivitiesPage: React.FC = () => {
                   activities={activities}
                   loading={loading}
                   paginationInfo={paginationInfo}
+                  currentPage={currentPage}
+                  currentPageSize={pageSize}
                   onPageChange={handlePageChange}
                   onPageSizeChange={handlePageSizeChange}
                   onSort={handleSort}
