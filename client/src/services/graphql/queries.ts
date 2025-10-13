@@ -331,7 +331,7 @@ export const GET_TEAM_MEMBERS = gql`
 
 // Paginated team members query for load more functionality with role filtering
 export const GET_PAGINATED_TEAM_MEMBERS = gql`
-  query GetPaginatedTeamMembers($limit: Int = 12, $offset: Int = 0, $roleFilter: UserRole) {
+  query GetPaginatedTeamMembers($limit: Int = 12, $offset: Int = 0, $roleFilter: String) {
     paginatedTeamMembers(limit: $limit, offset: $offset, roleFilter: $roleFilter) {
       teamMembers {
         id

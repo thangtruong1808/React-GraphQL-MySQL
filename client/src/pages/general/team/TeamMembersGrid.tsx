@@ -70,23 +70,23 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
     });
   }, [filteredMembers, sortOption.field, sortOption.direction]);
 
-  // Get role color for team members based on GraphQL enum values
+  // Get role color for team members based on database role values
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'bg-red-100 text-red-800';
-      case 'PROJECT_MANAGER_PM': return 'bg-blue-100 text-blue-800';
-      case 'SOFTWARE_ARCHITECT': return 'bg-purple-100 text-purple-800';
-      case 'FRONTEND_DEVELOPER': return 'bg-green-100 text-green-800';
-      case 'BACKEND_DEVELOPER': return 'bg-green-100 text-green-800';
-      case 'FULL_STACK_DEVELOPER': return 'bg-green-100 text-green-800';
+      case 'Project Manager': return 'bg-blue-100 text-blue-800';
+      case 'Software Architect': return 'bg-purple-100 text-purple-800';
+      case 'Frontend Developer': return 'bg-green-100 text-green-800';
+      case 'Backend Developer': return 'bg-green-100 text-green-800';
+      case 'Full-Stack Developer': return 'bg-green-100 text-green-800';
       case 'DevOps Engineer': return 'bg-yellow-100 text-yellow-800';
       case 'QA Engineer': return 'bg-indigo-100 text-indigo-800';
       case 'QC Engineer': return 'bg-indigo-100 text-indigo-800';
-      case 'UX_UI_DESIGNER': return 'bg-pink-100 text-pink-800';
-      case 'BUSINESS_ANALYST': return 'bg-cyan-100 text-cyan-800';
-      case 'DATABASE_ADMINISTRATOR': return 'bg-orange-100 text-orange-800';
-      case 'TECHNICAL_WRITER': return 'bg-teal-100 text-teal-800';
-      case 'SUPPORT_ENGINEER': return 'bg-gray-100 text-gray-800';
+      case 'UX/UI Designer': return 'bg-pink-100 text-pink-800';
+      case 'Business Analyst': return 'bg-cyan-100 text-cyan-800';
+      case 'Database Administrator': return 'bg-orange-100 text-orange-800';
+      case 'Technical Writer': return 'bg-teal-100 text-teal-800';
+      case 'Support Engineer': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
