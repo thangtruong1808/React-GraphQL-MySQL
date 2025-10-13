@@ -110,6 +110,21 @@ export const MARK_NOTIFICATION_UNREAD_MUTATION = gql`
   }
 `;
 
+// Query to fetch users for dropdown selection
+export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
+  query GetUsersForDropdown {
+    users(limit: 100, offset: 0, sortBy: "firstName", sortOrder: "ASC") {
+      users {
+        id
+        firstName
+        lastName
+        email
+        role
+      }
+    }
+  }
+`;
+
 // TypeScript interfaces for GraphQL operations
 export interface GetDashboardNotificationsQueryVariables {
   limit?: number;
@@ -246,5 +261,17 @@ export interface MarkNotificationUnreadMutationResponse {
     isRead: boolean;
     createdAt: string;
     updatedAt: string;
+  };
+}
+
+export interface GetUsersForDropdownResponse {
+  users: {
+    users: Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: string;
+    }>;
   };
 }
