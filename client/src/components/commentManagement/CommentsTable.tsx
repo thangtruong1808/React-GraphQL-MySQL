@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { CommentsTableProps } from '../../types/commentManagement';
-import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, COMMENT_DISPLAY_SETTINGS, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
+import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
 
 /**
@@ -126,33 +126,42 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
   const renderLoadingRows = () => {
     return Array.from({ length: 5 }).map((_, index) => (
       <tr key={index} className="animate-pulse">
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.ID.width}`}>
+        {/* ID Column - Hidden on mobile */}
+        <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.ID.width}`}>
           <div className="h-4 bg-gray-200 rounded w-8"></div>
         </td>
+        {/* Content */}
         <td className={`px-4 py-4 text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
           <div className="space-y-2">
             <div className="h-4 bg-gray-200 rounded w-3/4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2"></div>
           </div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
+        {/* Author Column - Hidden on small screens */}
+        <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
           <div className="h-4 bg-gray-200 rounded w-24"></div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
+        {/* Task Column - Hidden on extra small screens */}
+        <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
+        {/* Project Column - Hidden on mobile and tablet */}
+        <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
           <div className="h-4 bg-gray-200 rounded w-16"></div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
+        {/* Likes Column - Hidden on small screens */}
+        <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
           <div className="h-4 bg-gray-200 rounded w-8"></div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
+        {/* Created Column - Hidden on extra small screens */}
+        <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
-        <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
+        {/* Updated Column - Hidden on mobile and tablet */}
+        <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
           <div className="h-4 bg-gray-200 rounded w-20"></div>
         </td>
+        {/* Actions */}
         <td className={`px-4 py-4 whitespace-nowrap text-left ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
           <div className="flex justify-start space-x-2">
             <div className="h-6 bg-gray-200 rounded w-12"></div>
@@ -170,8 +179,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
           <table className="min-w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-gray-50">
               <tr>
+                {/* ID Column - Hidden on mobile */}
                 <th
-                  className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
+                  className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
                   onClick={() => handleSort('id')}
                 >
                   <div className="flex items-center space-x-1">
@@ -182,22 +192,28 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
                   Content
                 </th>
-                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
+                {/* Author Column - Hidden on small screens */}
+                <th className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
                   Author
                 </th>
-                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
+                {/* Task Column - Hidden on extra small screens */}
+                <th className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
                   Task
                 </th>
-                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
+                {/* Project Column - Hidden on mobile and tablet */}
+                <th className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
                   Project
                 </th>
-                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
+                {/* Likes Column - Hidden on small screens */}
+                <th className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
                   Likes
                 </th>
-                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
+                {/* Created Column - Hidden on extra small screens */}
+                <th className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
                   Created
                 </th>
-                <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
+                {/* Updated Column - Hidden on mobile and tablet */}
+                <th className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
                   Updated
                 </th>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
@@ -220,8 +236,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
         <table className="min-w-full divide-y divide-gray-200 table-fixed">
           <thead className="bg-gray-50">
             <tr>
+              {/* ID Column - Hidden on mobile */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
+                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -232,8 +249,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
               <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`}>
                 Content
               </th>
+              {/* Author Column - Hidden on small screens */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}
+                className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -241,8 +259,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Task Column - Hidden on extra small screens */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.TASK.width}`}
+                className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.TASK.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -250,8 +269,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Project Column - Hidden on mobile and tablet */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}
+                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -259,8 +279,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Likes Column - Hidden on small screens */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}
+                className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -268,8 +289,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Created Column - Hidden on extra small screens */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}
+                className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -277,8 +299,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Updated Column - Hidden on mobile and tablet */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}
+                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -311,8 +334,8 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
 
                 return (
                   <tr key={comment.id} className="hover:bg-gray-50 transition-colors duration-200">
-                    {/* ID */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.ID.width}`}>
+                    {/* ID Column - Hidden on mobile */}
+                    <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.ID.width}`}>
                       {comment.id}
                     </td>
 
@@ -327,8 +350,8 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                       </div>
                     </td>
 
-                    {/* Author */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
+                    {/* Author Column - Hidden on small screens */}
+                    <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}>
                       <div className="flex flex-col">
                         <p className="font-medium">
                           {comment.author.firstName} {comment.author.lastName}
@@ -337,22 +360,22 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                       </div>
                     </td>
 
-                    {/* Task */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
+                    {/* Task Column - Hidden on extra small screens */}
+                    <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`}>
                       <p className="truncate" title={comment.task.title}>
                         {comment.task.title}
                       </p>
                     </td>
 
-                    {/* Project */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
+                    {/* Project Column - Hidden on mobile and tablet */}
+                    <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}>
                       <p className="truncate" title={comment.task.project.name}>
                         {comment.task.project.name}
                       </p>
                     </td>
 
-                    {/* Likes */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
+                    {/* Likes Column - Hidden on small screens */}
+                    <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`}>
                       <div className="flex items-center space-x-1">
                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -363,13 +386,13 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                       </div>
                     </td>
 
-                    {/* Created */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
+                    {/* Created Column - Hidden on extra small screens */}
+                    <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`}>
                       {formatDate(comment.createdAt)}
                     </td>
 
-                    {/* Updated */}
-                    <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
+                    {/* Updated Column - Hidden on mobile and tablet */}
+                    <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}>
                       {formatDate(comment.updatedAt)}
                     </td>
 
@@ -404,42 +427,61 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
 
       {/* Pagination */}
       {paginationInfo.totalCount > 0 && (
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          {/* Mobile pagination */}
+        <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+          {/* Mobile pagination - show on small screens */}
           <div className="flex-1 flex justify-between sm:hidden">
-            <button
-              onClick={() => onPageChange(paginationInfo.currentPage - 1)}
-              disabled={!paginationInfo.hasPreviousPage}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => onPageChange(paginationInfo.currentPage + 1)}
-              disabled={!paginationInfo.hasNextPage}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => onPageChange(paginationInfo.currentPage - 1)}
+                disabled={!paginationInfo.hasPreviousPage || loading}
+                className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span className="hidden xs:inline">Previous</span>
+              </button>
+              <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+                {paginationInfo.currentPage} / {paginationInfo.totalPages}
+              </span>
+              <button
+                onClick={() => onPageChange(paginationInfo.currentPage + 1)}
+                disabled={!paginationInfo.hasNextPage || loading}
+                className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              >
+                <span className="hidden xs:inline">Next</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
 
-          {/* Desktop pagination */}
+          {/* Desktop pagination - show on sm and larger screens */}
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            {/* Compact page info */}
-            <div className="flex items-center space-x-4">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span> to <span className="font-medium">{Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)}</span> of <span className="font-medium">{paginationInfo.totalCount}</span>
+            {/* Page info and size selector */}
+            <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
+              {/* Compact page info */}
+              <p className="text-xs lg:text-sm text-gray-600">
+                <span className="hidden md:inline">Showing </span>
+                <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span>
+                <span className="hidden md:inline"> to </span>
+                <span className="md:hidden">-</span>
+                <span className="font-medium">{Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)}</span>
+                <span className="hidden md:inline"> of </span>
+                <span className="md:hidden">/</span>
+                <span className="font-medium">{paginationInfo.totalCount}</span>
               </p>
 
-              {/* Compact page size selector */}
+              {/* Page size selector */}
               <div className="flex items-center space-x-1">
-                <span className="text-sm text-gray-600">Show</span>
+                <span className="text-xs lg:text-sm text-gray-600">Show</span>
                 <select
                   id="page-size"
                   value={currentPageSize}
                   onChange={(e) => onPageSizeChange(parseInt(e.target.value))}
                   disabled={loading}
-                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                  className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
                 >
                   {PAGE_SIZE_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -447,42 +489,42 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                     </option>
                   ))}
                 </select>
-                <span className="text-sm text-gray-600">entries</span>
+                <span className="text-xs lg:text-sm text-gray-600">entries</span>
               </div>
             </div>
 
             {/* Navigation buttons */}
             <div className="flex items-center space-x-1">
-              {/* First page button */}
+              {/* First page button - hidden on small screens */}
               <button
                 onClick={() => onPageChange(1)}
                 disabled={paginationInfo.currentPage === 1 || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
                 title="Go to first page"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                 </svg>
-                <span className="hidden sm:inline">First</span>
+                <span className="hidden lg:inline">First</span>
               </button>
 
               {/* Previous button */}
               <button
                 onClick={() => onPageChange(paginationInfo.currentPage - 1)}
                 disabled={!paginationInfo.hasPreviousPage || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
                 title="Go to previous page"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                <span className="hidden sm:inline">Previous</span>
+                <span className="hidden lg:inline">Previous</span>
               </button>
 
-              {/* Page numbers */}
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, paginationInfo.totalPages) }, (_, i) => {
-                  const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 4, paginationInfo.currentPage - 2)) + i;
+              {/* Page numbers - responsive spacing */}
+              <div className="flex items-center space-x-1 mx-1 lg:mx-2">
+                {Array.from({ length: Math.min(3, paginationInfo.totalPages) }, (_, i) => {
+                  const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 2, paginationInfo.currentPage - 1)) + i;
                   if (pageNum > paginationInfo.totalPages) return null;
 
                   return (
@@ -490,10 +532,11 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                       key={pageNum}
                       onClick={() => onPageChange(pageNum)}
                       disabled={loading}
-                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNum === paginationInfo.currentPage
+                      className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
                         ? 'bg-purple-600 text-white shadow-md'
-                        : 'text-gray-500 bg-white border border-gray-300 hover:border-purple-300'
+                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      title={`Go to page ${pageNum}`}
                     >
                       {pageNum}
                     </button>
@@ -505,24 +548,24 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
               <button
                 onClick={() => onPageChange(paginationInfo.currentPage + 1)}
                 disabled={!paginationInfo.hasNextPage || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
                 title="Go to next page"
               >
-                <span className="hidden sm:inline">Next</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden lg:inline">Next</span>
+                <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
 
-              {/* Last page button */}
+              {/* Last page button - hidden on small screens */}
               <button
                 onClick={() => onPageChange(paginationInfo.totalPages)}
                 disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
                 title="Go to last page"
               >
-                <span className="hidden sm:inline">Last</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden lg:inline">Last</span>
+                <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                 </svg>
               </button>
