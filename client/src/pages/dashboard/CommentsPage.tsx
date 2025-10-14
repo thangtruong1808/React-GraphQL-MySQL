@@ -362,6 +362,7 @@ const CommentsPage: React.FC = () => {
                 paginationInfo={state.paginationInfo}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
+                currentPageSize={state.pageSize}
                 onSort={handleSort}
                 currentSortBy={sortBy}
                 currentSortOrder={sortOrder}

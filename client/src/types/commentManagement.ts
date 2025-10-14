@@ -12,6 +12,7 @@ export interface CommentsTableProps {
   paginationInfo: PaginationInfo;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  currentPageSize: number;
   onSort: (sortBy: string, sortOrder: string) => void;
   currentSortBy: string;
   currentSortOrder: string;

@@ -16,6 +16,7 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
   paginationInfo,
   onPageChange,
   onPageSizeChange,
+  currentPageSize,
   onSort,
   currentSortBy,
   currentSortOrder,
@@ -427,7 +428,7 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
             {/* Compact page info */}
             <div className="flex items-center space-x-4">
               <p className="text-sm text-gray-600">
-                Showing <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * 10 + 1}</span> to <span className="font-medium">{Math.min(paginationInfo.currentPage * 10, paginationInfo.totalCount)}</span> of <span className="font-medium">{paginationInfo.totalCount}</span>
+                Showing <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span> to <span className="font-medium">{Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)}</span> of <span className="font-medium">{paginationInfo.totalCount}</span>
               </p>
 
               {/* Compact page size selector */}
@@ -435,7 +436,7 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                 <span className="text-sm text-gray-600">Show</span>
                 <select
                   id="page-size"
-                  value={10}
+                  value={currentPageSize}
                   onChange={(e) => onPageSizeChange(parseInt(e.target.value))}
                   disabled={loading}
                   className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"

@@ -385,7 +385,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                     <option value="">Select a user...</option>
                     {usersData?.users?.users?.map((user) => (
                       <option key={user.id} value={user.id}>
-                        {user.id} - {user.firstName} {user.lastName}
+                        {user.firstName} {user.lastName} - {user.role}
                       </option>
                     ))}
                   </select>

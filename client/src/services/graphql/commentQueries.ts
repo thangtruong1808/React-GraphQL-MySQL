@@ -104,6 +104,23 @@ export const DELETE_COMMENT_MUTATION = gql`
   }
 `;
 
+// Query to fetch all projects for dropdown selection
+export const GET_PROJECTS_FOR_DROPDOWN_QUERY = gql`
+  query GetProjectsForDropdown {
+    dashboardProjects(limit: 100, offset: 0, sortBy: "name", sortOrder: "ASC") {
+      projects {
+        id
+        name
+        description
+        status
+      }
+      paginationInfo {
+        totalCount
+      }
+    }
+  }
+`;
+
 // TypeScript interfaces for the queries and mutations
 export interface Comment {
   id: string;
@@ -193,4 +210,18 @@ export interface DeleteCommentMutationData {
 
 export interface DeleteCommentMutationVariables {
   id: string;
+}
+
+export interface GetProjectsForDropdownQueryResponse {
+  dashboardProjects: {
+    projects: Array<{
+      id: string;
+      name: string;
+      description: string;
+      status: string;
+    }>;
+    paginationInfo: {
+      totalCount: number;
+    };
+  };
 }

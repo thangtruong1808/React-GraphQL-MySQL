@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaComment, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { useQuery } from '@apollo/client';
+import { FaTimes, FaComment, FaExclamationTriangle, FaFolder } from 'react-icons/fa';
 import { CreateCommentModalProps, CommentFormData } from '../../types/commentManagement';
-import { COMMENT_FORM_VALIDATION, COMMENT_LIMITS } from '../../constants/commentManagement';
+import { COMMENT_LIMITS } from '../../constants/commentManagement';
+import { GET_PROJECTS_FOR_DROPDOWN_QUERY } from '../../services/graphql/commentQueries';
 
 /**
  * CreateCommentModal Component
@@ -19,6 +21,11 @@ const CreateCommentModal: React.FC<CreateCommentModalProps> = ({
     projectId: '',
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Fetch projects for dropdown
+  const { data: projectsData, loading: projectsLoading } = useQuery(GET_PROJECTS_FOR_DROPDOWN_QUERY, {
+    skip: !isOpen // Only fetch when modal is open
+  });
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -133,6 +140,7 @@ const CreateCommentModal: React.FC<CreateCommentModalProps> = ({
               {/* Project Selection */}
               <div>
                 <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 mb-2">
+                  <FaFolder className="inline h-4 w-4 mr-2 text-purple-600" />
                   Project *
                 </label>
                 <div className="relative">
@@ -140,16 +148,28 @@ const CreateCommentModal: React.FC<CreateCommentModalProps> = ({
                     id="projectId"
                     value={formData.projectId}
                     onChange={(e) => handleInputChange('projectId', e.target.value)}
-                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors ${errors.projectId ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
-                    disabled={loading}
+                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors ${errors.projectId ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    disabled={loading || projectsLoading}
                   >
                     <option value="">Select a project...</option>
-                    {/* TODO: This should be populated with actual projects from the system */}
-                    <option value="1">Sample Project 1</option>
-                    <option value="2">Sample Project 2</option>
-                    <option value="3">Sample Project 3</option>
+                    {projectsData?.dashboardProjects?.projects?.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name} - {project.status}
+                      </option>
+                    ))}
+                    {!projectsLoading && !projectsData?.dashboardProjects?.projects?.length && (
+                      <option value="" disabled>No projects available</option>
+                    )}
                   </select>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaFolder className={`h-4 w-4 ${projectsLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                  </div>
+                  {projectsLoading && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+                    </div>
+                  )}
                   {errors.projectId && (
                     <div className="mt-2 flex items-center text-sm text-red-600">
                       <FaExclamationTriangle className="h-4 w-4 mr-1" />
@@ -157,6 +177,9 @@ const CreateCommentModal: React.FC<CreateCommentModalProps> = ({
                     </div>
                   )}
                 </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  {projectsLoading ? 'Loading projects...' : 'Select the project for this comment'}
+                </p>
               </div>
 
               {/* Content Input */}

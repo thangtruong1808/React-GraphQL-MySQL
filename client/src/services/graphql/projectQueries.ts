@@ -99,6 +99,7 @@ export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
         firstName
         lastName
         email
+        role
       }
       paginationInfo {
         totalCount
@@ -219,6 +220,7 @@ export interface GetUsersForDropdownQueryResponse {
       firstName: string;
       lastName: string;
       email: string;
+      role: string;
     }>;
     paginationInfo: {
       totalCount: number;
