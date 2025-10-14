@@ -1,4 +1,4 @@
-import { Comment, User, Project, Task, CommentLike } from '../../db';
+import { Comment, User, Project, ProjectMember, Task, CommentLike } from '../../db';
 import { AuthenticationError } from 'apollo-server-express';
 
 /**
@@ -155,11 +155,30 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       throw new Error('Project not found');
     }
 
-    // Check if user has permission to create comments (admin or project manager)
+    // Check if user has permission to create comments
     const userRole = context.user.role?.toLowerCase();
-    const canCreateComment = userRole === 'admin' || userRole === 'project manager';
+    const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
+    
+    // If not admin/manager, check if user is a team member of this project
+    let isProjectMember = false;
+    if (!isAdminOrManager) {
+      try {
+        const projectMember = await ProjectMember.findOne({
+          where: {
+            projectId: parseInt(input.projectId),
+            userId: context.user.id,
+            isDeleted: false
+          }
+        });
+        isProjectMember = !!projectMember;
+      } catch (error) {
+        isProjectMember = false;
+      }
+    }
+    
+    const canCreateComment = isAdminOrManager || isProjectMember;
     if (!canCreateComment) {
-      throw new AuthenticationError('Only administrators and project managers can create comments');
+      throw new AuthenticationError('Only administrators, project managers, or project team members can create comments');
     }
 
     // Get a task from this project to attach the comment to
@@ -255,11 +274,26 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
     // Get the project ID from the comment's task
     const projectId = comment.task.projectId;
 
-    // Check if user has permission to like comments (admin or project manager)
+    // Check if user has permission to like comments
     const userRole = context.user.role?.toLowerCase();
-    const canLikeComment = userRole === 'admin' || userRole === 'project manager';
+    const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
+    
+    // If not admin/manager, check if user is a team member of this project
+    let isProjectMember = false;
+    if (!isAdminOrManager) {
+      const projectMember = await ProjectMember.findOne({
+        where: {
+          projectId: projectId,
+          userId: context.user.id,
+          isDeleted: false
+        }
+      });
+      isProjectMember = !!projectMember;
+    }
+    
+    const canLikeComment = isAdminOrManager || isProjectMember;
     if (!canLikeComment) {
-      throw new AuthenticationError('Only administrators and project managers can like comments');
+      throw new AuthenticationError('Only administrators, project managers, or project team members can like comments');
     }
 
     // Check if user already liked this comment

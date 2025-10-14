@@ -44,8 +44,8 @@ export const getDashboardComments = async (
     if (search && search.trim()) {
       whereClause[Op.or] = [
         { content: { [Op.like]: `%${search.trim()}%` } },
-        { '$user.firstName$': { [Op.like]: `%${search.trim()}%` } },
-        { '$user.lastName$': { [Op.like]: `%${search.trim()}%` } },
+        { '$user.first_name$': { [Op.like]: `%${search.trim()}%` } },
+        { '$user.last_name$': { [Op.like]: `%${search.trim()}%` } },
         { '$user.email$': { [Op.like]: `%${search.trim()}%` } },
         { '$task.title$': { [Op.like]: `%${search.trim()}%` } },
         { '$task.project.name$': { [Op.like]: `%${search.trim()}%` } },

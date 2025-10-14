@@ -4,6 +4,7 @@ import sequelize, { testConnection } from './db';
 import User from './models/user';
 import RefreshToken from './models/refreshToken';
 import Project from './models/project';
+import ProjectMember from './models/projectMember';
 import Task from './models/task';
 import ActivityLog from './models/activityLog';
 import Comment from './models/comment';
@@ -24,6 +25,7 @@ export {
   User,
   RefreshToken,
   Project,
+  ProjectMember,
   Task,
   ActivityLog,
   Comment,
@@ -49,6 +51,10 @@ export const setupAssociations = (): void => {
   // Project associations
   User.hasMany(Project, { foreignKey: 'owner_id', as: 'ownedProjects' });
   Project.belongsTo(User, { foreignKey: 'owner_id', as: 'owner' });
+  
+  // Project member associations
+  Project.belongsToMany(User, { through: ProjectMember, foreignKey: 'projectId', otherKey: 'userId', as: 'members' });
+  User.belongsToMany(Project, { through: ProjectMember, foreignKey: 'userId', otherKey: 'projectId', as: 'projects' });
   
   // Task associations
   Project.hasMany(Task, { foreignKey: 'project_id', as: 'tasks' });

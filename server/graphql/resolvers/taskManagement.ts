@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Task, Project, User } from '../../db';
+import { Task, Project, User, ProjectMember } from '../../db';
 
 /**
  * Task Management Resolvers
@@ -123,6 +123,33 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
       version: 1
     });
 
+    // If task is assigned to a user, add them as a project member
+    if (assignedUserId) {
+      try {
+        // Check if user is already a project member
+        const existingMember = await ProjectMember.findOne({
+          where: {
+            projectId: parseInt(projectId),
+            userId: parseInt(assignedUserId),
+            isDeleted: false
+          }
+        });
+
+        // If not a member, add them as a project member with EDITOR role
+        if (!existingMember) {
+          await ProjectMember.create({
+            projectId: parseInt(projectId),
+            userId: parseInt(assignedUserId),
+            role: 'EDITOR',
+            isDeleted: false
+          });
+        }
+      } catch (error) {
+        // Log error but don't fail task creation
+        console.error('Error adding user as project member:', error);
+      }
+    }
+
     // Fetch created task with relationships
     const createdTask = await Task.findByPk(task.id, {
       include: [
@@ -191,7 +218,48 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
     // Increment version for optimistic concurrency
     updateData.version = task.version + 1;
 
+    // Store the original assigned user for comparison
+    const originalAssignedUserId = task.assignedTo;
+    
     await task.update(updateData);
+
+    // Handle project member updates when task assignment changes
+    if (assignedUserId !== undefined) {
+      try {
+        // Use the updated projectId if provided, otherwise use the existing one
+        const targetProjectId = projectId ? parseInt(projectId) : task.projectId;
+        const newAssignedUserId = assignedUserId ? parseInt(assignedUserId) : null;
+        
+        // Only process if the assignment actually changed
+        if (originalAssignedUserId !== newAssignedUserId) {
+          
+          // If there's a new assigned user, ensure they're a project member
+          if (newAssignedUserId) {
+            // Check if user is already a project member for this project
+            const existingMember = await ProjectMember.findOne({
+              where: {
+                projectId: targetProjectId,
+                userId: newAssignedUserId,
+                isDeleted: false
+              }
+            });
+
+            // Only create new project member record if they're not already a member
+            if (!existingMember) {
+              await ProjectMember.create({
+                projectId: targetProjectId,
+                userId: newAssignedUserId,
+                role: 'EDITOR',
+                isDeleted: false
+              });
+            }
+          }
+        }
+      } catch (error) {
+        // Log error but don't fail task update
+        console.error('Error updating project member during task update:', error);
+      }
+    }
 
     // Fetch updated task with relationships
     const updatedTask = await Task.findByPk(id, {

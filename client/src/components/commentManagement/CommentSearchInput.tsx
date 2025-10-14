@@ -39,13 +39,19 @@ const CommentSearchInput: React.FC<CommentSearchInputProps> = ({
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setLocalValue(newValue);
-    onChange(newValue);
-  }, [onChange]);
+    // Only call onChange if it's different from onSearch (for immediate updates)
+    if (onChange !== onSearch) {
+      onChange(newValue);
+    }
+  }, [onChange, onSearch]);
 
   // Handle clear button click
   const handleClear = useCallback(() => {
     setLocalValue('');
-    onChange('');
+    // Only call onChange if it's different from onSearch (for immediate updates)
+    if (onChange !== onSearch) {
+      onChange('');
+    }
     onSearch('');
   }, [onChange, onSearch]);
 

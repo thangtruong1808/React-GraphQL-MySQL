@@ -350,7 +350,7 @@ const CommentsPage: React.FC = () => {
               {/* Search Input */}
               <CommentSearchInput
                 value={state.searchTerm}
-                onChange={(value) => setState(prev => ({ ...prev, searchTerm: value }))}
+                onChange={handleSearch}
                 onSearch={handleSearch}
                 loading={state.loading && !isSorting}
               />
