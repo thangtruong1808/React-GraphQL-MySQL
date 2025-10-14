@@ -61,6 +61,7 @@ export const getProjectComments = async (projectId: number, context?: any) => {
         taskId: taskIds,
         isDeleted: false
       },
+      attributes: ['id', 'uuid', 'content', 'userId', 'taskId', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
       include: [
         {
           model: User,
@@ -94,6 +95,7 @@ export const getProjectComments = async (projectId: number, context?: any) => {
         id: comment.id.toString(),
         uuid: comment.uuid,
         content: comment.content,
+        userId: comment.userId, // Include userId for author resolver
         author: {
           id: comment.user.id.toString(),
           firstName: comment.user.firstName,
@@ -153,8 +155,12 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       throw new Error('Project not found');
     }
 
-    // Authorization is handled on client side - server just verifies authentication
-    // Client checks if user is ADMIN, project owner, or team member before enabling comment posting
+    // Check if user has permission to create comments (admin or project manager)
+    const userRole = context.user.role?.toLowerCase();
+    const canCreateComment = userRole === 'admin' || userRole === 'project manager';
+    if (!canCreateComment) {
+      throw new AuthenticationError('Only administrators and project managers can create comments');
+    }
 
     // Get a task from this project to attach the comment to
     const discussionTaskId = await getProjectDiscussionTask(parseInt(input.projectId));
@@ -188,6 +194,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       id: createdComment!.id.toString(),
       uuid: createdComment!.uuid,
       content: createdComment!.content,
+      userId: createdComment!.userId, // Include userId for author resolver
       author: {
         id: createdComment!.user.id.toString(),
         firstName: createdComment!.user.firstName,
@@ -248,8 +255,12 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
     // Get the project ID from the comment's task
     const projectId = comment.task.projectId;
 
-    // Authorization is handled on client side - server just verifies authentication
-    // Client checks if user is ADMIN, project owner, or team member before enabling like button
+    // Check if user has permission to like comments (admin or project manager)
+    const userRole = context.user.role?.toLowerCase();
+    const canLikeComment = userRole === 'admin' || userRole === 'project manager';
+    if (!canLikeComment) {
+      throw new AuthenticationError('Only administrators and project managers can like comments');
+    }
 
     // Check if user already liked this comment
     const existingLike = await CommentLike.findOne({

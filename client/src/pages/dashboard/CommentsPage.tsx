@@ -31,8 +31,8 @@ import { DEFAULT_COMMENTS_PAGINATION } from '../../constants/commentManagement';
  * Accessible to all authenticated users
  */
 const CommentsPage: React.FC = () => {
-  const { showError, showSuccess } = useError();
-  const { user, isInitializing } = useAuth();
+  const { showError } = useError();
+  const { user, isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // Centralized state management
@@ -95,7 +95,7 @@ const CommentsPage: React.FC = () => {
         ...prev,
         comments: data.dashboardComments.comments,
         paginationInfo: data.dashboardComments.paginationInfo,
-        loading: false // Data loaded, no longer loading
+        loading: queryLoading // Use queryLoading to show skeleton during pagination changes
       }));
     } else if (!isInitializing && user && hasDashboardAccess) {
       // Only update loading state if we're past auth initialization
@@ -231,15 +231,15 @@ const CommentsPage: React.FC = () => {
         },
       });
 
-      showSuccess('Comment created successfully');
+      showNotification('Comment created successfully', 'success');
       setState(prev => ({ ...prev, createModalOpen: false }));
       refetch();
     } catch (error: any) {
-      showError(error.message || 'Failed to create comment');
+      showNotification(error.message || 'Failed to create comment', 'error');
     } finally {
       setCreateLoading(false);
     }
-  }, [createCommentMutation, showSuccess, showError, refetch]);
+  }, [createCommentMutation, showNotification, refetch]);
 
   // Handle update comment
   const handleUpdateComment = useCallback(async (formData: CommentFormData) => {
@@ -256,15 +256,15 @@ const CommentsPage: React.FC = () => {
         },
       });
 
-      showSuccess('Comment updated successfully');
+      showNotification('Comment updated successfully', 'success');
       setState(prev => ({ ...prev, editModalOpen: false, selectedComment: null }));
       refetch();
     } catch (error: any) {
-      showError(error.message || 'Failed to update comment');
+      showNotification(error.message || 'Failed to update comment', 'error');
     } finally {
       setUpdateLoading(false);
     }
-  }, [state.selectedComment, updateCommentMutation, showSuccess, showError, refetch]);
+  }, [state.selectedComment, updateCommentMutation, showNotification, refetch]);
 
   // Handle delete comment
   const handleDeleteComment = useCallback(async () => {
@@ -278,15 +278,15 @@ const CommentsPage: React.FC = () => {
         },
       });
 
-      showSuccess('Comment deleted successfully');
+      showNotification('Comment deleted successfully', 'success');
       setState(prev => ({ ...prev, deleteModalOpen: false, selectedComment: null }));
       refetch();
     } catch (error: any) {
-      showError(error.message || 'Failed to delete comment');
+      showNotification(error.message || 'Failed to delete comment', 'error');
     } finally {
       setDeleteLoading(false);
     }
-  }, [state.selectedComment, deleteCommentMutation, showSuccess, showError, refetch]);
+  }, [state.selectedComment, deleteCommentMutation, showNotification, refetch]);
 
   // Handle modal close
   const handleCloseModals = useCallback(() => {

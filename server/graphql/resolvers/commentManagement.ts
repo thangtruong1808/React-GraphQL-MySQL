@@ -87,6 +87,7 @@ export const getDashboardComments = async (
     // Fetch comments with pagination
     const comments = await Comment.findAll({
       where: whereClause,
+      attributes: ['id', 'uuid', 'content', 'userId', 'taskId', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
       include: [
         {
           model: User,
@@ -214,8 +215,11 @@ export const updateComment = async (
       throw new Error('Comment not found');
     }
 
-    // Check if user can update this comment (author or admin)
-    const canUpdate = context.user.role === 'ADMIN' || comment.userId === context.user.id;
+    // Check if user can update this comment (author or admin/project manager)
+    const userRole = context.user.role?.toLowerCase();
+    const canUpdate = userRole === 'admin' || 
+                     userRole === 'project manager' || 
+                     comment.userId === context.user.id;
     if (!canUpdate) {
       throw new AuthenticationError('You can only update your own comments');
     }
@@ -279,8 +283,11 @@ export const deleteComment = async (
       throw new Error('Comment not found');
     }
 
-    // Check if user can delete this comment (author or admin)
-    const canDelete = context.user.role === 'ADMIN' || comment.userId === context.user.id;
+    // Check if user can delete this comment (author or admin/project manager)
+    const userRole = context.user.role?.toLowerCase();
+    const canDelete = userRole === 'admin' || 
+                     userRole === 'project manager' || 
+                     comment.userId === context.user.id;
     if (!canDelete) {
       throw new AuthenticationError('You can only delete your own comments');
     }

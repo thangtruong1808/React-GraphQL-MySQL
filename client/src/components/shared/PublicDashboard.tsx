@@ -5,6 +5,8 @@ import HeroSection from './HeroSection';
 import MainContentSection from './MainContentSection';
 import PublicCallToAction from './PublicCallToAction';
 import { InlineError, PublicDashboardSkeleton } from '../ui';
+import { DatabaseConnectionError } from '../errors';
+import { useDatabaseErrorHandler } from '../../hooks/useDatabaseErrorHandler';
 
 /**
  * Public Dashboard Component
@@ -52,10 +54,28 @@ interface PublicStats {
 }
 
 const PublicDashboard: React.FC = () => {
+  // Database error handler for connection limit errors
+  const {
+    showDatabaseError,
+    databaseErrorMessage,
+    handleError,
+    handleRetry
+  } = useDatabaseErrorHandler();
+
   // Fetch public statistics from GraphQL API
   const { data, loading, error } = useQuery(GET_PUBLIC_STATS, {
     errorPolicy: 'all', // Continue rendering even if there's an error
   });
+
+  // Handle GraphQL errors, especially database connection errors
+  React.useEffect(() => {
+    if (error) {
+      // Try to handle as database error first
+      if (handleError(error)) {
+        return; // Error was handled by database error handler
+      }
+    }
+  }, [error, handleError]);
 
   // Extract stats from GraphQL response or use defaults
   const stats: PublicStats = data?.publicStats || {
@@ -100,7 +120,17 @@ const PublicDashboard: React.FC = () => {
     return <PublicDashboardSkeleton />;
   }
 
-  // Show error state if GraphQL query fails
+  // Show database connection error page if it's a database connection error
+  if (showDatabaseError) {
+    return (
+      <DatabaseConnectionError
+        error={databaseErrorMessage}
+        onRetry={handleRetry}
+      />
+    );
+  }
+
+  // Show error state if GraphQL query fails (for non-database errors)
   if (error) {
     return (
       <div className="w-full min-h-screen bg-gray-50 public-dashboard flex items-center justify-center">

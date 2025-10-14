@@ -6,6 +6,7 @@ import { ErrorProvider, useError } from './contexts/ErrorContext';
 import { AppRoutes } from './components/routing';
 import NavBar from './components/layout/NavBar';
 import { ActivityTracker } from './components/activity';
+import { DatabaseErrorBoundary } from './components/errors';
 
 import apolloClient, { setGlobalErrorHandler } from './services/graphql/apollo-client';
 import { LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AboutPageSkeleton, AuthInitializationSkeleton, NavBarSkeleton, SearchResultsPageSkeleton } from './components/ui';
@@ -234,7 +235,9 @@ function App() {
       <ErrorProvider>
         <BrowserRouter>
           <AuthProvider>
-            <AppWithModals />
+            <DatabaseErrorBoundary>
+              <AppWithModals />
+            </DatabaseErrorBoundary>
           </AuthProvider>
         </BrowserRouter>
       </ErrorProvider>

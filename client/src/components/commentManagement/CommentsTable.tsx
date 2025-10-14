@@ -163,7 +163,7 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
     ));
   };
 
-  if (loading && comments.length === 0) {
+  if (loading) {
     return (
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
