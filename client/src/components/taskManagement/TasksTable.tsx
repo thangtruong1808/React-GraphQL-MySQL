@@ -201,8 +201,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
           {/* Table Header */}
           <thead className="bg-gray-50">
             <tr>
+              {/* ID Column - Hidden on mobile and tablet */}
               <th
-                className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -210,6 +211,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('id')}
                 </div>
               </th>
+              {/* Title Column - Always visible */}
               <th
                 className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('title')}
@@ -219,9 +221,11 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('title')}
                 </div>
               </th>
-              <th className="w-64 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* Description Column - Hidden on mobile */}
+              <th className="hidden sm:table-cell w-64 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Description
               </th>
+              {/* Status Column - Always visible */}
               <th
                 className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('status')}
@@ -231,8 +235,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('status')}
                 </div>
               </th>
+              {/* Priority Column - Hidden on mobile */}
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden sm:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('priority')}
               >
                 <div className="flex items-center space-x-1">
@@ -240,14 +245,17 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('priority')}
                 </div>
               </th>
-              <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* Project Column - Hidden on mobile and tablet */}
+              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Project
               </th>
-              <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {/* Assigned To Column - Hidden on mobile and tablet */}
+              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Assigned To
               </th>
+              {/* Due Date Column - Hidden on mobile and tablet */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('dueDate')}
               >
                 <div className="flex items-center space-x-1">
@@ -255,8 +263,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('dueDate')}
                 </div>
               </th>
+              {/* Created Date Column - Hidden on mobile and tablet */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -264,8 +273,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -273,6 +283,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
+              {/* Actions Column - Always visible */}
               <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
@@ -285,40 +296,51 @@ const TasksTable: React.FC<TasksTableProps> = ({
               // Loading skeleton rows
               Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index} className="animate-pulse">
-                  <td className="w-16 px-4 py-4 whitespace-nowrap">
+                  {/* ID Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-8"></div>
                   </td>
-                  <td className="w-48 px-4 py-4 whitespace-nowrap">
+                  {/* Title Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-32"></div>
                   </td>
-                  <td className="w-64 px-4 py-4">
+                  {/* Description Column - Hidden on mobile */}
+                  <td className="hidden sm:table-cell px-4 py-4">
                     <div className="space-y-1">
                       <div className="h-4 bg-gray-200 rounded w-48"></div>
                       <div className="h-4 bg-gray-200 rounded w-32"></div>
                     </div>
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap">
+                  {/* Status Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <div className="h-6 bg-gray-200 rounded-full w-16"></div>
                   </td>
-                  <td className="w-24 px-4 py-4 whitespace-nowrap">
+                  {/* Priority Column - Hidden on mobile */}
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-6 bg-gray-200 rounded-full w-12"></div>
                   </td>
-                  <td className="w-40 px-4 py-4 whitespace-nowrap">
+                  {/* Project Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-24"></div>
                   </td>
-                  <td className="w-40 px-4 py-4 whitespace-nowrap">
+                  {/* Assigned To Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap">
+                  {/* Due Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap">
+                  {/* Created Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap">
+                  {/* Updated Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </td>
-                  <td className="w-40 px-4 py-4 whitespace-nowrap">
+                  {/* Actions Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       <div className="h-8 bg-gray-200 rounded w-16"></div>
                       <div className="h-8 bg-gray-200 rounded w-16"></div>
@@ -329,7 +351,13 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : tasks.length === 0 ? (
               // No data row
               <tr>
-                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500 sm:hidden">
+                  No tasks found
+                </td>
+                <td colSpan={6} className="hidden sm:table-cell lg:hidden px-4 py-8 text-center text-gray-500">
+                  No tasks found
+                </td>
+                <td colSpan={11} className="hidden lg:table-cell px-4 py-8 text-center text-gray-500">
                   No tasks found
                 </td>
               </tr>
@@ -337,45 +365,56 @@ const TasksTable: React.FC<TasksTableProps> = ({
               // Data rows
               tasks.map((task) => (
                 <tr key={task.id} className="hover:bg-gray-50">
-                  <td className="w-16 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* ID Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {task.id}
                   </td>
-                  <td className="w-48 px-4 py-4 text-sm text-gray-900 text-left">
+                  {/* Title Column - Always visible */}
+                  <td className="px-4 py-4 text-sm text-gray-900 text-left">
                     {formatTextWithToggle(task.title, task.id, 'title')}
                   </td>
-                  <td className="w-64 px-4 py-4 text-sm text-gray-900 text-left">
+                  {/* Description Column - Hidden on mobile */}
+                  <td className="hidden sm:table-cell px-4 py-4 text-sm text-gray-900 text-left">
                     {formatTextWithToggle(task.description, task.id, 'description')}
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* Status Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_STATUS_COLORS[task.status]}`}>
                       {formatTaskStatusForDisplay(task.status)}
                     </span>
                   </td>
-                  <td className="w-24 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* Priority Column - Hidden on mobile */}
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_PRIORITY_COLORS[task.priority]}`}>
                       {formatTaskPriorityForDisplay(task.priority)}
                     </span>
                   </td>
-                  <td className="w-40 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* Project Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="truncate" title={task.project.name}>
                       {task.project.name}
                     </div>
                   </td>
-                  <td className="w-40 px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  {/* Assigned To Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="truncate" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
                       {task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}
                     </div>
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  {/* Due Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(task.dueDate)}
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  {/* Created Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(task.createdAt)}
                   </td>
-                  <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  {/* Updated Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(task.updatedAt)}
                   </td>
-                  <td className="w-40 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  {/* Actions Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => onEdit(task)}
@@ -401,69 +440,61 @@ const TasksTable: React.FC<TasksTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+        {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
-          {/* Mobile pagination */}
-          <div className="flex space-x-2">
-            <button
-              onClick={handleFirstPage}
-              disabled={paginationInfo.currentPage === 1 || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="First"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-              </svg>
-            </button>
+          <div className="flex items-center space-x-1">
             <button
               onClick={handlePreviousPage}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="Previous"
+              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
+              <span className="hidden xs:inline">Previous</span>
             </button>
+            <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+              {paginationInfo.currentPage} / {paginationInfo.totalPages}
+            </span>
             <button
               onClick={handleNextPage}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="Next"
+              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="hidden xs:inline">Next</span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-            <button
-              onClick={handleLastPage}
-              disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="Last"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
             </button>
           </div>
         </div>
 
+        {/* Desktop pagination - show on sm and larger screens */}
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          {/* Compact page info */}
-          <div className="flex items-center space-x-4">
-            <p className="text-sm text-gray-600">
-              Showing <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span> to <span className="font-medium">{Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)}</span> of <span className="font-medium">{paginationInfo.totalCount}</span>
+          {/* Page info and size selector */}
+          <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
+            {/* Compact page info */}
+            <p className="text-xs lg:text-sm text-gray-600">
+              <span className="hidden md:inline">Showing </span>
+              <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span>
+              <span className="hidden md:inline"> to </span>
+              <span className="md:hidden">-</span>
+              <span className="font-medium">{Math.min(paginationInfo.currentPage * currentPageSize, paginationInfo.totalCount)}</span>
+              <span className="hidden md:inline"> of </span>
+              <span className="md:hidden">/</span>
+              <span className="font-medium">{paginationInfo.totalCount}</span>
             </p>
 
-            {/* Compact page size selector */}
+            {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm text-gray-600">Show</span>
               <select
                 id="page-size"
                 value={currentPageSize}
                 onChange={handlePageSizeChange}
                 disabled={loading}
-                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
               >
                 {TASKS_PAGINATION_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -471,42 +502,42 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm text-gray-600">entries</span>
             </div>
           </div>
 
           {/* Navigation buttons */}
           <div className="flex items-center space-x-1">
-            {/* First page button */}
+            {/* First page button - hidden on small screens */}
             <button
               onClick={handleFirstPage}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
               title="Go to first page"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
               </svg>
-              <span className="hidden sm:inline">First</span>
+              <span className="hidden lg:inline">First</span>
             </button>
 
             {/* Previous button */}
             <button
               onClick={handlePreviousPage}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Go to previous page"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              <span className="hidden sm:inline">Previous</span>
+              <span className="hidden lg:inline">Previous</span>
             </button>
 
-            {/* Page numbers */}
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(5, paginationInfo.totalPages) }, (_, i) => {
-                const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 4, paginationInfo.currentPage - 2)) + i;
+            {/* Page numbers - responsive spacing */}
+            <div className="flex items-center space-x-1 mx-1 lg:mx-2">
+              {Array.from({ length: Math.min(3, paginationInfo.totalPages) }, (_, i) => {
+                const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 2, paginationInfo.currentPage - 1)) + i;
                 if (pageNum > paginationInfo.totalPages) return null;
 
                 return (
@@ -514,10 +545,11 @@ const TasksTable: React.FC<TasksTableProps> = ({
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNum === paginationInfo.currentPage
+                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
                       ? 'bg-purple-600 text-white shadow-md'
-                      : 'text-gray-500 bg-white border border-gray-300 hover:border-purple-300'
+                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    title={`Go to page ${pageNum}`}
                   >
                     {pageNum}
                   </button>
@@ -529,24 +561,24 @@ const TasksTable: React.FC<TasksTableProps> = ({
             <button
               onClick={handleNextPage}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Go to next page"
             >
-              <span className="hidden sm:inline">Next</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="hidden lg:inline">Next</span>
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
 
-            {/* Last page button */}
+            {/* Last page button - hidden on small screens */}
             <button
               onClick={handleLastPage}
               disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
               title="Go to last page"
             >
-              <span className="hidden sm:inline">Last</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="hidden lg:inline">Last</span>
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
             </button>
