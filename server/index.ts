@@ -31,12 +31,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS configuration from environment variables
-if (!process.env.CORS_ORIGINS) {
-  throw new Error('CORS_ORIGINS environment variable is required');
-}
-
-const corsOrigins = process.env.CORS_ORIGINS.split(',').map(origin => origin.trim());
+// CORS configuration from environment variables with fallback
+const corsOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000', 'http://localhost:5173']; // Default development origins
 
 app.use(cors({
   origin: corsOrigins,

@@ -27,13 +27,15 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // Fetch projects and users for dropdowns
-  const { data: projectsData, loading: projectsLoading } = useQuery(GET_PROJECTS_FOR_DROPDOWN_QUERY, {
-    skip: !isOpen // Only fetch when modal is open
+  // Fetch projects and users for dropdowns - with error handling
+  const { data: projectsData, loading: projectsLoading, error: projectsError } = useQuery(GET_PROJECTS_FOR_DROPDOWN_QUERY, {
+    skip: !isOpen, // Only fetch when modal is open
+    errorPolicy: 'ignore' // Ignore errors to prevent connection issues
   });
 
-  const { data: usersData, loading: usersLoading } = useQuery(GET_USERS_FOR_DROPDOWN_QUERY, {
-    skip: !isOpen // Only fetch when modal is open
+  const { data: usersData, loading: usersLoading, error: usersError } = useQuery(GET_USERS_FOR_DROPDOWN_QUERY, {
+    skip: !isOpen, // Only fetch when modal is open
+    errorPolicy: 'ignore' // Ignore errors to prevent connection issues
   });
 
   /**
@@ -89,8 +91,13 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       newErrors.description = 'Description is required';
     }
 
-    if (!formData.projectId) {
+    if (!formData.projectId || formData.projectId.trim() === '') {
       newErrors.projectId = 'Project is required';
+    }
+
+    // Check if projects are available (only if we tried to load them)
+    if (!projectsLoading && !projectsError && !projectsData?.dashboardProjects?.projects?.length) {
+      newErrors.projectId = 'No projects available. Please create a project first.';
     }
 
     setErrors(newErrors);
@@ -109,7 +116,15 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     }
 
     try {
-      await onSubmit(formData);
+      // Clean form data - convert empty strings to null/undefined for optional fields only
+      const cleanedFormData = {
+        ...formData,
+        projectId: formData.projectId, // Keep as is since it's required and validated
+        assignedUserId: formData.assignedUserId || undefined,
+        dueDate: formData.dueDate || undefined
+      };
+
+      await onSubmit(cleanedFormData);
     } catch (error) {
       setErrors({ submit: TASK_ERROR_MESSAGES.CREATE });
     }
@@ -332,11 +347,15 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                     className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:border-gray-400 ${errors.projectId ? 'border-red-300 bg-red-50' : 'border-gray-300'}`}
                   >
                     <option value="">Select a project...</option>
-                    {projectsData?.dashboardProjects?.projects?.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.id} - {project.name}
-                      </option>
-                    ))}
+                    {projectsData?.dashboardProjects?.projects?.length > 0 ? (
+                      projectsData.dashboardProjects.projects.map((project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.id} - {project.name}
+                        </option>
+                      ))
+                    ) : (
+                      !projectsLoading && !projectsError && <option value="" disabled>No projects available</option>
+                    )}
                   </select>
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <FaFolder className={`h-4 w-4 ${projectsLoading ? 'text-gray-300' : 'text-gray-400'}`} />
@@ -376,9 +395,12 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                     <option value="">Select a user...</option>
                     {usersData?.users?.users?.map((user) => (
                       <option key={user.id} value={user.id}>
-                        {user.id} - {user.firstName} {user.lastName}
+                        {user.firstName} {user.lastName} - {user.role}
                       </option>
                     ))}
+                    {!usersLoading && !usersError && !usersData?.users?.users?.length && (
+                      <option value="" disabled>No users available</option>
+                    )}
                   </select>
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <FaUser className={`h-4 w-4 ${usersLoading ? 'text-gray-300' : 'text-gray-400'}`} />

@@ -23,7 +23,7 @@ export const getDashboardTasks = async (
 ) => {
   try {
     const whereConditions: any = {
-      is_deleted: false
+      isDeleted: false
     };
 
     // Add search conditions if search query provided
@@ -58,7 +58,7 @@ export const getDashboardTasks = async (
           attributes: ['id', 'firstName', 'lastName', 'email'] 
         }
       ],
-      attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'due_date', 'project_id', 'assigned_to', 'is_deleted', 'version', 'created_at', 'updated_at'],
+      attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate', 'projectId', 'assignedTo', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
       raw: false
     });
 
@@ -87,7 +87,7 @@ export const getDashboardTasks = async (
  * Create a new task
  * Validates input and creates task with proper relationships
  */
-export const createTask = async (_: any, { input }: { input: any }) => {
+export const createTask = async (_: any, { input }: { input: any }, context: any) => {
   try {
     const { title, description, status, priority, dueDate, projectId, assignedUserId } = input;
 
@@ -116,10 +116,10 @@ export const createTask = async (_: any, { input }: { input: any }) => {
       description,
       status,
       priority,
-      due_date: dueDate || null,
-      project_id: projectId,
-      assigned_to: assignedUserId || null,
-      is_deleted: false,
+      dueDate: dueDate || null,
+      projectId: parseInt(projectId),
+      assignedTo: assignedUserId ? parseInt(assignedUserId) : null,
+      isDeleted: false,
       version: 1
     });
 
@@ -141,7 +141,6 @@ export const createTask = async (_: any, { input }: { input: any }) => {
 
     return createdTask;
   } catch (error) {
-    console.error('Error creating task:', error);
     throw new Error('Failed to create task');
   }
 };
@@ -150,14 +149,14 @@ export const createTask = async (_: any, { input }: { input: any }) => {
  * Update an existing task
  * Handles partial updates and validates relationships
  */
-export const updateTask = async (_: any, { id, input }: { id: string; input: any }) => {
+export const updateTask = async (_: any, { id, input }: { id: string; input: any }, context: any) => {
   try {
     const task = await Task.findByPk(id);
     if (!task) {
       throw new Error('Task not found');
     }
 
-    if (task.is_deleted) {
+    if (task.isDeleted) {
       throw new Error('Cannot update deleted task');
     }
 
@@ -185,9 +184,9 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
     if (description !== undefined) updateData.description = description;
     if (status !== undefined) updateData.status = status;
     if (priority !== undefined) updateData.priority = priority;
-    if (dueDate !== undefined) updateData.due_date = dueDate;
-    if (projectId !== undefined) updateData.project_id = projectId;
-    if (assignedUserId !== undefined) updateData.assigned_to = assignedUserId;
+    if (dueDate !== undefined) updateData.dueDate = dueDate;
+    if (projectId !== undefined) updateData.projectId = parseInt(projectId);
+    if (assignedUserId !== undefined) updateData.assignedTo = assignedUserId ? parseInt(assignedUserId) : null;
 
     // Increment version for optimistic concurrency
     updateData.version = task.version + 1;
@@ -212,7 +211,6 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
 
     return updatedTask;
   } catch (error) {
-    console.error('Error updating task:', error);
     throw new Error('Failed to update task');
   }
 };
@@ -221,26 +219,25 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
  * Delete a task (soft delete)
  * Sets isDeleted flag instead of hard deletion
  */
-export const deleteTask = async (_: any, { id }: { id: string }) => {
+export const deleteTask = async (_: any, { id }: { id: string }, context: any) => {
   try {
     const task = await Task.findByPk(id);
     if (!task) {
       throw new Error('Task not found');
     }
 
-    if (task.is_deleted) {
+    if (task.isDeleted) {
       throw new Error('Task already deleted');
     }
 
-    // Soft delete by setting is_deleted flag
+    // Soft delete by setting isDeleted flag
     await task.update({
-      is_deleted: true,
+      isDeleted: true,
       version: task.version + 1
     });
 
     return true;
   } catch (error) {
-    console.error('Error deleting task:', error);
     throw new Error('Failed to delete task');
   }
 };

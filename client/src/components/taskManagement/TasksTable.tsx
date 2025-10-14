@@ -248,6 +248,15 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               <th
                 className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleSort('dueDate')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Due Date</span>
+                  {getSortIcon('dueDate')}
+                </div>
+              </th>
+              <th
+                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -306,6 +315,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   <td className="w-32 px-4 py-4 whitespace-nowrap">
                     <div className="h-4 bg-gray-200 rounded w-20"></div>
                   </td>
+                  <td className="w-32 px-4 py-4 whitespace-nowrap">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </td>
                   <td className="w-40 px-4 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       <div className="h-8 bg-gray-200 rounded w-16"></div>
@@ -317,7 +329,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : tasks.length === 0 ? (
               // No data row
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
                   No tasks found
                 </td>
               </tr>
@@ -353,6 +365,9 @@ const TasksTable: React.FC<TasksTableProps> = ({
                     <div className="truncate" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
                       {task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}
                     </div>
+                  </td>
+                  <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                    {formatDate(task.dueDate)}
                   </td>
                   <td className="w-32 px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(task.createdAt)}

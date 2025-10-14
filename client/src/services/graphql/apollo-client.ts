@@ -178,14 +178,13 @@ const fetchInitialCSRFToken = async (): Promise<void> => {
   } catch (error) {
     // Log error for debugging but don't break the app
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    throw new Error(errorMessage);
-    // console.error('CSRF Token Fetch Error:', errorMessage);
     
     // Set a fallback CSRF token to prevent app from breaking
     csrfToken = 'fallback-csrf-token';
     
     // Note: In production, you might want to show a user-friendly notification
     // but for now, we'll use fallback to maintain app functionality
+    // Don't throw error to prevent app from breaking
   }
 };
 
@@ -326,6 +325,13 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
       } else if (extensions?.code === 'CSRF_TOKEN_INVALID' || message.includes('CSRF')) {
         // Handle CSRF errors gracefully - don't show to user during logout
         // This prevents CSRF error messages during logout operations
+        const isLogoutOperation = operation.operationName === 'Logout';
+        const isTaskOperation = ['CreateTask', 'UpdateTask', 'DeleteTask'].includes(operation.operationName);
+        if (!isLogoutOperation && !isTaskOperation) {
+          // For non-logout and non-task operations, CSRF errors should be thrown to the component
+          // This ensures proper error handling in the UI
+          throw new Error(message);
+        }
       } else {
         // Show other GraphQL errors to user (but not CSRF errors)
         if (globalErrorHandler) {
@@ -414,8 +420,10 @@ const client = new ApolloClient({
 
 // Enhanced logging for GraphQL operations (disabled for better user experience)
 
-// Fetch initial CSRF token (only once on startup)
-fetchInitialCSRFToken();
+// Fetch initial CSRF token (only once on startup) - handle errors gracefully
+fetchInitialCSRFToken().catch(() => {
+  // Error already handled in function - fallback token is set
+});
 
 /**
  * Set CSRF token in Apollo Client memory

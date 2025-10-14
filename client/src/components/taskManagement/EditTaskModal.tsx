@@ -30,6 +30,20 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
   });
 
   /**
+   * Convert ISO date string to YYYY-MM-DD format for HTML date input
+   */
+  const formatDateForInput = (dateString: string | null | undefined): string | undefined => {
+    if (!dateString) return undefined;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return undefined;
+      return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+    } catch (error) {
+      return undefined;
+    }
+  };
+
+  /**
    * Populate form with task data when modal opens
    */
   useEffect(() => {
@@ -39,7 +53,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
         description: task.description,
         status: task.status,
         priority: task.priority,
-        dueDate: task.dueDate || '',
+        dueDate: formatDateForInput(task.dueDate),
         projectId: task.project.id,
         assignedUserId: task.assignedUser?.id || ''
       });

@@ -44,7 +44,7 @@ import { InlineError } from '../../components/ui';
  */
 const TasksPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isInitializing } = useAuth();
+  const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
   // State management
@@ -175,20 +175,33 @@ const TasksPage: React.FC = () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      await createTaskMutation({
+      const result = await createTaskMutation({
         variables: { input: taskData }
       });
 
-      setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
-      await refetch();
-    } catch (error) {
+      // Only show success if we actually got data back
+      if (result.data?.createTask) {
+        setState(prev => ({ ...prev, createModalOpen: false, loading: false }));
+        showNotification(TASK_SUCCESS_MESSAGES.CREATE, 'success');
+        await refetch({
+          limit: state.pageSize,
+          offset: (state.currentPage - 1) * state.pageSize,
+          search: state.searchQuery || undefined,
+          sortBy,
+          sortOrder
+        });
+      } else {
+        throw new Error('Task creation failed - no data returned');
+      }
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: TASK_ERROR_MESSAGES.CREATE
       }));
+      showNotification(error.message || TASK_ERROR_MESSAGES.CREATE, 'error');
     }
-  }, [createTaskMutation, refetch]);
+  }, [createTaskMutation, refetch, showNotification]);
 
   /**
    * Update an existing task
@@ -198,20 +211,33 @@ const TasksPage: React.FC = () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      await updateTaskMutation({
+      const result = await updateTaskMutation({
         variables: { id: taskId, input: taskData }
       });
 
-      setState(prev => ({ ...prev, editModalOpen: false, loading: false }));
-      await refetch();
-    } catch (error) {
+      // Only show success if we actually got data back
+      if (result.data?.updateTask) {
+        setState(prev => ({ ...prev, editModalOpen: false, loading: false }));
+        showNotification(TASK_SUCCESS_MESSAGES.UPDATE, 'success');
+        await refetch({
+          limit: state.pageSize,
+          offset: (state.currentPage - 1) * state.pageSize,
+          search: state.searchQuery || undefined,
+          sortBy,
+          sortOrder
+        });
+      } else {
+        throw new Error('Task update failed - no data returned');
+      }
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: TASK_ERROR_MESSAGES.UPDATE
       }));
+      showNotification(error.message || TASK_ERROR_MESSAGES.UPDATE, 'error');
     }
-  }, [updateTaskMutation, refetch]);
+  }, [updateTaskMutation, refetch, showNotification]);
 
   /**
    * Delete a task
@@ -221,20 +247,33 @@ const TasksPage: React.FC = () => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      await deleteTaskMutation({
+      const result = await deleteTaskMutation({
         variables: { id: taskId }
       });
 
-      setState(prev => ({ ...prev, deleteModalOpen: false, loading: false }));
-      await refetch();
-    } catch (error) {
+      // Only show success if we actually got data back
+      if (result.data?.deleteTask !== undefined) {
+        setState(prev => ({ ...prev, deleteModalOpen: false, loading: false }));
+        showNotification(TASK_SUCCESS_MESSAGES.DELETE, 'success');
+        await refetch({
+          limit: state.pageSize,
+          offset: (state.currentPage - 1) * state.pageSize,
+          search: state.searchQuery || undefined,
+          sortBy,
+          sortOrder
+        });
+      } else {
+        throw new Error('Task deletion failed - no data returned');
+      }
+    } catch (error: any) {
       setState(prev => ({
         ...prev,
         loading: false,
         error: TASK_ERROR_MESSAGES.DELETE
       }));
+      showNotification(error.message || TASK_ERROR_MESSAGES.DELETE, 'error');
     }
-  }, [deleteTaskMutation, refetch]);
+  }, [deleteTaskMutation, refetch, showNotification]);
 
   /**
    * Clear error message

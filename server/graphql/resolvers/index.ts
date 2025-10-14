@@ -188,9 +188,9 @@ export const resolvers = {
     },
     
     // Map database date fields to GraphQL camelCase fields
-    dueDate: (parent: any) => parent.due_date ? new Date(parent.due_date).toISOString() : null,
-    createdAt: (parent: any) => parent.created_at ? new Date(parent.created_at).toISOString() : null,
-    updatedAt: (parent: any) => parent.updated_at ? new Date(parent.updated_at).toISOString() : null,
+    dueDate: (parent: any) => parent.dueDate ? new Date(parent.dueDate).toISOString() : null,
+    createdAt: (parent: any) => parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
+    updatedAt: (parent: any) => parent.updatedAt ? new Date(parent.updatedAt).toISOString() : null,
     
     // Resolver for project field on Task type
     project: async (parent: any) => {
