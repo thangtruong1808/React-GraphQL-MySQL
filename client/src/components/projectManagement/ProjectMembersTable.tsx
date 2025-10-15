@@ -56,6 +56,22 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
     }
   };
 
+  // Get member type badge color and text based on member type
+  const getMemberTypeBadgeColor = (memberType: string) => {
+    switch (memberType) {
+      case 'OWNER':
+        return { color: 'bg-purple-100 text-purple-800', text: 'Owner' };
+      case 'EDITOR':
+        return { color: 'bg-blue-100 text-blue-800', text: 'Editor' };
+      case 'VIEWER':
+        return { color: 'bg-green-100 text-green-800', text: 'Viewer' };
+      case 'ASSIGNEE':
+        return { color: 'bg-orange-100 text-orange-800', text: 'Task Assignee' };
+      default:
+        return { color: 'bg-gray-100 text-gray-800', text: 'Member' };
+    }
+  };
+
   // Get sort icon for column headers
   const getSortIcon = (column: string) => {
     if (currentSortBy !== column) {
@@ -113,6 +129,16 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 User
               </th>
+              {/* Member Type Column */}
+              <th
+                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => handleSort('memberRole')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>Type</span>
+                  {getSortIcon('memberRole')}
+                </div>
+              </th>
               {/* Role Column */}
               <th
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
@@ -145,7 +171,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
           <tbody className="bg-white divide-y divide-gray-200">
             {members.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -181,6 +207,18 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                     </div>
                   </td>
 
+                  {/* Member Type */}
+                  <td className="px-4 py-4 whitespace-nowrap text-left">
+                    {(() => {
+                      const memberTypeInfo = getMemberTypeBadgeColor(member.memberType);
+                      return (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${memberTypeInfo.color}`}>
+                          {memberTypeInfo.text}
+                        </span>
+                      );
+                    })()}
+                  </td>
+
                   {/* Role */}
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(member.role)}`}>
@@ -203,24 +241,44 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                   {/* Actions */}
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <div className="flex justify-start space-x-2">
-                      {/* Update Role button */}
-                      <button
-                        onClick={() => onUpdateRole(member)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
-                        title="Edit member role"
-                      >
-                        <FaEdit className="w-3 h-3 mr-1" />
-                        Edit Role
-                      </button>
-                      {/* Remove button */}
-                      <button
-                        onClick={() => onRemoveMember(member)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
-                        title="Remove member"
-                      >
-                        <FaTrash className="w-3 h-3 mr-1" />
-                        Remove
-                      </button>
+                      {/* Show different actions based on member type */}
+                      {member.memberType === 'OWNER' ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          Project Owner
+                        </span>
+                      ) : member.memberType === 'ASSIGNEE' ? (
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => onUpdateRole(member)}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
+                            title="Promote to project member"
+                          >
+                            <FaUserPlus className="w-3 h-3 mr-1" />
+                            Promote
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex space-x-2">
+                          {/* Update Role button */}
+                          <button
+                            onClick={() => onUpdateRole(member)}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                            title="Edit member role"
+                          >
+                            <FaEdit className="w-3 h-3 mr-1" />
+                            Edit Role
+                          </button>
+                          {/* Remove button */}
+                          <button
+                            onClick={() => onRemoveMember(member)}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                            title="Remove member"
+                          >
+                            <FaTrash className="w-3 h-3 mr-1" />
+                            Remove
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>

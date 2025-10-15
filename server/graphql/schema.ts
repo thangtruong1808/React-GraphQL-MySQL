@@ -94,13 +94,15 @@ export const typeDefs = gql`
     comments: [Comment!]!
   }
 
-  # Project Member Type - for project membership management
+  # Project Member Type - for comprehensive project membership management
+  # Includes Owner, Project Members, and Task Assignees for consistency with project detail page
   type ProjectMember {
     projectId: ID!
     userId: ID!
     role: String!
-    createdAt: String!
-    updatedAt: String!
+    memberType: String! # OWNER, EDITOR, VIEWER, ASSIGNEE
+    createdAt: String
+    updatedAt: String
     user: User!
     project: Project!
   }
@@ -110,6 +112,14 @@ export const typeDefs = gql`
     VIEWER
     EDITOR
     OWNER
+  }
+
+  # Project Member Type Enum - for different types of project involvement
+  enum ProjectMemberType {
+    OWNER      # Project owner
+    EDITOR     # Official project member with edit access
+    VIEWER     # Official project member with view access
+    ASSIGNEE   # User assigned to tasks but not official project member
   }
 
   # Task Type - for task management

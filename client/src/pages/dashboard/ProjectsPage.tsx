@@ -443,12 +443,16 @@ const ProjectsPage: React.FC = () => {
    * Add a member to the selected project
    * Handles form submission and success/error states
    */
-  const handleAddMember = useCallback(async (input: ProjectMemberInput) => {
+  const handleAddMember = useCallback(async (variables: ProjectMemberInput) => {
     try {
       setMemberState(prev => ({ ...prev, loading: true, error: null }));
 
       await addMemberMutation({
-        variables: { input }
+        variables: {
+          projectId: variables.projectId,
+          userId: variables.userId,
+          role: variables.role
+        }
       });
 
       setMemberState(prev => ({ ...prev, addModalOpen: false, loading: false }));
@@ -607,8 +611,8 @@ const ProjectsPage: React.FC = () => {
                 <button
                   onClick={() => setActiveTab('projects')}
                   className={`flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 ${activeTab === 'projects'
-                      ? 'bg-purple-50 text-purple-700 border-r border-purple-200'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-r border-gray-200'
+                    ? 'bg-purple-50 text-purple-700 border-r border-purple-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-r border-gray-200'
                     }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
@@ -618,8 +622,8 @@ const ProjectsPage: React.FC = () => {
                 <button
                   onClick={() => setActiveTab('members')}
                   className={`flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 ${activeTab === 'members'
-                      ? 'bg-purple-50 text-purple-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-purple-50 text-purple-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
                   <div className="flex items-center justify-center space-x-2">

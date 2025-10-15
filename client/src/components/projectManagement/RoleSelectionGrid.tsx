@@ -21,8 +21,8 @@ const RoleSelectionGrid: React.FC<RoleSelectionGridProps> = ({
         <div
           key={role.value}
           className={`relative p-3 border-2 rounded-lg cursor-pointer transition-colors ${selectedRole === role.value
-              ? 'border-purple-500 bg-purple-50'
-              : 'border-gray-200 hover:border-gray-300'
+            ? 'border-purple-500 bg-purple-50'
+            : 'border-gray-200 hover:border-gray-300'
             }`}
           onClick={() => onRoleSelect(role.value)}
         >
@@ -32,7 +32,7 @@ const RoleSelectionGrid: React.FC<RoleSelectionGridProps> = ({
             </div>
             <div className="text-xs text-gray-500">
               {role.value === 'VIEWER' && 'Can view project and tasks'}
-              {role.value === 'EDITOR' && 'Can edit tasks and comments'}
+              {role.value === 'EDITOR' && 'Can post comments. Cannot edit tasks (Admin/PM only)'}
               {role.value === 'OWNER' && 'Full project management access'}
             </div>
           </div>

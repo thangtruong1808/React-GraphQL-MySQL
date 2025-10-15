@@ -195,13 +195,18 @@ export interface ProjectStatusOption {
 // Project member role type
 export type ProjectMemberRole = 'VIEWER' | 'EDITOR' | 'OWNER';
 
+// Project member type for different types of project involvement
+export type ProjectMemberType = 'OWNER' | 'EDITOR' | 'VIEWER' | 'ASSIGNEE';
+
 // Project member interface matching GraphQL ProjectMember type
+// Now includes Owner, Project Members, and Task Assignees for consistency
 export interface ProjectMember {
   projectId: string;
   userId: string;
   role: ProjectMemberRole;
-  createdAt: string;
-  updatedAt: string;
+  memberType: ProjectMemberType;
+  createdAt: string | null;
+  updatedAt: string | null;
   user: {
     id: string;
     firstName: string;

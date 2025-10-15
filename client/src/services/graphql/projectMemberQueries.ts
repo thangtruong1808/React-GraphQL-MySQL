@@ -11,6 +11,7 @@ export const PROJECT_MEMBER_FRAGMENT = gql`
     projectId
     userId
     role
+    memberType
     createdAt
     updatedAt
     user {

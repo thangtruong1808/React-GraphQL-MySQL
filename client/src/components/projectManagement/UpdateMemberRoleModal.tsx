@@ -198,7 +198,7 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
                         </div>
                         <div className="text-xs text-gray-500">
                           {role.value === 'VIEWER' && 'Can view project and tasks'}
-                          {role.value === 'EDITOR' && 'Can edit tasks and comments'}
+                          {role.value === 'EDITOR' && 'Can post comments. Cannot edit tasks (Admin/PM only)'}
                           {role.value === 'OWNER' && 'Full project management access'}
                         </div>
                       </div>

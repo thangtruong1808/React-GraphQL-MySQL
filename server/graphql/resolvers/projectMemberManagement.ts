@@ -1,9 +1,54 @@
-import { Op } from 'sequelize';
-import { Project, User, ProjectMember } from '../../db';
+import { Op, QueryTypes } from 'sequelize';
+import { Project, User, ProjectMember, Task, sequelize } from '../../db';
 
 // Setup associations if not already done
 // Note: These associations should be set up in the main db index file
 // but we include them here as a fallback to ensure they're available
+
+/**
+ * Utility function to ensure task assignees are project members with EDITOR role
+ * This prevents users from showing as "Task Assignee" instead of proper project members
+ */
+const ensureTaskAssigneesAreProjectMembers = async (projectId: number) => {
+  try {
+    // Find all users assigned to tasks in this project who are not project members
+    const taskAssignees = await sequelize.query(`
+      SELECT DISTINCT u.id as userId
+      FROM projects p
+      JOIN tasks t ON t.project_id = p.id
+      JOIN users u ON u.id = t.assigned_to
+      WHERE p.id = :projectId 
+        AND p.is_deleted = false
+        AND t.is_deleted = false
+        AND u.is_deleted = false
+        AND t.assigned_to IS NOT NULL
+        AND u.id NOT IN (
+          SELECT pm.user_id 
+          FROM project_members pm 
+          WHERE pm.project_id = :projectId 
+            AND pm.is_deleted = false
+        )
+        AND u.id != p.owner_id
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+      replacements: { projectId }
+    });
+
+    // Add each task assignee as a project member with EDITOR role
+    for (const assignee of taskAssignees as any[]) {
+      await ProjectMember.create({
+        projectId: projectId,
+        userId: assignee.userId,
+        role: 'EDITOR',
+        isDeleted: false
+      });
+    }
+  } catch (error) {
+    // Log error but don't fail the main operation
+    console.error('Error ensuring task assignees are project members:', error);
+  }
+};
 
 /**
  * Project Members Management Resolvers
@@ -12,7 +57,8 @@ import { Project, User, ProjectMember } from '../../db';
  */
 
 /**
- * Get paginated project members with search functionality
+ * Get comprehensive project members (Owner + Project Members + Task Assignees) with search functionality
+ * Matches the member counting logic from project detail page for consistency
  * Supports searching by user name and email
  */
 export const getProjectMembers = async (
@@ -35,87 +81,200 @@ export const getProjectMembers = async (
       throw new Error('Project not found or deleted');
     }
 
-    // Build search conditions
-    const whereConditions: any = {
-      projectId: projectIdInt,
-      isDeleted: false
-    };
+    // Ensure all task assignees are project members with EDITOR role
+    await ensureTaskAssigneesAreProjectMembers(projectIdInt);
 
-    // Add search functionality if search term provided
-    if (search && search.trim()) {
-      const searchTerm = `%${search.trim()}%`;
-      whereConditions[Op.or] = [
-        { '$user.firstName$': { [Op.like]: searchTerm } },
-        { '$user.lastName$': { [Op.like]: searchTerm } },
-        { '$user.email$': { [Op.like]: searchTerm } }
-      ];
+    // Build search condition for SQL query
+    const searchCondition = search && search.trim() 
+      ? `AND (u.first_name LIKE '%${search.trim()}%' OR u.last_name LIKE '%${search.trim()}%' OR u.email LIKE '%${search.trim()}%')`
+      : '';
+
+    // Validate sort fields
+    const allowedSortFields = ['firstName', 'lastName', 'email', 'memberRole', 'createdAt'];
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'firstName';
+    const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
+
+    // Map sort field to SQL column (use column names from SELECT, not table aliases)
+    let sortColumn;
+    switch (validSortBy) {
+      case 'firstName': sortColumn = 'firstName'; break;
+      case 'lastName': sortColumn = 'lastName'; break;
+      case 'email': sortColumn = 'email'; break;
+      case 'memberRole': sortColumn = 'memberRole'; break;
+      case 'createdAt': sortColumn = 'created_at'; break;
+      default: sortColumn = 'firstName';
     }
 
-    // Validate and map sortBy field to database column
-    const allowedSortFields = ['createdAt', 'updatedAt', 'role', 'userId', 'firstName', 'lastName', 'email'];
-    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
-    const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'DESC';
-
-    // Handle sorting by user fields
-    let orderClause: any;
-    if (['firstName', 'lastName', 'email'].includes(validSortBy)) {
-      orderClause = [['user', validSortBy, validSortOrder]];
-    } else if (validSortBy === 'userId') {
-      orderClause = [['userId', validSortOrder]];
-    } else {
-      orderClause = [[validSortBy, validSortOrder]];
-    }
-
-    const { count, rows: members } = await ProjectMember.findAndCountAll({
-      where: whereConditions,
-      limit,
-      offset,
-      order: orderClause,
-      attributes: ['projectId', 'userId', 'role', 'createdAt', 'updatedAt'],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'firstName', 'lastName', 'email', 'role']
-        },
-        {
-          model: Project,
-          as: 'project',
-          attributes: ['id', 'name']
-        }
-      ],
-      raw: false
+    // Get comprehensive members using the same logic as project detail page
+    const membersData = await sequelize.query(`
+      (
+        SELECT 
+          u.id,
+          u.uuid,
+          u.first_name as firstName,
+          u.last_name as lastName,
+          u.email,
+          u.role,
+          'OWNER' as memberRole,
+          u.created_at,
+          NULL as projectMemberRole
+        FROM projects p
+        JOIN users u ON u.id = p.owner_id
+        WHERE p.id = :projectId 
+          AND p.is_deleted = false
+          AND u.is_deleted = false
+          AND p.owner_id IS NOT NULL
+          ${searchCondition}
+      )
+      UNION ALL
+      (
+        SELECT 
+          u.id,
+          u.uuid,
+          u.first_name as firstName,
+          u.last_name as lastName,
+          u.email,
+          u.role,
+          COALESCE(pm.role, 'VIEWER') as memberRole,
+          u.created_at,
+          pm.role as projectMemberRole
+        FROM projects p
+        JOIN project_members pm ON pm.project_id = p.id
+        JOIN users u ON u.id = pm.user_id
+        WHERE p.id = :projectId 
+          AND p.is_deleted = false
+          AND pm.is_deleted = false
+          AND u.is_deleted = false
+          AND u.id != p.owner_id
+          ${searchCondition}
+      )
+      UNION ALL
+      (
+        SELECT 
+          u.id,
+          u.uuid,
+          u.first_name as firstName,
+          u.last_name as lastName,
+          u.email,
+          u.role,
+          'ASSIGNEE' as memberRole,
+          u.created_at,
+          NULL as projectMemberRole
+        FROM projects p
+        JOIN tasks t ON t.project_id = p.id
+        JOIN users u ON u.id = t.assigned_to
+        WHERE p.id = :projectId 
+          AND p.is_deleted = false
+          AND t.is_deleted = false
+          AND u.is_deleted = false
+          AND t.assigned_to IS NOT NULL
+          AND u.id != p.owner_id
+          AND u.id NOT IN (
+            SELECT pm.user_id 
+            FROM project_members pm 
+            WHERE pm.project_id = p.id 
+              AND pm.is_deleted = false
+          )
+          ${searchCondition}
+      )
+      ORDER BY 
+        CASE 
+          WHEN memberRole = 'OWNER' THEN 1 
+          WHEN memberRole = 'EDITOR' THEN 2
+          WHEN memberRole = 'VIEWER' THEN 3
+          WHEN memberRole = 'ASSIGNEE' THEN 4
+          ELSE 5
+        END,
+        ${sortColumn} ${validSortOrder}
+      LIMIT :limit OFFSET :offset
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+      replacements: { projectId: projectIdInt, limit, offset }
     });
 
-    // Calculate pagination info
-    const totalPages = Math.ceil(count / limit);
+    // Get total count for pagination (without LIMIT/OFFSET)
+    const countData = await sequelize.query(`
+      (
+        SELECT COUNT(*) as count
+        FROM projects p
+        JOIN users u ON u.id = p.owner_id
+        WHERE p.id = :projectId 
+          AND p.is_deleted = false
+          AND u.is_deleted = false
+          AND p.owner_id IS NOT NULL
+          ${searchCondition}
+      )
+      UNION ALL
+      (
+        SELECT COUNT(*) as count
+        FROM projects p
+        JOIN project_members pm ON pm.project_id = p.id
+        JOIN users u ON u.id = pm.user_id
+        WHERE p.id = :projectId 
+          AND p.is_deleted = false
+          AND pm.is_deleted = false
+          AND u.is_deleted = false
+          AND u.id != p.owner_id
+          ${searchCondition}
+      )
+      UNION ALL
+      (
+        SELECT COUNT(*) as count
+        FROM projects p
+        JOIN tasks t ON t.project_id = p.id
+        JOIN users u ON u.id = t.assigned_to
+        WHERE p.id = :projectId 
+          AND p.is_deleted = false
+          AND t.is_deleted = false
+          AND u.is_deleted = false
+          AND t.assigned_to IS NOT NULL
+          AND u.id != p.owner_id
+          AND u.id NOT IN (
+            SELECT pm.user_id 
+            FROM project_members pm 
+            WHERE pm.project_id = p.id 
+              AND pm.is_deleted = false
+          )
+          ${searchCondition}
+      )
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+      replacements: { projectId: projectIdInt }
+    });
+
+    // Calculate total count
+    const totalCount = countData.reduce((sum: number, row: any) => sum + parseInt(row.count), 0);
+    const totalPages = Math.ceil(totalCount / limit);
     const currentPage = Math.floor(offset / limit) + 1;
 
     return {
-      members: members.map(member => ({
-        projectId: member.projectId.toString(),
-        userId: member.userId.toString(),
-        role: member.role,
-        createdAt: member.createdAt?.toISOString(),
-        updatedAt: member.updatedAt?.toISOString(),
+      members: membersData.map((member: any) => ({
+        projectId: projectIdInt.toString(),
+        userId: member.id.toString(),
+        role: member.projectMemberRole || member.memberRole,
+        memberType: member.memberRole,
+        createdAt: member.created_at ? new Date(member.created_at).toISOString() : null,
+        updatedAt: null, // Not applicable for Owner and Task Assignees
         user: {
-          id: member.user.id.toString(),
-          firstName: member.user.firstName,
-          lastName: member.user.lastName,
-          email: member.user.email,
-          role: member.user.role
+          id: member.id.toString(),
+          firstName: member.firstName,
+          lastName: member.lastName,
+          email: member.email,
+          role: member.role,
         },
         project: {
-          id: member.project.id.toString(),
-          name: member.project.name
+          id: projectIdInt.toString(),
+          name: project.name,
         }
       })),
       paginationInfo: {
         hasNextPage: currentPage < totalPages,
         hasPreviousPage: currentPage > 1,
-        totalCount: count,
+        totalCount,
         currentPage,
-        totalPages
+        totalPages,
       }
     };
   } catch (error) {
@@ -274,6 +433,7 @@ export const addProjectMember = async (
       projectId: createdMember.projectId.toString(),
       userId: createdMember.userId.toString(),
       role: createdMember.role,
+      memberType: createdMember.role, // For project members, memberType is the same as role
       createdAt: createdMember.createdAt?.toISOString(),
       updatedAt: createdMember.updatedAt?.toISOString(),
       user: {
@@ -356,6 +516,7 @@ export const updateProjectMember = async (
       projectId: updatedMember.projectId.toString(),
       userId: updatedMember.userId.toString(),
       role: updatedMember.role,
+      memberType: updatedMember.role, // For project members, memberType is the same as role
       createdAt: updatedMember.createdAt?.toISOString(),
       updatedAt: updatedMember.updatedAt?.toISOString(),
       user: {
