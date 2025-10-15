@@ -6,6 +6,7 @@ import { commentsResolvers } from './commentsResolvers';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 import { userManagementResolvers } from './userManagement';
 import { projectManagementResolvers } from './projectManagement';
+import { projectMemberManagementResolvers } from './projectMemberManagement';
 import { taskManagementResolvers } from './taskManagement';
 import { commentManagementResolvers } from './commentManagement';
 import { activityManagementResolvers } from './activityManagement';
@@ -38,6 +39,7 @@ export const resolvers = {
     ...projectsResolvers.Query,
     ...userManagementResolvers.Query,
     ...projectManagementResolvers.Query,
+    ...projectMemberManagementResolvers.Query,
     ...taskManagementResolvers.Query,
     ...commentManagementResolvers.Query,
     ...activityManagementResolvers.Query,
@@ -52,6 +54,7 @@ export const resolvers = {
     ...commentsResolvers.Mutation,
     ...userManagementResolvers.Mutation,
     ...projectManagementResolvers.Mutation,
+    ...projectMemberManagementResolvers.Mutation,
     ...taskManagementResolvers.Mutation,
     ...commentManagementResolvers.Mutation,
     ...activityManagementResolvers.Mutation,
@@ -453,6 +456,70 @@ export const resolvers = {
         return user;
       } catch (error) {
         throw new Error(`Failed to fetch notification user: ${error.message}`);
+      }
+    }
+  },
+  // ProjectMember type resolvers
+  ProjectMember: {
+    // Convert numeric IDs to strings for GraphQL
+    projectId: (parent: any) => parent.projectId ? parent.projectId.toString() : null,
+    userId: (parent: any) => parent.userId ? parent.userId.toString() : null,
+    
+    // Map database date fields to GraphQL camelCase fields
+    createdAt: (parent: any) => parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
+    updatedAt: (parent: any) => parent.updatedAt ? new Date(parent.updatedAt).toISOString() : null,
+    
+    // Resolver for user field on ProjectMember type
+    user: async (parent: any) => {
+      try {
+        // If user is already included (from Sequelize include), return it directly
+        if (parent.user) {
+          return parent.user;
+        }
+        
+        const userId = parent.userId;
+        if (!userId) {
+          throw new Error('User ID not found for project member');
+        }
+        
+        const user = await User.findByPk(userId, {
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        if (!user) {
+          throw new Error(`User with ID ${userId} not found`);
+        }
+        
+        return user;
+      } catch (error) {
+        throw new Error(`Failed to fetch project member user: ${error.message}`);
+      }
+    },
+    
+    // Resolver for project field on ProjectMember type
+    project: async (parent: any) => {
+      try {
+        // If project is already included (from Sequelize include), return it directly
+        if (parent.project) {
+          return parent.project;
+        }
+        
+        const projectId = parent.projectId;
+        if (!projectId) {
+          throw new Error('Project ID not found for project member');
+        }
+        
+        const project = await Project.findByPk(projectId, {
+          attributes: ['id', 'uuid', 'name', 'description', 'status', 'ownerId', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+        });
+        
+        if (!project) {
+          throw new Error(`Project with ID ${projectId} not found`);
+        }
+        
+        return project;
+      } catch (error) {
+        throw new Error(`Failed to fetch project member project: ${error.message}`);
       }
     }
   },

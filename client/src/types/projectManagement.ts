@@ -67,6 +67,7 @@ export interface ProjectsTableProps {
   loading: boolean;
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
+  onViewMembers?: (project: Project) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   currentPageSize: number;
@@ -189,4 +190,137 @@ export interface PaginationOption {
 export interface ProjectStatusOption {
   value: ProjectStatus;
   label: string;
+}
+
+// Project member role type
+export type ProjectMemberRole = 'VIEWER' | 'EDITOR' | 'OWNER';
+
+// Project member interface matching GraphQL ProjectMember type
+export interface ProjectMember {
+  projectId: string;
+  userId: string;
+  role: ProjectMemberRole;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  };
+  project: {
+    id: string;
+    name: string;
+  };
+}
+
+// Paginated project members response interface
+export interface PaginatedProjectMembersResponse {
+  members: ProjectMember[];
+  paginationInfo: PaginationInfo;
+}
+
+// Available users response interface
+export interface AvailableUsersResponse {
+  users: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  }>;
+  paginationInfo: {
+    totalCount: number;
+  };
+}
+
+// Project member input for adding new members
+export interface ProjectMemberInput {
+  projectId: string;
+  userId: string;
+  role: ProjectMemberRole;
+}
+
+// Project members table props interface
+export interface ProjectMembersTableProps {
+  members: ProjectMember[];
+  paginationInfo: PaginationInfo;
+  loading: boolean;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  currentPageSize: number;
+  onSort: (sortBy: string, sortOrder: string) => void;
+  currentSortBy: string;
+  currentSortOrder: string;
+  onAddMember: () => void;
+  onRemoveMember: (member: ProjectMember) => void;
+  onUpdateRole: (member: ProjectMember) => void;
+}
+
+// Add member modal props interface
+export interface AddMemberModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (variables: ProjectMemberInput) => Promise<void>;
+  projectId: string;
+  projectName: string;
+  loading?: boolean;
+}
+
+// Remove member modal props interface
+export interface RemoveMemberModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  member: ProjectMember | null;
+  loading?: boolean;
+}
+
+// Update member role modal props interface
+export interface UpdateMemberRoleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (projectId: string, userId: string, role: ProjectMemberRole) => Promise<void>;
+  member: ProjectMember | null;
+  loading?: boolean;
+}
+
+// Project member role option interface
+export interface ProjectMemberRoleOption {
+  value: ProjectMemberRole;
+  label: string;
+  description: string;
+}
+
+// Project member management state interface
+export interface ProjectMemberManagementState {
+  members: ProjectMember[];
+  paginationInfo: PaginationInfo;
+  loading: boolean;
+  searchQuery: string;
+  currentPage: number;
+  pageSize: number;
+  addModalOpen: boolean;
+  removeModalOpen: boolean;
+  updateRoleModalOpen: boolean;
+  selectedMember: ProjectMember | null;
+  error: string | null;
+}
+
+// Project member management actions interface
+export interface ProjectMemberManagementActions {
+  fetchMembers: (projectId: string, page?: number, pageSize?: number, search?: string) => Promise<void>;
+  addMember: (input: ProjectMemberInput) => Promise<void>;
+  updateMemberRole: (projectId: string, userId: string, role: ProjectMemberRole) => Promise<void>;
+  removeMember: (projectId: string, userId: string) => Promise<void>;
+  setSearchQuery: (query: string) => void;
+  setPageSize: (pageSize: number) => void;
+  openAddModal: () => void;
+  closeAddModal: () => void;
+  openRemoveModal: (member: ProjectMember) => void;
+  closeRemoveModal: () => void;
+  openUpdateRoleModal: (member: ProjectMember) => void;
+  closeUpdateRoleModal: () => void;
+  clearError: () => void;
 }

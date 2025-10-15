@@ -55,6 +55,8 @@ export const setupAssociations = (): void => {
   // Project member associations
   Project.belongsToMany(User, { through: ProjectMember, foreignKey: 'projectId', otherKey: 'userId', as: 'members' });
   User.belongsToMany(Project, { through: ProjectMember, foreignKey: 'userId', otherKey: 'projectId', as: 'projects' });
+  ProjectMember.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+  ProjectMember.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
   
   // Task associations
   Project.hasMany(Task, { foreignKey: 'project_id', as: 'tasks' });

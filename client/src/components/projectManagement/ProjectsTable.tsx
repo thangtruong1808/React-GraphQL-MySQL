@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaUsers } from 'react-icons/fa';
 import { ProjectsTableProps } from '../../types/projectManagement';
 import { PROJECTS_PAGINATION_OPTIONS } from '../../constants/projectManagement';
 
@@ -17,6 +17,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   loading,
   onEdit,
   onDelete,
+  onViewMembers,
   onPageChange,
   onPageSizeChange,
   currentPageSize,
@@ -262,7 +263,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left hidden lg:table-cell">{project.id}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="max-w-xs truncate" title={project.name}>
-                      {project.name}
+                      {onViewMembers ? (
+                        <button
+                          onClick={() => onViewMembers(project)}
+                          className="text-left text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:underline transition-colors"
+                        >
+                          {project.name}
+                        </button>
+                      ) : (
+                        project.name
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
@@ -277,6 +287,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left hidden lg:table-cell">{formatDate(project.updatedAt)}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <div className="flex justify-start space-x-2">
+                      {onViewMembers && (
+                        <button
+                          onClick={() => onViewMembers(project)}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                          title="View project members"
+                        >
+                          <FaUsers className="w-3 h-3 mr-1" />
+                          Members
+                        </button>
+                      )}
                       <button
                         onClick={() => onEdit(project)}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"

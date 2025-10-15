@@ -94,6 +94,24 @@ export const typeDefs = gql`
     comments: [Comment!]!
   }
 
+  # Project Member Type - for project membership management
+  type ProjectMember {
+    projectId: ID!
+    userId: ID!
+    role: String!
+    createdAt: String!
+    updatedAt: String!
+    user: User!
+    project: Project!
+  }
+
+  # Project Member Role Enum - for project member roles
+  enum ProjectMemberRole {
+    VIEWER
+    EDITOR
+    OWNER
+  }
+
   # Task Type - for task management
   type Task {
     id: ID!
@@ -355,6 +373,13 @@ export const typeDefs = gql`
     category: String
   }
 
+  # Project Member Input Type - for adding members to projects
+  input ProjectMemberInput {
+    projectId: ID!
+    userId: ID!
+    role: String!
+  }
+
   # Paginated Dashboard Comments Response Type - for comment management with pagination
   type PaginatedDashboardCommentsResponse {
     comments: [Comment!]!
@@ -376,6 +401,18 @@ export const typeDefs = gql`
   # Paginated Dashboard Tags Response Type - for tags management with pagination
   type PaginatedDashboardTagsResponse {
     tags: [Tag!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Paginated Project Members Response Type - for project members management with pagination
+  type PaginatedProjectMembersResponse {
+    members: [ProjectMember!]!
+    paginationInfo: PaginationInfo!
+  }
+
+  # Available Users Response Type - for users not in a specific project
+  type AvailableUsersResponse {
+    users: [User!]!
     paginationInfo: PaginationInfo!
   }
 
@@ -522,6 +559,10 @@ export const typeDefs = gql`
     dashboardNotifications(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardNotificationsResponse!
     # Tags management - for dashboard tags page
     dashboardTags(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardTagsResponse!
+    # Project members management - for project members page
+    projectMembers(projectId: ID!, limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedProjectMembersResponse!
+    # Available users - for adding members to projects
+    availableUsers(projectId: ID!, limit: Int = 50, offset: Int = 0, search: String): AvailableUsersResponse!
   }
 
   # Mutation Type - includes authentication and comment mutations
@@ -574,5 +615,9 @@ export const typeDefs = gql`
     createTag(input: TagInput!): Tag!
     updateTag(id: ID!, input: TagUpdateInput!): Tag!
     deleteTag(id: ID!): Boolean!
+    # Project member management mutations - require authentication
+    addProjectMember(projectId: ID!, userId: ID!, role: String!): ProjectMember!
+    updateProjectMemberRole(projectId: ID!, userId: ID!, role: String!): ProjectMember!
+    removeProjectMember(projectId: ID!, userId: ID!): Boolean!
   }
 `;
