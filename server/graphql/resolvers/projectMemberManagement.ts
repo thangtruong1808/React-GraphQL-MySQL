@@ -387,26 +387,33 @@ export const addProjectMember = async (
       throw new Error('Invalid role. Must be VIEWER, EDITOR, or OWNER');
     }
 
-    // Check if member already exists
+    // Check if member already exists (including soft-deleted ones)
     const existingMember = await ProjectMember.findOne({
       where: {
         projectId: projectIdInt,
-        userId: userIdInt,
-        isDeleted: false
+        userId: userIdInt
       }
     });
 
     if (existingMember) {
-      throw new Error('User is already a member of this project');
+      if (!existingMember.isDeleted) {
+        throw new Error('User is already a member of this project');
+      }
+      
+      // If member exists but is soft-deleted, restore them
+      await existingMember.update({
+        role,
+        isDeleted: false
+      });
+    } else {
+      // Create new project member
+      await ProjectMember.create({
+        projectId: projectIdInt,
+        userId: userIdInt,
+        role,
+        isDeleted: false
+      });
     }
-
-    // Create new project member
-    const member = await ProjectMember.create({
-      projectId: projectIdInt,
-      userId: userIdInt,
-      role,
-      isDeleted: false
-    });
 
     // Fetch the created member with related data
     const createdMember = await ProjectMember.findOne({
@@ -537,6 +544,43 @@ export const updateProjectMember = async (
 };
 
 /**
+ * Check if a member has assigned tasks before deletion
+ * Returns task count and task details for warning purposes
+ */
+export const checkMemberTasks = async (
+  _: any,
+  { projectId, userId }: { projectId: string; userId: string }
+) => {
+  try {
+    const projectIdInt = parseInt(projectId);
+    const userIdInt = parseInt(userId);
+    
+    // Check if user has assigned tasks in this project
+    const assignedTasks = await Task.findAll({
+      where: {
+        projectId: projectIdInt,
+        assignedTo: userIdInt,
+        isDeleted: false
+      },
+      attributes: ['id', 'title', 'status'],
+      order: [['title', 'ASC']]
+    });
+
+    return {
+      hasAssignedTasks: assignedTasks.length > 0,
+      taskCount: assignedTasks.length,
+      tasks: assignedTasks.map(task => ({
+        id: task.id.toString(),
+        title: task.title,
+        status: task.status
+      }))
+    };
+  } catch (error) {
+    throw new Error(`Failed to check member tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
  * Remove a member from a project (soft delete)
  * Requires authentication and proper authorization
  */
@@ -574,7 +618,8 @@ export const removeProjectMember = async (
 export const projectMemberManagementResolvers = {
   Query: {
     projectMembers: getProjectMembers,
-    availableUsers: getAvailableUsers
+    availableUsers: getAvailableUsers,
+    checkMemberTasks
   },
   Mutation: {
     addProjectMember,

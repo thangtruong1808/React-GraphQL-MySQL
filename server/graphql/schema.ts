@@ -426,6 +426,20 @@ export const typeDefs = gql`
     paginationInfo: PaginationInfo!
   }
 
+  # Member Tasks Check Response Type - for checking if member has assigned tasks
+  type MemberTasksCheckResponse {
+    hasAssignedTasks: Boolean!
+    taskCount: Int!
+    tasks: [TaskInfo!]!
+  }
+
+  # Task Info Type - for displaying task details in warnings
+  type TaskInfo {
+    id: ID!
+    title: String!
+    status: String!
+  }
+
   # Public Statistics Type - for unauthenticated dashboard
   type PublicStats {
     totalProjects: Int!
@@ -573,6 +587,8 @@ export const typeDefs = gql`
     projectMembers(projectId: ID!, limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedProjectMembersResponse!
     # Available users - for adding members to projects
     availableUsers(projectId: ID!, limit: Int = 50, offset: Int = 0, search: String): AvailableUsersResponse!
+    # Check member tasks - for warning before deletion
+    checkMemberTasks(projectId: ID!, userId: ID!): MemberTasksCheckResponse!
   }
 
   # Mutation Type - includes authentication and comment mutations

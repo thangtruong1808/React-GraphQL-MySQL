@@ -1,5 +1,7 @@
-import React from 'react';
-import { FaTimes, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaTimes, FaExclamationTriangle, FaTrash, FaTasks } from 'react-icons/fa';
+import { useQuery } from '@apollo/client';
+import { CHECK_MEMBER_TASKS_QUERY, CheckMemberTasksQueryResponse } from '../../services/graphql/projectMemberQueries';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
 
 interface ProjectMember {
@@ -32,8 +34,8 @@ interface RemoveMemberModalProps {
 /**
  * RemoveMemberModal Component
  * Confirmation modal for removing a member from a project
- * Shows member details and warns about the action
- * Includes safety checks for project owners
+ * Shows member details and warns about assigned tasks
+ * Includes safety checks for project owners and task assignments
  */
 const RemoveMemberModal: React.FC<RemoveMemberModalProps> = ({
   isOpen,
@@ -42,6 +44,22 @@ const RemoveMemberModal: React.FC<RemoveMemberModalProps> = ({
   member,
   loading = false
 }) => {
+  // Check if member has assigned tasks
+  const { data: taskData, loading: taskLoading } = useQuery<CheckMemberTasksQueryResponse>(
+    CHECK_MEMBER_TASKS_QUERY,
+    {
+      variables: {
+        projectId: member?.projectId || '',
+        userId: member?.userId || ''
+      },
+      skip: !isOpen || !member,
+      errorPolicy: 'all'
+    }
+  );
+
+  const hasAssignedTasks = taskData?.checkMemberTasks.hasAssignedTasks || false;
+  const assignedTasks = taskData?.checkMemberTasks.tasks || [];
+
   // Handle modal close
   const handleClose = () => {
     if (!loading) {
@@ -138,8 +156,8 @@ const RemoveMemberModal: React.FC<RemoveMemberModalProps> = ({
               <div className="flex items-center justify-between py-2 border-t border-gray-200">
                 <span className="text-sm font-medium text-gray-500">Project Role:</span>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.role === 'OWNER' ? 'bg-purple-100 text-purple-800' :
-                    member.role === 'EDITOR' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
+                  member.role === 'EDITOR' ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
                   }`}>
                   {member.role}
                 </span>
@@ -160,6 +178,39 @@ const RemoveMemberModal: React.FC<RemoveMemberModalProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Task Assignment Warning */}
+          {hasAssignedTasks && (
+            <div className="bg-orange-50 border border-orange-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <FaTasks className="h-5 w-5 text-orange-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-orange-800">
+                    Assigned Tasks Warning
+                  </h3>
+                  <div className="mt-2 text-sm text-orange-700">
+                    <p className="mb-2">
+                      This member has <strong>{assignedTasks.length} assigned task(s)</strong>.
+                      Removing them will leave these tasks without an assignee:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 max-h-20 overflow-y-auto">
+                      {assignedTasks.map((task) => (
+                        <li key={task.id} className="text-xs">
+                          <span className="font-medium">{task.title}</span>
+                          <span className="text-orange-600"> ({task.status})</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-xs">
+                      <strong>Recommendation:</strong> Reassign these tasks to another member before removing this user.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Additional Warning for Owners */}
           {isOwner && (
@@ -199,8 +250,8 @@ const RemoveMemberModal: React.FC<RemoveMemberModalProps> = ({
             type="button"
             onClick={handleConfirm}
             className={`px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center ${isOwner
-                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-                : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+              ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+              : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
               }`}
             disabled={loading}
           >

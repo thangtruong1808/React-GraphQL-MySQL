@@ -100,6 +100,21 @@ export const REMOVE_PROJECT_MEMBER_MUTATION = gql`
   }
 `;
 
+// Query to check if a member has assigned tasks
+export const CHECK_MEMBER_TASKS_QUERY = gql`
+  query CheckMemberTasks($projectId: ID!, $userId: ID!) {
+    checkMemberTasks(projectId: $projectId, userId: $userId) {
+      hasAssignedTasks
+      taskCount
+      tasks {
+        id
+        title
+        status
+      }
+    }
+  }
+`;
+
 // Type definitions for the queries and mutations
 export interface GetProjectMembersQueryVariables {
   projectId: string;
@@ -223,6 +238,25 @@ export interface RemoveProjectMemberMutationVariables {
 
 export interface RemoveProjectMemberMutationResponse {
   removeProjectMember: boolean;
+}
+
+export interface CheckMemberTasksQueryVariables {
+  projectId: string;
+  userId: string;
+}
+
+export interface TaskInfo {
+  id: string;
+  title: string;
+  status: string;
+}
+
+export interface CheckMemberTasksQueryResponse {
+  checkMemberTasks: {
+    hasAssignedTasks: boolean;
+    taskCount: number;
+    tasks: TaskInfo[];
+  };
 }
 
 // Project member role options
