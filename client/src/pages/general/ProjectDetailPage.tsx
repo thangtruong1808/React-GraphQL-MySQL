@@ -245,9 +245,7 @@ const ProjectDetailPage: React.FC = () => {
       }
 
       await toggleCommentLike({
-        variables: {
-          commentId: commentId
-        }
+        commentId: commentId
       });
     } catch (error) {
       // Handle error silently
