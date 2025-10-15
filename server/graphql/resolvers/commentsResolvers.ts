@@ -242,16 +242,12 @@ export const createProjectComment = async (parent: any, args: any, context: any,
  */
 export const toggleCommentLike = async (parent: any, args: any, context: any, info: any) => {
   try {
-    console.log('toggleCommentLike called with args:', args);
-    console.log('toggleCommentLike context.user:', context.user?.id);
-    
     // Check if user is authenticated
     if (!context.user) {
       throw new AuthenticationError('You must be logged in to like comments');
     }
 
     const { commentId } = args;
-    console.log('Extracted commentId:', commentId);
 
     if (!commentId) {
       throw new Error('Comment ID is required');

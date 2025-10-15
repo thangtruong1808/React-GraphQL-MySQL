@@ -37,7 +37,7 @@ export const logout = async (req: any, res: any) => {
             [require('sequelize').Op.gt]: new Date(),
           },
         },
-        include: [{ model: require('../../../../db').User, as: 'refreshTokenUser' }],
+        include: [{ model: require('../../../../db').User, as: 'user' }],
       });
 
       // Find the matching token and delete it

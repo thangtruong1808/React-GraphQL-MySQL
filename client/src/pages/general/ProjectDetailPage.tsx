@@ -7,10 +7,10 @@ import { SkeletonBox } from '../../components/ui/SkeletonLoader';
 import { GET_PROJECT_DETAILS, CREATE_COMMENT, TOGGLE_COMMENT_LIKE } from '../../services/graphql/queries';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatRoleForDisplay, isAdminRole } from '../../utils/roleFormatter';
-import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 import { useError } from '../../contexts/ErrorContext';
 import { updateActivity } from '../../utils/tokenManager';
 import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
+import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 
 /**
  * Project Detail Page Component
@@ -230,8 +230,6 @@ const ProjectDetailPage: React.FC = () => {
     if (!isAuthenticated || !canLikeComments()) return;
 
     try {
-      console.log('handleToggleLike called with commentId:', commentId);
-
       // Ensure all authentication data is ready before mutation
       const authDataReady = await ensureAuthDataReady();
       if (!authDataReady) {
@@ -246,16 +244,13 @@ const ProjectDetailPage: React.FC = () => {
         // Continue with like toggle even if activity update fails
       }
 
-      console.log('Calling toggleCommentLike mutation with:', { commentId });
       await toggleCommentLike({
         variables: {
           commentId: commentId
         }
       });
-      console.log('toggleCommentLike mutation completed successfully');
     } catch (error) {
-      console.error('toggleCommentLike mutation failed:', error);
-      // Handle error silently - authentication retry is handled by useAuthenticatedMutation
+      // Handle error silently
     }
   };
 

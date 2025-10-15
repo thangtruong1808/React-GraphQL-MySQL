@@ -71,7 +71,7 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
         [require('sequelize').Op.gt]: new Date(),
       },
     },
-    include: [{ model: User, as: 'refreshTokenUser' }],
+    include: [{ model: User, as: 'user' }],
   });
 
   // Debug: Log token information for troubleshooting
@@ -84,7 +84,7 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
       const isValidHash = await verifyRefreshTokenHash(refreshToken, storedToken.tokenHash);
       if (isValidHash) {
         validToken = storedToken;
-        validUser = storedToken.refreshTokenUser;
+        validUser = storedToken.user;
         // Valid token found
         break;
       }
@@ -206,7 +206,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
         [require('sequelize').Op.gt]: new Date(),
       },
     },
-    include: [{ model: User, as: 'refreshTokenUser' }],
+    include: [{ model: User, as: 'user' }],
   });
 
 
@@ -217,7 +217,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
       const isValidHash = await verifyRefreshTokenHash(refreshToken, storedToken.tokenHash);
       if (isValidHash) {
         validToken = storedToken;
-        validUser = storedToken.refreshTokenUser;
+        validUser = storedToken.user;
 
         break;
       }
