@@ -47,6 +47,7 @@ export { sequelize, testConnection };
 export const setupAssociations = (): void => {
   // User associations
   User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
+  RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
   
   // Project associations
   User.hasMany(Project, { foreignKey: 'owner_id', as: 'ownedProjects' });
@@ -103,5 +104,4 @@ export const setupAssociations = (): void => {
   Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 };
 
-// Don't setup associations automatically to avoid conflicts
-// setupAssociations();
+// Associations will be set up when the server starts

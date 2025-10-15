@@ -230,6 +230,8 @@ const ProjectDetailPage: React.FC = () => {
     if (!isAuthenticated || !canLikeComments()) return;
 
     try {
+      console.log('handleToggleLike called with commentId:', commentId);
+
       // Ensure all authentication data is ready before mutation
       const authDataReady = await ensureAuthDataReady();
       if (!authDataReady) {
@@ -244,12 +246,15 @@ const ProjectDetailPage: React.FC = () => {
         // Continue with like toggle even if activity update fails
       }
 
+      console.log('Calling toggleCommentLike mutation with:', { commentId });
       await toggleCommentLike({
         variables: {
           commentId: commentId
         }
       });
+      console.log('toggleCommentLike mutation completed successfully');
     } catch (error) {
+      console.error('toggleCommentLike mutation failed:', error);
       // Handle error silently - authentication retry is handled by useAuthenticatedMutation
     }
   };

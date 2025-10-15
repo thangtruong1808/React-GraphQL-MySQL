@@ -112,10 +112,13 @@ async function startServer() {
     // Test database connection first
     try {
       await testConnection();
+      console.log('✅ Database connection successful');
       // Setup model associations
       setupAssociations();
+      console.log('✅ Model associations set up successfully');
     } catch (dbError) {
-      console.warn('⚠️  Database connection failed, server will start with mock data:', dbError);
+      console.error('❌ Database connection failed:', dbError);
+      throw new Error('Database connection is required for the server to start');
     }
     
     // Start Apollo Server

@@ -242,21 +242,27 @@ export const createProjectComment = async (parent: any, args: any, context: any,
  */
 export const toggleCommentLike = async (parent: any, args: any, context: any, info: any) => {
   try {
-
+    console.log('toggleCommentLike called with args:', args);
+    console.log('toggleCommentLike context.user:', context.user?.id);
+    
     // Check if user is authenticated
     if (!context.user) {
       throw new AuthenticationError('You must be logged in to like comments');
     }
 
     const { commentId } = args;
+    console.log('Extracted commentId:', commentId);
 
     if (!commentId) {
       throw new Error('Comment ID is required');
     }
 
     // Check if comment exists and get the associated project
-    const comment = await Comment.findByPk(parseInt(commentId), {
-      where: { isDeleted: false },
+    const comment = await Comment.findOne({
+      where: { 
+        id: parseInt(commentId),
+        isDeleted: false 
+      },
       include: [
         {
           model: Task,
@@ -321,7 +327,8 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
     }
 
     // Fetch updated comment with likes count
-    const updatedComment = await Comment.findByPk(parseInt(commentId), {
+    const updatedComment = await Comment.findOne({
+      where: { id: parseInt(commentId) },
       include: [
         {
           model: User,
