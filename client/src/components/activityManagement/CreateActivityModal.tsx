@@ -25,7 +25,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<ActivityFormData>({
     action: '',
-    type: 'TASK_CREATED',
+    type: 'USER_CREATED',
     targetUserId: '',
     projectId: '',
     taskId: '',
@@ -60,7 +60,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
     if (isOpen) {
       setFormData({
         action: '',
-        type: 'TASK_CREATED',
+        type: 'USER_CREATED',
         targetUserId: '',
         projectId: '',
         taskId: '',

@@ -21,35 +21,41 @@ export const PAGE_SIZE_OPTIONS = [
 
 // Activity type options for forms
 export const ACTIVITY_TYPE_OPTIONS = [
+  { value: 'USER_CREATED', label: 'User Created' },
+  { value: 'USER_UPDATED', label: 'User Updated' },
+  { value: 'USER_DELETED', label: 'User Deleted' },
+  { value: 'PROJECT_CREATED', label: 'Project Created' },
+  { value: 'PROJECT_UPDATED', label: 'Project Updated' },
+  { value: 'PROJECT_DELETED', label: 'Project Deleted' },
   { value: 'TASK_CREATED', label: 'Task Created' },
   { value: 'TASK_UPDATED', label: 'Task Updated' },
-  { value: 'TASK_ASSIGNED', label: 'Task Assigned' },
-  { value: 'COMMENT_ADDED', label: 'Comment Added' },
-  { value: 'PROJECT_CREATED', label: 'Project Created' },
-  { value: 'PROJECT_COMPLETED', label: 'Project Completed' },
-  { value: 'USER_MENTIONED', label: 'User Mentioned' },
+  { value: 'TASK_DELETED', label: 'Task Deleted' },
 ];
 
 // Activity type colors for display
 export const ACTIVITY_TYPE_COLORS = {
+  USER_CREATED: 'text-green-600',
+  USER_UPDATED: 'text-blue-600',
+  USER_DELETED: 'text-red-600',
+  PROJECT_CREATED: 'text-indigo-600',
+  PROJECT_UPDATED: 'text-purple-600',
+  PROJECT_DELETED: 'text-red-600',
   TASK_CREATED: 'text-green-600',
   TASK_UPDATED: 'text-blue-600',
-  TASK_ASSIGNED: 'text-purple-600',
-  COMMENT_ADDED: 'text-yellow-600',
-  PROJECT_CREATED: 'text-indigo-600',
-  PROJECT_COMPLETED: 'text-emerald-600',
-  USER_MENTIONED: 'text-pink-600',
+  TASK_DELETED: 'text-red-600',
 };
 
 // Activity type badges
 export const ACTIVITY_TYPE_BADGES = {
+  USER_CREATED: 'bg-green-100 text-green-800',
+  USER_UPDATED: 'bg-blue-100 text-blue-800',
+  USER_DELETED: 'bg-red-100 text-red-800',
+  PROJECT_CREATED: 'bg-indigo-100 text-indigo-800',
+  PROJECT_UPDATED: 'bg-purple-100 text-purple-800',
+  PROJECT_DELETED: 'bg-red-100 text-red-800',
   TASK_CREATED: 'bg-green-100 text-green-800',
   TASK_UPDATED: 'bg-blue-100 text-blue-800',
-  TASK_ASSIGNED: 'bg-purple-100 text-purple-800',
-  COMMENT_ADDED: 'bg-yellow-100 text-yellow-800',
-  PROJECT_CREATED: 'bg-indigo-100 text-indigo-800',
-  PROJECT_COMPLETED: 'bg-emerald-100 text-emerald-800',
-  USER_MENTIONED: 'bg-pink-100 text-pink-800',
+  TASK_DELETED: 'bg-red-100 text-red-800',
 };
 
 // Activity table column configuration

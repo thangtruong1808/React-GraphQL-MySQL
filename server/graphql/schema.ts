@@ -159,13 +159,15 @@ export const typeDefs = gql`
 
   # Activity Type Enum - for activity log types
   enum ActivityType {
+    USER_CREATED
+    USER_UPDATED
+    USER_DELETED
+    PROJECT_CREATED
+    PROJECT_UPDATED
+    PROJECT_DELETED
     TASK_CREATED
     TASK_UPDATED
-    TASK_ASSIGNED
-    COMMENT_ADDED
-    PROJECT_CREATED
-    PROJECT_COMPLETED
-    USER_MENTIONED
+    TASK_DELETED
   }
 
   # Activity Type - for activity logs
@@ -182,6 +184,7 @@ export const typeDefs = gql`
     createdAt: String
     updatedAt: String
   }
+
 
   # Notification Type - for user notifications
   type Notification {

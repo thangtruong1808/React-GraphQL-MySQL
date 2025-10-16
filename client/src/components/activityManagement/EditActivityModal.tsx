@@ -18,7 +18,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<ActivityUpdateInput>({
     action: '',
-    type: 'TASK_CREATED',
+    type: 'USER_CREATED',
     metadata: null,
   });
 
@@ -29,7 +29,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
     if (activity && isOpen) {
       setFormData({
         action: activity.action || '',
-        type: activity.type || 'TASK_CREATED',
+        type: activity.type || 'USER_CREATED',
         metadata: activity.metadata || null,
       });
       setErrors({});
@@ -249,7 +249,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                 <div className="relative">
                   <select
                     id="type"
-                    value={formData.type || 'TASK_CREATED'}
+                    value={formData.type || 'USER_CREATED'}
                     onChange={(e) => handleInputChange('type', e.target.value)}
                     className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors ${errors.type ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
                       }`}

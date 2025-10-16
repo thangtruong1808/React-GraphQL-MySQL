@@ -35,13 +35,23 @@ export const getDashboardActivities = async (
     const validOffset = Math.max(offset, 0);
 
     // Build where clause for search
-    const whereClause: any = {};
+    const whereClause: any = {
+      // Only include activity logs with valid type fields
+      type: {
+        [Op.in]: ['USER_CREATED', 'USER_UPDATED', 'USER_DELETED', 'PROJECT_CREATED', 'PROJECT_UPDATED', 'PROJECT_DELETED', 'TASK_CREATED', 'TASK_UPDATED', 'TASK_DELETED']
+      }
+    };
 
     // Add search functionality
     if (search && search.trim()) {
-      whereClause[Op.or] = [
-        { action: { [Op.like]: `%${search.trim()}%` } },
-        { type: { [Op.like]: `%${search.trim()}%` } },
+      whereClause[Op.and] = [
+        whereClause,
+        {
+          [Op.or]: [
+            { action: { [Op.like]: `%${search.trim()}%` } },
+            { type: { [Op.like]: `%${search.trim()}%` } },
+          ]
+        }
       ];
     }
 
@@ -157,13 +167,15 @@ export const createActivity = async (
 
     // Validate activity type
     const validTypes = [
+      'USER_CREATED',
+      'USER_UPDATED',
+      'USER_DELETED',
+      'PROJECT_CREATED',
+      'PROJECT_UPDATED',
+      'PROJECT_DELETED',
       'TASK_CREATED',
       'TASK_UPDATED',
-      'TASK_ASSIGNED',
-      'COMMENT_ADDED',
-      'PROJECT_CREATED',
-      'PROJECT_COMPLETED',
-      'USER_MENTIONED',
+      'TASK_DELETED',
     ];
 
     if (!validTypes.includes(input.type)) {
@@ -258,13 +270,15 @@ export const updateActivity = async (
     // Validate activity type if provided
     if (input.type) {
       const validTypes = [
+        'USER_CREATED',
+        'USER_UPDATED',
+        'USER_DELETED',
+        'PROJECT_CREATED',
+        'PROJECT_UPDATED',
+        'PROJECT_DELETED',
         'TASK_CREATED',
         'TASK_UPDATED',
-        'TASK_ASSIGNED',
-        'COMMENT_ADDED',
-        'PROJECT_CREATED',
-        'PROJECT_COMPLETED',
-        'USER_MENTIONED',
+        'TASK_DELETED',
       ];
 
       if (!validTypes.includes(input.type)) {
@@ -361,6 +375,7 @@ export const deleteActivity = async (
     throw new Error(`Failed to delete activity: ${error.message}`);
   }
 };
+
 
 // Export resolvers
 export const activityManagementResolvers = {

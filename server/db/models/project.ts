@@ -1,5 +1,6 @@
 import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import sequelize from '../db';
+import { createActivityLog, generateActionDescription, extractEntityName } from '../utils/activityLogger';
 
 /**
  * Project Model
@@ -97,6 +98,54 @@ Project.init(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    hooks: {
+      // Activity logging hooks
+      afterCreate: async (project: Project) => {
+        // Log project creation activity
+        await createActivityLog({
+          type: 'PROJECT_CREATED',
+          action: generateActionDescription('create', 'project', extractEntityName(project, 'project')),
+          targetUserId: project.ownerId || null, // The project owner being affected
+          projectId: project.id,
+          metadata: {
+            name: project.name,
+            description: project.description,
+            status: project.status,
+            ownerId: project.ownerId
+          }
+        });
+      },
+      afterUpdate: async (project: Project) => {
+        // Log project update activity
+        await createActivityLog({
+          type: 'PROJECT_UPDATED',
+          action: generateActionDescription('update', 'project', extractEntityName(project, 'project')),
+          targetUserId: project.ownerId || null, // The project owner being affected
+          projectId: project.id,
+          metadata: {
+            name: project.name,
+            description: project.description,
+            status: project.status,
+            ownerId: project.ownerId
+          }
+        });
+      },
+      afterDestroy: async (project: Project) => {
+        // Log project deletion activity
+        await createActivityLog({
+          type: 'PROJECT_DELETED',
+          action: generateActionDescription('delete', 'project', extractEntityName(project, 'project')),
+          targetUserId: project.ownerId || null, // The project owner being affected
+          projectId: project.id,
+          metadata: {
+            name: project.name,
+            description: project.description,
+            status: project.status,
+            ownerId: project.ownerId
+          }
+        });
+      },
+    },
   }
 );
 

@@ -13,7 +13,7 @@ export class ActivityLog extends Model<InferAttributes<ActivityLog>, InferCreati
   declare projectId: number | null;
   declare taskId: number | null;
   declare action: string;
-  declare type: 'TASK_CREATED' | 'TASK_UPDATED' | 'TASK_ASSIGNED' | 'COMMENT_ADDED' | 'PROJECT_CREATED' | 'PROJECT_COMPLETED' | 'USER_MENTIONED';
+  declare type: 'USER_CREATED' | 'USER_UPDATED' | 'USER_DELETED' | 'PROJECT_CREATED' | 'PROJECT_UPDATED' | 'PROJECT_DELETED' | 'TASK_CREATED' | 'TASK_UPDATED' | 'TASK_DELETED';
   declare metadata: any | null;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -52,11 +52,11 @@ ActivityLog.init(
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM('TASK_CREATED', 'TASK_UPDATED', 'TASK_ASSIGNED', 'COMMENT_ADDED', 'PROJECT_CREATED', 'PROJECT_COMPLETED', 'USER_MENTIONED'),
+      type: DataTypes.ENUM('USER_CREATED', 'USER_UPDATED', 'USER_DELETED', 'PROJECT_CREATED', 'PROJECT_UPDATED', 'PROJECT_DELETED', 'TASK_CREATED', 'TASK_UPDATED', 'TASK_DELETED'),
       allowNull: false,
       validate: {
         isIn: {
-          args: [['TASK_CREATED', 'TASK_UPDATED', 'TASK_ASSIGNED', 'COMMENT_ADDED', 'PROJECT_CREATED', 'PROJECT_COMPLETED', 'USER_MENTIONED']],
+          args: [['USER_CREATED', 'USER_UPDATED', 'USER_DELETED', 'PROJECT_CREATED', 'PROJECT_UPDATED', 'PROJECT_DELETED', 'TASK_CREATED', 'TASK_UPDATED', 'TASK_DELETED']],
           msg: 'Invalid activity type',
         },
       },

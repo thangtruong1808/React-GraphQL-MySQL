@@ -5,13 +5,15 @@
 
 // Activity type enum
 export type ActivityType = 
+  | 'USER_CREATED'
+  | 'USER_UPDATED'
+  | 'USER_DELETED'
+  | 'PROJECT_CREATED'
+  | 'PROJECT_UPDATED'
+  | 'PROJECT_DELETED'
   | 'TASK_CREATED'
   | 'TASK_UPDATED'
-  | 'TASK_ASSIGNED'
-  | 'COMMENT_ADDED'
-  | 'PROJECT_CREATED'
-  | 'PROJECT_COMPLETED'
-  | 'USER_MENTIONED';
+  | 'TASK_DELETED';
 
 // User interface for activity relationships
 export interface User {

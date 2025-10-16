@@ -211,6 +211,7 @@ CREATE TABLE comment_mentions (
     CONSTRAINT fk_comment_mentions_user FOREIGN KEY (mentioned_user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
 -- ACTIVITY_LOGS TABLE: logs for user actions, optional metadata
 CREATE TABLE activity_logs (
     id INT PRIMARY KEY AUTO_INCREMENT,                        
@@ -219,7 +220,7 @@ CREATE TABLE activity_logs (
     project_id INT,                                           
     task_id INT,                                             
     action VARCHAR(255) NULL,                                
-    type ENUM('TASK_CREATED','TASK_UPDATED','TASK_ASSIGNED','COMMENT_ADDED','PROJECT_CREATED','PROJECT_COMPLETED','USER_MENTIONED'), 
+    type ENUM('USER_CREATED','USER_UPDATED','USER_DELETED','PROJECT_CREATED','PROJECT_UPDATED','PROJECT_DELETED','TASK_CREATED','TASK_UPDATED','TASK_DELETED') NOT NULL, 
     metadata JSON DEFAULT NULL,                              
     created_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),    
     updated_at DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), 
@@ -234,6 +235,7 @@ CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at);
 CREATE INDEX idx_activity_logs_target_user_id ON activity_logs(target_user_id);
 CREATE INDEX idx_activity_logs_user_created_at ON activity_logs(user_id, created_at);
 
+
 -- NOTIFICATIONS TABLE: realtime notifications for users
 CREATE TABLE notifications (
     id INT PRIMARY KEY AUTO_INCREMENT,                        
@@ -246,6 +248,7 @@ CREATE TABLE notifications (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE INDEX idx_notifications_user_id_is_read ON notifications(user_id, is_read);
+
 
 -- VERSION CONTROL TABLE: audit/history for versioning and concurrency
 CREATE TABLE version_control (

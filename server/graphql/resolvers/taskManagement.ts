@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Task, Project, User, ProjectMember } from '../../db';
+import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
  * Task Management Resolvers
@@ -89,6 +90,15 @@ export const getDashboardTasks = async (
  */
 export const createTask = async (_: any, { input }: { input: any }, context: any) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     const { title, description, status, priority, dueDate, projectId, assignedUserId } = input;
 
     // Validate required fields
@@ -146,29 +156,17 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
         }
       } catch (error) {
         // Log error but don't fail task creation
-        console.error('Error adding user as project member:', error);
+        // Error handling without console.log for production
       }
     }
 
-    // Fetch created task with relationships
-    const createdTask = await Task.findByPk(task.id, {
-      include: [
-        { 
-          model: Project, 
-          as: 'project', 
-          attributes: ['id', 'name', 'description', 'status'] 
-        },
-        { 
-          model: User, 
-          as: 'assignedUser', 
-          attributes: ['id', 'firstName', 'lastName', 'email'] 
-        }
-      ]
-    });
-
-    return createdTask;
+    // Return the created task directly to avoid triggering additional hooks
+    return task;
   } catch (error) {
     throw new Error('Failed to create task');
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
@@ -178,6 +176,15 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
  */
 export const updateTask = async (_: any, { id, input }: { id: string; input: any }, context: any) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     const task = await Task.findByPk(id);
     if (!task) {
       throw new Error('Task not found');
@@ -280,6 +287,9 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
     return updatedTask;
   } catch (error) {
     throw new Error('Failed to update task');
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
@@ -289,6 +299,15 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
  */
 export const deleteTask = async (_: any, { id }: { id: string }, context: any) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     const task = await Task.findByPk(id);
     if (!task) {
       throw new Error('Task not found');
@@ -298,15 +317,33 @@ export const deleteTask = async (_: any, { id }: { id: string }, context: any) =
       throw new Error('Task already deleted');
     }
 
-    // Soft delete by setting isDeleted flag
-    await task.update({
-      isDeleted: true,
-      version: task.version + 1
+    // Soft delete and log activity
+    await task.update({ isDeleted: true });
+    
+    // Manually trigger activity logging for deletion
+    const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');
+    await createActivityLog({
+      type: 'TASK_DELETED',
+      action: generateActionDescription('delete', 'task', extractEntityName(task, 'task')),
+      targetUserId: task.assignedTo || null,
+      projectId: task.projectId,
+      taskId: task.id,
+      metadata: {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        projectId: task.projectId,
+        assignedTo: task.assignedTo
+      }
     });
 
     return true;
   } catch (error) {
     throw new Error('Failed to delete task');
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 

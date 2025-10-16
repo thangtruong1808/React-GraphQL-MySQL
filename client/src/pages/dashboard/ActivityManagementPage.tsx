@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaSync } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -254,6 +254,24 @@ const ActivityManagementPage: React.FC = () => {
   }, [deleteActivityMutation, showNotification]);
 
   /**
+   * Handle manual refresh
+   * Refreshes the activity data manually
+   */
+  const handleRefresh = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      await refetch();
+      showNotification('Activity data refreshed successfully', 'success');
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Failed to refresh activity data';
+      setState(prev => ({ ...prev, error: errorMessage }));
+      showNotification(errorMessage, 'error');
+    } finally {
+      setState(prev => ({ ...prev, loading: false }));
+    }
+  }, [refetch, showNotification]);
+
+  /**
    * Handle edit activity
    * Opens edit modal with selected activity
    */
@@ -314,15 +332,25 @@ const ActivityManagementPage: React.FC = () => {
                   Manage and track user activities across the system
                 </p>
               </div>
-              {canCreate && (
+              <div className="flex items-center space-x-3">
                 <button
-                  onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
+                  onClick={handleRefresh}
+                  disabled={state.loading}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FaPlus className="h-4 w-4 mr-2" />
-                  Create Activity
+                  <FaSync className={`h-4 w-4 mr-2 ${state.loading ? 'animate-spin' : ''}`} />
+                  Refresh
                 </button>
-              )}
+                {canCreate && (
+                  <button
+                    onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
+                  >
+                    <FaPlus className="h-4 w-4 mr-2" />
+                    Create Activity
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

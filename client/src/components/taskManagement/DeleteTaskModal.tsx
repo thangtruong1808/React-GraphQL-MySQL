@@ -90,7 +90,7 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
                 </h3>
                 <div className="mt-2 text-sm text-red-700">
                   <p>
-                    Deleting this task will also remove all associated comments and activity logs.
+                    Deleting this task will also remove all associated comments.
                     This action is irreversible.
                   </p>
                 </div>

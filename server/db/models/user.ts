@@ -1,6 +1,7 @@
 import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import sequelize from '../db';
+import { createActivityLog, generateActionDescription, extractEntityName } from '../utils/activityLogger';
 
 /**
  * User Model
@@ -189,6 +190,43 @@ User.init(
       },
       beforeUpdate: async (user: User) => {
         await user.hashPassword();
+      },
+      // Activity logging hooks
+      afterCreate: async (user: User) => {
+        // Log user creation activity
+        await createActivityLog({
+          type: 'USER_CREATED',
+          action: generateActionDescription('create', 'user', extractEntityName(user, 'user')),
+          targetUserId: user.id, // The user being created
+          metadata: {
+            email: user.email,
+            role: user.role
+          }
+        });
+      },
+      afterUpdate: async (user: User) => {
+        // Log user update activity
+        await createActivityLog({
+          type: 'USER_UPDATED',
+          action: generateActionDescription('update', 'user', extractEntityName(user, 'user')),
+          targetUserId: user.id, // The user being updated
+          metadata: {
+            email: user.email,
+            role: user.role
+          }
+        });
+      },
+      afterDestroy: async (user: User) => {
+        // Log user deletion activity
+        await createActivityLog({
+          type: 'USER_DELETED',
+          action: generateActionDescription('delete', 'user', extractEntityName(user, 'user')),
+          targetUserId: user.id, // The user being deleted
+          metadata: {
+            email: user.email,
+            role: user.role
+          }
+        });
       },
     },
   }

@@ -1,5 +1,6 @@
 import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import sequelize from '../db';
+import { createActivityLog, generateActionDescription, extractEntityName } from '../utils/activityLogger';
 
 /**
  * Task Model
@@ -120,6 +121,63 @@ Task.init(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    hooks: {
+      // Activity logging hooks
+      afterCreate: async (task: Task) => {
+        // Log task creation activity
+        await createActivityLog({
+          type: 'TASK_CREATED',
+          action: generateActionDescription('create', 'task', extractEntityName(task, 'task')),
+          targetUserId: task.assignedTo || null, // The user assigned to the task
+          projectId: task.projectId,
+          taskId: task.id,
+          metadata: {
+            title: task.title,
+            description: task.description,
+            status: task.status,
+            priority: task.priority,
+            projectId: task.projectId,
+            assignedTo: task.assignedTo
+          }
+        });
+      },
+      afterUpdate: async (task: Task) => {
+        // Log task update activity
+        await createActivityLog({
+          type: 'TASK_UPDATED',
+          action: generateActionDescription('update', 'task', extractEntityName(task, 'task')),
+          targetUserId: task.assignedTo || null, // The user assigned to the task
+          projectId: task.projectId,
+          taskId: task.id,
+          metadata: {
+            title: task.title,
+            description: task.description,
+            status: task.status,
+            priority: task.priority,
+            projectId: task.projectId,
+            assignedTo: task.assignedTo
+          }
+        });
+      },
+      afterDestroy: async (task: Task) => {
+        // Log task deletion activity
+        await createActivityLog({
+          type: 'TASK_DELETED',
+          action: generateActionDescription('delete', 'task', extractEntityName(task, 'task')),
+          targetUserId: task.assignedTo || null, // The user assigned to the task
+          projectId: task.projectId,
+          taskId: task.id,
+          metadata: {
+            title: task.title,
+            description: task.description,
+            status: task.status,
+            priority: task.priority,
+            projectId: task.projectId,
+            assignedTo: task.assignedTo
+          }
+        });
+      },
+    },
   }
 );
 

@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Project, User } from '../../db';
+import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
  * Project Management Resolvers
@@ -98,9 +99,19 @@ export const getDashboardProjects = async (
  */
 export const createProject = async (
   _: any,
-  { input }: { input: { name: string; description: string; status: string; ownerId?: string } }
+  { input }: { input: { name: string; description: string; status: string; ownerId?: string } },
+  context: any
 ) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     // Create new project
     const project = await Project.create({
       name: input.name,
@@ -145,6 +156,9 @@ export const createProject = async (
     };
   } catch (error) {
     throw new Error(`Failed to create project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
@@ -154,9 +168,19 @@ export const createProject = async (
  */
 export const updateProject = async (
   _: any,
-  { id, input }: { id: string; input: { name?: string; description?: string; status?: string; ownerId?: string } }
+  { id, input }: { id: string; input: { name?: string; description?: string; status?: string; ownerId?: string } },
+  context: any
 ) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     const projectId = parseInt(id);
     
     // Find the project
@@ -212,6 +236,9 @@ export const updateProject = async (
     };
   } catch (error) {
     throw new Error(`Failed to update project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
@@ -221,9 +248,19 @@ export const updateProject = async (
  */
 export const deleteProject = async (
   _: any,
-  { id }: { id: string }
+  { id }: { id: string },
+  context: any
 ) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     const projectId = parseInt(id);
     
     // Find the project
@@ -236,12 +273,30 @@ export const deleteProject = async (
       throw new Error('Project is already deleted');
     }
 
-    // Soft delete the project
+    // Soft delete project and log activity
     await project.update({ isDeleted: true });
+    
+    // Manually trigger activity logging for deletion
+    const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');
+    await createActivityLog({
+      type: 'PROJECT_DELETED',
+      action: generateActionDescription('delete', 'project', extractEntityName(project, 'project')),
+      targetUserId: project.ownerId || null,
+      projectId: project.id,
+      metadata: {
+        name: project.name,
+        description: project.description,
+        status: project.status,
+        ownerId: project.ownerId
+      }
+    });
 
     return true;
   } catch (error) {
     throw new Error(`Failed to delete project: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 

@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { User } from '../../db';
+import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
  * User Management Resolvers
@@ -88,9 +89,19 @@ export const getUsers = async (
  */
 export const createUser = async (
   _: any,
-  { input }: { input: { email: string; password: string; firstName: string; lastName: string; role: string } }
+  { input }: { input: { email: string; password: string; firstName: string; lastName: string; role: string } },
+  context: any
 ) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     // Check if user with email already exists
     const existingUser = await User.findOne({
       where: { email: input.email, isDeleted: false }
@@ -123,6 +134,9 @@ export const createUser = async (
     };
   } catch (error) {
     throw new Error(`Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
@@ -132,9 +146,19 @@ export const createUser = async (
  */
 export const updateUser = async (
   _: any,
-  { id, input }: { id: string; input: { email?: string; firstName?: string; lastName?: string; role?: string } }
+  { id, input }: { id: string; input: { email?: string; firstName?: string; lastName?: string; role?: string } },
+  context: any
 ) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     // Find user by ID
     const user = await User.findOne({
       where: { id: parseInt(id), isDeleted: false }
@@ -178,6 +202,9 @@ export const updateUser = async (
     };
   } catch (error) {
     throw new Error(`Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
@@ -187,9 +214,19 @@ export const updateUser = async (
  */
 export const deleteUser = async (
   _: any,
-  { id }: { id: string }
+  { id }: { id: string },
+  context: any
 ) => {
   try {
+    // Set activity context for logged-in user
+    if (context.user) {
+      setActivityContext({
+        id: context.user.id,
+        email: context.user.email,
+        role: context.user.role
+      });
+    }
+
     // Find user by ID
     const user = await User.findOne({
       where: { id: parseInt(id), isDeleted: false }
@@ -199,12 +236,27 @@ export const deleteUser = async (
       throw new Error('User not found');
     }
 
-    // Soft delete user
+    // Soft delete user and log activity
     await user.update({ isDeleted: true });
+    
+    // Manually trigger activity logging for deletion
+    const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');
+    await createActivityLog({
+      type: 'USER_DELETED',
+      action: generateActionDescription('delete', 'user', extractEntityName(user, 'user')),
+      targetUserId: user.id,
+      metadata: {
+        email: user.email,
+        role: user.role
+      }
+    });
 
     return true;
   } catch (error) {
     throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    // Clear activity context after operation
+    clearActivityContext();
   }
 };
 
