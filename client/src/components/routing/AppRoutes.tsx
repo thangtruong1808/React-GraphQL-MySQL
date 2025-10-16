@@ -19,7 +19,7 @@ const DashboardUserCreatePage = React.lazy(() => import('../../pages/dashboard/U
 const DashboardProjectsPage = React.lazy(() => import('../../pages/dashboard/ProjectsPage'));
 const DashboardTasksPage = React.lazy(() => import('../../pages/dashboard/TasksPage'));
 const DashboardCommentsPage = React.lazy(() => import('../../pages/dashboard/CommentsPage'));
-const DashboardActivitiesPage = React.lazy(() => import('../../pages/dashboard/ActivitiesPage'));
+const DashboardActivitiesPage = React.lazy(() => import('../../pages/dashboard/ActivityManagementPage'));
 const DashboardNotificationsPage = React.lazy(() => import('../../pages/dashboard/NotificationsPage'));
 const DashboardTagsPage = React.lazy(() => import('../../pages/dashboard/TagsPage'));
 

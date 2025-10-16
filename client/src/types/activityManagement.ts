@@ -103,7 +103,8 @@ export interface ActivitiesTableProps {
 
 // Activity search input props
 export interface ActivitySearchInputProps {
-  onSearch: (searchTerm: string) => void;
+  value: string;
+  onChange: (value: string) => void;
   placeholder?: string;
   loading?: boolean;
 }

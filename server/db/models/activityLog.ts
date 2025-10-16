@@ -12,7 +12,7 @@ export class ActivityLog extends Model<InferAttributes<ActivityLog>, InferCreati
   declare targetUserId: number | null;
   declare projectId: number | null;
   declare taskId: number | null;
-  declare action: string | null;
+  declare action: string;
   declare type: 'TASK_CREATED' | 'TASK_UPDATED' | 'TASK_ASSIGNED' | 'COMMENT_ADDED' | 'PROJECT_CREATED' | 'PROJECT_COMPLETED' | 'USER_MENTIONED';
   declare metadata: any | null;
   declare createdAt: CreationOptional<Date>;
@@ -49,7 +49,7 @@ ActivityLog.init(
     },
     action: {
       type: DataTypes.STRING(255),
-      allowNull: true,
+      allowNull: false,
     },
     type: {
       type: DataTypes.ENUM('TASK_CREATED', 'TASK_UPDATED', 'TASK_ASSIGNED', 'COMMENT_ADDED', 'PROJECT_CREATED', 'PROJECT_COMPLETED', 'USER_MENTIONED'),

@@ -1,40 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ACTIVITY_LIMITS, ACTIVITY_SEARCH_DEBOUNCE_DELAY } from '../../constants/activityManagement';
+import React, { useCallback } from 'react';
+import { ACTIVITY_LIMITS } from '../../constants/activityManagement';
+import { ActivitySearchInputProps } from '../../types/activityManagement';
 
 /**
  * Activity Search Input Component
- * Provides debounced search functionality for activity management
+ * Provides search functionality for activity management
  * Features clear button and loading state indicators
  */
-interface ActivitySearchInputProps {
-  onSearch: (searchTerm: string) => void;
-  placeholder?: string;
-  loading?: boolean;
-}
-
 const ActivitySearchInput: React.FC<ActivitySearchInputProps> = ({
-  onSearch,
+  value,
+  onChange,
   placeholder = 'Search activities...',
   loading = false,
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  /**
-   * Debounce search input to avoid excessive API calls
-   * Updates parent component after 1 second of no typing
-   */
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onSearch(searchTerm);
-    }, ACTIVITY_SEARCH_DEBOUNCE_DELAY);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm, onSearch]);
 
   // Handle clear search
   const handleClear = useCallback(() => {
-    setSearchTerm('');
-  }, []);
+    onChange('');
+  }, [onChange]);
 
   return (
     <div className="relative">
@@ -55,14 +38,14 @@ const ActivitySearchInput: React.FC<ActivitySearchInputProps> = ({
       </div>
       <input
         type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         maxLength={ACTIVITY_LIMITS.MAX_ACTION_LENGTH}
         className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
         disabled={loading}
       />
-      {searchTerm && (
+      {value && (
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           <button
             type="button"
