@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getRoleColorScheme } from '../../utils/roleColors';
 
 /**
- * Test credentials data with all 14 user roles from database schema
+ * Test credentials data with first 5 essential user roles from database schema
  * Uses real role names from the database ENUM values
  */
 const TEST_CREDENTIALS = [
@@ -30,51 +30,6 @@ const TEST_CREDENTIALS = [
     email: 'andrewmay@yahoo.com',
     password: 'UserTest123!<>',
     role: 'Backend Developer'
-  },
-  {
-    email: 'dherman@gmail.com',
-    password: 'UserTest123!<>',
-    role: 'Full-Stack Developer'
-  },
-  {
-    email: 'devops.engineer@test.com',
-    password: 'UserTest123!<>',
-    role: 'DevOps Engineer'
-  },
-  {
-    email: 'qa.engineer@test.com',
-    password: 'UserTest123!<>',
-    role: 'QA Engineer'
-  },
-  {
-    email: 'qc.engineer@test.com',
-    password: 'UserTest123!<>',
-    role: 'QC Engineer'
-  },
-  {
-    email: 'ux.designer@test.com',
-    password: 'UserTest123!<>',
-    role: 'UX/UI Designer'
-  },
-  {
-    email: 'business.analyst@test.com',
-    password: 'UserTest123!<>',
-    role: 'Business Analyst'
-  },
-  {
-    email: 'db.admin@test.com',
-    password: 'UserTest123!<>',
-    role: 'Database Administrator'
-  },
-  {
-    email: 'tech.writer@test.com',
-    password: 'UserTest123!<>',
-    role: 'Technical Writer'
-  },
-  {
-    email: 'support.engineer@test.com',
-    password: 'UserTest123!<>',
-    role: 'Support Engineer'
   }
 ];
 
@@ -137,15 +92,15 @@ const LoginCredentials: React.FC = () => {
           </svg>
         </button>
         {!isExpanded && (
-          <p className="text-xs text-gray-500 mt-2">Click to view all 14 test accounts with different roles</p>
+          <p className="text-xs text-gray-500 mt-2">Click to view 5 essential test accounts with different roles</p>
         )}
       </div>
 
       {/* Collapsible Credentials */}
       {isExpanded && (
         <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-sm p-4 transition-all duration-300">
-          {/* Compact Grid - 7 cards per row for space efficiency */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7 gap-3">
+          {/* Compact Grid - 5 cards per row for optimal space efficiency */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {TEST_CREDENTIALS.map((credential, index) => {
               const roleColors = getRoleColorScheme(credential.role);
 
@@ -179,7 +134,11 @@ const LoginCredentials: React.FC = () => {
                   <div className="space-y-2">
                     {/* Email Row */}
                     <div className="flex items-start">
-                      <span className="text-xs font-medium text-gray-500 min-w-[45px] mt-1">Email:</span>
+                      <div className="flex items-center justify-center w-5 h-5 mt-0.5">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                      </div>
                       <span className="text-xs text-gray-800 font-mono bg-white px-2 py-1 rounded border flex-1 ml-2 break-all">
                         {credential.email}
                       </span>
@@ -187,7 +146,11 @@ const LoginCredentials: React.FC = () => {
 
                     {/* Password Row */}
                     <div className="flex items-center">
-                      <span className="text-xs font-medium text-gray-500 min-w-[45px]">Pass:</span>
+                      <div className="flex items-center justify-center w-5 h-5">
+                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                      </div>
                       <span className="text-xs text-gray-800 font-mono bg-white px-2 py-1 rounded border flex-1 ml-2">
                         {credential.password}
                       </span>
@@ -201,7 +164,7 @@ const LoginCredentials: React.FC = () => {
           {/* Footer Note */}
           <div className="text-center mt-4 pt-3 border-t border-gray-200">
             <p className="text-xs text-gray-500">
-              Click any credential to copy • All 14 user roles available • Development purposes only
+              Click any credential to copy • 5 essential user roles available • Development purposes only
             </p>
           </div>
         </div>
