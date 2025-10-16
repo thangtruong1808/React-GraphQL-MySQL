@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaTimes, FaExclamationTriangle, FaTrash, FaBan } from 'react-icons/fa';
 import { DeleteTaskModalProps } from '../../types/taskManagement';
 
 /**
@@ -105,17 +105,28 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
           >
+            <FaBan className="w-4 h-4 mr-2" />
             Cancel
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
           >
-            {loading ? 'Deleting...' : 'Delete Task'}
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                Deleting...
+              </>
+            ) : (
+              <>
+                <FaTrash className="w-4 h-4 mr-2" />
+                Delete Task
+              </>
+            )}
           </button>
         </div>
       </div>

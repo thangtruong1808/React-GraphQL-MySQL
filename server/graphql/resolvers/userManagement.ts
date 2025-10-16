@@ -236,8 +236,8 @@ export const deleteUser = async (
       throw new Error('User not found');
     }
 
-    // Soft delete user and log activity
-    await user.update({ isDeleted: true });
+    // Soft delete user without triggering hooks
+    await user.update({ isDeleted: true }, { hooks: false });
     
     // Manually trigger activity logging for deletion
     const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');

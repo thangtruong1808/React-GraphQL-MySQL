@@ -317,8 +317,8 @@ export const deleteTask = async (_: any, { id }: { id: string }, context: any) =
       throw new Error('Task already deleted');
     }
 
-    // Soft delete and log activity
-    await task.update({ isDeleted: true });
+    // Soft delete without triggering hooks
+    await task.update({ isDeleted: true }, { hooks: false });
     
     // Manually trigger activity logging for deletion
     const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');

@@ -273,8 +273,8 @@ export const deleteProject = async (
       throw new Error('Project is already deleted');
     }
 
-    // Soft delete project and log activity
-    await project.update({ isDeleted: true });
+    // Soft delete project without triggering hooks
+    await project.update({ isDeleted: true }, { hooks: false });
     
     // Manually trigger activity logging for deletion
     const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');
