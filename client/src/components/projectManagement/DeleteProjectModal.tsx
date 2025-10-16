@@ -15,7 +15,8 @@ const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
   project,
   onClose,
   onConfirm,
-  loading = false
+  loading = false,
+  deletionCheck = null
 }) => {
   /**
    * Handle confirmation
@@ -90,41 +91,85 @@ const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
               </p>
             </div>
 
-            {/* Project details */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Project Name:</span>
-                  <p className="text-sm text-gray-900">{project.name}</p>
-                </div>
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Status:</span>
-                  <p className="text-sm text-gray-900">
-                    {project.status === 'PLANNING' ? 'Planning' :
-                      project.status === 'IN_PROGRESS' ? 'In Progress' :
-                        project.status === 'COMPLETED' ? 'Completed' : project.status}
-                  </p>
-                </div>
-                {project.owner && (
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Owner:</span>
-                    <p className="text-sm text-gray-900">
-                      {project.owner.firstName} {project.owner.lastName}
-                    </p>
+            {/* Enhanced deletion impact information */}
+            {deletionCheck ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <svg className="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <h4 className="text-sm font-medium text-red-800">Deletion Impact</h4>
                   </div>
-                )}
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Created:</span>
-                  <p className="text-sm text-gray-900">
-                    {new Date(project.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-red-700">Project:</span>
+                      <p className="text-red-900">{deletionCheck.projectName}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-red-700">Tasks:</span>
+                      <p className="text-red-900">{deletionCheck.tasksCount}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-red-700">Comments:</span>
+                      <p className="text-red-900">{deletionCheck.commentsCount}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-red-700">Assigned Users:</span>
+                      <p className="text-red-900">{deletionCheck.assignedUsersCount}</p>
+                    </div>
+                  </div>
+
+                  {deletionCheck.assignedUsersList && (
+                    <div>
+                      <span className="font-medium text-red-700">Affected Users:</span>
+                      <p className="text-red-900 text-sm mt-1">{deletionCheck.assignedUsersList}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-3 p-3 bg-red-100 rounded border border-red-300">
+                    <p className="text-sm text-red-800 font-medium">{deletionCheck.message}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* Fallback to basic project details if deletionCheck is not available */
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Project Name:</span>
+                    <p className="text-sm text-gray-900">{project.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Status:</span>
+                    <p className="text-sm text-gray-900">
+                      {project.status === 'PLANNING' ? 'Planning' :
+                        project.status === 'IN_PROGRESS' ? 'In Progress' :
+                          project.status === 'COMPLETED' ? 'Completed' : project.status}
+                    </p>
+                  </div>
+                  {project.owner && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Owner:</span>
+                      <p className="text-sm text-gray-900">
+                        {project.owner.firstName} {project.owner.lastName}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Created:</span>
+                    <p className="text-sm text-gray-900">
+                      {new Date(project.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Additional warning */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">

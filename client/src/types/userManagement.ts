@@ -107,6 +107,14 @@ export interface EditUserModalProps {
   loading?: boolean;
 }
 
+// User deletion check response interface
+export interface UserDeletionCheck {
+  canDelete: boolean;
+  ownedProjectsCount: number;
+  assignedTasksCount: number;
+  message: string | null;
+}
+
 // Delete user modal props interface
 export interface DeleteUserModalProps {
   isOpen: boolean;
@@ -114,6 +122,7 @@ export interface DeleteUserModalProps {
   onClose: () => void;
   onConfirm: (userId: string) => Promise<void>;
   loading?: boolean;
+  deletionCheck?: UserDeletionCheck | null;
 }
 
 // User form data interface

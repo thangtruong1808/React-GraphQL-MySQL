@@ -108,6 +108,20 @@ export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
   }
 `;
 
+// Query to check project deletion impact
+export const CHECK_PROJECT_DELETION_QUERY = gql`
+  query CheckProjectDeletion($projectId: ID!) {
+    checkProjectDeletion(projectId: $projectId) {
+      projectName
+      tasksCount
+      commentsCount
+      assignedUsersCount
+      assignedUsersList
+      message
+    }
+  }
+`;
+
 // Type definitions for the queries and mutations
 export interface GetDashboardProjectsQueryVariables {
   limit: number;
@@ -225,5 +239,20 @@ export interface GetUsersForDropdownQueryResponse {
     paginationInfo: {
       totalCount: number;
     };
+  };
+}
+
+export interface CheckProjectDeletionQueryVariables {
+  projectId: string;
+}
+
+export interface CheckProjectDeletionQueryResponse {
+  checkProjectDeletion: {
+    projectName: string;
+    tasksCount: number;
+    commentsCount: number;
+    assignedUsersCount: number;
+    assignedUsersList: string;
+    message: string;
   };
 }

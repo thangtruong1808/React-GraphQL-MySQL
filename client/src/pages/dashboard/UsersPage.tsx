@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useLazyQuery } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
@@ -20,13 +20,15 @@ import {
   GET_USERS_QUERY,
   CREATE_USER_MUTATION,
   UPDATE_USER_MUTATION,
-  DELETE_USER_MUTATION
+  DELETE_USER_MUTATION,
+  CHECK_USER_DELETION_QUERY
 } from '../../services/graphql/userQueries';
 import {
   User,
   UserInput,
   UserUpdateInput,
-  UserManagementState
+  UserManagementState,
+  UserDeletionCheck
 } from '../../types/userManagement';
 import {
   DEFAULT_USERS_PAGINATION,
@@ -70,6 +72,9 @@ const UsersPage: React.FC = () => {
     error: null
   });
 
+  // State for user deletion check
+  const [deletionCheck, setDeletionCheck] = useState<UserDeletionCheck | null>(null);
+
   // Sorting state
   const [sortBy, setSortBy] = useState<string>('id');
   const [sortOrder, setSortOrder] = useState<string>('ASC');
@@ -91,6 +96,7 @@ const UsersPage: React.FC = () => {
   const [createUserMutation] = useMutation(CREATE_USER_MUTATION);
   const [updateUserMutation] = useMutation(UPDATE_USER_MUTATION);
   const [deleteUserMutation] = useMutation(DELETE_USER_MUTATION);
+  const [checkUserDeletion] = useLazyQuery(CHECK_USER_DELETION_QUERY);
 
   /**
    * Update state when GraphQL data changes
@@ -341,11 +347,29 @@ const UsersPage: React.FC = () => {
                   editModalOpen: true,
                   selectedUser: user
                 })) : undefined}
-                onDelete={canDelete ? (user) => setState(prev => ({
-                  ...prev,
-                  deleteModalOpen: true,
-                  selectedUser: user
-                })) : undefined}
+                onDelete={canDelete ? async (user) => {
+                  try {
+                    // Check user deletion eligibility first
+                    const { data } = await checkUserDeletion({
+                      variables: { userId: user.id }
+                    });
+
+                    setDeletionCheck(data?.checkUserDeletion || null);
+                    setState(prev => ({
+                      ...prev,
+                      deleteModalOpen: true,
+                      selectedUser: user
+                    }));
+                  } catch (error) {
+                    // If check fails, still show modal but without validation
+                    setDeletionCheck(null);
+                    setState(prev => ({
+                      ...prev,
+                      deleteModalOpen: true,
+                      selectedUser: user
+                    }));
+                  }
+                } : undefined}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 currentPageSize={state.pageSize}
@@ -381,9 +405,13 @@ const UsersPage: React.FC = () => {
           <DeleteUserModal
             isOpen={state.deleteModalOpen}
             user={state.selectedUser}
-            onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedUser: null }))}
+            onClose={() => {
+              setState(prev => ({ ...prev, deleteModalOpen: false, selectedUser: null }));
+              setDeletionCheck(null);
+            }}
             onConfirm={handleDeleteUser}
             loading={state.loading}
+            deletionCheck={deletionCheck}
           />
         )}
       </div>

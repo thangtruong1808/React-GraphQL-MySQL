@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, useLazyQuery } from '@apollo/client';
 import { FaPlus, FaUsers } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +23,8 @@ import {
   GET_DASHBOARD_PROJECTS_QUERY,
   CREATE_PROJECT_MUTATION,
   UPDATE_PROJECT_MUTATION,
-  DELETE_PROJECT_MUTATION
+  DELETE_PROJECT_MUTATION,
+  CHECK_PROJECT_DELETION_QUERY
 } from '../../services/graphql/projectQueries';
 import {
   GET_PROJECT_MEMBERS_QUERY,
@@ -38,7 +39,8 @@ import {
   ProjectManagementState,
   ProjectMember,
   ProjectMemberInput,
-  ProjectMemberRole
+  ProjectMemberRole,
+  ProjectDeletionCheck
 } from '../../types/projectManagement';
 import {
   DEFAULT_PROJECTS_PAGINATION,
@@ -113,6 +115,9 @@ const ProjectsPage: React.FC = () => {
   const [memberSortBy, setMemberSortBy] = useState<string>('createdAt');
   const [memberSortOrder, setMemberSortOrder] = useState<string>('DESC');
 
+  // Project deletion check state
+  const [deletionCheck, setDeletionCheck] = useState<ProjectDeletionCheck | null>(null);
+
   // GraphQL queries and mutations
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_PROJECTS_QUERY, {
     variables: {
@@ -145,6 +150,7 @@ const ProjectsPage: React.FC = () => {
   const [createProjectMutation] = useMutation(CREATE_PROJECT_MUTATION);
   const [updateProjectMutation] = useMutation(UPDATE_PROJECT_MUTATION);
   const [deleteProjectMutation] = useMutation(DELETE_PROJECT_MUTATION);
+  const [checkProjectDeletion] = useLazyQuery(CHECK_PROJECT_DELETION_QUERY);
 
   // Member management mutations
   const [addMemberMutation] = useMutation(ADD_PROJECT_MEMBER_MUTATION);
@@ -671,11 +677,29 @@ const ProjectsPage: React.FC = () => {
                       selectedProject: project
                     }));
                   } : undefined}
-                  onDelete={canDelete ? (project) => setState(prev => ({
-                    ...prev,
-                    deleteModalOpen: true,
-                    selectedProject: project
-                  })) : undefined}
+                  onDelete={canDelete ? async (project) => {
+                    try {
+                      // Check project deletion impact first
+                      const { data } = await checkProjectDeletion({
+                        variables: { projectId: project.id }
+                      });
+
+                      setDeletionCheck(data?.checkProjectDeletion || null);
+                      setState(prev => ({
+                        ...prev,
+                        deleteModalOpen: true,
+                        selectedProject: project
+                      }));
+                    } catch (error) {
+                      // If check fails, still show modal but without validation
+                      setDeletionCheck(null);
+                      setState(prev => ({
+                        ...prev,
+                        deleteModalOpen: true,
+                        selectedProject: project
+                      }));
+                    }
+                  } : undefined}
                   onViewMembers={(project) => {
                     setState(prev => ({
                       ...prev,
@@ -816,9 +840,13 @@ const ProjectsPage: React.FC = () => {
           <DeleteProjectModal
             isOpen={state.deleteModalOpen}
             project={state.selectedProject}
-            onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedProject: null }))}
+            onClose={() => {
+              setState(prev => ({ ...prev, deleteModalOpen: false, selectedProject: null }));
+              setDeletionCheck(null); // Clear deletion check state on close
+            }}
             onConfirm={handleDeleteProject}
             loading={state.loading}
+            deletionCheck={deletionCheck}
           />
         )}
 

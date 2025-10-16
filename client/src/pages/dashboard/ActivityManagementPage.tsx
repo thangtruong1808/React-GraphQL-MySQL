@@ -322,32 +322,34 @@ const ActivityManagementPage: React.FC = () => {
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">
-          <div className="px-8 py-8 w-full">
-            <div className="flex items-center justify-between">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Activity Management
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
                   Manage and track user activities across the system
                 </p>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <button
                   onClick={handleRefresh}
                   disabled={state.loading}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                 >
                   <FaSync className={`h-4 w-4 mr-2 ${state.loading ? 'animate-spin' : ''}`} />
-                  Refresh
+                  <span className="hidden xs:inline">Refresh</span>
+                  <span className="xs:hidden">Refresh</span>
                 </button>
                 {canCreate && (
                   <button
                     onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200 w-full sm:w-auto"
                   >
                     <FaPlus className="h-4 w-4 mr-2" />
-                    Create Activity
+                    <span className="hidden xs:inline">Create Activity</span>
+                    <span className="xs:hidden">Create</span>
                   </button>
                 )}
               </div>
@@ -357,7 +359,7 @@ const ActivityManagementPage: React.FC = () => {
 
         {/* Main Content */}
         <div className="w-full">
-          <div className="px-8 py-8 w-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             {/* Error Display */}
             {state.error && (
               <div className="mb-6">

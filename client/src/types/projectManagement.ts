@@ -101,6 +101,16 @@ export interface EditProjectModalProps {
   loading?: boolean;
 }
 
+// Project deletion check interface
+export interface ProjectDeletionCheck {
+  projectName: string;
+  tasksCount: number;
+  commentsCount: number;
+  assignedUsersCount: number;
+  assignedUsersList: string;
+  message: string;
+}
+
 // Delete project modal props interface
 export interface DeleteProjectModalProps {
   isOpen: boolean;
@@ -108,6 +118,7 @@ export interface DeleteProjectModalProps {
   onClose: () => void;
   onConfirm: (projectId: string) => Promise<void>;
   loading?: boolean;
+  deletionCheck?: ProjectDeletionCheck | null;
 }
 
 // Project form data interface

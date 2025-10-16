@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { User } from '../../db';
+import { User, Project, Task } from '../../db';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
@@ -218,6 +218,11 @@ export const deleteUser = async (
   context: any
 ) => {
   try {
+    // Check if user has admin or project manager role
+    if (!context.user || (context.user.role !== 'ADMIN' && context.user.role !== 'Project Manager')) {
+      throw new Error('Only administrators and project managers can delete users');
+    }
+
     // Set activity context for logged-in user
     if (context.user) {
       setActivityContext({
@@ -234,6 +239,21 @@ export const deleteUser = async (
 
     if (!user) {
       throw new Error('User not found');
+    }
+
+    // Check if user owns any projects
+    const ownedProjectsCount = await Project.count({
+      where: { ownerId: user.id, isDeleted: false }
+    });
+
+    // Check if user has any assigned tasks
+    const assignedTasksCount = await Task.count({
+      where: { assignedTo: user.id, isDeleted: false }
+    });
+
+    // Prevent deletion if user has active projects or tasks
+    if (ownedProjectsCount > 0 || assignedTasksCount > 0) {
+      throw new Error(`Cannot delete user. They own ${ownedProjectsCount} projects and have ${assignedTasksCount} assigned tasks. Please reassign or delete these first.`);
     }
 
     // Soft delete user without triggering hooks
@@ -261,12 +281,65 @@ export const deleteUser = async (
 };
 
 /**
+ * Check if user can be deleted
+ * Returns deletion eligibility and impact details
+ */
+export const checkUserDeletion = async (
+  _: any,
+  { userId }: { userId: string },
+  context: any
+) => {
+  try {
+    // Check if user has admin or project manager role
+    if (!context.user || (context.user.role !== 'ADMIN' && context.user.role !== 'Project Manager')) {
+      throw new Error('Only administrators and project managers can check user deletion eligibility');
+    }
+
+    const userIdInt = parseInt(userId);
+
+    // Find user by ID
+    const user = await User.findOne({
+      where: { id: userIdInt, isDeleted: false }
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if user owns any projects
+    const ownedProjectsCount = await Project.count({
+      where: { ownerId: userIdInt, isDeleted: false }
+    });
+
+    // Check if user has any assigned tasks
+    const assignedTasksCount = await Task.count({
+      where: { assignedTo: userIdInt, isDeleted: false }
+    });
+
+    const canDelete = ownedProjectsCount === 0 && assignedTasksCount === 0;
+    const message = canDelete 
+      ? 'User can be safely deleted'
+      : `Cannot delete user. They own ${ownedProjectsCount} projects and have ${assignedTasksCount} assigned tasks. Please reassign or delete these first.`;
+
+    return {
+      canDelete,
+      ownedProjectsCount,
+      assignedTasksCount,
+      message
+    };
+  } catch (error) {
+    throw new Error(`Failed to check user deletion eligibility: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+/**
  * User management resolvers object
  * Exports all user management GraphQL resolvers
  */
 export const userManagementResolvers = {
   Query: {
-    users: getUsers
+    users: getUsers,
+    checkUserDeletion
   },
   Mutation: {
     createUser,

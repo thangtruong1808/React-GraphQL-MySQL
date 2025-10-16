@@ -75,6 +75,18 @@ export const DELETE_USER_MUTATION = gql`
   }
 `;
 
+// Query to check user deletion eligibility
+export const CHECK_USER_DELETION_QUERY = gql`
+  query CheckUserDeletion($userId: ID!) {
+    checkUserDeletion(userId: $userId) {
+      canDelete
+      ownedProjectsCount
+      assignedTasksCount
+      message
+    }
+  }
+`;
+
 // Query to get a single user by ID (for editing)
 export const GET_USER_QUERY = gql`
   query GetUser($id: ID!) {

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Project, User } from '../../db';
+import { Project, User, Task, Comment } from '../../db';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
@@ -252,6 +252,11 @@ export const deleteProject = async (
   context: any
 ) => {
   try {
+    // Check if user has admin or project manager role
+    if (!context.user || (context.user.role !== 'ADMIN' && context.user.role !== 'Project Manager')) {
+      throw new Error('Only administrators and project managers can delete projects');
+    }
+
     // Set activity context for logged-in user
     if (context.user) {
       setActivityContext({
@@ -300,10 +305,97 @@ export const deleteProject = async (
   }
 };
 
+/**
+ * Check project deletion impact
+ * Returns deletion impact details for confirmation
+ */
+export const checkProjectDeletion = async (
+  _: any,
+  { projectId }: { projectId: string },
+  context: any
+) => {
+  try {
+    // Check if user has admin or project manager role
+    if (!context.user || (context.user.role !== 'ADMIN' && context.user.role !== 'Project Manager')) {
+      throw new Error('Only administrators and project managers can check project deletion impact');
+    }
+
+    const projectIdInt = parseInt(projectId);
+
+    // Find project by ID
+    const project = await Project.findByPk(projectIdInt);
+    if (!project) {
+      throw new Error('Project not found');
+    }
+
+    if (project.isDeleted) {
+      throw new Error('Project is already deleted');
+    }
+
+    // Count tasks in the project
+    const tasksCount = await Task.count({
+      where: { projectId: projectIdInt, isDeleted: false }
+    });
+
+    // Count comments on tasks in the project
+    const commentsCount = await Comment.count({
+      where: { 
+        isDeleted: false 
+      },
+      include: [{
+        model: Task,
+        as: 'task',
+        where: {
+          projectId: projectIdInt,
+          isDeleted: false
+        },
+        required: true
+      }]
+    });
+
+    // Get unique assigned users from tasks in the project
+    const assignedUsers = await Task.findAll({
+      where: { 
+        projectId: projectIdInt, 
+        isDeleted: false,
+        assignedTo: { [Op.ne]: null }
+      },
+      attributes: ['assignedTo'],
+      include: [{
+        model: User,
+        as: 'assignedUser',
+        attributes: ['id', 'firstName', 'lastName', 'email'],
+        required: true
+      }],
+      group: ['assignedTo'],
+      raw: false
+    });
+
+    const assignedUsersCount = assignedUsers.length;
+    const assignedUsersList = assignedUsers.map(task => 
+      `${task.assignedUser?.firstName} ${task.assignedUser?.lastName} (${task.assignedUser?.email})`
+    ).join(', ');
+
+    const message = `This will delete the project "${project.name}", ${tasksCount} tasks, ${commentsCount} comments, and affect ${assignedUsersCount} assigned users${assignedUsersList ? `: ${assignedUsersList}` : ''}. This action cannot be undone.`;
+
+    return {
+      projectName: project.name,
+      tasksCount,
+      commentsCount,
+      assignedUsersCount,
+      assignedUsersList,
+      message
+    };
+  } catch (error) {
+    throw new Error(`Failed to check project deletion impact: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
 // Export resolvers object
 export const projectManagementResolvers = {
   Query: {
-    dashboardProjects: getDashboardProjects
+    dashboardProjects: getDashboardProjects,
+    checkProjectDeletion
   },
   Mutation: {
     createProject,
