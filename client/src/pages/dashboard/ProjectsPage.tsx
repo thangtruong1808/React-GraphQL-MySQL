@@ -53,6 +53,7 @@ import { InlineError } from '../../components/ui';
  * Projects Dashboard Page
  * Complete project management interface with search, table, and CRUD operations
  * Features modern, professional layout with pagination and real-time search
+ * Features responsive design with improved mobile UX when sidebar is collapsed
  * 
  * CALLED BY: AppRoutes component via ProtectedRoute
  * SCENARIOS: Project management for administrators and project managers
@@ -574,7 +575,7 @@ const ProjectsPage: React.FC = () => {
         <div className="bg-white border-b border-gray-200 w-full">
           <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
+              <div className="flex-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Projects Management
                 </h1>
@@ -583,25 +584,27 @@ const ProjectsPage: React.FC = () => {
                 </p>
               </div>
               {canCreate && activeTab === 'projects' && (
+                /* Create Project Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
                   onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 >
-                  <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                  <span className="hidden xs:inline">Create Project</span>
-                  <span className="xs:hidden">Create</span>
+                  <FaPlus className="h-5 w-5" aria-hidden="true" />
+                  <span className="hidden xs:inline ml-2">Create Project</span>
+                  <span className="xs:hidden ml-2">Create</span>
                 </button>
               )}
               {canCreate && activeTab === 'members' && state.selectedProject && (
+                /* Add Member Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
                   onClick={() => setMemberState(prev => ({ ...prev, addModalOpen: true }))}
                 >
-                  <FaUsers className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                  <span className="hidden xs:inline">Add Member</span>
-                  <span className="xs:hidden">Add</span>
+                  <FaUsers className="h-5 w-5" aria-hidden="true" />
+                  <span className="hidden xs:inline ml-2">Add Member</span>
+                  <span className="xs:hidden ml-2">Add</span>
                 </button>
               )}
             </div>

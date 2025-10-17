@@ -169,13 +169,14 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white shadow-sm rounded-lg border border-gray-200">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 table-fixed">
           <thead className="bg-gray-50">
             <tr>
+              {/* ID Column - Hidden on mobile */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${NOTIFICATION_TABLE_COLUMNS.ID.width}`}
+                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -183,8 +184,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   {getSortIcon('id')}
                 </div>
               </th>
+              {/* User Column - Hidden on small screens */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${NOTIFICATION_TABLE_COLUMNS.USER.width}`}
+                className="hidden sm:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('user')}
               >
                 <div className="flex items-center space-x-1">
@@ -192,11 +194,13 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   {getSortIcon('user')}
                 </div>
               </th>
-              <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${NOTIFICATION_TABLE_COLUMNS.MESSAGE.width}`}>
+              {/* Message Column - Always visible */}
+              <th className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Message
               </th>
+              {/* Status Column - Always visible */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${NOTIFICATION_TABLE_COLUMNS.STATUS.width}`}
+                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
@@ -204,8 +208,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   {getSortIcon('status')}
                 </div>
               </th>
+              {/* Created Date Column - Hidden on extra small screens */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${NOTIFICATION_TABLE_COLUMNS.CREATED.width}`}
+                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -213,8 +218,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
+              {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}
+                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -222,7 +228,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
-              <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
+              {/* Actions Column - Always visible */}
+              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -275,47 +282,47 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
               </tr>
             ) : (
               notifications.map((notification) => (
-                <tr key={notification.id} className="hover:bg-gray-50 transition-colors duration-200">
-                  {/* ID */}
-                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.ID.width}`}>
+                <tr key={notification.id} className="hover:bg-gray-50 transition-colors duration-150">
+                  {/* ID Column - Hidden on mobile */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {notification.id}
                   </td>
 
-                  {/* User */}
-                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.USER.width}`}>
+                  {/* User Column - Hidden on small screens */}
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="flex items-center space-x-2">
                       <FaEnvelope className="text-gray-400" />
                       <span>{notification.user.firstName} {notification.user.lastName}</span>
                     </div>
                   </td>
 
-                  {/* Message */}
-                  <td className={`px-4 py-4 text-sm text-gray-900 text-left ${NOTIFICATION_TABLE_COLUMNS.MESSAGE.width}`}>
+                  {/* Message Column - Always visible */}
+                  <td className="px-4 py-4 text-sm text-gray-900 text-left">
                     <p className="truncate" title={notification.message}>
                       {notification.message}
                     </p>
                   </td>
 
-                  {/* Status */}
-                  <td className={`px-4 py-4 whitespace-nowrap text-left ${NOTIFICATION_TABLE_COLUMNS.STATUS.width}`}>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${NOTIFICATION_STATUS_BADGES[notification.isRead ? 'read' : 'unread']}`}>
+                  {/* Status Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap text-left">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${NOTIFICATION_STATUS_BADGES[notification.isRead ? 'read' : 'unread']}`}>
                       {notification.isRead ? 'Read' : 'Unread'}
                     </span>
                   </td>
 
-                  {/* Created */}
-                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.CREATED.width}`}>
+                  {/* Created Date Column - Hidden on extra small screens */}
+                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(notification.createdAt)}
                   </td>
 
-                  {/* Updated */}
-                  <td className={`px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left ${NOTIFICATION_TABLE_COLUMNS.UPDATED.width}`}>
+                  {/* Updated Date Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                     {formatDate(notification.updatedAt)}
                   </td>
 
-                  {/* Actions */}
-                  <td className={`px-4 py-4 whitespace-nowrap text-left ${NOTIFICATION_TABLE_COLUMNS.ACTIONS.width}`}>
-                    <div className="flex items-center space-x-2">
+                  {/* Actions Column - Always visible */}
+                  <td className="px-4 py-4 whitespace-nowrap text-left">
+                    <div className="flex justify-start space-x-2">
                       <button
                         onClick={() => onEdit(notification)}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
@@ -361,58 +368,61 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+        {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
-          {/* Mobile pagination */}
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-1">
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              <span>Previous</span>
+              <span className="hidden xs:inline">Previous</span>
             </button>
+            <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+              {paginationInfo.currentPage} / {paginationInfo.totalPages}
+            </span>
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
-              <span>Next</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="hidden xs:inline">Next</span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>
         </div>
 
+        {/* Desktop pagination - show on sm and larger screens */}
         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div className="flex items-center space-x-4">
-            {/* Results info - moved to appear first */}
-            <div className="text-sm text-gray-700">
-              {paginationInfo.totalCount > 0 ? (
-                <>
-                  Showing {((paginationInfo.currentPage - 1) * pageSize) + 1} to{' '}
-                  {Math.min(paginationInfo.currentPage * pageSize, paginationInfo.totalCount)} of {paginationInfo.totalCount}
-                </>
-              ) : (
-                'Showing 0 to 0 of 0'
-              )}
-            </div>
+          {/* Page info and size selector */}
+          <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
+            {/* Compact page info */}
+            <p className="text-xs lg:text-sm text-gray-600">
+              <span className="hidden md:inline">Showing </span>
+              <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * pageSize + 1}</span>
+              <span className="hidden md:inline"> to </span>
+              <span className="md:hidden">-</span>
+              <span className="font-medium">{Math.min(paginationInfo.currentPage * pageSize, paginationInfo.totalCount)}</span>
+              <span className="hidden md:inline"> of </span>
+              <span className="md:hidden">/</span>
+              <span className="font-medium">{paginationInfo.totalCount}</span>
+            </p>
 
-            {/* Show entries dropdown */}
-            <div className="flex items-center space-x-2">
-              <label htmlFor="page-size" className="text-sm text-gray-700">
-                Show
-              </label>
+            {/* Page size selector */}
+            <div className="flex items-center space-x-1">
+              <span className="text-xs lg:text-sm text-gray-600">Show</span>
               <select
                 id="page-size"
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                className="block w-16 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
                 disabled={loading}
+                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
               >
                 {PAGE_SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -420,81 +430,83 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-sm text-gray-700">entries</span>
+              <span className="text-xs lg:text-sm text-gray-600">entries</span>
             </div>
           </div>
 
-          {/* Desktop pagination */}
-          <div className="flex items-center space-x-2">
-            {/* First page */}
+          {/* Navigation buttons */}
+          <div className="flex items-center space-x-1">
+            {/* First page button - hidden on small screens */}
             <button
               onClick={() => onPageChange(1)}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="First"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              title="Go to first page"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
               </svg>
-              <span className="hidden sm:inline">First</span>
+              <span className="hidden lg:inline">First</span>
             </button>
 
-            {/* Previous page */}
+            {/* Previous button */}
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="Previous"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Go to previous page"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              <span className="hidden sm:inline">Previous</span>
+              <span className="hidden lg:inline">Previous</span>
             </button>
 
-            {/* Page numbers */}
-            {Array.from({ length: Math.min(5, paginationInfo.totalPages) }, (_, i) => {
-              const startPage = Math.max(1, paginationInfo.currentPage - 2);
-              const pageNumber = startPage + i;
-              if (pageNumber > paginationInfo.totalPages) return null;
+            {/* Page numbers - responsive spacing */}
+            <div className="flex items-center space-x-1 mx-1 lg:mx-2">
+              {Array.from({ length: Math.min(3, paginationInfo.totalPages) }, (_, i) => {
+                const pageNum = Math.max(1, Math.min(paginationInfo.totalPages - 2, paginationInfo.currentPage - 1)) + i;
+                if (pageNum > paginationInfo.totalPages) return null;
 
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => onPageChange(pageNumber)}
-                  disabled={loading}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${pageNumber === paginationInfo.currentPage
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => onPageChange(pageNum)}
+                    disabled={loading}
+                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    title={`Go to page ${pageNum}`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Next page */}
+            {/* Next button */}
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="Next"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              title="Go to next page"
             >
-              <span className="hidden sm:inline">Next</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="hidden lg:inline">Next</span>
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
 
-            {/* Last page */}
+            {/* Last page button - hidden on small screens */}
             <button
               onClick={() => onPageChange(paginationInfo.totalPages)}
               disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
-              title="Last"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              title="Go to last page"
             >
-              <span className="hidden sm:inline">Last</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="hidden lg:inline">Last</span>
+              <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
             </button>

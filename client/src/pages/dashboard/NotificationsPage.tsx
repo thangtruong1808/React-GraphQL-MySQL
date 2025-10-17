@@ -36,6 +36,7 @@ import {
 /**
  * Notifications Management Page
  * Mirrors UsersPage pattern for predictable loading and skeleton behavior
+ * Features responsive design with improved mobile UX when sidebar is collapsed
  */
 const NotificationsPage: React.FC = () => {
   const { showNotification, isInitializing, user } = useAuth();
@@ -241,23 +242,25 @@ const NotificationsPage: React.FC = () => {
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 w-full">
-          <div className="px-8 py-8 w-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   Notifications Management
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 mt-1">
                   Manage and monitor all notifications in the system
                 </p>
               </div>
+              {/* Create Button - Centered icon and text for better mobile UX when sidebar is collapsed */}
               <button
                 type="button"
                 onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
               >
-                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Create Notification
+                <FaPlus className="h-5 w-5" aria-hidden="true" />
+                <span className="hidden xs:inline ml-2">Create Notification</span>
+                <span className="xs:hidden ml-2">Create</span>
               </button>
             </div>
           </div>
@@ -265,10 +268,9 @@ const NotificationsPage: React.FC = () => {
 
         {/* Main Content */}
         <div className="w-full">
-          <div className="px-8 py-8 w-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             {/* Search and Table */}
             <div className="space-y-6">
-              {/* Optional error display reserved for parity with UsersPage */}
               {/* Search Input */}
               <NotificationSearchInput
                 onSearch={handleSearchChange}
