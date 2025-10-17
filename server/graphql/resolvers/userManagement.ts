@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { User, Project, Task } from '../../db';
+import { User, Project, Task, Notification } from '../../db';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
@@ -120,6 +120,17 @@ export const createUser = async (
       role: input.role
     });
 
+    // Create notification for user creation
+    try {
+      await Notification.create({
+        userId: newUser.id,
+        message: `New user "${input.firstName} ${input.lastName}" (${input.email}) has been created with role "${input.role}"`
+      });
+    } catch (notificationError) {
+      // Log notification error but don't fail the user creation
+      console.error('Failed to create notification for user creation:', notificationError);
+    }
+
     return {
       id: newUser.id.toString(),
       uuid: newUser.uuid,
@@ -179,6 +190,14 @@ export const updateUser = async (
       }
     }
 
+    // Store original values for notification
+    const originalData = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role
+    };
+
     // Update user fields
     const updateData: any = {};
     if (input.email) updateData.email = input.email;
@@ -187,6 +206,33 @@ export const updateUser = async (
     if (input.role) updateData.role = input.role;
 
     await user.update(updateData);
+
+    // Create notification for user update
+    try {
+      const changes = [];
+      if (input.email && input.email !== originalData.email) {
+        changes.push(`email from "${originalData.email}" to "${input.email}"`);
+      }
+      if (input.firstName && input.firstName !== originalData.firstName) {
+        changes.push(`first name from "${originalData.firstName}" to "${input.firstName}"`);
+      }
+      if (input.lastName && input.lastName !== originalData.lastName) {
+        changes.push(`last name from "${originalData.lastName}" to "${input.lastName}"`);
+      }
+      if (input.role && input.role !== originalData.role) {
+        changes.push(`role from "${originalData.role}" to "${input.role}"`);
+      }
+
+      if (changes.length > 0) {
+        await Notification.create({
+          userId: user.id,
+          message: `User "${user.firstName} ${user.lastName}" (${user.email}) has been updated: ${changes.join(', ')}`
+        });
+      }
+    } catch (notificationError) {
+      // Log notification error but don't fail the user update
+      console.error('Failed to create notification for user update:', notificationError);
+    }
 
     return {
       id: user.id.toString(),
@@ -256,8 +302,27 @@ export const deleteUser = async (
       throw new Error(`Cannot delete user. They own ${ownedProjectsCount} projects and have ${assignedTasksCount} assigned tasks. Please reassign or delete these first.`);
     }
 
+    // Store user data for notification before deletion
+    const userData = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role
+    };
+
     // Soft delete user without triggering hooks
     await user.update({ isDeleted: true }, { hooks: false });
+    
+    // Create notification for user deletion
+    try {
+      await Notification.create({
+        userId: user.id,
+        message: `User "${userData.firstName} ${userData.lastName}" (${userData.email}) with role "${userData.role}" has been deleted`
+      });
+    } catch (notificationError) {
+      // Log notification error but don't fail the user deletion
+      console.error('Failed to create notification for user deletion:', notificationError);
+    }
     
     // Manually trigger activity logging for deletion
     const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');

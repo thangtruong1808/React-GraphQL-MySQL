@@ -24,12 +24,13 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   isOpen,
   onClose
 }) => {
-  // Fetch user's notifications (will be filtered client-side for unread)
+  // Fetch user's notifications with real-time updates
   const { data, loading, error, refetch } = useQuery<GetUserUnreadNotificationsQueryResponse>(
     GET_USER_UNREAD_NOTIFICATIONS_QUERY,
     {
       variables: { limit: 50 },
       skip: !isOpen,
+      pollInterval: 10000, // Poll every 10 seconds for real-time updates
       errorPolicy: 'all'
     }
   );
@@ -37,6 +38,13 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
   // Mutation to mark notification as read
   const [markAsRead] = useMutation(MARK_NOTIFICATION_READ_MUTATION);
+
+  // Refetch notifications when drawer opens for immediate updates
+  React.useEffect(() => {
+    if (isOpen) {
+      refetch();
+    }
+  }, [isOpen, refetch]);
 
   /**
    * Handle marking a notification as read
