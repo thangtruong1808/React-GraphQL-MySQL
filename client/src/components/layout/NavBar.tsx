@@ -44,11 +44,12 @@ const NavBar: React.FC = () => {
   const filteredMobileNavItems = hasDashboardAccess ? mobileNavItems : mobileNavItems.filter((i: any) => i.id !== 'dashboard');
 
   // Fetch unread notification count for authenticated users
-  const { data: notificationData } = useQuery(GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY, {
+  const { data: notificationData, error: notificationError } = useQuery(GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY, {
     skip: !isAuthenticated,
     pollInterval: 30000, // Poll every 30 seconds for real-time updates
     errorPolicy: 'ignore'
   });
+
 
   // Calculate unread count from user's notifications
   const unreadCount = notificationData?.dashboardNotifications?.notifications?.filter(
@@ -244,13 +245,26 @@ const NavBar: React.FC = () => {
                   >
                     {/* Navigation icon and text */}
                     <div className="flex flex-col items-center space-y-1">
-                      <div className="relative">
-                        <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                        {unreadCount > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                          </span>
+                      <div className="relative flex items-center">
+                        {/* Dynamic notification icon based on unread status */}
+                        {unreadCount > 0 ? (
+                          // Bell icon with subtle lean for unread notifications
+                          <div className="transform rotate-12 transition-transform duration-300 hover:rotate-0">
+                            <NavIcon icon={item.icon || 'default'} className="w-4 h-4 text-purple-600" />
+                          </div>
+                        ) : (
+                          // Normal bell icon for no unread notifications
+                          <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
                         )}
+                        {/* Always show notification count */}
+                        <div className="ml-1 flex items-center">
+                          <span className={`text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center font-medium shadow-sm ${unreadCount > 0
+                            ? 'bg-red-500 text-white'
+                            : 'bg-gray-200 text-gray-600'
+                            }`}>
+                            {unreadCount > 99 ? '99+' : unreadCount}
+                          </span>
+                        </div>
                       </div>
                       <span className="text-xs lg:text-sm">{item.label}</span>
                     </div>

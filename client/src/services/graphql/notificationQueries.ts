@@ -129,8 +129,8 @@ export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
 export const GET_USER_UNREAD_NOTIFICATIONS_QUERY = gql`
   ${NOTIFICATION_FRAGMENT}
   ${PAGINATION_INFO_FRAGMENT}
-  query GetUserUnreadNotifications($limit: Int = 10) {
-    dashboardNotifications(limit: $limit, offset: 0, sortBy: "createdAt", sortOrder: "DESC", userOnly: true) {
+  query GetUserUnreadNotifications($limit: Int = 50) {
+    dashboardNotifications(limit: $limit, offset: 0, sortBy: "createdAt", sortOrder: "DESC") {
       notifications {
         ...NotificationFragment
       }
@@ -145,7 +145,7 @@ export const GET_USER_UNREAD_NOTIFICATIONS_QUERY = gql`
 export const GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY = gql`
   ${NOTIFICATION_FRAGMENT}
   query GetUserUnreadNotificationCount {
-    dashboardNotifications(limit: 100, offset: 0, sortBy: "createdAt", sortOrder: "DESC", userOnly: true) {
+    dashboardNotifications(limit: 100, offset: 0, sortBy: "createdAt", sortOrder: "DESC") {
       notifications {
         ...NotificationFragment
       }
@@ -160,7 +160,6 @@ export interface GetDashboardNotificationsQueryVariables {
   search?: string;
   sortBy?: string;
   sortOrder?: string;
-  userOnly?: boolean;
 }
 
 export interface GetDashboardNotificationsQueryResponse {
@@ -307,7 +306,6 @@ export interface GetUsersForDropdownResponse {
 
 export interface GetUserUnreadNotificationsQueryVariables {
   limit?: number;
-  userOnly?: boolean;
 }
 
 export interface GetUserUnreadNotificationsQueryResponse {

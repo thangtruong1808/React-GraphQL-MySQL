@@ -1,6 +1,54 @@
 import { AuthenticationError, UserInputError } from 'apollo-server-express';
 import { Op } from 'sequelize';
-import { Notification, User } from '../../db';
+import { Notification, User, Project, ProjectMember } from '../../db';
+
+/**
+ * Build notification filter for Project Manager role
+ * Project managers can see notifications from users in their projects
+ */
+const buildProjectManagerNotificationFilter = async (userId: number) => {
+  try {
+    // Get all projects where the user is a member (as Project Manager)
+    const userProjects = await ProjectMember.findAll({
+      where: {
+        userId: userId,
+        isDeleted: false
+      },
+      include: [{
+        model: Project,
+        as: 'project',
+        where: { isDeleted: false },
+        required: true
+      }]
+    });
+
+    // Get all user IDs from these projects
+    const projectIds = userProjects.map(pm => pm.projectId);
+    
+    if (projectIds.length === 0) {
+      // If no projects, return empty filter (no notifications)
+      return { id: { [Op.in]: [] } };
+    }
+
+    // Get all members of these projects
+    const projectMembers = await ProjectMember.findAll({
+      where: {
+        projectId: { [Op.in]: projectIds },
+        isDeleted: false
+      }
+    });
+
+    const userIds = [...new Set(projectMembers.map(pm => pm.userId))];
+
+    return {
+      userId: { [Op.in]: userIds }
+    };
+  } catch (error) {
+    console.error('Error building project manager notification filter:', error);
+    // Fallback to user's own notifications
+    return { userId };
+  }
+};
 
 /**
  * Notification Management Resolvers
@@ -19,7 +67,6 @@ export const getDashboardNotifications = async (
     search?: string;
     sortBy?: string;
     sortOrder?: string;
-    userOnly?: boolean; // New parameter to force user-only filtering
   },
   context: any
 ) => {
@@ -29,36 +76,51 @@ export const getDashboardNotifications = async (
       throw new AuthenticationError('You must be logged in to view notifications');
     }
 
-    const { limit = 10, offset = 0, search, sortBy = 'id', sortOrder = 'ASC', userOnly = false } = args;
+    const { limit = 10, offset = 0, search, sortBy = 'id', sortOrder = 'ASC' } = args;
 
     // Validate pagination parameters
     const validLimit = Math.min(Math.max(limit, 1), 100);
     const validOffset = Math.max(offset, 0);
 
-    // Check if user is admin or project manager - they can see all notifications (unless userOnly is true)
     const userRole = context.user.role;
-    const isAdminOrManager = userRole === 'ADMIN' || userRole === 'Project Manager';
+    const userId = context.user.id;
 
-    // Build where clause for search and user filtering
-    const whereClause: any = {};
+    // Build where clause based on user role
+    let whereClause: any = {};
 
-    // Filter by current user's notifications only (unless admin/manager and userOnly is false)
-    if (!isAdminOrManager || userOnly) {
-      whereClause.userId = context.user.id;
+    if (userRole === 'ADMIN') {
+      // Admin users can see ALL notifications from ALL users
+      // No additional filtering needed - whereClause remains empty
+    } else if (userRole === 'Project Manager') {
+      // Project managers can see notifications related to their projects
+      whereClause = await buildProjectManagerNotificationFilter(userId);
+    } else {
+      // Regular users can only see their own notifications
+      whereClause.userId = userId;
     }
 
     // Add search functionality
     if (search && search.trim()) {
-      if (isAdminOrManager && !userOnly) {
-        // Admins/managers can search all notifications (unless userOnly is true)
+      if (userRole === 'ADMIN') {
+        // Admins can search all notifications
         whereClause.message = { [Op.like]: `%${search.trim()}%` };
+      } else if (userRole === 'Project Manager') {
+        // Project managers can search within their project notifications
+        if (whereClause.userId && whereClause.userId[Op.in]) {
+          whereClause[Op.and] = [
+            { userId: whereClause.userId },
+            { message: { [Op.like]: `%${search.trim()}%` } }
+          ];
+          delete whereClause.userId;
+        } else {
+          whereClause.message = { [Op.like]: `%${search.trim()}%` };
+        }
       } else {
-        // Regular users or userOnly requests can only search their own notifications
+        // Regular users can only search their own notifications
         whereClause[Op.and] = [
-          { userId: context.user.id },
+          { userId: userId },
           { message: { [Op.like]: `%${search.trim()}%` } }
         ];
-        // Remove the simple userId filter since we're using Op.and
         delete whereClause.userId;
       }
     }
@@ -111,6 +173,7 @@ export const getDashboardNotifications = async (
       createdAt: notification.createdAt.toISOString(),
       updatedAt: notification.updatedAt.toISOString(),
     }));
+
 
     return {
       notifications: transformedNotifications,
