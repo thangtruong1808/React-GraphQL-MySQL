@@ -78,6 +78,14 @@ export const NAV_ITEMS: NavItem[] = [
     description: 'Your project dashboard'
   },
   {
+    id: 'notifications',
+    label: 'Notifications',
+    path: '#notifications',
+    icon: 'bell',
+    requiresAuth: true,
+    description: 'View your notifications'
+  },
+  {
     id: 'profile',
     label: 'Profile',
     path: '/profile',
@@ -122,8 +130,8 @@ export const getNavItemsForUser = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show dashboard for authenticated users
-    if (item.requiresAuth && user && item.id === 'dashboard') {
+    // Show dashboard and notifications for authenticated users
+    if (item.requiresAuth && user && (item.id === 'dashboard' || item.id === 'notifications')) {
       return true;
     }
 
@@ -163,8 +171,8 @@ export const getMobileNavItems = (user: User | null): NavItem[] => {
       return true;
     }
 
-    // Show dashboard for authenticated users
-    if (item.requiresAuth && user && item.id === 'dashboard') {
+    // Show dashboard and notifications for authenticated users
+    if (item.requiresAuth && user && (item.id === 'dashboard' || item.id === 'notifications')) {
       return true;
     }
 

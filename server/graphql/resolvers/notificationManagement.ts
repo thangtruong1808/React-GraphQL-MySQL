@@ -19,6 +19,7 @@ export const getDashboardNotifications = async (
     search?: string;
     sortBy?: string;
     sortOrder?: string;
+    userOnly?: boolean; // New parameter to force user-only filtering
   },
   context: any
 ) => {
@@ -28,20 +29,38 @@ export const getDashboardNotifications = async (
       throw new AuthenticationError('You must be logged in to view notifications');
     }
 
-    const { limit = 10, offset = 0, search, sortBy = 'id', sortOrder = 'ASC' } = args;
+    const { limit = 10, offset = 0, search, sortBy = 'id', sortOrder = 'ASC', userOnly = false } = args;
 
     // Validate pagination parameters
     const validLimit = Math.min(Math.max(limit, 1), 100);
     const validOffset = Math.max(offset, 0);
 
-    // Build where clause for search
+    // Check if user is admin or project manager - they can see all notifications (unless userOnly is true)
+    const userRole = context.user.role;
+    const isAdminOrManager = userRole === 'ADMIN' || userRole === 'Project Manager';
+
+    // Build where clause for search and user filtering
     const whereClause: any = {};
+
+    // Filter by current user's notifications only (unless admin/manager and userOnly is false)
+    if (!isAdminOrManager || userOnly) {
+      whereClause.userId = context.user.id;
+    }
 
     // Add search functionality
     if (search && search.trim()) {
-      whereClause[Op.or] = [
-        { message: { [Op.like]: `%${search.trim()}%` } },
-      ];
+      if (isAdminOrManager && !userOnly) {
+        // Admins/managers can search all notifications (unless userOnly is true)
+        whereClause.message = { [Op.like]: `%${search.trim()}%` };
+      } else {
+        // Regular users or userOnly requests can only search their own notifications
+        whereClause[Op.and] = [
+          { userId: context.user.id },
+          { message: { [Op.like]: `%${search.trim()}%` } }
+        ];
+        // Remove the simple userId filter since we're using Op.and
+        delete whereClause.userId;
+      }
     }
 
     // Validate and set sort parameters

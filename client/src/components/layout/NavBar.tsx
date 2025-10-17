@@ -11,6 +11,9 @@ import MobileMenu from './MobileMenu';
 import UserDropdown from './UserDropdown';
 import NavIcon from '../ui/NavIcon';
 import { SearchDrawer } from '../search';
+import { NotificationDrawer } from '../notifications';
+import { useQuery } from '@apollo/client';
+import { GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY } from '../../services/graphql/notificationQueries';
 
 /**
  * Navigation Bar Component
@@ -26,6 +29,7 @@ const NavBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isSearchDrawerOpen, setIsSearchDrawerOpen] = useState(false);
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
@@ -34,10 +38,22 @@ const NavBar: React.FC = () => {
   const navItems = getNavItemsForUser(user); // Desktop navigation items
   const mobileNavItems = getMobileNavItems(user); // Mobile navigation items
 
-  // Role-based filtering: hide Dashboard for non-admin/PM users
+  // Role-based filtering: hide Dashboard for non-admin/PM users, but keep notifications for all authenticated users
   const { hasDashboardAccess } = useRolePermissions();
   const filteredNavItems = hasDashboardAccess ? navItems : navItems.filter(i => i.id !== 'dashboard');
   const filteredMobileNavItems = hasDashboardAccess ? mobileNavItems : mobileNavItems.filter((i: any) => i.id !== 'dashboard');
+
+  // Fetch unread notification count for authenticated users
+  const { data: notificationData } = useQuery(GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY, {
+    skip: !isAuthenticated,
+    pollInterval: 30000, // Poll every 30 seconds for real-time updates
+    errorPolicy: 'ignore'
+  });
+
+  // Calculate unread count from user's notifications
+  const unreadCount = notificationData?.dashboardNotifications?.notifications?.filter(
+    (notification: any) => !notification.isRead
+  ).length || 0;
 
   /**
    * Check if a navigation item is currently active
@@ -133,6 +149,24 @@ const NavBar: React.FC = () => {
   };
 
   /**
+   * Handle notification drawer toggle
+   * Opens/closes notification drawer
+   */
+  const handleNotificationToggle = () => {
+    setIsNotificationDrawerOpen(!isNotificationDrawerOpen);
+    setIsUserDropdownOpen(false); // Close user dropdown when opening notifications
+    setIsMobileMenuOpen(false); // Close mobile menu when opening notifications
+  };
+
+  /**
+   * Handle notification drawer close
+   * Closes notification drawer
+   */
+  const handleNotificationClose = () => {
+    setIsNotificationDrawerOpen(false);
+  };
+
+  /**
    * Get user initials for avatar
    * Returns user's first and last name initials
    */
@@ -189,6 +223,35 @@ const NavBar: React.FC = () => {
                     {/* Navigation icon and text */}
                     <div className="flex flex-col items-center space-y-1">
                       <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
+                      <span className="text-xs lg:text-sm">{item.label}</span>
+                    </div>
+
+                    {/* Hover tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                      {item.description}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </button>
+                ) : item.id === 'notifications' ? (
+                  <button
+                    key={item.id}
+                    onClick={handleNotificationToggle}
+                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                      ? 'text-purple-600 bg-purple-50 shadow-md'
+                      : 'text-gray-700 hover:text-purple-600'
+                      }`}
+                    title={item.description}
+                  >
+                    {/* Navigation icon and text */}
+                    <div className="flex flex-col items-center space-y-1">
+                      <div className="relative">
+                        <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
+                        {unreadCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs lg:text-sm">{item.label}</span>
                     </div>
 
@@ -273,6 +336,12 @@ const NavBar: React.FC = () => {
       <SearchDrawer
         isOpen={isSearchDrawerOpen}
         onClose={handleSearchClose}
+      />
+
+      {/* Notification drawer */}
+      <NotificationDrawer
+        isOpen={isNotificationDrawerOpen}
+        onClose={handleNotificationClose}
       />
     </nav>
   );

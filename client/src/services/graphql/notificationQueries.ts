@@ -125,6 +125,34 @@ export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
   }
 `;
 
+// Query to get user's unread notifications for navbar
+export const GET_USER_UNREAD_NOTIFICATIONS_QUERY = gql`
+  ${NOTIFICATION_FRAGMENT}
+  ${PAGINATION_INFO_FRAGMENT}
+  query GetUserUnreadNotifications($limit: Int = 10) {
+    dashboardNotifications(limit: $limit, offset: 0, sortBy: "createdAt", sortOrder: "DESC", userOnly: true) {
+      notifications {
+        ...NotificationFragment
+      }
+      paginationInfo {
+        ...PaginationInfoFragment
+      }
+    }
+  }
+`;
+
+// Query to get user's unread notification count
+export const GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY = gql`
+  ${NOTIFICATION_FRAGMENT}
+  query GetUserUnreadNotificationCount {
+    dashboardNotifications(limit: 100, offset: 0, sortBy: "createdAt", sortOrder: "DESC", userOnly: true) {
+      notifications {
+        ...NotificationFragment
+      }
+    }
+  }
+`;
+
 // TypeScript interfaces for GraphQL operations
 export interface GetDashboardNotificationsQueryVariables {
   limit?: number;
@@ -132,6 +160,7 @@ export interface GetDashboardNotificationsQueryVariables {
   search?: string;
   sortBy?: string;
   sortOrder?: string;
+  userOnly?: boolean;
 }
 
 export interface GetDashboardNotificationsQueryResponse {
@@ -272,6 +301,58 @@ export interface GetUsersForDropdownResponse {
       lastName: string;
       email: string;
       role: string;
+    }>;
+  };
+}
+
+export interface GetUserUnreadNotificationsQueryVariables {
+  limit?: number;
+  userOnly?: boolean;
+}
+
+export interface GetUserUnreadNotificationsQueryResponse {
+  dashboardNotifications: {
+    notifications: Array<{
+      id: string;
+      user: {
+        id: string;
+        uuid: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: string;
+      };
+      message: string;
+      isRead: boolean;
+      createdAt: string;
+      updatedAt: string;
+    }>;
+    paginationInfo: {
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      totalCount: number;
+      currentPage: number;
+      totalPages: number;
+    };
+  };
+}
+
+export interface GetUserUnreadNotificationCountQueryResponse {
+  dashboardNotifications: {
+    notifications: Array<{
+      id: string;
+      user: {
+        id: string;
+        uuid: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: string;
+      };
+      message: string;
+      isRead: boolean;
+      createdAt: string;
+      updatedAt: string;
     }>;
   };
 }
