@@ -2,11 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { DashboardLayout } from '../../components/layout';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useRolePermissions } from '../../hooks/useRolePermissions';
-import AccessDenied from '../../components/auth/AccessDenied';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import AccessDenied from '../../components/auth/AccessDenied';
 import {
   ActivitySearchInput,
   ActivitiesTable,
@@ -32,22 +33,22 @@ import {
   ACTIVITY_ERROR_MESSAGES
 } from '../../constants/activityManagement';
 import { InlineError } from '../../components/ui';
-import { useError } from '../../contexts/ErrorContext';
 
 /**
  * Activities Dashboard Page
  * Complete activity management interface with search, table, and CRUD operations
  * Features modern, professional layout with pagination and real-time search
+ * Includes skeleton loading states for better UX during data fetching
  * 
  * CALLED BY: AppRoutes component via ProtectedRoute
  * SCENARIOS: Activity management for administrators and project managers
  */
 const ActivitiesPage: React.FC = () => {
-  const { isInitializing, user } = useAuth();
-  const { hasDashboardAccess } = useRolePermissions();
-  const { showError, showSuccess } = useError();
+  const navigate = useNavigate();
+  const { isInitializing, showNotification } = useAuth();
+  const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
 
-  // State management - single state object like UsersPage
+  // State management
   const [state, setState] = useState<ActivityManagementState>({
     activities: [],
     paginationInfo: {
@@ -72,7 +73,7 @@ const ActivitiesPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>(DEFAULT_ACTIVITY_PAGINATION.sortBy);
   const [sortOrder, setSortOrder] = useState<string>(DEFAULT_ACTIVITY_PAGINATION.sortOrder);
 
-  // GraphQL query - simple approach like UsersPage
+  // GraphQL queries and mutations
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_ACTIVITIES_QUERY, {
     variables: {
       limit: state.pageSize,
@@ -83,7 +84,7 @@ const ActivitiesPage: React.FC = () => {
     },
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess || !user
+    skip: isInitializing || !hasDashboardAccess
   });
 
   /**
@@ -99,12 +100,10 @@ const ActivitiesPage: React.FC = () => {
         loading: queryLoading
       }));
     } else {
-      setState(prev => ({
-        ...prev,
-        loading: queryLoading
-      }));
+      setState(prev => ({ ...prev, loading: queryLoading }));
     }
   }, [data, queryLoading]);
+
 
   // Mutations
   const [createActivityMutation] = useMutation(CREATE_ACTIVITY_MUTATION);
@@ -186,12 +185,12 @@ const ActivitiesPage: React.FC = () => {
         variables: { input: activityData }
       });
       setState(prev => ({ ...prev, createModalOpen: false }));
-      showSuccess(ACTIVITY_SUCCESS_MESSAGES.CREATE);
+      showNotification(ACTIVITY_SUCCESS_MESSAGES.CREATE, 'success');
       fetchActivities(state.currentPage, state.pageSize, state.searchQuery);
     } catch (error: any) {
-      showError(ACTIVITY_ERROR_MESSAGES.CREATE);
+      showNotification(ACTIVITY_ERROR_MESSAGES.CREATE, 'error');
     }
-  }, [createActivityMutation, showSuccess, showError, fetchActivities, state.currentPage, state.pageSize, state.searchQuery]);
+  }, [createActivityMutation, showNotification, fetchActivities, state.currentPage, state.pageSize, state.searchQuery]);
 
   /**
    * Handle edit activity click
@@ -211,12 +210,12 @@ const ActivitiesPage: React.FC = () => {
         variables: { id, input: activityData }
       });
       setState(prev => ({ ...prev, editModalOpen: false, selectedActivity: null }));
-      showSuccess(ACTIVITY_SUCCESS_MESSAGES.UPDATE);
+      showNotification(ACTIVITY_SUCCESS_MESSAGES.UPDATE, 'success');
       fetchActivities(state.currentPage, state.pageSize, state.searchQuery);
     } catch (error: any) {
-      showError(ACTIVITY_ERROR_MESSAGES.UPDATE);
+      showNotification(ACTIVITY_ERROR_MESSAGES.UPDATE, 'error');
     }
-  }, [updateActivityMutation, showSuccess, showError, fetchActivities, state.currentPage, state.pageSize, state.searchQuery]);
+  }, [updateActivityMutation, showNotification, fetchActivities, state.currentPage, state.pageSize, state.searchQuery]);
 
   /**
    * Handle delete activity click
@@ -236,12 +235,12 @@ const ActivitiesPage: React.FC = () => {
         variables: { id }
       });
       setState(prev => ({ ...prev, deleteModalOpen: false, selectedActivity: null }));
-      showSuccess(ACTIVITY_SUCCESS_MESSAGES.DELETE);
+      showNotification(ACTIVITY_SUCCESS_MESSAGES.DELETE, 'success');
       fetchActivities(state.currentPage, state.pageSize, state.searchQuery);
     } catch (error: any) {
-      showError(ACTIVITY_ERROR_MESSAGES.DELETE);
+      showNotification(ACTIVITY_ERROR_MESSAGES.DELETE, 'error');
     }
-  }, [deleteActivityMutation, showSuccess, showError, fetchActivities, state.currentPage, state.pageSize, state.searchQuery]);
+  }, [deleteActivityMutation, showNotification, fetchActivities, state.currentPage, state.pageSize, state.searchQuery]);
 
   /**
    * Close all modals
@@ -257,21 +256,18 @@ const ActivitiesPage: React.FC = () => {
     }));
   }, []);
 
-  // Note: Activity page is accessible to all authenticated users
-  // Role-based restrictions can be implemented at the component level if needed
-
-  // During auth initialization, show skeleton
+  // During auth initialization, show skeleton to avoid Access Denied flash
   if (isInitializing) {
     return <DashboardSkeleton />;
   }
 
-  // Access control after initialization
+  // Check if user has dashboard access
   if (!hasDashboardAccess) {
     return <AccessDenied feature="Activity Management" />;
   }
 
-  // Show unified skeleton during loading (both sidebar and content)
-  if (state.loading && state.activities.length === 0) {
+  // Show skeleton only during initial data loading (not during auth init)
+  if (queryLoading && (!state.activities || state.activities.length === 0)) {
     return <DashboardSkeleton />;
   }
 
@@ -290,14 +286,18 @@ const ActivitiesPage: React.FC = () => {
                   Manage and monitor system activities and user actions
                 </p>
               </div>
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                onClick={handleCreateClick}
-              >
-                <FaPlus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                Create Activity
-              </button>
+              {canCreate && (
+                /* Create Button - Centered icon and text for better mobile UX when sidebar is collapsed */
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  onClick={handleCreateClick}
+                >
+                  <FaPlus className="h-5 w-5" aria-hidden="true" />
+                  <span className="hidden xs:inline ml-2">Create Activity</span>
+                  <span className="xs:hidden ml-2">Create</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -310,14 +310,14 @@ const ActivitiesPage: React.FC = () => {
               {state.error && (
                 <InlineError
                   message={state.error}
-                  onRetry={() => fetchActivities(state.currentPage, state.pageSize, state.searchQuery)}
                 />
               )}
 
               {/* Search and Filters */}
               <div>
                 <ActivitySearchInput
-                  onSearch={handleSearch}
+                  value={state.searchQuery}
+                  onChange={handleSearch}
                   placeholder="Search activities by user, action, type, or content..."
                   loading={state.loading}
                 />

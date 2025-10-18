@@ -23,9 +23,19 @@ export const getDashboardActivities = async (
   context: any
 ) => {
   try {
-    // Check authentication
+    // Check authentication - return empty result if not authenticated
+    // This prevents Access Denied flash during auth initialization
     if (!context.user) {
-      throw new AuthenticationError('You must be logged in to view activities');
+      return {
+        activities: [],
+        paginationInfo: {
+          hasNextPage: false,
+          hasPreviousPage: false,
+          totalCount: 0,
+          currentPage: 1,
+          totalPages: 0
+        }
+      };
     }
 
     const { limit = 10, offset = 0, search, sortBy = 'id', sortOrder = 'ASC' } = args;

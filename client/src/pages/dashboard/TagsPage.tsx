@@ -216,14 +216,15 @@ const TagsPage: React.FC = () => {
                   Manage and organize tags for task categorization
                 </p>
               </div>
-              {/* Create Tag Button - Centered icon and text for better mobile UX when sidebar is collapsed */}
+              {/* Create Tag Button - Responsive text like UsersPage */}
               <button
                 type="button"
                 onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
               >
                 <FaPlus className="h-5 w-5" aria-hidden="true" />
-                <span className="ml-2">Create Tag</span>
+                <span className="hidden xs:inline ml-2">Create Tag</span>
+                <span className="xs:hidden ml-2">Create</span>
               </button>
             </div>
           </div>
@@ -231,7 +232,7 @@ const TagsPage: React.FC = () => {
 
         {/* Main Content */}
         <div className="w-full">
-          <div className="px-8 py-8 w-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             {/* Search and Table */}
             <div className="space-y-6">
               <TagSearchInput

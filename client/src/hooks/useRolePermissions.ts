@@ -17,13 +17,14 @@ import {
  * Provides easy access to permission checks based on current user's role
  */
 export const useRolePermissions = () => {
-  const { user } = useAuth();
+  const { user, isInitializing } = useAuth();
 
-  // If no user is authenticated, return false for all permissions
-  if (!user) {
+  // If no user is authenticated or user role is not available, return false for all permissions
+  // But during initialization, return neutral values to prevent Access Denied flash
+  if (!user || !user.role) {
     return {
       hasFullAccess: false,
-      hasDashboardAccess: false,
+      hasDashboardAccess: isInitializing ? true : false, // Allow access during initialization
       canPerformCRUD: false,
       canCreate: false,
       canEdit: false,
