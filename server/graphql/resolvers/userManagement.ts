@@ -122,9 +122,10 @@ export const createUser = async (
 
     // Create notification for user creation
     try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       await Notification.create({
         userId: newUser.id,
-        message: `New user "${input.firstName} ${input.lastName}" (${input.email}) has been created with role "${input.role}"`
+        message: `New user "${input.firstName} ${input.lastName}" (${input.email}) has been created with role "${input.role}" by ${actorName}`
       });
     } catch (notificationError) {
       // Log notification error but don't fail the user creation
@@ -224,9 +225,10 @@ export const updateUser = async (
       }
 
       if (changes.length > 0) {
+        const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
         await Notification.create({
           userId: user.id,
-          message: `User "${user.firstName} ${user.lastName}" (${user.email}) has been updated: ${changes.join(', ')}`
+          message: `User "${user.firstName} ${user.lastName}" (${user.email}) has been updated: ${changes.join(', ')} by ${actorName}`
         });
       }
     } catch (notificationError) {
@@ -315,9 +317,10 @@ export const deleteUser = async (
     
     // Create notification for user deletion
     try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       await Notification.create({
         userId: user.id,
-        message: `User "${userData.firstName} ${userData.lastName}" (${userData.email}) with role "${userData.role}" has been deleted`
+        message: `User "${userData.firstName} ${userData.lastName}" (${userData.email}) with role "${userData.role}" has been deleted by ${actorName}`
       });
     } catch (notificationError) {
       // Log notification error but don't fail the user deletion
