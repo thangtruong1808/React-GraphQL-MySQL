@@ -73,7 +73,7 @@ const RemoveMemberModal: React.FC<RemoveMemberModalProps> = ({
       await onConfirm();
     } catch (error) {
       // Error handling is done by parent component
-      console.error('Failed to remove member:', error);
+      // Error handling without console.log for production
     }
   };
 

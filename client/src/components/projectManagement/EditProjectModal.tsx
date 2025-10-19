@@ -176,7 +176,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
       });
     } catch (error) {
       // Error handling is done in parent component
-      console.error('Error updating project:', error);
+      // Error handling without console.log for production
     }
   };
 

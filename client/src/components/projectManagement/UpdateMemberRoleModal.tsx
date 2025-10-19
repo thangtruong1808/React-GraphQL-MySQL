@@ -80,7 +80,7 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
       setErrors({});
     } catch (error) {
       // Error handling is done by parent component
-      console.error('Failed to update member role:', error);
+      // Error handling without console.log for production
     }
   };
 

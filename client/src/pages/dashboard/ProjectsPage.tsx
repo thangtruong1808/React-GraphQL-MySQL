@@ -133,19 +133,11 @@ const ProjectsPage: React.FC = () => {
     skip: isInitializing || !hasDashboardAccess
   });
 
-  // Project members query - only fetch when a project is selected
-  const { data: memberData, loading: memberQueryLoading, refetch: refetchMembers } = useQuery(GET_PROJECT_MEMBERS_QUERY, {
-    variables: {
-      projectId: state.selectedProject?.id || '',
-      limit: memberState.pageSize,
-      offset: (memberState.currentPage - 1) * memberState.pageSize,
-      search: memberState.searchQuery || undefined,
-      sortBy: memberSortBy,
-      sortOrder: memberSortOrder
-    },
+  // Project members query - use lazy query to fetch when needed
+  const [getProjectMembers, { data: memberData, loading: memberQueryLoading, refetch: refetchMembers }] = useLazyQuery(GET_PROJECT_MEMBERS_QUERY, {
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
-    skip: !state.selectedProject || isInitializing || !hasDashboardAccess
+    fetchPolicy: 'cache-and-network'
   });
 
   const [createProjectMutation] = useMutation(CREATE_PROJECT_MUTATION);
@@ -383,13 +375,15 @@ const ProjectsPage: React.FC = () => {
         error: null
       }));
 
-      await refetchMembers({
-        projectId,
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
-        search: search || undefined,
-        sortBy: memberSortBy,
-        sortOrder: memberSortOrder
+      await getProjectMembers({
+        variables: {
+          projectId,
+          limit: pageSize,
+          offset: (page - 1) * pageSize,
+          search: search || undefined,
+          sortBy: memberSortBy,
+          sortOrder: memberSortOrder
+        }
       });
     } catch (error) {
       setMemberState(prev => ({
@@ -398,7 +392,7 @@ const ProjectsPage: React.FC = () => {
         loading: false
       }));
     }
-  }, [memberSortBy, memberSortOrder, refetchMembers]);
+  }, [memberSortBy, memberSortOrder, getProjectMembers]);
 
   /**
    * Handle member search query change

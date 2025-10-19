@@ -29,7 +29,7 @@ const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
       await onConfirm(project.id);
     } catch (error) {
       // Error handling is done in parent component
-      console.error('Error deleting project:', error);
+      // Error handling without console.log for production
     }
   };
 

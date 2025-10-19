@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Project, User, Task, Comment } from '../../db';
+import { Project, User, Task, Comment, Notification, ProjectMember } from '../../db';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
@@ -7,6 +7,44 @@ import { setActivityContext, clearActivityContext } from '../../db/utils/activit
  * Handles CRUD operations for project management in dashboard
  * Follows GraphQL best practices with proper error handling
  */
+
+/**
+ * Helper function to send notifications to project members
+ * Sends notifications to all active project members
+ */
+const sendNotificationsToProjectMembers = async (projectId: number, message: string, excludeUserIds: number[] = []) => {
+  try {
+    // Get all project members
+    const projectMembers = await ProjectMember.findAll({
+      where: {
+        projectId: projectId,
+        isDeleted: false
+      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email']
+        }
+      ]
+    });
+
+    // Send notifications to each member (excluding specified users)
+    const notificationPromises = projectMembers
+      .filter(member => !excludeUserIds.includes(member.userId))
+      .map(member => 
+        Notification.create({
+          userId: member.userId,
+          message: message
+        })
+      );
+
+    await Promise.all(notificationPromises);
+  } catch (error) {
+    // Log error but don't fail the main operation
+    // Error handling without console.log for production
+  }
+};
 
 /**
  * Get paginated projects with search functionality
@@ -122,6 +160,40 @@ export const createProject = async (
       version: 1
     });
 
+    // Create notification for project creation
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+      const ownerInfo = input.ownerId ? await User.findByPk(parseInt(input.ownerId)) : null;
+      const ownerName = ownerInfo ? `${ownerInfo.firstName} ${ownerInfo.lastName}` : 'No owner assigned';
+      
+      // 1. Send notification to project owner if assigned
+      if (input.ownerId) {
+        await Notification.create({
+          userId: parseInt(input.ownerId),
+          message: `You have been assigned as owner of the new project "${input.name}" with status "${input.status}" by ${actorName} (${actorRole})`
+        });
+      }
+      
+      // 2. Send notification to project creator (Admin/PM) - they always receive notification
+      if (context.user) {
+        await Notification.create({
+          userId: context.user.id,
+          message: `Project "${input.name}" has been created with status "${input.status}" and owner "${ownerName}"`
+        });
+      }
+
+      // 3. Send notifications to project members (if any exist)
+      await sendNotificationsToProjectMembers(
+        project.id,
+        `You have been added to the new project "${input.name}" with status "${input.status}" by ${actorName} (${actorRole})`,
+        [context.user?.id, parseInt(input.ownerId)].filter(id => id) // Exclude creator and owner
+      );
+    } catch (notificationError) {
+      // Log notification error but don't fail the project creation
+      // Error handling without console.log for production
+    }
+
     // Fetch the created project with owner information
     const createdProject = await Project.findByPk(project.id, {
       include: [
@@ -183,8 +255,16 @@ export const updateProject = async (
 
     const projectId = parseInt(id);
     
-    // Find the project
-    const project = await Project.findByPk(projectId);
+    // Find the project with owner information
+    const project = await Project.findByPk(projectId, {
+      include: [
+        {
+          model: User,
+          as: 'owner',
+          attributes: ['id', 'firstName', 'lastName', 'email']
+        }
+      ]
+    });
     if (!project) {
       throw new Error('Project not found');
     }
@@ -192,6 +272,15 @@ export const updateProject = async (
     if (project.isDeleted) {
       throw new Error('Cannot update deleted project');
     }
+
+    // Store original data for notification comparison
+    const originalData = {
+      name: project.name,
+      description: project.description,
+      status: project.status,
+      ownerId: project.ownerId,
+      ownerName: project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner assigned'
+    };
 
     // Update project fields
     const updateData: any = {};
@@ -201,6 +290,58 @@ export const updateProject = async (
     if (input.ownerId !== undefined) updateData.ownerId = input.ownerId ? parseInt(input.ownerId) : null;
 
     await project.update(updateData);
+
+    // Create notification for project update
+    try {
+      const changes = [];
+      if (input.name && input.name !== originalData.name) {
+        changes.push(`name from "${originalData.name}" to "${input.name}"`);
+      }
+      if (input.description && input.description !== originalData.description) {
+        changes.push(`description updated`);
+      }
+      if (input.status && input.status !== originalData.status) {
+        changes.push(`status from "${originalData.status}" to "${input.status}"`);
+      }
+      if (input.ownerId !== undefined) {
+        const newOwnerInfo = input.ownerId ? await User.findByPk(parseInt(input.ownerId)) : null;
+        const newOwnerName = newOwnerInfo ? `${newOwnerInfo.firstName} ${newOwnerInfo.lastName}` : 'No owner assigned';
+        if (newOwnerName !== originalData.ownerName) {
+          changes.push(`owner from "${originalData.ownerName}" to "${newOwnerName}"`);
+        }
+      }
+
+      if (changes.length > 0) {
+        const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+        const actorRole = context.user ? context.user.role : 'System';
+        
+        // 1. Send notification to project owner if exists
+        if (project.ownerId) {
+          await Notification.create({
+            userId: project.ownerId,
+            message: `Project "${project.name}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`
+          });
+        }
+        
+        // 2. Send notification to project updater (Admin/PM) - they always receive notification
+        if (context.user) {
+          await Notification.create({
+            userId: context.user.id,
+            message: `Project "${project.name}" has been updated: ${changes.join(', ')}`
+          });
+        }
+
+        // 3. Send notifications to project members
+        await sendNotificationsToProjectMembers(
+          project.id,
+          `Project "${project.name}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
+          [context.user?.id, project.ownerId].filter(id => id) // Exclude updater and owner
+        );
+      }
+    } catch (notificationError) {
+      // Log notification error but don't fail the project update
+      // Error handling without console.log for production
+    }
 
     // Fetch the updated project with owner information
     const updatedProject = await Project.findByPk(projectId, {
@@ -268,8 +409,16 @@ export const deleteProject = async (
 
     const projectId = parseInt(id);
     
-    // Find the project
-    const project = await Project.findByPk(projectId);
+    // Find the project with owner information
+    const project = await Project.findByPk(projectId, {
+      include: [
+        {
+          model: User,
+          as: 'owner',
+          attributes: ['id', 'firstName', 'lastName', 'email']
+        }
+      ]
+    });
     if (!project) {
       throw new Error('Project not found');
     }
@@ -278,8 +427,48 @@ export const deleteProject = async (
       throw new Error('Project is already deleted');
     }
 
+    // Store project data for notification before deletion
+    const projectData = {
+      name: project.name,
+      description: project.description,
+      status: project.status,
+      ownerName: project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner assigned'
+    };
+
     // Soft delete project without triggering hooks
     await project.update({ isDeleted: true }, { hooks: false });
+    
+    // Create notification for project deletion
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+      
+      // 1. Send notification to project owner if exists
+      if (project.ownerId) {
+        await Notification.create({
+          userId: project.ownerId,
+          message: `Project "${projectData.name}" with status "${projectData.status}" has been deleted by ${actorName} (${actorRole})`
+        });
+      }
+      
+      // 2. Send notification to project deleter (Admin/PM) - they always receive notification
+      if (context.user) {
+        await Notification.create({
+          userId: context.user.id,
+          message: `Project "${projectData.name}" with status "${projectData.status}" and owner "${projectData.ownerName}" has been deleted`
+        });
+      }
+
+      // 3. Send notifications to project members
+      await sendNotificationsToProjectMembers(
+        project.id,
+        `Project "${projectData.name}" with status "${projectData.status}" has been deleted by ${actorName} (${actorRole})`,
+        [context.user?.id, project.ownerId].filter(id => id) // Exclude deleter and owner
+      );
+    } catch (notificationError) {
+      // Log notification error but don't fail the project deletion
+      // Error handling without console.log for production
+    }
     
     // Manually trigger activity logging for deletion
     const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');
