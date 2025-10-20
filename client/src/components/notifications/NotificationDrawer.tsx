@@ -5,6 +5,7 @@ import { formatDate } from '../../utils/helpers/dateFormatter';
 import {
   GET_USER_UNREAD_NOTIFICATIONS_QUERY,
   MARK_NOTIFICATION_READ_MUTATION,
+  MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION,
   GetUserUnreadNotificationsQueryResponse,
   MarkNotificationReadMutationVariables
 } from '../../services/graphql/notificationQueries';
@@ -28,7 +29,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   const { data, loading, error, refetch } = useQuery<GetUserUnreadNotificationsQueryResponse>(
     GET_USER_UNREAD_NOTIFICATIONS_QUERY,
     {
-      variables: { limit: 50 },
+      variables: { limit: 100 },
       skip: !isOpen,
       errorPolicy: 'all'
     }
@@ -37,6 +38,9 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
   // Mutation to mark notification as read
   const [markAsRead] = useMutation(MARK_NOTIFICATION_READ_MUTATION);
+
+  // Mutation to mark all notifications as read
+  const [markAllAsRead] = useMutation(MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION);
 
   // Refetch notifications when drawer opens for immediate updates
   React.useEffect(() => {
@@ -57,29 +61,42 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
       // Refetch to update the list
       refetch();
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      // Error handling without console.log for production
     }
   };
 
   /**
    * Handle marking all notifications as read
-   * Marks all visible notifications as read
+   * Uses efficient bulk update mutation
    */
   const handleMarkAllAsRead = async () => {
-    if (!data?.userUnreadNotifications) return;
+    const unreadNotifications = data?.dashboardNotifications?.notifications?.filter(notification => !notification.isRead) || [];
+
+    if (unreadNotifications.length === 0) return;
 
     try {
-      await Promise.all(
-        data.userUnreadNotifications.map(notification =>
-          markAsRead({
-            variables: { id: notification.id } as MarkNotificationReadMutationVariables
-          })
-        )
-      );
-      // Refetch to update the list
-      refetch();
+      const result = await markAllAsRead();
+
+      // Check if the mutation was successful
+      if (result.data?.markAllNotificationsAsRead?.success) {
+        // Refetch to update the list
+        refetch();
+      }
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
+      // Error handling without console.log for production
+      // If bulk update fails, fallback to individual updates
+      try {
+        await Promise.all(
+          unreadNotifications.map(notification =>
+            markAsRead({
+              variables: { id: notification.id } as MarkNotificationReadMutationVariables
+            })
+          )
+        );
+        refetch();
+      } catch (fallbackError) {
+        // Error handling without console.log for production
+      }
     }
   };
 

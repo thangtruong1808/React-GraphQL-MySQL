@@ -160,30 +160,23 @@ export const createProject = async (
       version: 1
     });
 
-    // Create notification for project creation
+    // Create notification for project creation - simplified to reduce notification noise
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
       const ownerInfo = input.ownerId ? await User.findByPk(parseInt(input.ownerId)) : null;
       const ownerName = ownerInfo ? `${ownerInfo.firstName} ${ownerInfo.lastName}` : 'No owner assigned';
       
-      // 1. Send notification to project owner if assigned
-      if (input.ownerId) {
+      // Only send ONE notification to project owner if assigned and different from creator
+      // Skip redundant notifications to Admins/PMs as they have full dashboard permissions
+      if (input.ownerId && parseInt(input.ownerId) !== context.user?.id) {
         await Notification.create({
           userId: parseInt(input.ownerId),
-          message: `You have been assigned as owner of the new project "${input.name}" with status "${input.status}" by ${actorName} (${actorRole})`
-        });
-      }
-      
-      // 2. Send notification to project creator (Admin/PM) - they always receive notification
-      if (context.user) {
-        await Notification.create({
-          userId: context.user.id,
           message: `Project "${input.name}" has been created with status "${input.status}" and owner "${ownerName}"`
         });
       }
 
-      // 3. Send notifications to project members (if any exist)
+      // Send notifications to project members (if any exist)
       await sendNotificationsToProjectMembers(
         project.id,
         `You have been added to the new project "${input.name}" with status "${input.status}" by ${actorName} (${actorRole})`,
@@ -315,23 +308,16 @@ export const updateProject = async (
         const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
         const actorRole = context.user ? context.user.role : 'System';
         
-        // 1. Send notification to project owner if exists
-        if (project.ownerId) {
+        // Only send ONE notification to project owner if exists and different from updater
+        // Skip redundant notifications to Admins/PMs as they have full dashboard permissions
+        if (project.ownerId && project.ownerId !== context.user?.id) {
           await Notification.create({
             userId: project.ownerId,
             message: `Project "${project.name}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`
           });
         }
-        
-        // 2. Send notification to project updater (Admin/PM) - they always receive notification
-        if (context.user) {
-          await Notification.create({
-            userId: context.user.id,
-            message: `Project "${project.name}" has been updated: ${changes.join(', ')}`
-          });
-        }
 
-        // 3. Send notifications to project members
+        // Send notifications to project members
         await sendNotificationsToProjectMembers(
           project.id,
           `Project "${project.name}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
@@ -443,23 +429,16 @@ export const deleteProject = async (
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
       
-      // 1. Send notification to project owner if exists
-      if (project.ownerId) {
+      // Only send ONE notification to project owner if exists and different from deleter
+      // Skip redundant notifications to Admins/PMs as they have full dashboard permissions
+      if (project.ownerId && project.ownerId !== context.user?.id) {
         await Notification.create({
           userId: project.ownerId,
           message: `Project "${projectData.name}" with status "${projectData.status}" has been deleted by ${actorName} (${actorRole})`
         });
       }
-      
-      // 2. Send notification to project deleter (Admin/PM) - they always receive notification
-      if (context.user) {
-        await Notification.create({
-          userId: context.user.id,
-          message: `Project "${projectData.name}" with status "${projectData.status}" and owner "${projectData.ownerName}" has been deleted`
-        });
-      }
 
-      // 3. Send notifications to project members
+      // Send notifications to project members
       await sendNotificationsToProjectMembers(
         project.id,
         `Project "${projectData.name}" with status "${projectData.status}" has been deleted by ${actorName} (${actorRole})`,

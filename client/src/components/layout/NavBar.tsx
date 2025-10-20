@@ -13,7 +13,7 @@ import NavIcon from '../ui/NavIcon';
 import { SearchDrawer } from '../search';
 import { NotificationDrawer } from '../notifications';
 import { useQuery } from '@apollo/client';
-import { GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY } from '../../services/graphql/notificationQueries';
+import { GET_USER_UNREAD_NOTIFICATIONS_QUERY } from '../../services/graphql/notificationQueries';
 
 /**
  * Navigation Bar Component
@@ -44,7 +44,8 @@ const NavBar: React.FC = () => {
   const filteredMobileNavItems = hasDashboardAccess ? mobileNavItems : mobileNavItems.filter((i: any) => i.id !== 'dashboard');
 
   // Fetch unread notification count for authenticated users
-  const { data: notificationData, error: notificationError } = useQuery(GET_USER_UNREAD_NOTIFICATION_COUNT_QUERY, {
+  const { data: notificationData, error: notificationError } = useQuery(GET_USER_UNREAD_NOTIFICATIONS_QUERY, {
+    variables: { limit: 100 },
     skip: !isAuthenticated,
     pollInterval: 30000, // Poll every 30 seconds for real-time updates
     errorPolicy: 'ignore'

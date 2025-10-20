@@ -44,7 +44,7 @@ const buildProjectManagerNotificationFilter = async (userId: number) => {
       userId: { [Op.in]: userIds }
     };
   } catch (error) {
-    console.error('Error building project manager notification filter:', error);
+    // Error handling without console.log for production
     // Fallback to user's own notifications
     return { userId };
   }
@@ -432,6 +432,58 @@ export const markNotificationUnread = async (
   }
 };
 
+/**
+ * Mark all notifications as read for the current user
+ * Updates all unread notifications to read status based on user role
+ */
+export const markAllNotificationsAsRead = async (
+  parameter: any,
+  args: any,
+  context: any
+) => {
+  try {
+    // Check authentication
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to mark notifications as read');
+    }
+
+    const userRole = context.user.role;
+    const userId = context.user.id;
+
+    // Build where clause based on user role (same logic as getDashboardNotifications)
+    let whereClause: any = {
+      isRead: false
+    };
+
+    if (userRole === 'ADMIN') {
+      // Admin users can mark ALL notifications from ALL users as read
+      // No additional filtering needed - whereClause remains as is
+    } else if (userRole === 'Project Manager') {
+      // Project managers can mark notifications related to their projects as read
+      whereClause = await buildProjectManagerNotificationFilter(userId);
+      whereClause.isRead = false;
+    } else {
+      // Regular users can only mark their own notifications as read
+      whereClause.userId = userId;
+    }
+
+    // Update all unread notifications based on role-based filtering
+    const [updatedCount] = await Notification.update(
+      { isRead: true },
+      {
+        where: whereClause
+      }
+    );
+
+    return {
+      success: true,
+      updatedCount: updatedCount
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to mark all notifications as read: ${error.message}`);
+  }
+};
+
 // Export resolvers
 export const notificationManagementResolvers = {
   Query: {
@@ -443,5 +495,6 @@ export const notificationManagementResolvers = {
     deleteNotification,
     markNotificationRead,
     markNotificationUnread,
+    markAllNotificationsAsRead,
   },
 };

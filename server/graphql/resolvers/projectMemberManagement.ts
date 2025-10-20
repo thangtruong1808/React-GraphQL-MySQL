@@ -437,31 +437,42 @@ export const addProjectMember = async (
       throw new Error('Failed to retrieve created member');
     }
 
-    // Create notification for project member addition
+    // Create notification for project member addition - simplified to reduce notification noise
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
       
-      // 1. Send notification to the new member
+      // Only send ONE notification to the new member
       await Notification.create({
         userId: userIdInt,
         message: `You have been added to project "${createdMember.project.name}" with role "${role}" by ${actorName} (${actorRole})`
       });
 
-      // 2. Send notification to project owner if exists and different from actor
-      if (project.ownerId && project.ownerId !== context.user?.id) {
-        await Notification.create({
-          userId: project.ownerId,
-          message: `User "${createdMember.user.firstName} ${createdMember.user.lastName}" has been added to project "${createdMember.project.name}" with role "${role}" by ${actorName} (${actorRole})`
-        });
-      }
+      // Send notifications to all existing project members (excluding new member, actor, and owner)
+      const existingMembers = await ProjectMember.findAll({
+        where: {
+          projectId: projectIdInt,
+          userId: { [Op.ne]: userIdInt }, // Exclude the new member
+          isDeleted: false
+        },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id']
+          }
+        ]
+      });
 
-      // 3. Send notification to actor (Admin/PM) - they always receive notification
-      if (context.user) {
-        await Notification.create({
-          userId: context.user.id,
-          message: `User "${createdMember.user.firstName} ${createdMember.user.lastName}" has been added to project "${createdMember.project.name}" with role "${role}"`
-        });
+      // Send notification to each existing member
+      for (const existingMember of existingMembers) {
+        // Skip if this member is the actor or project owner (they have full permissions)
+        if (existingMember.userId !== context.user?.id && existingMember.userId !== project.ownerId) {
+          await Notification.create({
+            userId: existingMember.userId,
+            message: `User "${createdMember.user.firstName} ${createdMember.user.lastName}" has been added to project "${createdMember.project.name}" with role "${role}" by ${actorName} (${actorRole})`
+          });
+        }
       }
     } catch (notificationError) {
       // Log notification error but don't fail the member addition
@@ -567,32 +578,16 @@ export const updateProjectMember = async (
       throw new Error('Failed to retrieve updated member');
     }
 
-    // Create notification for project member role update
+    // Create notification for project member role update - simplified to reduce notification noise
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
       
-      // 1. Send notification to the updated member
+      // Only send ONE notification to the updated member
       await Notification.create({
         userId: userIdInt,
         message: `Your role in project "${updatedMember.project.name}" has been changed from "${originalRole}" to "${role}" by ${actorName} (${actorRole})`
       });
-
-      // 2. Send notification to project owner if exists and different from actor and member
-      if (member.project.ownerId && member.project.ownerId !== context.user?.id && member.project.ownerId !== userIdInt) {
-        await Notification.create({
-          userId: member.project.ownerId,
-          message: `User "${updatedMember.user.firstName} ${updatedMember.user.lastName}" role in project "${updatedMember.project.name}" has been changed from "${originalRole}" to "${role}" by ${actorName} (${actorRole})`
-        });
-      }
-
-      // 3. Send notification to actor (Admin/PM) - they always receive notification
-      if (context.user) {
-        await Notification.create({
-          userId: context.user.id,
-          message: `User "${updatedMember.user.firstName} ${updatedMember.user.lastName}" role in project "${updatedMember.project.name}" has been changed from "${originalRole}" to "${role}"`
-        });
-      }
     } catch (notificationError) {
       // Log notification error but don't fail the member update
       // Error handling without console.log for production
@@ -700,32 +695,16 @@ export const removeProjectMember = async (
     // Soft delete the member
     await member.update({ isDeleted: true });
 
-    // Create notification for project member removal
+    // Create notification for project member removal - simplified to reduce notification noise
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
       
-      // 1. Send notification to the removed member
+      // Only send ONE notification to the removed member
       await Notification.create({
         userId: userIdInt,
         message: `You have been removed from project "${member.project.name}" by ${actorName} (${actorRole})`
       });
-
-      // 2. Send notification to project owner if exists and different from actor and member
-      if (member.project.ownerId && member.project.ownerId !== context.user?.id && member.project.ownerId !== userIdInt) {
-        await Notification.create({
-          userId: member.project.ownerId,
-          message: `User "${member.user.firstName} ${member.user.lastName}" has been removed from project "${member.project.name}" by ${actorName} (${actorRole})`
-        });
-      }
-
-      // 3. Send notification to actor (Admin/PM) - they always receive notification
-      if (context.user) {
-        await Notification.create({
-          userId: context.user.id,
-          message: `User "${member.user.firstName} ${member.user.lastName}" has been removed from project "${member.project.name}"`
-        });
-      }
     } catch (notificationError) {
       // Log notification error but don't fail the member removal
       // Error handling without console.log for production
