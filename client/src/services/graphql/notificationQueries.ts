@@ -120,6 +120,16 @@ export const MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION = gql`
   }
 `;
 
+// Mutation to mark all notifications as unread
+export const MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION = gql`
+  mutation MarkAllNotificationsAsUnread {
+    markAllNotificationsAsUnread {
+      success
+      updatedCount
+    }
+  }
+`;
+
 // Query to fetch users for dropdown selection
 export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
   query GetUsersForDropdown {

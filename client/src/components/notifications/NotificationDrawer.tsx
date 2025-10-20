@@ -5,9 +5,12 @@ import { formatDate } from '../../utils/helpers/dateFormatter';
 import {
   GET_USER_UNREAD_NOTIFICATIONS_QUERY,
   MARK_NOTIFICATION_READ_MUTATION,
+  MARK_NOTIFICATION_UNREAD_MUTATION,
   MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION,
+  MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION,
   GetUserUnreadNotificationsQueryResponse,
-  MarkNotificationReadMutationVariables
+  MarkNotificationReadMutationVariables,
+  MarkNotificationUnreadMutationVariables
 } from '../../services/graphql/notificationQueries';
 import { Notification } from '../../types/notificationManagement';
 
@@ -39,8 +42,14 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   // Mutation to mark notification as read
   const [markAsRead] = useMutation(MARK_NOTIFICATION_READ_MUTATION);
 
+  // Mutation to mark notification as unread
+  const [markAsUnread] = useMutation(MARK_NOTIFICATION_UNREAD_MUTATION);
+
   // Mutation to mark all notifications as read
   const [markAllAsRead] = useMutation(MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION);
+
+  // Mutation to mark all notifications as unread
+  const [markAllAsUnread] = useMutation(MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION);
 
   // Refetch notifications when drawer opens for immediate updates
   React.useEffect(() => {
@@ -57,6 +66,22 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     try {
       await markAsRead({
         variables: { id: notification.id } as MarkNotificationReadMutationVariables
+      });
+      // Refetch to update the list
+      refetch();
+    } catch (error) {
+      // Error handling without console.log for production
+    }
+  };
+
+  /**
+   * Handle marking a notification as unread
+   * Updates the notification status and refetches the list
+   */
+  const handleMarkAsUnread = async (notification: Notification) => {
+    try {
+      await markAsUnread({
+        variables: { id: notification.id } as MarkNotificationUnreadMutationVariables
       });
       // Refetch to update the list
       refetch();
@@ -90,6 +115,41 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
           unreadNotifications.map(notification =>
             markAsRead({
               variables: { id: notification.id } as MarkNotificationReadMutationVariables
+            })
+          )
+        );
+        refetch();
+      } catch (fallbackError) {
+        // Error handling without console.log for production
+      }
+    }
+  };
+
+  /**
+   * Handle marking all notifications as unread
+   * Uses efficient bulk update mutation
+   */
+  const handleMarkAllAsUnread = async () => {
+    const readNotifications = data?.dashboardNotifications?.notifications?.filter(notification => notification.isRead) || [];
+
+    if (readNotifications.length === 0) return;
+
+    try {
+      const result = await markAllAsUnread();
+
+      // Check if the mutation was successful
+      if (result.data?.markAllNotificationsAsUnread?.success) {
+        // Refetch to update the list
+        refetch();
+      }
+    } catch (error) {
+      // Error handling without console.log for production
+      // If bulk update fails, fallback to individual updates
+      try {
+        await Promise.all(
+          readNotifications.map(notification =>
+            markAsUnread({
+              variables: { id: notification.id } as MarkNotificationUnreadMutationVariables
             })
           )
         );
@@ -141,21 +201,33 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         </div>
 
         {/* Actions */}
-        {unreadNotifications.length > 0 && (
-          <div className="p-4 border-b border-gray-200 bg-blue-50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-blue-700 font-medium">
-                {unreadNotifications.length} unread notification{unreadNotifications.length !== 1 ? 's' : ''}
+        <div className="p-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col space-y-1">
+              <span className="text-sm text-gray-700 font-medium">
+                {unreadNotifications.length} unread, {readNotifications.length} read
               </span>
-              <button
-                onClick={handleMarkAllAsRead}
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
-              >
-                Mark all as read
-              </button>
+            </div>
+            <div className="flex space-x-2">
+              {unreadNotifications.length > 0 && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                >
+                  Mark all as read
+                </button>
+              )}
+              {readNotifications.length > 0 && (
+                <button
+                  onClick={handleMarkAllAsUnread}
+                  className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                >
+                  Mark all as unread
+                </button>
+              )}
             </div>
           </div>
-        )}
+        </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
@@ -247,11 +319,11 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                         className="p-4 rounded-lg border border-gray-200 bg-gray-50 transition-all duration-200 hover:bg-gray-100"
                       >
                         <div className="flex items-start space-x-3">
-                          {/* Checkbox for mark as read */}
+                          {/* Checkbox for mark as unread */}
                           <div className="flex-shrink-0 pt-1">
                             <button
-                              onClick={() => handleMarkAsRead(notification)}
-                              className="w-5 h-5 rounded border-2 border-green-300 bg-green-100 text-green-600 flex items-center justify-center transition-all duration-200"
+                              onClick={() => handleMarkAsUnread(notification)}
+                              className="w-5 h-5 rounded border-2 border-green-300 bg-green-100 text-green-600 flex items-center justify-center transition-all duration-200 hover:border-orange-400 hover:bg-orange-50"
                               title="Mark as unread"
                             >
                               <FaCheck className="h-3 w-3" />

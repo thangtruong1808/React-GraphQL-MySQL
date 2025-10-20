@@ -467,6 +467,57 @@ export const markAllNotificationsAsRead = async (
   }
 };
 
+/**
+ * Mark all notifications as unread for the current user
+ * Updates all read notifications to unread status based on user role
+ */
+export const markAllNotificationsAsUnread = async (
+  parameter: any,
+  args: any,
+  context: any
+) => {
+  try {
+    // Check authentication
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to mark notifications as unread');
+    }
+
+    const userRole = context.user.role;
+    const userId = context.user.id;
+
+    // Build where clause based on user role (same logic as getDashboardNotifications)
+    let whereClause: any = {
+      isRead: true
+    };
+
+    if (userRole === 'ADMIN') {
+      // Admin users can only mark notifications sent TO them as unread
+      whereClause.userId = userId;
+    } else if (userRole === 'Project Manager') {
+      // Project managers can only mark notifications sent TO them as unread
+      whereClause.userId = userId;
+    } else {
+      // Regular users can only mark their own notifications as unread
+      whereClause.userId = userId;
+    }
+
+    // Update all read notifications based on role-based filtering
+    const [updatedCount] = await Notification.update(
+      { isRead: false },
+      {
+        where: whereClause
+      }
+    );
+
+    return {
+      success: true,
+      updatedCount: updatedCount
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to mark all notifications as unread: ${error.message}`);
+  }
+};
+
 // Export resolvers
 export const notificationManagementResolvers = {
   Query: {
@@ -479,5 +530,6 @@ export const notificationManagementResolvers = {
     markNotificationRead,
     markNotificationUnread,
     markAllNotificationsAsRead,
+    markAllNotificationsAsUnread,
   },
 };

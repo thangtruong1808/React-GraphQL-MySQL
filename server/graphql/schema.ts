@@ -467,6 +467,12 @@ export const typeDefs = gql`
     updatedCount: Int!
   }
 
+  # Mark All Notifications As Unread Response Type - for bulk notification update
+  type MarkAllNotificationsAsUnreadResponse {
+    success: Boolean!
+    updatedCount: Int!
+  }
+
   # Public Statistics Type - for unauthenticated dashboard
   type PublicStats {
     totalProjects: Int!
@@ -669,6 +675,7 @@ export const typeDefs = gql`
     markNotificationRead(id: ID!): Notification!
     markNotificationUnread(id: ID!): Notification!
     markAllNotificationsAsRead: MarkAllNotificationsAsReadResponse!
+    markAllNotificationsAsUnread: MarkAllNotificationsAsUnreadResponse!
     # Tag management mutations - require authentication
     createTag(input: TagInput!): Tag!
     updateTag(id: ID!, input: TagUpdateInput!): Tag!
