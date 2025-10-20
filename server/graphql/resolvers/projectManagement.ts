@@ -167,8 +167,7 @@ export const createProject = async (
       const ownerInfo = input.ownerId ? await User.findByPk(parseInt(input.ownerId)) : null;
       const ownerName = ownerInfo ? `${ownerInfo.firstName} ${ownerInfo.lastName}` : 'No owner assigned';
       
-      // Only send ONE notification to project owner if assigned and different from creator
-      // Skip redundant notifications to Admins/PMs as they have full dashboard permissions
+      // 1. Send notification to project owner if assigned and different from creator
       if (input.ownerId && parseInt(input.ownerId) !== context.user?.id) {
         await Notification.create({
           userId: parseInt(input.ownerId),
@@ -176,7 +175,41 @@ export const createProject = async (
         });
       }
 
-      // Send notifications to project members (if any exist)
+      // 2. Send notification to Admin users when project is created
+      // Only notify admins who are actually members of the project
+      if (context.user?.role === 'ADMIN') {
+        // When admin creates project, notify other admin members (but not themselves)
+        const otherAdminMembers = await ProjectMember.findAll({
+          where: {
+            projectId: project.id,
+            userId: { [Op.ne]: context.user.id }, // Exclude the creator
+            isDeleted: false
+          },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              where: {
+                role: 'ADMIN',
+                isDeleted: false
+              },
+              attributes: ['id'],
+              required: true
+            }
+          ]
+        });
+
+        for (const adminMember of otherAdminMembers) {
+          await Notification.create({
+            userId: adminMember.userId,
+            message: `Project "${input.name}" has been created with status "${input.status}" and owner "${ownerName}" by ${actorName} (${actorRole})`
+          });
+        }
+      }
+      // Note: Non-admin project creators don't automatically notify admins
+      // Admins will only receive notifications when they are added as project members
+
+      // 3. Send notifications to project members (if any exist)
       await sendNotificationsToProjectMembers(
         project.id,
         `You have been added to the new project "${input.name}" with status "${input.status}" by ${actorName} (${actorRole})`,

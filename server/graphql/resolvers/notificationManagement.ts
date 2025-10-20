@@ -4,45 +4,29 @@ import { Notification, User, Project, ProjectMember } from '../../db';
 
 /**
  * Build notification filter for Project Manager role
- * Project managers can see notifications from users in their projects
+ * Project managers can only see notifications sent TO them
  */
 const buildProjectManagerNotificationFilter = async (userId: number) => {
   try {
-    // Get all projects where the user is a member (as Project Manager)
-    const userProjects = await ProjectMember.findAll({
-      where: {
-        userId: userId,
-        isDeleted: false
-      },
-      include: [{
-        model: Project,
-        as: 'project',
-        where: { isDeleted: false },
-        required: true
-      }]
-    });
+    // Project managers can only see notifications sent TO them
+    // No need to filter by projects - just return user's own notifications
+    return { userId };
+  } catch (error) {
+    // Error handling without console.log for production
+    // Fallback to user's own notifications
+    return { userId };
+  }
+};
 
-    // Get all user IDs from these projects
-    const projectIds = userProjects.map(pm => pm.projectId);
-    
-    if (projectIds.length === 0) {
-      // If no projects, return empty filter (no notifications)
-      return { id: { [Op.in]: [] } };
-    }
-
-    // Get all members of these projects
-    const projectMembers = await ProjectMember.findAll({
-      where: {
-        projectId: { [Op.in]: projectIds },
-        isDeleted: false
-      }
-    });
-
-    const userIds = [...new Set(projectMembers.map(pm => pm.userId))];
-
-    return {
-      userId: { [Op.in]: userIds }
-    };
+/**
+ * Build notification filter for Admin role
+ * Admins can only see notifications sent TO them
+ */
+const buildAdminNotificationFilter = async (userId: number) => {
+  try {
+    // Admins can only see notifications sent TO them
+    // No need to filter by projects - just return user's own notifications
+    return { userId };
   } catch (error) {
     // Error handling without console.log for production
     // Fallback to user's own notifications
@@ -89,8 +73,8 @@ export const getDashboardNotifications = async (
     let whereClause: any = {};
 
     if (userRole === 'ADMIN') {
-      // Admin users can see ALL notifications from ALL users
-      // No additional filtering needed - whereClause remains empty
+      // Admin users can only see notifications from projects they are members of
+      whereClause = await buildAdminNotificationFilter(userId);
     } else if (userRole === 'Project Manager') {
       // Project managers can see notifications related to their projects
       whereClause = await buildProjectManagerNotificationFilter(userId);
@@ -456,12 +440,11 @@ export const markAllNotificationsAsRead = async (
     };
 
     if (userRole === 'ADMIN') {
-      // Admin users can mark ALL notifications from ALL users as read
-      // No additional filtering needed - whereClause remains as is
+      // Admin users can only mark notifications sent TO them as read
+      whereClause.userId = userId;
     } else if (userRole === 'Project Manager') {
-      // Project managers can mark notifications related to their projects as read
-      whereClause = await buildProjectManagerNotificationFilter(userId);
-      whereClause.isRead = false;
+      // Project managers can only mark notifications sent TO them as read
+      whereClause.userId = userId;
     } else {
       // Regular users can only mark their own notifications as read
       whereClause.userId = userId;

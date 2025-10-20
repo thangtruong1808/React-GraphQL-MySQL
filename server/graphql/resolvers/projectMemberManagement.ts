@@ -442,13 +442,59 @@ export const addProjectMember = async (
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
       
-      // Only send ONE notification to the new member
+      // 1. Send notification to the new member
       await Notification.create({
         userId: userIdInt,
         message: `You have been added to project "${createdMember.project.name}" with role "${role}" by ${actorName} (${actorRole})`
       });
 
-      // Send notifications to all existing project members (excluding new member, actor, and owner)
+      // 1b. Send historical notifications about existing members to the new member
+      const existingMembersForHistory = await ProjectMember.findAll({
+        where: {
+          projectId: projectIdInt,
+          userId: { [Op.ne]: userIdInt }, // Exclude the new member
+          isDeleted: false
+        },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'firstName', 'lastName', 'role']
+          }
+        ]
+      });
+
+      // Send notification about each existing member to the new member
+      for (const existingMember of existingMembersForHistory) {
+        await Notification.create({
+          userId: userIdInt,
+          message: `Project "${createdMember.project.name}" has existing member "${existingMember.user.firstName} ${existingMember.user.lastName}" with role "${existingMember.role}"`
+        });
+      }
+
+      // 1c. Send historical notification about project creator/owner to the new member
+      if (project.ownerId && project.ownerId !== userIdInt) {
+        const projectOwner = await User.findByPk(project.ownerId, {
+          attributes: ['id', 'firstName', 'lastName', 'role']
+        });
+        
+        if (projectOwner) {
+          await Notification.create({
+            userId: userIdInt,
+            message: `Project "${createdMember.project.name}" has owner "${projectOwner.firstName} ${projectOwner.lastName}" with role "${projectOwner.role}"`
+          });
+        }
+      }
+
+      // 2. Send notification to project owner if exists and different from actor
+      if (project.ownerId && project.ownerId !== context.user?.id) {
+        await Notification.create({
+          userId: project.ownerId,
+          message: `User "${createdMember.user.firstName} ${createdMember.user.lastName}" has been added to project "${createdMember.project.name}" with role "${role}" by ${actorName} (${actorRole})`
+        });
+      }
+
+      // 3. Send notifications to all existing project members (excluding new member and actor)
       const existingMembers = await ProjectMember.findAll({
         where: {
           projectId: projectIdInt,
@@ -464,10 +510,10 @@ export const addProjectMember = async (
         ]
       });
 
-      // Send notification to each existing member
+      // Send notification to each existing member (including project owner)
       for (const existingMember of existingMembers) {
-        // Skip if this member is the actor or project owner (they have full permissions)
-        if (existingMember.userId !== context.user?.id && existingMember.userId !== project.ownerId) {
+        // Skip if this member is the actor (they already know what they did)
+        if (existingMember.userId !== context.user?.id) {
           await Notification.create({
             userId: existingMember.userId,
             message: `User "${createdMember.user.firstName} ${createdMember.user.lastName}" has been added to project "${createdMember.project.name}" with role "${role}" by ${actorName} (${actorRole})`
