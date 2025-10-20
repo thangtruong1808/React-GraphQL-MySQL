@@ -295,6 +295,16 @@ export const typeDefs = gql`
     message: String!
   }
 
+  # Task Deletion Check Response Type - for checking task deletion impact
+  type TaskDeletionCheck {
+    taskTitle: String!
+    projectName: String!
+    commentsCount: Int!
+    assignedUserName: String
+    assignedUserEmail: String
+    message: String!
+  }
+
   # Project Input Type - for creating new projects
   input ProjectInput {
     name: String!
@@ -616,6 +626,8 @@ export const typeDefs = gql`
     dashboardProjects(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardProjectsResponse!
     # Check project deletion impact - for project deletion confirmation
     checkProjectDeletion(projectId: ID!): ProjectDeletionCheck!
+    # Check task deletion impact - for task deletion confirmation
+    checkTaskDeletion(taskId: ID!): TaskDeletionCheck!
     # Tasks management - for dashboard tasks page
     dashboardTasks(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedDashboardTasksResponse!
     # Comments management - for dashboard comments page

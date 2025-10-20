@@ -89,6 +89,20 @@ export const DELETE_TASK_MUTATION = gql`
   }
 `;
 
+// Check Task Deletion Impact
+export const CHECK_TASK_DELETION_QUERY = gql`
+  query CheckTaskDeletion($taskId: ID!) {
+    checkTaskDeletion(taskId: $taskId) {
+      taskTitle
+      projectName
+      commentsCount
+      assignedUserName
+      assignedUserEmail
+      message
+    }
+  }
+`;
+
 // Query to fetch all projects for dropdown selection
 export const GET_PROJECTS_FOR_DROPDOWN_QUERY = gql`
   query GetProjectsForDropdown {

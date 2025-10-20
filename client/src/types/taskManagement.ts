@@ -132,4 +132,12 @@ export interface DeleteTaskModalProps {
   onClose: () => void;
   onConfirm: (taskId: string) => Promise<void>;
   loading: boolean;
+  deletionCheck?: {
+    taskTitle: string;
+    projectName: string;
+    commentsCount: number;
+    assignedUserName?: string | null;
+    assignedUserEmail?: string | null;
+    message: string;
+  } | null;
 }

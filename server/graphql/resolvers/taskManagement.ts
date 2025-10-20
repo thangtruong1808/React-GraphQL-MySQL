@@ -164,18 +164,26 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
+      const projectName = project.name;
+      let assignedUserFullName: string | null = null;
+      if (assignedUserId) {
+        const assigned = await User.findByPk(parseInt(assignedUserId));
+        if (assigned) {
+          assignedUserFullName = `${assigned.firstName} ${assigned.lastName}`;
+        }
+      }
 
       // 1. Notify assigned user (if any and not the actor)
       await notifyUserIfNeeded(
         assignedUserId ? parseInt(assignedUserId) : null,
-        `Task "${title}" has been created in project ID ${parseInt(projectId)} with status "${status}" and priority "${priority}" by ${actorName} (${actorRole})`,
+        `Task "${title}" in project "${projectName}" has been assigned to you (responsible: ${assignedUserFullName || 'Unassigned'}) with status "${status}" and priority "${priority}" by ${actorName} (${actorRole})`,
         [context.user?.id || -1]
       );
 
       // 2. Notify project members (exclude actor and assigned user)
       await sendNotificationsToProjectMembers(
         parseInt(projectId),
-        `Task "${title}" has been created with status "${status}" and priority "${priority}" by ${actorName} (${actorRole})`,
+        `Task "${title}" (assigned to ${assignedUserFullName || 'Unassigned'}) has been created with status "${status}" and priority "${priority}" by ${actorName} (${actorRole})`,
         [context.user?.id, assignedUserId ? parseInt(assignedUserId) : undefined].filter(Boolean) as number[]
       );
     } catch (notificationError) {
@@ -233,6 +241,17 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
         throw new Error('Assigned user not found');
       }
     }
+
+    // Capture original values for change detection
+    const originalValues = {
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate,
+      projectId: task.projectId,
+      assignedTo: task.assignedTo
+    };
 
     // Update task fields
     const updateData: any = {};
@@ -309,15 +328,22 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
+      const projectForNames = await Project.findByPk(updatedTask?.projectId || task.projectId);
+      const projectNameForNotify = projectForNames?.name || 'Unknown Project';
+      let assignedUserFullName: string | null = null;
+      if (updatedTask?.assignedTo) {
+        const assigned = await User.findByPk(updatedTask.assignedTo);
+        if (assigned) assignedUserFullName = `${assigned.firstName} ${assigned.lastName}`;
+      }
 
       const changes: string[] = [];
-      if (input.title && input.title !== task.title) changes.push(`title from "${task.title}" to "${input.title}"`);
-      if (input.description && input.description !== task.description) changes.push('description updated');
-      if (input.status && input.status !== task.status) changes.push(`status from "${task.status}" to "${input.status}"`);
-      if (input.priority && input.priority !== task.priority) changes.push(`priority from "${task.priority}" to "${input.priority}"`);
-      if (input.dueDate !== undefined && input.dueDate !== task.dueDate) changes.push('due date updated');
-      if (input.projectId !== undefined && parseInt(input.projectId) !== task.projectId) changes.push(`project changed`);
-      if (input.assignedUserId !== undefined && (task.assignedTo || null) !== (input.assignedUserId ? parseInt(input.assignedUserId) : null)) changes.push('assignee changed');
+      if (input.title !== undefined && input.title !== originalValues.title) changes.push(`title from "${originalValues.title}" to "${input.title}"`);
+      if (input.description !== undefined && input.description !== originalValues.description) changes.push('description updated');
+      if (input.status !== undefined && input.status !== originalValues.status) changes.push(`status from "${originalValues.status}" to "${input.status}"`);
+      if (input.priority !== undefined && input.priority !== originalValues.priority) changes.push(`priority from "${originalValues.priority}" to "${input.priority}"`);
+      if (input.dueDate !== undefined && input.dueDate !== originalValues.dueDate) changes.push('due date updated');
+      if (input.projectId !== undefined && parseInt(input.projectId) !== originalValues.projectId) changes.push('project changed');
+      if (input.assignedUserId !== undefined && (originalValues.assignedTo || null) !== (input.assignedUserId ? parseInt(input.assignedUserId) : null)) changes.push('assignee changed');
 
       if (changes.length > 0 && updatedTask) {
         const projectIdForNotify = updatedTask.projectId;
@@ -326,14 +352,14 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
         // Notify assignee if different from actor
         await notifyUserIfNeeded(
           assignedToForNotify,
-          `Task "${updatedTask.title}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
+          `Task "${updatedTask.title}" in project "${projectNameForNotify}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
           [context.user?.id || -1]
         );
 
         // Fan out to project members, excluding actor and assignee
         await sendNotificationsToProjectMembers(
           projectIdForNotify,
-          `Task "${updatedTask.title}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
+          `Task "${updatedTask.title}" (assigned to ${assignedUserFullName || 'Unassigned'}) has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
           [context.user?.id, assignedToForNotify || undefined].filter(Boolean) as number[]
         );
       }
@@ -381,18 +407,25 @@ export const deleteTask = async (_: any, { id }: { id: string }, context: any) =
     try {
       const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
       const actorRole = context.user ? context.user.role : 'System';
+      const projectForNames = await Project.findByPk(task.projectId);
+      const projectNameForNotify = projectForNames?.name || 'Unknown Project';
+      let assignedUserFullName: string | null = null;
+      if (task.assignedTo) {
+        const assigned = await User.findByPk(task.assignedTo);
+        if (assigned) assignedUserFullName = `${assigned.firstName} ${assigned.lastName}`;
+      }
 
       // Notify assignee if exists and not the actor
       await notifyUserIfNeeded(
         task.assignedTo || null,
-        `Task "${task.title}" has been deleted by ${actorName} (${actorRole})`,
+        `Task "${task.title}" in project "${projectNameForNotify}" has been deleted by ${actorName} (${actorRole})`,
         [context.user?.id || -1]
       );
 
       // Fan out to project members, excluding actor and assignee
       await sendNotificationsToProjectMembers(
         task.projectId,
-        `Task "${task.title}" has been deleted by ${actorName} (${actorRole})`,
+        `Task "${task.title}" (assigned to ${assignedUserFullName || 'Unassigned'}) has been deleted by ${actorName} (${actorRole})`,
         [context.user?.id, task.assignedTo || undefined].filter(Boolean) as number[]
       );
     } catch (notificationError) {
@@ -432,7 +465,36 @@ export const deleteTask = async (_: any, { id }: { id: string }, context: any) =
  */
 export const taskManagementResolvers = {
   Query: {
-    dashboardTasks: getDashboardTasks
+    dashboardTasks: getDashboardTasks,
+    checkTaskDeletion: async (_: any, { taskId }: { taskId: string }) => {
+      const idInt = parseInt(taskId);
+      const task = await Task.findByPk(idInt, {
+        include: [
+          { model: Project, as: 'project', attributes: ['id', 'name'] },
+          { model: User, as: 'assignedUser', attributes: ['firstName', 'lastName', 'email'] }
+        ]
+      });
+      if (!task) {
+        throw new Error('Task not found');
+      }
+
+      // Count comments related to this task
+      const { Comment } = await import('../../db');
+      const commentsCount = await Comment.count({ where: { taskId: idInt, isDeleted: false } });
+
+      const assignedUserName = task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : null;
+      const assignedUserEmail = task.assignedUser ? task.assignedUser.email : null;
+      const message = `This will delete the task "${task.title}" in project "${task.project?.name}", ${commentsCount} comments${assignedUserName ? `, and unassign ${assignedUserName} (${assignedUserEmail})` : ''}. This action cannot be undone.`;
+
+      return {
+        taskTitle: task.title,
+        projectName: task.project?.name || 'Unknown Project',
+        commentsCount,
+        assignedUserName,
+        assignedUserEmail,
+        message
+      };
+    }
   },
   Mutation: {
     createTask,

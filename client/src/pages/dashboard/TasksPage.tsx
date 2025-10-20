@@ -19,7 +19,8 @@ import {
   GET_DASHBOARD_TASKS_QUERY,
   CREATE_TASK_MUTATION,
   UPDATE_TASK_MUTATION,
-  DELETE_TASK_MUTATION
+  DELETE_TASK_MUTATION,
+  CHECK_TASK_DELETION_QUERY
 } from '../../services/graphql/taskQueries';
 import {
   Task,
@@ -95,6 +96,11 @@ const TasksPage: React.FC = () => {
   const [createTaskMutation] = useMutation(CREATE_TASK_MUTATION);
   const [updateTaskMutation] = useMutation(UPDATE_TASK_MUTATION);
   const [deleteTaskMutation] = useMutation(DELETE_TASK_MUTATION);
+  const { data: deletionData, refetch: refetchDeletion } = useQuery(CHECK_TASK_DELETION_QUERY, {
+    variables: { taskId: state.selectedTask?.id || '' },
+    skip: !state.deleteModalOpen || !state.selectedTask,
+    fetchPolicy: 'network-only'
+  });
 
   /**
    * Update state when GraphQL data changes
@@ -407,11 +413,12 @@ const TasksPage: React.FC = () => {
                   editModalOpen: true,
                   selectedTask: task
                 })) : undefined}
-                onDelete={canDelete ? (task) => setState(prev => ({
-                  ...prev,
-                  deleteModalOpen: true,
-                  selectedTask: task
-                })) : undefined}
+                onDelete={canDelete ? async (task) => {
+                  setState(prev => ({ ...prev, deleteModalOpen: true, selectedTask: task }));
+                  try {
+                    await refetchDeletion({ taskId: task.id });
+                  } catch { }
+                } : undefined}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}
                 currentPageSize={state.pageSize}
@@ -450,6 +457,7 @@ const TasksPage: React.FC = () => {
             onClose={() => setState(prev => ({ ...prev, deleteModalOpen: false, selectedTask: null }))}
             onConfirm={handleDeleteTask}
             loading={state.loading}
+            deletionCheck={deletionData?.checkTaskDeletion || null}
           />
         )}
       </div>
