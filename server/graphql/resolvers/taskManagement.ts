@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Task, Project, User, ProjectMember } from '../../db';
+import { sendNotificationsToProjectMembers, notifyUserIfNeeded } from '../utils/notificationHelpers';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
@@ -155,9 +156,30 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
           });
         }
       } catch (error) {
-        // Log error but don't fail task creation
-        // Error handling without console.log for production
+        // Swallow errors to avoid failing task creation
       }
+    }
+
+    // Create notifications similar to project creation flow
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+
+      // 1. Notify assigned user (if any and not the actor)
+      await notifyUserIfNeeded(
+        assignedUserId ? parseInt(assignedUserId) : null,
+        `Task "${title}" has been created in project ID ${parseInt(projectId)} with status "${status}" and priority "${priority}" by ${actorName} (${actorRole})`,
+        [context.user?.id || -1]
+      );
+
+      // 2. Notify project members (exclude actor and assigned user)
+      await sendNotificationsToProjectMembers(
+        parseInt(projectId),
+        `Task "${title}" has been created with status "${status}" and priority "${priority}" by ${actorName} (${actorRole})`,
+        [context.user?.id, assignedUserId ? parseInt(assignedUserId) : undefined].filter(Boolean) as number[]
+      );
+    } catch (notificationError) {
+      // Swallow errors to avoid failing task creation
     }
 
     // Return the created task directly to avoid triggering additional hooks
@@ -263,8 +285,7 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
           }
         }
       } catch (error) {
-        // Log error but don't fail task update
-        console.error('Error updating project member during task update:', error);
+        // Swallow errors to avoid failing task update
       }
     }
 
@@ -283,6 +304,42 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
         }
       ]
     });
+
+    // Create notifications similar to project update flow
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+
+      const changes: string[] = [];
+      if (input.title && input.title !== task.title) changes.push(`title from "${task.title}" to "${input.title}"`);
+      if (input.description && input.description !== task.description) changes.push('description updated');
+      if (input.status && input.status !== task.status) changes.push(`status from "${task.status}" to "${input.status}"`);
+      if (input.priority && input.priority !== task.priority) changes.push(`priority from "${task.priority}" to "${input.priority}"`);
+      if (input.dueDate !== undefined && input.dueDate !== task.dueDate) changes.push('due date updated');
+      if (input.projectId !== undefined && parseInt(input.projectId) !== task.projectId) changes.push(`project changed`);
+      if (input.assignedUserId !== undefined && (task.assignedTo || null) !== (input.assignedUserId ? parseInt(input.assignedUserId) : null)) changes.push('assignee changed');
+
+      if (changes.length > 0 && updatedTask) {
+        const projectIdForNotify = updatedTask.projectId;
+        const assignedToForNotify = updatedTask.assignedTo || null;
+
+        // Notify assignee if different from actor
+        await notifyUserIfNeeded(
+          assignedToForNotify,
+          `Task "${updatedTask.title}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
+          [context.user?.id || -1]
+        );
+
+        // Fan out to project members, excluding actor and assignee
+        await sendNotificationsToProjectMembers(
+          projectIdForNotify,
+          `Task "${updatedTask.title}" has been updated: ${changes.join(', ')} by ${actorName} (${actorRole})`,
+          [context.user?.id, assignedToForNotify || undefined].filter(Boolean) as number[]
+        );
+      }
+    } catch (notificationError) {
+      // Swallow errors to avoid failing task update
+    }
 
     return updatedTask;
   } catch (error) {
@@ -320,6 +377,28 @@ export const deleteTask = async (_: any, { id }: { id: string }, context: any) =
     // Soft delete without triggering hooks
     await task.update({ isDeleted: true }, { hooks: false });
     
+    // Create notifications similar to project deletion flow
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+
+      // Notify assignee if exists and not the actor
+      await notifyUserIfNeeded(
+        task.assignedTo || null,
+        `Task "${task.title}" has been deleted by ${actorName} (${actorRole})`,
+        [context.user?.id || -1]
+      );
+
+      // Fan out to project members, excluding actor and assignee
+      await sendNotificationsToProjectMembers(
+        task.projectId,
+        `Task "${task.title}" has been deleted by ${actorName} (${actorRole})`,
+        [context.user?.id, task.assignedTo || undefined].filter(Boolean) as number[]
+      );
+    } catch (notificationError) {
+      // Swallow errors to avoid failing task deletion
+    }
+
     // Manually trigger activity logging for deletion
     const { createActivityLog, generateActionDescription, extractEntityName } = await import('../../db/utils/activityLogger');
     await createActivityLog({

@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Project, User, Task, Comment, Notification, ProjectMember } from '../../db';
+import { sendNotificationsToProjectMembers } from '../utils/notificationHelpers';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
 /**
@@ -8,43 +9,7 @@ import { setActivityContext, clearActivityContext } from '../../db/utils/activit
  * Follows GraphQL best practices with proper error handling
  */
 
-/**
- * Helper function to send notifications to project members
- * Sends notifications to all active project members
- */
-const sendNotificationsToProjectMembers = async (projectId: number, message: string, excludeUserIds: number[] = []) => {
-  try {
-    // Get all project members
-    const projectMembers = await ProjectMember.findAll({
-      where: {
-        projectId: projectId,
-        isDeleted: false
-      },
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'firstName', 'lastName', 'email']
-        }
-      ]
-    });
-
-    // Send notifications to each member (excluding specified users)
-    const notificationPromises = projectMembers
-      .filter(member => !excludeUserIds.includes(member.userId))
-      .map(member => 
-        Notification.create({
-          userId: member.userId,
-          message: message
-        })
-      );
-
-    await Promise.all(notificationPromises);
-  } catch (error) {
-    // Log error but don't fail the main operation
-    // Error handling without console.log for production
-  }
-};
+// Using shared helper from ../utils/notificationHelpers
 
 /**
  * Get paginated projects with search functionality
