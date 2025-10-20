@@ -130,6 +130,26 @@ export const MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION = gql`
   }
 `;
 
+// Mutation to delete all read notifications
+export const DELETE_ALL_READ_NOTIFICATIONS_MUTATION = gql`
+  mutation DeleteAllReadNotifications {
+    deleteAllReadNotifications {
+      success
+      deletedCount
+    }
+  }
+`;
+
+// Mutation to delete all unread notifications
+export const DELETE_ALL_UNREAD_NOTIFICATIONS_MUTATION = gql`
+  mutation DeleteAllUnreadNotifications {
+    deleteAllUnreadNotifications {
+      success
+      deletedCount
+    }
+  }
+`;
+
 // Query to fetch users for dropdown selection
 export const GET_USERS_FOR_DROPDOWN_QUERY = gql`
   query GetUsersForDropdown {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { FaTimes, FaBell, FaCheck, FaEnvelope } from 'react-icons/fa';
+import { FaTimes, FaBell, FaCheck, FaEnvelope, FaTrash } from 'react-icons/fa';
 import { formatDate } from '../../utils/helpers/dateFormatter';
 import {
   GET_USER_UNREAD_NOTIFICATIONS_QUERY,
@@ -8,9 +8,13 @@ import {
   MARK_NOTIFICATION_UNREAD_MUTATION,
   MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION,
   MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION,
+  DELETE_NOTIFICATION_MUTATION,
+  DELETE_ALL_READ_NOTIFICATIONS_MUTATION,
+  DELETE_ALL_UNREAD_NOTIFICATIONS_MUTATION,
   GetUserUnreadNotificationsQueryResponse,
   MarkNotificationReadMutationVariables,
-  MarkNotificationUnreadMutationVariables
+  MarkNotificationUnreadMutationVariables,
+  DeleteNotificationMutationVariables
 } from '../../services/graphql/notificationQueries';
 import { Notification } from '../../types/notificationManagement';
 
@@ -50,6 +54,15 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
   // Mutation to mark all notifications as unread
   const [markAllAsUnread] = useMutation(MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION);
+
+  // Mutation to delete individual notification
+  const [deleteNotification] = useMutation(DELETE_NOTIFICATION_MUTATION);
+
+  // Mutation to delete all read notifications
+  const [deleteAllRead] = useMutation(DELETE_ALL_READ_NOTIFICATIONS_MUTATION);
+
+  // Mutation to delete all unread notifications
+  const [deleteAllUnread] = useMutation(DELETE_ALL_UNREAD_NOTIFICATIONS_MUTATION);
 
   // Refetch notifications when drawer opens for immediate updates
   React.useEffect(() => {
@@ -160,6 +173,92 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   };
 
+  /**
+   * Handle deleting a single notification
+   * Removes the notification and refetches the list
+   */
+  const handleDeleteNotification = async (notification: Notification) => {
+    try {
+      await deleteNotification({
+        variables: { id: notification.id } as DeleteNotificationMutationVariables
+      });
+      // Refetch to update the list
+      refetch();
+    } catch (error) {
+      // Error handling without console.log for production
+    }
+  };
+
+  /**
+   * Handle deleting all read notifications
+   * Uses efficient bulk delete mutation
+   */
+  const handleDeleteAllRead = async () => {
+    const readNotifications = data?.dashboardNotifications?.notifications?.filter(notification => notification.isRead) || [];
+
+    if (readNotifications.length === 0) return;
+
+    try {
+      const result = await deleteAllRead();
+
+      // Check if the mutation was successful
+      if (result.data?.deleteAllReadNotifications?.success) {
+        // Refetch to update the list
+        refetch();
+      }
+    } catch (error) {
+      // Error handling without console.log for production
+      // If bulk delete fails, fallback to individual deletes
+      try {
+        await Promise.all(
+          readNotifications.map(notification =>
+            deleteNotification({
+              variables: { id: notification.id } as DeleteNotificationMutationVariables
+            })
+          )
+        );
+        refetch();
+      } catch (fallbackError) {
+        // Error handling without console.log for production
+      }
+    }
+  };
+
+  /**
+   * Handle deleting all unread notifications
+   * Uses efficient bulk delete mutation
+   */
+  const handleDeleteAllUnread = async () => {
+    const unreadNotifications = data?.dashboardNotifications?.notifications?.filter(notification => !notification.isRead) || [];
+
+    if (unreadNotifications.length === 0) return;
+
+    try {
+      const result = await deleteAllUnread();
+
+      // Check if the mutation was successful
+      if (result.data?.deleteAllUnreadNotifications?.success) {
+        // Refetch to update the list
+        refetch();
+      }
+    } catch (error) {
+      // Error handling without console.log for production
+      // If bulk delete fails, fallback to individual deletes
+      try {
+        await Promise.all(
+          unreadNotifications.map(notification =>
+            deleteNotification({
+              variables: { id: notification.id } as DeleteNotificationMutationVariables
+            })
+          )
+        );
+        refetch();
+      } catch (fallbackError) {
+        // Error handling without console.log for production
+      }
+    }
+  };
+
   // Get all notifications (both read and unread) for better UX
   const allNotifications = data?.dashboardNotifications?.notifications || [];
 
@@ -223,6 +322,22 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                   className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
                 >
                   Mark all as unread
+                </button>
+              )}
+              {unreadNotifications.length > 0 && (
+                <button
+                  onClick={handleDeleteAllUnread}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                >
+                  Delete all unread
+                </button>
+              )}
+              {readNotifications.length > 0 && (
+                <button
+                  onClick={handleDeleteAllRead}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                >
+                  Delete all read
                 </button>
               )}
             </div>
@@ -289,13 +404,23 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                             <p className="text-sm text-gray-900 font-medium mb-2">
                               {notification.message}
                             </p>
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <FaEnvelope className="h-3 w-3" />
-                              <span>
-                                {notification.user.firstName} {notification.user.lastName}
-                              </span>
-                              <span>•</span>
-                              <span>{formatDate(notification.createdAt)}</span>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                <FaEnvelope className="h-3 w-3" />
+                                <span>
+                                  {notification.user.firstName} {notification.user.lastName}
+                                </span>
+                                <span>•</span>
+                                <span>{formatDate(notification.createdAt)}</span>
+                              </div>
+                              {/* Delete button */}
+                              <button
+                                onClick={() => handleDeleteNotification(notification)}
+                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                title="Delete notification"
+                              >
+                                <FaTrash className="h-3 w-3" />
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -335,13 +460,23 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                             <p className="text-sm text-gray-700 mb-2">
                               {notification.message}
                             </p>
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <FaEnvelope className="h-3 w-3" />
-                              <span>
-                                {notification.user.firstName} {notification.user.lastName}
-                              </span>
-                              <span>•</span>
-                              <span>{formatDate(notification.createdAt)}</span>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                <FaEnvelope className="h-3 w-3" />
+                                <span>
+                                  {notification.user.firstName} {notification.user.lastName}
+                                </span>
+                                <span>•</span>
+                                <span>{formatDate(notification.createdAt)}</span>
+                              </div>
+                              {/* Delete button */}
+                              <button
+                                onClick={() => handleDeleteNotification(notification)}
+                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                title="Delete notification"
+                              >
+                                <FaTrash className="h-3 w-3" />
+                              </button>
                             </div>
                           </div>
                         </div>

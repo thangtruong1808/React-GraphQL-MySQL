@@ -473,6 +473,12 @@ export const typeDefs = gql`
     updatedCount: Int!
   }
 
+  # Delete All Notifications Response Type - for bulk notification deletion
+  type DeleteAllNotificationsResponse {
+    success: Boolean!
+    deletedCount: Int!
+  }
+
   # Public Statistics Type - for unauthenticated dashboard
   type PublicStats {
     totalProjects: Int!
@@ -676,6 +682,8 @@ export const typeDefs = gql`
     markNotificationUnread(id: ID!): Notification!
     markAllNotificationsAsRead: MarkAllNotificationsAsReadResponse!
     markAllNotificationsAsUnread: MarkAllNotificationsAsUnreadResponse!
+    deleteAllReadNotifications: DeleteAllNotificationsResponse!
+    deleteAllUnreadNotifications: DeleteAllNotificationsResponse!
     # Tag management mutations - require authentication
     createTag(input: TagInput!): Tag!
     updateTag(id: ID!, input: TagUpdateInput!): Tag!

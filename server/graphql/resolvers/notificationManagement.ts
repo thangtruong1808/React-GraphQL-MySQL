@@ -518,6 +518,102 @@ export const markAllNotificationsAsUnread = async (
   }
 };
 
+/**
+ * Delete all read notifications for the current user
+ * Removes all read notifications based on user role
+ */
+export const deleteAllReadNotifications = async (
+  parameter: any,
+  args: any,
+  context: any
+) => {
+  try {
+    // Check authentication
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to delete notifications');
+    }
+
+    const userRole = context.user.role;
+    const userId = context.user.id;
+
+    // Build where clause based on user role
+    let whereClause: any = {
+      isRead: true
+    };
+
+    if (userRole === 'ADMIN') {
+      // Admin users can only delete notifications sent TO them
+      whereClause.userId = userId;
+    } else if (userRole === 'Project Manager') {
+      // Project managers can only delete notifications sent TO them
+      whereClause.userId = userId;
+    } else {
+      // Regular users can only delete their own notifications
+      whereClause.userId = userId;
+    }
+
+    // Delete all read notifications based on role-based filtering
+    const deletedCount = await Notification.destroy({
+      where: whereClause
+    });
+
+    return {
+      success: true,
+      deletedCount: deletedCount
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to delete all read notifications: ${error.message}`);
+  }
+};
+
+/**
+ * Delete all unread notifications for the current user
+ * Removes all unread notifications based on user role
+ */
+export const deleteAllUnreadNotifications = async (
+  parameter: any,
+  args: any,
+  context: any
+) => {
+  try {
+    // Check authentication
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to delete notifications');
+    }
+
+    const userRole = context.user.role;
+    const userId = context.user.id;
+
+    // Build where clause based on user role
+    let whereClause: any = {
+      isRead: false
+    };
+
+    if (userRole === 'ADMIN') {
+      // Admin users can only delete notifications sent TO them
+      whereClause.userId = userId;
+    } else if (userRole === 'Project Manager') {
+      // Project managers can only delete notifications sent TO them
+      whereClause.userId = userId;
+    } else {
+      // Regular users can only delete their own notifications
+      whereClause.userId = userId;
+    }
+
+    // Delete all unread notifications based on role-based filtering
+    const deletedCount = await Notification.destroy({
+      where: whereClause
+    });
+
+    return {
+      success: true,
+      deletedCount: deletedCount
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to delete all unread notifications: ${error.message}`);
+  }
+};
+
 // Export resolvers
 export const notificationManagementResolvers = {
   Query: {
@@ -531,5 +627,7 @@ export const notificationManagementResolvers = {
     markNotificationUnread,
     markAllNotificationsAsRead,
     markAllNotificationsAsUnread,
+    deleteAllReadNotifications,
+    deleteAllUnreadNotifications,
   },
 };
