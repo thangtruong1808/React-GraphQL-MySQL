@@ -258,7 +258,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
 
     // Publish real-time subscription event for comment creation
     try {
-      if (pubsub) {
+      if (context.pubsub) {
         // Transform the comment to match GraphQL Comment type structure
         const commentPayload = {
           id: createdComment!.id.toString(),
@@ -278,6 +278,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
           isLikedByUser: false // Will be calculated by the resolver
         };
         
+        // Publish real-time comment event
         await context.pubsub.publish(`COMMENT_ADDED_${input.projectId}`, commentPayload);
       }
     } catch (subscriptionError) {

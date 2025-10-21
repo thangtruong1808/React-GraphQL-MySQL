@@ -14,11 +14,16 @@ import { Comment, ProjectMember } from '../../db';
 export const commentAdded = {
   subscribe: withFilter(
     (_, { projectId }, { pubsub }) => {
+      console.log(`🔔 Setting up commentAdded subscription for project ${projectId}`);
       return pubsub.asyncIterator(`COMMENT_ADDED_${projectId}`);
     },
     async (payload, variables, context) => {
+      // Debug: Log filter execution for troubleshooting
+      console.log(`🔍 Filtering commentAdded for user ${context.user?.id} (role: ${context.user?.role}) in project ${variables.projectId}`);
+      
       // Check if user is authenticated
       if (!context.user) {
+        console.log('❌ User not authenticated');
         return false;
       }
 
@@ -36,7 +41,9 @@ export const commentAdded = {
         const userRole = context.user.role?.toLowerCase();
         const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
         
-        return isAdminOrManager || !!isMember;
+        const result = isAdminOrManager || !!isMember;
+        console.log(`✅ Filter result: ${result} (isAdminOrManager: ${isAdminOrManager}, isMember: ${!!isMember}, userRole: ${userRole})`);
+        return result;
       } catch (error) {
         // Error handling without console.log for production
         return false;
@@ -93,8 +100,12 @@ export const commentUpdated = {
       return pubsub.asyncIterator(`COMMENT_UPDATED_${projectId}`);
     },
     async (payload, variables, context) => {
+      // Debug: Log filter execution for troubleshooting
+      console.log(`🔍 Filtering commentAdded for user ${context.user?.id} (role: ${context.user?.role}) in project ${variables.projectId}`);
+      
       // Check if user is authenticated
       if (!context.user) {
+        console.log('❌ User not authenticated');
         return false;
       }
 
@@ -112,7 +123,9 @@ export const commentUpdated = {
         const userRole = context.user.role?.toLowerCase();
         const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
         
-        return isAdminOrManager || !!isMember;
+        const result = isAdminOrManager || !!isMember;
+        console.log(`✅ Filter result: ${result} (isAdminOrManager: ${isAdminOrManager}, isMember: ${!!isMember}, userRole: ${userRole})`);
+        return result;
       } catch (error) {
         // Error handling without console.log for production
         return false;
@@ -169,8 +182,12 @@ export const commentDeleted = {
       return pubsub.asyncIterator(`COMMENT_DELETED_${projectId}`);
     },
     async (payload, variables, context) => {
+      // Debug: Log filter execution for troubleshooting
+      console.log(`🔍 Filtering commentAdded for user ${context.user?.id} (role: ${context.user?.role}) in project ${variables.projectId}`);
+      
       // Check if user is authenticated
       if (!context.user) {
+        console.log('❌ User not authenticated');
         return false;
       }
 
@@ -188,7 +205,9 @@ export const commentDeleted = {
         const userRole = context.user.role?.toLowerCase();
         const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
         
-        return isAdminOrManager || !!isMember;
+        const result = isAdminOrManager || !!isMember;
+        console.log(`✅ Filter result: ${result} (isAdminOrManager: ${isAdminOrManager}, isMember: ${!!isMember}, userRole: ${userRole})`);
+        return result;
       } catch (error) {
         // Error handling without console.log for production
         return false;

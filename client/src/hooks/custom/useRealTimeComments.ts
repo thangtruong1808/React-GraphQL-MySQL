@@ -46,7 +46,11 @@ export const useRealTimeComments = (options: UseRealTimeCommentsOptions) => {
   // Handle initial comments loading with useEffect instead of onCompleted
   useEffect(() => {
     if (projectData?.project?.comments) {
-      setComments(projectData.project.comments);
+      // Sort comments by creation date (latest first) to ensure consistent ordering
+      const sortedComments = [...projectData.project.comments].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setComments(sortedComments);
     }
   }, [projectData?.project?.comments]);
 
@@ -68,11 +72,16 @@ export const useRealTimeComments = (options: UseRealTimeCommentsOptions) => {
 
   // Handle comment updated with state update
   const handleCommentUpdated = useCallback((updatedComment: Comment) => {
-    setComments(prev => 
-      prev.map(comment => 
+    setComments(prev => {
+      // Update the comment and maintain sorted order
+      const updated = prev.map(comment => 
         comment.id === updatedComment.id ? updatedComment : comment
-      )
-    );
+      );
+      // Sort by creation date (latest first) to maintain consistent ordering
+      return updated.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    });
     
     // Call custom handler if provided
     if (onCommentUpdated) {

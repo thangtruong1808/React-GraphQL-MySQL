@@ -157,6 +157,8 @@ async function startServer() {
     useServer({
       schema,
       context: async ({ connectionParams }: { connectionParams: any }) => {
+        // Debug: Log WebSocket authentication
+        console.log('🔌 WebSocket connection attempt with params:', connectionParams);
         
         // Handle WebSocket authentication
         const token = connectionParams?.authorization?.replace('Bearer ', '');
@@ -165,14 +167,17 @@ async function startServer() {
             // Verify JWT token and get user info
             const jwt = require('jsonwebtoken');
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+            console.log('✅ WebSocket authenticated user:', { id: decoded.userId, role: decoded.role });
             return { 
               user: { id: decoded.userId, role: decoded.role },
               pubsub // Use the same pubsub instance
             };
           } catch (error: any) {
+            console.log('❌ WebSocket authentication failed:', error.message);
             return { user: null, pubsub };
           }
         }
+        console.log('❌ No token provided');
         return { user: null, pubsub };
       },
       onConnect: () => {
