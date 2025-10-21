@@ -35,6 +35,11 @@ export const COMMENT_SUBSCRIPTION_FRAGMENT = gql`
     updatedAt
     likesCount
     isLikedByUser
+    likers {
+      id
+      firstName
+      lastName
+    }
   }
 `;
 
@@ -77,6 +82,43 @@ export const COMMENT_DELETED_SUBSCRIPTION = gql`
   }
 `;
 
+// Fragment for comment like events
+export const COMMENT_LIKE_FRAGMENT = gql`
+  fragment CommentLikeFragment on CommentLikeEvent {
+    commentId
+    projectId
+    userId
+    action
+    likesCount
+    likers {
+      id
+      firstName
+      lastName
+    }
+    timestamp
+  }
+`;
+
+// Comment liked subscription
+export const COMMENT_LIKED_SUBSCRIPTION = gql`
+  ${COMMENT_LIKE_FRAGMENT}
+  subscription CommentLiked($projectId: ID!) {
+    commentLiked(projectId: $projectId) {
+      ...CommentLikeFragment
+    }
+  }
+`;
+
+// Comment unliked subscription
+export const COMMENT_UNLIKED_SUBSCRIPTION = gql`
+  ${COMMENT_LIKE_FRAGMENT}
+  subscription CommentUnliked($projectId: ID!) {
+    commentUnliked(projectId: $projectId) {
+      ...CommentLikeFragment
+    }
+  }
+`;
+
 // Combined subscription for all comment events in a project
 export const COMMENT_EVENTS_SUBSCRIPTION = gql`
   ${COMMENT_SUBSCRIPTION_FRAGMENT}
@@ -90,6 +132,30 @@ export const COMMENT_EVENTS_SUBSCRIPTION = gql`
     }
     commentDeleted(projectId: $projectId) {
       ...CommentDeletedFragment
+    }
+  }
+`;
+
+// Combined subscription for all comment and like events in a project
+export const COMMENT_AND_LIKE_EVENTS_SUBSCRIPTION = gql`
+  ${COMMENT_SUBSCRIPTION_FRAGMENT}
+  ${COMMENT_DELETED_FRAGMENT}
+  ${COMMENT_LIKE_FRAGMENT}
+  subscription CommentAndLikeEvents($projectId: ID!) {
+    commentAdded(projectId: $projectId) {
+      ...CommentSubscriptionFragment
+    }
+    commentUpdated(projectId: $projectId) {
+      ...CommentSubscriptionFragment
+    }
+    commentDeleted(projectId: $projectId) {
+      ...CommentDeletedFragment
+    }
+    commentLiked(projectId: $projectId) {
+      ...CommentLikeFragment
+    }
+    commentUnliked(projectId: $projectId) {
+      ...CommentLikeFragment
     }
   }
 `;

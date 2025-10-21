@@ -125,10 +125,8 @@ async function startServer() {
     // Test database connection first
     try {
       await testConnection();
-      console.log('✅ Database connection successful');
       // Setup model associations
       setupAssociations();
-      console.log('✅ Model associations set up successfully');
     } catch (dbError) {
       console.error('❌ Database connection failed:', dbError);
       throw new Error('Database connection is required for the server to start');
@@ -157,9 +155,6 @@ async function startServer() {
     useServer({
       schema,
       context: async ({ connectionParams }: { connectionParams: any }) => {
-        // Debug: Log WebSocket authentication
-        console.log('🔌 WebSocket connection attempt with params:', connectionParams);
-        
         // Handle WebSocket authentication
         const token = connectionParams?.authorization?.replace('Bearer ', '');
         if (token) {
@@ -167,17 +162,14 @@ async function startServer() {
             // Verify JWT token and get user info
             const jwt = require('jsonwebtoken');
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-            console.log('✅ WebSocket authenticated user:', { id: decoded.userId, role: decoded.role });
             return { 
               user: { id: decoded.userId, role: decoded.role },
               pubsub // Use the same pubsub instance
             };
           } catch (error: any) {
-            console.log('❌ WebSocket authentication failed:', error.message);
             return { user: null, pubsub };
           }
         }
-        console.log('❌ No token provided');
         return { user: null, pubsub };
       },
       onConnect: () => {
@@ -192,8 +184,7 @@ async function startServer() {
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
     httpServer.listen(PORT, () => {
-      console.log(`🚀 Server ready at http://${SERVER_HOST}:${PORT}${server.graphqlPath}`);
-      console.log(`🔌 WebSocket server ready at ws://${SERVER_HOST}:${PORT}/graphql`);
+      // Server started successfully
     });
 
     // Graceful shutdown handling

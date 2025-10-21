@@ -155,6 +155,8 @@ export const typeDefs = gql`
     # Comment likes count and user's like status
     likesCount: Int!
     isLikedByUser: Boolean!
+    # Users who liked this comment
+    likers: [User!]
   }
 
   # Activity Type Enum - for activity log types
@@ -712,6 +714,9 @@ export const typeDefs = gql`
     commentAdded(projectId: ID!): Comment!
     commentUpdated(projectId: ID!): Comment!
     commentDeleted(projectId: ID!): CommentDeletedEvent!
+    # Comment likes subscriptions for real-time like updates
+    commentLiked(projectId: ID!): CommentLikeEvent!
+    commentUnliked(projectId: ID!): CommentLikeEvent!
   }
 
   # Comment deleted event type for subscriptions
@@ -719,5 +724,16 @@ export const typeDefs = gql`
     commentId: ID!
     projectId: ID!
     deletedAt: String!
+  }
+
+  # Comment like event type for subscriptions
+  type CommentLikeEvent {
+    commentId: ID!
+    projectId: ID!
+    userId: ID!
+    action: String!
+    likesCount: Int!
+    likers: [User!]
+    timestamp: String!
   }
 `;

@@ -480,6 +480,11 @@ export const GET_PROJECT_DETAILS = gql`
         updatedAt
         likesCount
         isLikedByUser
+        likers {
+          id
+          firstName
+          lastName
+        }
       }
     }
   }
@@ -514,6 +519,11 @@ export const TOGGLE_COMMENT_LIKE = gql`
       id
       likesCount
       isLikedByUser
+      likers {
+        id
+        firstName
+        lastName
+      }
     }
   }
 `;

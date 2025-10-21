@@ -74,7 +74,7 @@ export const getProjectComments = async (projectId: number, context?: any) => {
       order: [['createdAt', 'DESC']]
     });
 
-    // Get likes count and user's like status for each comment
+    // Get likes count, user's like status, and likers for each comment
     const commentsWithLikes = await Promise.all(comments.map(async (comment: any) => {
       const likesCount = await CommentLike.count({
         where: { commentId: comment.id }
@@ -91,6 +91,25 @@ export const getProjectComments = async (projectId: number, context?: any) => {
         });
         isLikedByUser = !!userLike;
       }
+
+      // Get who liked this comment
+      const likers = await CommentLike.findAll({
+        where: { commentId: comment.id },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'firstName', 'lastName'],
+            required: true
+          }
+        ],
+        order: [['createdAt', 'DESC']] // Most recent likes first
+      });
+
+
+
+
+
 
       return {
         id: comment.id.toString(),
@@ -111,7 +130,12 @@ export const getProjectComments = async (projectId: number, context?: any) => {
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
         likesCount: likesCount,
-        isLikedByUser: isLikedByUser
+        isLikedByUser: isLikedByUser,
+        likers: likers ? likers.map((like: any) => ({
+          id: like.user.id.toString(),
+          firstName: like.user.firstName,
+          lastName: like.user.lastName
+        })) : []
       };
     }));
 
@@ -274,8 +298,9 @@ export const createProjectComment = async (parent: any, args: any, context: any,
           version: createdComment!.version,
           createdAt: createdComment!.createdAt.toISOString(),
           updatedAt: createdComment!.updatedAt.toISOString(),
-          likesCount: 0, // Will be calculated by the resolver
-          isLikedByUser: false // Will be calculated by the resolver
+          likesCount: 0, // New comments have no likes
+          isLikedByUser: false, // New comments are not liked by the creator
+          likers: [] // New comments have no likers
         };
         
         // Publish real-time comment event
@@ -418,6 +443,48 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
 
     const isLikedByUser = !existingLike; // If we just liked it, user has liked it
 
+    // Get updated likers for real-time event
+    const updatedLikers = await CommentLike.findAll({
+      where: { commentId: parseInt(commentId) },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName'],
+          required: true
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Publish real-time subscription event for comment like/unlike
+    try {
+      if (context.pubsub) {
+        const likeEvent = {
+          commentId: commentId,
+          projectId: projectId.toString(),
+          userId: context.user.id.toString(),
+          action: existingLike ? 'UNLIKED' : 'LIKED',
+          likesCount: likesCount,
+          likers: updatedLikers ? updatedLikers.map((like: any) => ({
+            id: like.user.id.toString(),
+            firstName: like.user.firstName,
+            lastName: like.user.lastName
+          })) : [],
+          timestamp: new Date().toISOString()
+        };
+        
+        // Publish the appropriate event based on action
+        if (existingLike) {
+          await context.pubsub.publish(`COMMENT_UNLIKED_${projectId}`, likeEvent);
+        } else {
+          await context.pubsub.publish(`COMMENT_LIKED_${projectId}`, likeEvent);
+        }
+      }
+    } catch (subscriptionError) {
+      // Error handling without console.log for production
+    }
+
     return {
       id: updatedComment!.id.toString(),
       uuid: updatedComment!.uuid,
@@ -436,7 +503,12 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
       createdAt: updatedComment!.createdAt,
       updatedAt: updatedComment!.updatedAt,
       likesCount: likesCount,
-      isLikedByUser: isLikedByUser
+      isLikedByUser: isLikedByUser,
+      likers: updatedLikers ? updatedLikers.map((like: any) => ({
+        id: like.user.id.toString(),
+        firstName: like.user.firstName,
+        lastName: like.user.lastName
+      })) : []
     };
   } catch (error) {
     throw error;

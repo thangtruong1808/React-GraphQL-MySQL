@@ -11,7 +11,7 @@ import { useError } from '../../contexts/ErrorContext';
 import { updateActivity } from '../../utils/tokenManager';
 import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
-import { useRealTimeComments } from '../../hooks/custom/useRealTimeComments';
+import { useRealTimeCommentsWithLikes } from '../../hooks/custom/useRealTimeCommentsWithLikes';
 import WebSocketTest from '../../components/debug/WebSocketTest';
 
 /**
@@ -86,8 +86,8 @@ const ProjectDetailPage: React.FC = () => {
     fetchPolicy: 'cache-first'
   });
 
-  // Use real-time comments hook for live updates
-  const { comments: realTimeComments, loading: commentsLoading, error: commentsError } = useRealTimeComments({
+  // Use real-time comments with likes hook for live updates
+  const { comments: realTimeComments, loading: commentsLoading, error: commentsError } = useRealTimeCommentsWithLikes({
     projectId: id || '',
     initialComments: data?.project?.comments || []
   });

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 import { CREATE_COMMENT, TOGGLE_COMMENT_LIKE } from '../../services/graphql/queries';
-import { useRealTimeComments } from '../../hooks/custom/useRealTimeComments';
+import { useRealTimeCommentsWithLikes } from '../../hooks/custom/useRealTimeCommentsWithLikes';
+import CommentLikers from './CommentLikers';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatRoleForDisplay, isAdminRole } from '../../utils/roleFormatter';
 import { useError } from '../../contexts/ErrorContext';
@@ -48,8 +49,14 @@ const RealTimeCommentsSection: React.FC<RealTimeCommentsSectionProps> = ({
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-  // Use real-time comments hook for live updates
-  const { comments: realTimeComments, loading: commentsLoading, error: commentsError } = useRealTimeComments({
+  // Use real-time comments with likes hook for live updates
+  const {
+    comments: realTimeComments,
+    loading: commentsLoading,
+    error: commentsError,
+    updateCommentLikes,
+    updateComment
+  } = useRealTimeCommentsWithLikes({
     projectId,
     initialComments: []
   });
@@ -69,8 +76,28 @@ const RealTimeCommentsSection: React.FC<RealTimeCommentsSectionProps> = ({
     }
   }, [createCommentData]);
 
-  // Toggle comment like mutation with optimized cache update
+  // Toggle comment like mutation with immediate local state update
   const [toggleCommentLike] = useAuthenticatedMutation(TOGGLE_COMMENT_LIKE, {
+    onCompleted: (data) => {
+      if (data?.toggleCommentLike) {
+        // Update local state immediately for instant UI feedback
+        const { id, likesCount, isLikedByUser, likers } = data.toggleCommentLike;
+
+        // Update both likes count and heart state
+        updateCommentLikes(id, likesCount, isLikedByUser);
+
+        // Update likers in local state
+        const currentComment = realTimeComments.find(c => c.id === id);
+        if (currentComment) {
+          updateComment({
+            ...currentComment,
+            likers: likers || [],
+            likesCount: likesCount,
+            isLikedByUser: isLikedByUser
+          });
+        }
+      }
+    },
     onError: (error: any) => {
       showError(error.message || 'Failed to toggle like. Please try again.');
     }
@@ -476,6 +503,16 @@ const RealTimeCommentsSection: React.FC<RealTimeCommentsSectionProps> = ({
                                 {comment.likesCount > 0 ? comment.likesCount : ''} Like{comment.likesCount !== 1 ? 's' : ''}
                               </span>
                             </button>
+
+                            {/* Show who liked the comment */}
+                            {comment.likesCount > 0 && (
+                              <div className="mt-1">
+                                <CommentLikers
+                                  likers={comment.likers}
+                                  totalLikes={comment.likesCount}
+                                />
+                              </div>
+                            )}
 
                             <button
                               onClick={() => handleReply(comment.id, `${comment.author.firstName} ${comment.author.lastName}`)}
