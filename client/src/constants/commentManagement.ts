@@ -49,6 +49,13 @@ export const COMMENT_SUCCESS_MESSAGES = {
   UNLIKE: 'Comment unliked successfully',
 };
 
+// Confirmation messages for comment operations
+export const COMMENT_CONFIRMATION_MESSAGES = {
+  DELETE: 'Are you sure you want to delete this comment? This action cannot be undone.',
+  DELETE_IMPACT: 'Deleting this comment will permanently remove it from the system. All associated likes and any replies will also be lost.',
+  PERMANENT_DELETE: 'This action will permanently delete the comment and all associated data. This cannot be undone.',
+};
+
 // Error messages for comment operations
 export const COMMENT_ERROR_MESSAGES = {
   CREATE: 'Failed to create comment',

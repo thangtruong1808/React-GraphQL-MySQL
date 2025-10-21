@@ -1,5 +1,6 @@
-import { Comment, User, Project, ProjectMember, Task, CommentLike } from '../../db';
+import { Comment, User, Project, ProjectMember, Task, CommentLike, Notification } from '../../db';
 import { AuthenticationError } from 'apollo-server-express';
+import { sendNotificationsToProjectMembers, notifyUserIfNeeded } from '../utils/notificationHelpers';
 
 /**
  * Comments Resolver for Project Comments
@@ -196,6 +197,38 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       isDeleted: false,
       version: 1
     });
+
+    // Create notifications for comment creation
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+      
+      // Get project information for notification
+      const projectInfo = await Project.findByPk(parseInt(input.projectId), {
+        attributes: ['id', 'name', 'ownerId']
+      });
+
+      if (projectInfo) {
+        // 1. Send notification to project owner if exists and different from commenter
+        if (projectInfo.ownerId && projectInfo.ownerId !== context.user.id) {
+          await Notification.create({
+            userId: projectInfo.ownerId,
+            message: `New comment added to project "${projectInfo.name}" by ${actorName} (${actorRole})`,
+            isRead: false
+          });
+        }
+
+        // 2. Send notifications to all project members (excluding commenter and owner)
+        await sendNotificationsToProjectMembers(
+          projectInfo.id,
+          `New comment added to project "${projectInfo.name}" by ${actorName} (${actorRole})`,
+          [context.user.id, projectInfo.ownerId].filter(id => id) // Exclude commenter and owner
+        );
+      }
+    } catch (notificationError) {
+      // Log notification error but don't fail the comment creation
+      // Error handling without console.log for production
+    }
 
     // Fetch the created comment with author information
     const createdComment = await Comment.findByPk(comment.id, {

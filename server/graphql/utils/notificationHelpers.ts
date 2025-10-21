@@ -30,7 +30,8 @@ export const sendNotificationsToProjectMembers = async (
       .map(member =>
         Notification.create({
           userId: member.userId,
-          message: message
+          message: message,
+          isRead: false
         })
       );
 
@@ -52,7 +53,7 @@ export const notifyUserIfNeeded = async (
     if (!userId || excludeUserIds.includes(userId)) {
       return;
     }
-    await Notification.create({ userId, message });
+    await Notification.create({ userId, message, isRead: false });
   } catch (error) {
     // Intentionally swallow errors to avoid failing the main operation
   }

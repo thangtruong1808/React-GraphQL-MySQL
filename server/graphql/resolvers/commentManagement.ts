@@ -1,6 +1,7 @@
-import { Comment, User, Task, Project, CommentLike } from '../../db';
+import { Comment, User, Task, Project, CommentLike, Notification } from '../../db';
 import { AuthenticationError } from 'apollo-server-express';
 import { Op } from 'sequelize';
+import { sendNotificationsToProjectMembers, notifyUserIfNeeded } from '../utils/notificationHelpers';
 
 /**
  * Comment Management Resolvers
@@ -230,6 +231,38 @@ export const updateComment = async (
       version: comment.version + 1,
     });
 
+    // Create notifications for comment update
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+      
+      // Get project information for notification
+      const projectInfo = await Project.findByPk(comment.task.projectId, {
+        attributes: ['id', 'name', 'ownerId']
+      });
+
+      if (projectInfo) {
+        // 1. Send notification to project owner if exists and different from updater
+        if (projectInfo.ownerId && projectInfo.ownerId !== context.user.id) {
+          await Notification.create({
+            userId: projectInfo.ownerId,
+            message: `Comment updated in project "${projectInfo.name}" by ${actorName} (${actorRole})`,
+            isRead: false
+          });
+        }
+
+        // 2. Send notifications to all project members (excluding updater and owner)
+        await sendNotificationsToProjectMembers(
+          projectInfo.id,
+          `Comment updated in project "${projectInfo.name}" by ${actorName} (${actorRole})`,
+          [context.user.id, projectInfo.ownerId].filter(id => id) // Exclude updater and owner
+        );
+      }
+    } catch (notificationError) {
+      // Log notification error but don't fail the comment update
+      // Error handling without console.log for production
+    }
+
     // Get likes count
     const likesCount = await CommentLike.count({
       where: { commentId: comment.id },
@@ -274,9 +307,25 @@ export const deleteComment = async (
 
     const { id } = args;
 
-    // Find the comment
+    // Find the comment with task and project information
     const comment = await Comment.findByPk(parseInt(id), {
       where: { isDeleted: false },
+      include: [
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['id', 'projectId'],
+          required: true,
+          include: [
+            {
+              model: Project,
+              as: 'project',
+              attributes: ['id', 'name', 'ownerId'],
+              required: true,
+            },
+          ],
+        },
+      ],
     });
 
     if (!comment) {
@@ -297,6 +346,36 @@ export const deleteComment = async (
       isDeleted: true,
       version: comment.version + 1,
     });
+
+    // Create notifications for comment deletion
+    try {
+      const actorName = context.user ? `${context.user.firstName} ${context.user.lastName}` : 'System';
+      const actorRole = context.user ? context.user.role : 'System';
+      
+      // Get project information for notification
+      const projectInfo = comment.task.project;
+
+      if (projectInfo) {
+        // 1. Send notification to project owner if exists and different from deleter
+        if (projectInfo.ownerId && projectInfo.ownerId !== context.user.id) {
+          await Notification.create({
+            userId: projectInfo.ownerId,
+            message: `Comment deleted in project "${projectInfo.name}" by ${actorName} (${actorRole})`,
+            isRead: false
+          });
+        }
+
+        // 2. Send notifications to all project members (excluding deleter and owner)
+        await sendNotificationsToProjectMembers(
+          projectInfo.id,
+          `Comment deleted in project "${projectInfo.name}" by ${actorName} (${actorRole})`,
+          [context.user.id, projectInfo.ownerId].filter(id => id) // Exclude deleter and owner
+        );
+      }
+    } catch (notificationError) {
+      // Log notification error but don't fail the comment deletion
+      // Error handling without console.log for production
+    }
 
     return true;
   } catch (error) {
