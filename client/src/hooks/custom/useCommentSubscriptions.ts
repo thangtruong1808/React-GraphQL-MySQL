@@ -60,12 +60,7 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     COMMENT_ADDED_SUBSCRIPTION,
     {
       variables: { projectId },
-      skip: !enabled,
-      onData: ({ data }) => {
-        if (data?.data?.commentAdded && onCommentAdded) {
-          onCommentAdded(data.data.commentAdded);
-        }
-      }
+      skip: !enabled
     }
   );
 
@@ -74,12 +69,7 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     COMMENT_UPDATED_SUBSCRIPTION,
     {
       variables: { projectId },
-      skip: !enabled,
-      onData: ({ data }) => {
-        if (data?.data?.commentUpdated && onCommentUpdated) {
-          onCommentUpdated(data.data.commentUpdated);
-        }
-      }
+      skip: !enabled
     }
   );
 
@@ -88,12 +78,7 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     COMMENT_DELETED_SUBSCRIPTION,
     {
       variables: { projectId },
-      skip: !enabled,
-      onData: ({ data }) => {
-        if (data?.data?.commentDeleted && onCommentDeleted) {
-          onCommentDeleted(data.data.commentDeleted);
-        }
-      }
+      skip: !enabled
     }
   );
 
@@ -118,24 +103,24 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     }
   }, [onCommentDeleted]);
 
-  // Effect to handle subscription data changes
+  // Effect to handle subscription data changes - only trigger once per event
   useEffect(() => {
     if (addedData?.commentAdded) {
       handleCommentAdded(addedData.commentAdded);
     }
-  }, [addedData, handleCommentAdded]);
+  }, [addedData?.commentAdded, handleCommentAdded]);
 
   useEffect(() => {
     if (updatedData?.commentUpdated) {
       handleCommentUpdated(updatedData.commentUpdated);
     }
-  }, [updatedData, handleCommentUpdated]);
+  }, [updatedData?.commentUpdated, handleCommentUpdated]);
 
   useEffect(() => {
     if (deletedData?.commentDeleted) {
       handleCommentDeleted(deletedData.commentDeleted);
     }
-  }, [deletedData, handleCommentDeleted]);
+  }, [deletedData?.commentDeleted, handleCommentDeleted]);
 
   return {
     // Subscription data

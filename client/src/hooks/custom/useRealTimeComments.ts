@@ -56,7 +56,19 @@ export const useRealTimeComments = (options: UseRealTimeCommentsOptions) => {
 
   // Handle comment added with state update
   const handleCommentAdded = useCallback((comment: Comment) => {
-    setComments(prev => [comment, ...prev]);
+    setComments(prev => {
+      // Check if comment already exists to prevent duplicates
+      const exists = prev.some(c => c.id === comment.id);
+      if (exists) {
+        return prev;
+      }
+      
+      // Add new comment and sort by creation date (latest first)
+      const updated = [comment, ...prev];
+      return updated.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    });
     
     // Call custom handler if provided
     if (onCommentAdded) {

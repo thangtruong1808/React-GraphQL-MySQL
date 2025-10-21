@@ -1,5 +1,5 @@
 import { withFilter } from 'graphql-subscriptions';
-import { Comment, ProjectMember } from '../../db';
+import { Comment, ProjectMember, Project } from '../../db';
 
 /**
  * Comment Subscription Resolvers
@@ -14,21 +14,33 @@ import { Comment, ProjectMember } from '../../db';
 export const commentAdded = {
   subscribe: withFilter(
     (_, { projectId }, { pubsub }) => {
-      console.log(`🔔 Setting up commentAdded subscription for project ${projectId}`);
       return pubsub.asyncIterator(`COMMENT_ADDED_${projectId}`);
     },
     async (payload, variables, context) => {
-      // Debug: Log filter execution for troubleshooting
-      console.log(`🔍 Filtering commentAdded for user ${context.user?.id} (role: ${context.user?.role}) in project ${variables.projectId}`);
-      
       // Check if user is authenticated
       if (!context.user) {
-        console.log('❌ User not authenticated');
         return false;
       }
 
-      // Check if user is a member of the project
       try {
+        // Check if user is admin or project manager (can see all comments)
+        const userRole = context.user.role?.toLowerCase();
+        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
+        
+        if (isAdminOrManager) {
+          return true;
+        }
+
+        // Check if user is project owner
+        const project = await Project.findByPk(parseInt(variables.projectId), {
+          attributes: ['id', 'ownerId']
+        });
+
+        if (project && project.ownerId === context.user.id) {
+          return true;
+        }
+
+        // Check if user is a project member
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),
@@ -37,13 +49,7 @@ export const commentAdded = {
           }
         });
 
-        // Allow if user is admin, project manager, or project member
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        const result = isAdminOrManager || !!isMember;
-        console.log(`✅ Filter result: ${result} (isAdminOrManager: ${isAdminOrManager}, isMember: ${!!isMember}, userRole: ${userRole})`);
-        return result;
+        return !!isMember;
       } catch (error) {
         // Error handling without console.log for production
         return false;
@@ -100,17 +106,30 @@ export const commentUpdated = {
       return pubsub.asyncIterator(`COMMENT_UPDATED_${projectId}`);
     },
     async (payload, variables, context) => {
-      // Debug: Log filter execution for troubleshooting
-      console.log(`🔍 Filtering commentAdded for user ${context.user?.id} (role: ${context.user?.role}) in project ${variables.projectId}`);
-      
       // Check if user is authenticated
       if (!context.user) {
-        console.log('❌ User not authenticated');
         return false;
       }
 
-      // Check if user is a member of the project
       try {
+        // Check if user is admin or project manager (can see all comments)
+        const userRole = context.user.role?.toLowerCase();
+        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
+        
+        if (isAdminOrManager) {
+          return true;
+        }
+
+        // Check if user is project owner
+        const project = await Project.findByPk(parseInt(variables.projectId), {
+          attributes: ['id', 'ownerId']
+        });
+
+        if (project && project.ownerId === context.user.id) {
+          return true;
+        }
+
+        // Check if user is a project member
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),
@@ -119,13 +138,7 @@ export const commentUpdated = {
           }
         });
 
-        // Allow if user is admin, project manager, or project member
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        const result = isAdminOrManager || !!isMember;
-        console.log(`✅ Filter result: ${result} (isAdminOrManager: ${isAdminOrManager}, isMember: ${!!isMember}, userRole: ${userRole})`);
-        return result;
+        return !!isMember;
       } catch (error) {
         // Error handling without console.log for production
         return false;
@@ -182,17 +195,30 @@ export const commentDeleted = {
       return pubsub.asyncIterator(`COMMENT_DELETED_${projectId}`);
     },
     async (payload, variables, context) => {
-      // Debug: Log filter execution for troubleshooting
-      console.log(`🔍 Filtering commentAdded for user ${context.user?.id} (role: ${context.user?.role}) in project ${variables.projectId}`);
-      
       // Check if user is authenticated
       if (!context.user) {
-        console.log('❌ User not authenticated');
         return false;
       }
 
-      // Check if user is a member of the project
       try {
+        // Check if user is admin or project manager (can see all comments)
+        const userRole = context.user.role?.toLowerCase();
+        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
+        
+        if (isAdminOrManager) {
+          return true;
+        }
+
+        // Check if user is project owner
+        const project = await Project.findByPk(parseInt(variables.projectId), {
+          attributes: ['id', 'ownerId']
+        });
+
+        if (project && project.ownerId === context.user.id) {
+          return true;
+        }
+
+        // Check if user is a project member
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),
@@ -201,13 +227,7 @@ export const commentDeleted = {
           }
         });
 
-        // Allow if user is admin, project manager, or project member
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        const result = isAdminOrManager || !!isMember;
-        console.log(`✅ Filter result: ${result} (isAdminOrManager: ${isAdminOrManager}, isMember: ${!!isMember}, userRole: ${userRole})`);
-        return result;
+        return !!isMember;
       } catch (error) {
         // Error handling without console.log for production
         return false;

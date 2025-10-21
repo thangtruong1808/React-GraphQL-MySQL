@@ -88,47 +88,14 @@ const ProjectDetailPage: React.FC = () => {
 
   // Use real-time comments hook for live updates
   const { comments: realTimeComments, loading: commentsLoading, error: commentsError } = useRealTimeComments({
-    projectId: id || ''
+    projectId: id || '',
+    initialComments: data?.project?.comments || []
   });
 
-  // Create comment mutation with optimized cache updates
+  // Create comment mutation - let real-time subscription handle UI updates
   const [createComment, { data: createCommentData }] = useMutation(CREATE_COMMENT, {
-    update: (cache, { data }) => {
-      if (data?.createComment) {
-        try {
-          // Read current project data from cache
-          const existingProject = cache.readQuery({
-            query: GET_PROJECT_DETAILS,
-            variables: { projectId: id }
-          });
-
-          if (existingProject && 'project' in existingProject && existingProject.project) {
-            // Update project with new comment (add to beginning for latest-first order)
-            cache.writeQuery({
-              query: GET_PROJECT_DETAILS,
-              variables: { projectId: id },
-              data: {
-                project: {
-                  ...existingProject.project,
-                  comments: [data.createComment, ...existingProject.project.comments]
-                }
-              }
-            });
-
-            // Show success toast only after both DB insertion and UI rendering are complete
-            showInfo('Comment posted successfully!');
-          } else {
-            // Fallback to refetch if cache update fails
-            refetch();
-          }
-        } catch (error) {
-          // Fallback to refetch if cache update fails
-          refetch();
-        }
-      }
-    },
     onError: (error) => {
-      // Handle error silently
+      showError(error.message || 'Failed to post comment. Please try again.');
     }
   });
 
