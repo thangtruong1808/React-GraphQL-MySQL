@@ -263,7 +263,12 @@ export const resolvers = {
     // Resolver for author field on Comment type
     author: async (parent: any) => {
       try {
-        // Use the correct database field name (user_id is snake_case in database)
+        // If author is already populated (from subscription payload), return it directly
+        if (parent.author) {
+          return parent.author;
+        }
+        
+        // Otherwise, fetch from database using user_id
         const userId = parent.user_id || parent.userId;
         if (!userId) {
           throw new Error('User ID not found for comment');
@@ -287,7 +292,12 @@ export const resolvers = {
     // Resolver for task field on Comment type
     task: async (parent: any) => {
       try {
-        // Use the correct database field name (task_id is snake_case in database)
+        // If task is already populated (from subscription payload), return it directly
+        if (parent.task) {
+          return parent.task;
+        }
+        
+        // Otherwise, fetch from database using task_id
         const taskId = parent.task_id || parent.taskId;
         if (!taskId) {
           throw new Error('Task ID not found for comment');

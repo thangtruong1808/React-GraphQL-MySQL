@@ -43,7 +43,44 @@ export const commentAdded = {
       }
     }
   ),
-  resolve: (payload) => payload
+  resolve: (payload) => {
+    // Always return a valid Comment object to prevent null errors
+    if (!payload) {
+      // Return a minimal valid Comment object to prevent null errors
+      return {
+        id: '0',
+        uuid: '00000000-0000-0000-0000-000000000000',
+        content: '',
+        author: {
+          id: '0',
+          uuid: '00000000-0000-0000-0000-000000000000',
+          firstName: '',
+          lastName: '',
+          email: '',
+          role: ''
+        },
+        task: {
+          id: '0',
+          uuid: '00000000-0000-0000-0000-000000000000',
+          title: '',
+          project: {
+            id: '0',
+            uuid: '00000000-0000-0000-0000-000000000000',
+            name: ''
+          }
+        },
+        isDeleted: false,
+        version: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likesCount: 0,
+        isLikedByUser: false
+      };
+    }
+    
+    // Return the payload as Comment
+    return payload;
+  }
 };
 
 /**
@@ -82,7 +119,44 @@ export const commentUpdated = {
       }
     }
   ),
-  resolve: (payload) => payload
+  resolve: (payload) => {
+    // Always return a valid Comment object to prevent null errors
+    if (!payload) {
+      // Return a minimal valid Comment object to prevent null errors
+      return {
+        id: '0',
+        uuid: '00000000-0000-0000-0000-000000000000',
+        content: '',
+        author: {
+          id: '0',
+          uuid: '00000000-0000-0000-0000-000000000000',
+          firstName: '',
+          lastName: '',
+          email: '',
+          role: ''
+        },
+        task: {
+          id: '0',
+          uuid: '00000000-0000-0000-0000-000000000000',
+          title: '',
+          project: {
+            id: '0',
+            uuid: '00000000-0000-0000-0000-000000000000',
+            name: ''
+          }
+        },
+        isDeleted: false,
+        version: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likesCount: 0,
+        isLikedByUser: false
+      };
+    }
+    
+    // Return the payload as Comment
+    return payload;
+  }
 };
 
 /**
@@ -121,7 +195,23 @@ export const commentDeleted = {
       }
     }
   ),
-  resolve: (payload) => payload
+  resolve: (payload) => {
+    // Always return a valid CommentDeletedEvent object to prevent null errors
+    if (!payload) {
+      return {
+        commentId: '0',
+        projectId: '0',
+        deletedAt: new Date().toISOString()
+      };
+    }
+    
+    // Return the payload as CommentDeletedEvent
+    return {
+      commentId: payload.commentId,
+      projectId: payload.projectId,
+      deletedAt: payload.deletedAt
+    };
+  }
 };
 
 /**

@@ -1,7 +1,10 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, createHttpLink, split } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { from } from '@apollo/client/link/core';
 import { onError } from '@apollo/client/link/error';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { API_CONFIG, AUTH_CONFIG } from '../../constants';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import {
@@ -223,6 +226,21 @@ const httpLink = createHttpLink({
   credentials: 'include', // Include cookies in requests
 });
 
+// Create WebSocket link for subscriptions
+const wsUrl = API_CONFIG.GRAPHQL_URL.replace('http', 'ws');
+const wsClient = createClient({
+  url: wsUrl,
+  connectionParams: async () => {
+    // Get authentication data for WebSocket connection
+    const { accessToken } = await collectAuthData();
+    return {
+      authorization: accessToken ? `Bearer ${accessToken}` : '',
+    };
+  },
+});
+
+const wsLink = new GraphQLWsLink(wsClient);
+
 /**
  * Enhanced auth link with better token validation and debugging
  * Runs BEFORE every GraphQL request to add authentication headers
@@ -382,16 +400,29 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   }
 });
 
+// Create split link to route queries/mutations to HTTP and subscriptions to WebSocket
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    );
+  },
+  wsLink, // Use WebSocket for subscriptions
+  from([errorLink, authLink, httpLink]) // Use HTTP for queries and mutations
+);
+
 /**
  * Create Apollo Client with enhanced error handling and security
  * Configures the complete GraphQL client with authentication support
  * 
  * CALLED BY: App initialization
  * SCENARIOS: All scenarios - provides GraphQL communication layer
- * FEATURES: Authentication, error handling, caching, CSRF protection
+ * FEATURES: Authentication, error handling, caching, CSRF protection, WebSocket subscriptions
  */
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: splitLink,
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
@@ -415,7 +446,9 @@ const client = new ApolloClient({
       errorPolicy: 'all',
     },
   },
-  connectToDevTools: process.env.NODE_ENV === 'development',
+  devtools: {
+    enabled: process.env.NODE_ENV === 'development',
+  },
 });
 
 // Enhanced logging for GraphQL operations (disabled for better user experience)

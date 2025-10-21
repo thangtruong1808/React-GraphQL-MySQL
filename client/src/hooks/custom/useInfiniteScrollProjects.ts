@@ -99,21 +99,22 @@ export const useInfiniteScrollProjects = (itemsPerPage: number = 6) => {
       },
       fetchPolicy: 'network-only', // Always fetch from network
       errorPolicy: 'all', // Continue even if there are errors
-      onCompleted: (data) => {
-        // Initialize projects and pagination info on first load
-        if (data?.paginatedProjects) {
-          setAllProjects(data.paginatedProjects.projects);
-          setPaginationInfo(data.paginatedProjects.paginationInfo);
-          paginationInfoRef.current = data.paginatedProjects.paginationInfo;
-          setCurrentOffset(itemsPerPage); // Set offset for next page
-          currentOffsetRef.current = itemsPerPage;
-        }
-      },
       onError: (error) => {
         setError(error.message);
       }
     }
   );
+
+  // Handle initial data loading with useEffect
+  useEffect(() => {
+    if (data?.paginatedProjects) {
+      setAllProjects(data.paginatedProjects.projects);
+      setPaginationInfo(data.paginatedProjects.paginationInfo);
+      paginationInfoRef.current = data.paginatedProjects.paginationInfo;
+      setCurrentOffset(itemsPerPage); // Set offset for next page
+      currentOffsetRef.current = itemsPerPage;
+    }
+  }, [data, itemsPerPage]);
 
   // Update fetchMore ref whenever it changes
   useEffect(() => {

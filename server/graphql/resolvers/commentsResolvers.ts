@@ -230,7 +230,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       // Error handling without console.log for production
     }
 
-    // Fetch the created comment with author information
+    // Fetch the created comment with author and task information
     const createdComment = await Comment.findByPk(comment.id, {
       include: [
         {
@@ -238,16 +238,47 @@ export const createProjectComment = async (parent: any, args: any, context: any,
           as: 'user',
           attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role'],
           required: true
+        },
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['id', 'uuid', 'title', 'projectId'],
+          required: true,
+          include: [
+            {
+              model: Project,
+              as: 'project',
+              attributes: ['id', 'uuid', 'name'],
+              required: true
+            }
+          ]
         }
       ]
     });
 
     // Publish real-time subscription event for comment creation
     try {
-      if (context.pubsub) {
-        await context.pubsub.publish(`COMMENT_ADDED_${input.projectId}`, {
-          commentAdded: createdComment
-        });
+      if (pubsub) {
+        // Transform the comment to match GraphQL Comment type structure
+        const commentPayload = {
+          id: createdComment!.id.toString(),
+          uuid: createdComment!.uuid,
+          content: createdComment!.content,
+          // Include raw database fields for Comment type resolvers
+          user_id: createdComment!.userId || createdComment!.user_id,
+          task_id: createdComment!.taskId || createdComment!.task_id,
+          // Include populated objects for direct access
+          author: createdComment!.user,
+          task: createdComment!.task,
+          isDeleted: createdComment!.isDeleted,
+          version: createdComment!.version,
+          createdAt: createdComment!.createdAt.toISOString(),
+          updatedAt: createdComment!.updatedAt.toISOString(),
+          likesCount: 0, // Will be calculated by the resolver
+          isLikedByUser: false // Will be calculated by the resolver
+        };
+        
+        await context.pubsub.publish(`COMMENT_ADDED_${input.projectId}`, commentPayload);
       }
     } catch (subscriptionError) {
       // Log subscription error but don't fail the comment creation

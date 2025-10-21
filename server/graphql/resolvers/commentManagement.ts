@@ -263,22 +263,39 @@ export const updateComment = async (
       // Error handling without console.log for production
     }
 
+    // Get likes count
+    const likesCount = await CommentLike.count({
+      where: { commentId: comment.id },
+    });
+
     // Publish real-time subscription event for comment update
     try {
       if (context.pubsub) {
-        await context.pubsub.publish(`COMMENT_UPDATED_${comment.task.projectId}`, {
-          commentUpdated: comment
-        });
+        // Transform the comment to match GraphQL Comment type structure
+        const commentPayload = {
+          id: comment.id.toString(),
+          uuid: comment.uuid,
+          content: comment.content,
+          // Include raw database fields for Comment type resolvers
+          user_id: comment.userId || comment.user_id,
+          task_id: comment.taskId || comment.task_id,
+          // Include populated objects for direct access
+          author: comment.user,
+          task: comment.task,
+          isDeleted: comment.isDeleted,
+          version: comment.version,
+          createdAt: comment.createdAt.toISOString(),
+          updatedAt: comment.updatedAt.toISOString(),
+          likesCount: likesCount,
+          isLikedByUser: false // Will be calculated by the resolver
+        };
+        
+        await context.pubsub.publish(`COMMENT_UPDATED_${comment.task.projectId}`, commentPayload);
       }
     } catch (subscriptionError) {
       // Log subscription error but don't fail the comment update
       // Error handling without console.log for production
     }
-
-    // Get likes count
-    const likesCount = await CommentLike.count({
-      where: { commentId: comment.id },
-    });
 
     return {
       id: comment.id.toString(),
@@ -393,11 +410,9 @@ export const deleteComment = async (
     try {
       if (context.pubsub) {
         await context.pubsub.publish(`COMMENT_DELETED_${comment.task.projectId}`, {
-          commentDeleted: {
-            commentId: comment.id.toString(),
-            projectId: comment.task.projectId.toString(),
-            deletedAt: new Date().toISOString()
-          }
+          commentId: comment.id.toString(),
+          projectId: comment.task.projectId.toString(),
+          deletedAt: new Date().toISOString()
         });
       }
     } catch (subscriptionError) {

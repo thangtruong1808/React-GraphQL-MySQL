@@ -1,6 +1,8 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
 import { PubSub } from 'graphql-subscriptions';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/use/ws';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -24,6 +26,7 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Create PubSub instance for real-time subscriptions
 export const pubsub = new PubSub();
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -103,7 +106,7 @@ const server = new ApolloServer({
       pubsub,
     };
   },
-  formatError: (error) => {
+  formatError: (error: any) => {
     // Return sanitized error to client
     return {
       message: error.message,
@@ -144,15 +147,48 @@ async function startServer() {
       },
     });
 
-    // Install subscription handlers for WebSocket support
-    // For Apollo Server 3+, subscriptions are handled automatically
-    // The server will use WebSocket transport for subscriptions
+    // Create WebSocket server for subscriptions
+    const wsServer = new WebSocketServer({
+      server: httpServer,
+      path: '/graphql',
+    });
+
+    // Configure WebSocket server for GraphQL subscriptions
+    useServer({
+      schema,
+      context: async ({ connectionParams }: { connectionParams: any }) => {
+        
+        // Handle WebSocket authentication
+        const token = connectionParams?.authorization?.replace('Bearer ', '');
+        if (token) {
+          try {
+            // Verify JWT token and get user info
+            const jwt = require('jsonwebtoken');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+            return { 
+              user: { id: decoded.userId, role: decoded.role },
+              pubsub // Use the same pubsub instance
+            };
+          } catch (error: any) {
+            return { user: null, pubsub };
+          }
+        }
+        return { user: null, pubsub };
+      },
+      onConnect: () => {
+        // WebSocket client connected
+      },
+      onDisconnect: () => {
+        // WebSocket client disconnected
+      },
+    }, wsServer);
 
     // Start HTTP server
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
     httpServer.listen(PORT, () => {
-      // Server started successfully
+      console.log(`🚀 Server ready at http://${SERVER_HOST}:${PORT}${server.graphqlPath}`);
+      console.log(`🔌 WebSocket server ready at ws://${SERVER_HOST}:${PORT}/graphql`);
     });
 
     // Graceful shutdown handling

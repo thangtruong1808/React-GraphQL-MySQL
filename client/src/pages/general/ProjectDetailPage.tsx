@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
@@ -11,6 +11,8 @@ import { useError } from '../../contexts/ErrorContext';
 import { updateActivity } from '../../utils/tokenManager';
 import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
+import { useRealTimeComments } from '../../hooks/custom/useRealTimeComments';
+import WebSocketTest from '../../components/debug/WebSocketTest';
 
 /**
  * Project Detail Page Component
@@ -84,12 +86,13 @@ const ProjectDetailPage: React.FC = () => {
     fetchPolicy: 'cache-first'
   });
 
+  // Use real-time comments hook for live updates
+  const { comments: realTimeComments, loading: commentsLoading, error: commentsError } = useRealTimeComments({
+    projectId: id || ''
+  });
+
   // Create comment mutation with optimized cache updates
-  const [createComment] = useMutation(CREATE_COMMENT, {
-    onCompleted: (data) => {
-      setNewComment('');
-      // Optimized: Update only comments cache instead of refetching entire project
-    },
+  const [createComment, { data: createCommentData }] = useMutation(CREATE_COMMENT, {
     update: (cache, { data }) => {
       if (data?.createComment) {
         try {
@@ -129,11 +132,15 @@ const ProjectDetailPage: React.FC = () => {
     }
   });
 
+  // Handle comment creation completion
+  useEffect(() => {
+    if (createCommentData?.createComment) {
+      setNewComment('');
+    }
+  }, [createCommentData]);
+
   // Toggle comment like mutation with optimized cache update
   const [toggleCommentLike] = useAuthenticatedMutation(TOGGLE_COMMENT_LIKE, {
-    onCompleted: (data: any) => {
-      // Optimized: Update only the comment cache instead of refetching entire project
-    },
     update: (cache: any, { data }: { data: any }) => {
       if (data?.toggleCommentLike) {
         try {
@@ -748,9 +755,22 @@ const ProjectDetailPage: React.FC = () => {
           )}
         </div>
 
+        {/* WebSocket Test - Debug Component */}
+        <div className="mt-6">
+          <WebSocketTest projectId={id || ''} />
+        </div>
+
         {/* Comments Section */}
         <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Comments</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl font-semibold text-gray-900">Project Comments</h2>
+            {realTimeComments.length > 0 && (
+              <div className="flex items-center space-x-2 text-sm text-green-600">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Live updates</span>
+              </div>
+            )}
+          </div>
 
           {/* Permission Messages - Show only one relevant section based on user state and project status */}
           {project.status === 'COMPLETED' ? (
@@ -895,7 +915,7 @@ const ProjectDetailPage: React.FC = () => {
           {/* Comments List - Only show for users who can view comments */}
           {canViewComments() && (
             <>
-              {project.comments.length === 0 && project.status !== 'COMPLETED' ? (
+              {realTimeComments.length === 0 && project.status !== 'COMPLETED' ? (
                 <div className="text-center py-12">
                   <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-100">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
@@ -907,9 +927,9 @@ const ProjectDetailPage: React.FC = () => {
                     <p className="text-gray-600 mb-4">Be the first to share your thoughts about this project!</p>
                   </div>
                 </div>
-              ) : project.comments.length > 0 ? (
+              ) : realTimeComments.length > 0 ? (
                 <div className="space-y-6">
-                  {project.comments.map((comment, index) => (
+                  {realTimeComments.map((comment, index) => (
                     <div key={comment.id} className="group relative">
                       <div className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                         <div className="flex items-start space-x-4">

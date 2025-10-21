@@ -61,9 +61,9 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     {
       variables: { projectId },
       skip: !enabled,
-      onSubscriptionData: ({ subscriptionData }) => {
-        if (subscriptionData.data?.commentAdded && onCommentAdded) {
-          onCommentAdded(subscriptionData.data.commentAdded);
+      onData: ({ data }) => {
+        if (data?.data?.commentAdded && onCommentAdded) {
+          onCommentAdded(data.data.commentAdded);
         }
       }
     }
@@ -75,9 +75,9 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     {
       variables: { projectId },
       skip: !enabled,
-      onSubscriptionData: ({ subscriptionData }) => {
-        if (subscriptionData.data?.commentUpdated && onCommentUpdated) {
-          onCommentUpdated(subscriptionData.data.commentUpdated);
+      onData: ({ data }) => {
+        if (data?.data?.commentUpdated && onCommentUpdated) {
+          onCommentUpdated(data.data.commentUpdated);
         }
       }
     }
@@ -89,9 +89,9 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
     {
       variables: { projectId },
       skip: !enabled,
-      onSubscriptionData: ({ subscriptionData }) => {
-        if (subscriptionData.data?.commentDeleted && onCommentDeleted) {
-          onCommentDeleted(subscriptionData.data.commentDeleted);
+      onData: ({ data }) => {
+        if (data?.data?.commentDeleted && onCommentDeleted) {
+          onCommentDeleted(data.data.commentDeleted);
         }
       }
     }

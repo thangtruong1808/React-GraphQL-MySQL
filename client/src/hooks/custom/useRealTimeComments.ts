@@ -1,6 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import { useCommentSubscriptions, UseCommentSubscriptionsOptions } from './useCommentSubscriptions';
 import { Comment } from '../../services/graphql/commentQueries';
+import { GET_PROJECT_DETAILS } from '../../services/graphql/queries';
 
 /**
  * Real-time Comments Hook Options
@@ -9,6 +11,7 @@ import { Comment } from '../../services/graphql/commentQueries';
 export interface UseRealTimeCommentsOptions extends UseCommentSubscriptionsOptions {
   onError?: (error: Error) => void;
   showNotifications?: boolean;
+  initialComments?: Comment[];
 }
 
 /**
@@ -26,12 +29,26 @@ export const useRealTimeComments = (options: UseRealTimeCommentsOptions) => {
     onCommentDeleted, 
     onError,
     showNotifications = true,
-    enabled = true 
+    enabled = true,
+    initialComments = []
   } = options;
 
   // Local state for comments
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [isConnected, setIsConnected] = useState(false);
+
+  // Fetch initial comments from the database
+  const { data: projectData, loading: queryLoading, error: queryError } = useQuery(GET_PROJECT_DETAILS, {
+    variables: { projectId },
+    skip: !projectId || !enabled,
+  });
+
+  // Handle initial comments loading with useEffect instead of onCompleted
+  useEffect(() => {
+    if (projectData?.project?.comments) {
+      setComments(projectData.project.comments);
+    }
+  }, [projectData?.project?.comments]);
 
   // Handle comment added with state update
   const handleCommentAdded = useCallback((comment: Comment) => {
@@ -127,6 +144,8 @@ export const useRealTimeComments = (options: UseRealTimeCommentsOptions) => {
     // Comment state
     comments,
     isConnected,
+    loading: queryLoading || subscription.loading,
+    error: queryError || subscription.error,
     
     // Subscription data
     ...subscription,
