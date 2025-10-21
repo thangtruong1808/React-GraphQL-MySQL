@@ -507,6 +507,8 @@ const RealTimeCommentsSection: React.FC<RealTimeCommentsSectionProps> = ({
                             {/* Show who liked the comment */}
                             {comment.likesCount > 0 && (
                               <div className="mt-1">
+                                {/* Debug: Log comment data */}
+                                {console.log('Rendering CommentLikers for comment:', comment.id, 'likers:', comment.likers, 'likesCount:', comment.likesCount)}
                                 <CommentLikers
                                   likers={comment.likers}
                                   totalLikes={comment.likesCount}

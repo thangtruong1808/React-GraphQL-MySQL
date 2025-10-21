@@ -14,8 +14,15 @@ export interface CommentLikeEvent {
   likesCount: number;
   likers?: Array<{
     id: string;
+    uuid: string;
     firstName: string;
     lastName: string;
+    email: string;
+    role: string;
+    isDeleted: boolean;
+    version: number;
+    createdAt: string;
+    updatedAt: string;
   }>;
   timestamp: string;
 }

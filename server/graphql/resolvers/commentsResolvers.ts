@@ -1,6 +1,6 @@
 import { Comment, User, Project, ProjectMember, Task, CommentLike, Notification } from '../../db';
 import { AuthenticationError } from 'apollo-server-express';
-import { sendNotificationsToProjectMembers, notifyUserIfNeeded } from '../utils/notificationHelpers';
+import { sendNotificationsToProjectMembers } from '../utils/notificationHelpers';
 
 /**
  * Comments Resolver for Project Comments
@@ -41,6 +41,7 @@ const getProjectDiscussionTask = async (projectId: number): Promise<number | nul
  */
 export const getProjectComments = async (projectId: number, context?: any) => {
   try {
+    console.log('getProjectComments called for projectId:', projectId);
     // Get all tasks for this project
     const projectTasks = await Task.findAll({
       where: {
@@ -99,7 +100,7 @@ export const getProjectComments = async (projectId: number, context?: any) => {
           {
             model: User,
             as: 'user',
-            attributes: ['id', 'firstName', 'lastName'],
+            attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
             required: true
           }
         ],
@@ -108,6 +109,23 @@ export const getProjectComments = async (projectId: number, context?: any) => {
 
 
 
+
+
+
+      const likersData = likers ? likers.map((like: any) => ({
+        id: like.user.id.toString(),
+        uuid: like.user.uuid,
+        firstName: like.user.firstName,
+        lastName: like.user.lastName,
+        email: like.user.email,
+        role: like.user.role,
+        isDeleted: like.user.isDeleted,
+        version: like.user.version,
+        createdAt: like.user.createdAt,
+        updatedAt: like.user.updatedAt
+      })) : [];
+
+      console.log(`Comment ${comment.id} returning likers:`, likersData);
 
 
 
@@ -131,16 +149,14 @@ export const getProjectComments = async (projectId: number, context?: any) => {
         updatedAt: comment.updatedAt,
         likesCount: likesCount,
         isLikedByUser: isLikedByUser,
-        likers: likers ? likers.map((like: any) => ({
-          id: like.user.id.toString(),
-          firstName: like.user.firstName,
-          lastName: like.user.lastName
-        })) : []
+        likers: likersData
       };
     }));
 
+    console.log('getProjectComments returning:', commentsWithLikes.length, 'comments');
     return commentsWithLikes;
   } catch (error) {
+    console.log('getProjectComments error:', error);
     return [];
   }
 };
@@ -450,7 +466,7 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'firstName', 'lastName'],
+          attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
           required: true
         }
       ],
@@ -468,8 +484,15 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
           likesCount: likesCount,
           likers: updatedLikers ? updatedLikers.map((like: any) => ({
             id: like.user.id.toString(),
+            uuid: like.user.uuid,
             firstName: like.user.firstName,
-            lastName: like.user.lastName
+            lastName: like.user.lastName,
+            email: like.user.email,
+            role: like.user.role,
+            isDeleted: like.user.isDeleted,
+            version: like.user.version,
+            createdAt: like.user.createdAt,
+            updatedAt: like.user.updatedAt
           })) : [],
           timestamp: new Date().toISOString()
         };
@@ -506,8 +529,15 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
       isLikedByUser: isLikedByUser,
       likers: updatedLikers ? updatedLikers.map((like: any) => ({
         id: like.user.id.toString(),
+        uuid: like.user.uuid,
         firstName: like.user.firstName,
-        lastName: like.user.lastName
+        lastName: like.user.lastName,
+        email: like.user.email,
+        role: like.user.role,
+        isDeleted: like.user.isDeleted,
+        version: like.user.version,
+        createdAt: like.user.createdAt,
+        updatedAt: like.user.updatedAt
       })) : []
     };
   } catch (error) {

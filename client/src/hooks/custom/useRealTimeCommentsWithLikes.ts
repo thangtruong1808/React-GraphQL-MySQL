@@ -121,7 +121,7 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
     setComments(prev => 
       prev.map(comment => 
         comment.id === event.commentId 
-          ? { ...comment, likesCount: event.likesCount, likers: event.likers || [] }
+          ? { ...comment, likesCount: event.likesCount, isLikedByUser: true, likers: event.likers || [] }
           : comment
       )
     );
@@ -137,7 +137,7 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
     setComments(prev => 
       prev.map(comment => 
         comment.id === event.commentId 
-          ? { ...comment, likesCount: event.likesCount, likers: event.likers || [] }
+          ? { ...comment, likesCount: event.likesCount, isLikedByUser: false, likers: event.likers || [] }
           : comment
       )
     );

@@ -482,8 +482,15 @@ export const GET_PROJECT_DETAILS = gql`
         isLikedByUser
         likers {
           id
+          uuid
           firstName
           lastName
+          email
+          role
+          isDeleted
+          version
+          createdAt
+          updatedAt
         }
       }
     }
@@ -521,8 +528,15 @@ export const TOGGLE_COMMENT_LIKE = gql`
       isLikedByUser
       likers {
         id
+        uuid
         firstName
         lastName
+        email
+        role
+        isDeleted
+        version
+        createdAt
+        updatedAt
       }
     }
   }

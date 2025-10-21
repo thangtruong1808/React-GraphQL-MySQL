@@ -14,7 +14,7 @@ import { commentManagementResolvers } from './commentManagement';
 import { activityManagementResolvers } from './activityManagement';
 import { notificationManagementResolvers } from './notificationManagement';
 import { tagsManagementResolvers } from './tagsManagement';
-import { Task, User, Project, Comment, ActivityLog, Notification, Tag } from '../../db';
+import { Task, User, Project, Comment, ActivityLog, Notification, Tag, CommentLike } from '../../db';
 
 /**
  * GraphQL Resolvers Index
@@ -288,6 +288,53 @@ export const resolvers = {
       } catch (error) {
         // Throw error to prevent null return for non-nullable field
         throw new Error(`Failed to fetch comment author: ${error.message}`);
+      }
+    },
+    
+    // Resolver for likers field on Comment type
+    likers: async (parent: any) => {
+      try {
+        console.log('Comment likers resolver called for comment:', parent.id, 'likers already present:', !!parent.likers);
+        // If likers are already populated (from subscription payload), return them directly
+        if (parent.likers) {
+          console.log('Returning existing likers:', parent.likers.length);
+          return parent.likers;
+        }
+        
+        // Otherwise, fetch from database
+        const commentId = parent.id;
+        if (!commentId) {
+          return [];
+        }
+        
+        const likers = await CommentLike.findAll({
+          where: { commentId: parseInt(commentId) },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
+              required: true
+            }
+          ],
+          order: [['createdAt', 'DESC']]
+        });
+        
+        return likers.map((like: any) => ({
+          id: like.user.id.toString(),
+          uuid: like.user.uuid,
+          firstName: like.user.firstName,
+          lastName: like.user.lastName,
+          email: like.user.email,
+          role: like.user.role,
+          isDeleted: like.user.isDeleted,
+          version: like.user.version,
+          createdAt: like.user.createdAt,
+          updatedAt: like.user.updatedAt
+        }));
+      } catch (error) {
+        // Return empty array on error to prevent null return
+        return [];
       }
     },
     

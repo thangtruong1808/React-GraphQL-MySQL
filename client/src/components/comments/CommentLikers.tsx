@@ -10,14 +10,24 @@ import React, { useState } from 'react';
 interface CommentLikersProps {
   likers?: Array<{
     id: string;
+    uuid?: string;
     firstName: string;
     lastName: string;
+    email?: string;
+    role?: string;
+    isDeleted?: boolean;
+    version?: number;
+    createdAt?: string;
+    updatedAt?: string;
   }>;
   totalLikes: number;
 }
 
 const CommentLikers: React.FC<CommentLikersProps> = ({ likers, totalLikes }) => {
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Debug: Log what we receive
+  console.log('CommentLikers received:', { likers, totalLikes, likersLength: likers?.length });
 
   // Don't show anything if no likes
   if (totalLikes === 0) {

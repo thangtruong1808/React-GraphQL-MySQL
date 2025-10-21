@@ -37,8 +37,15 @@ export const COMMENT_SUBSCRIPTION_FRAGMENT = gql`
     isLikedByUser
     likers {
       id
+      uuid
       firstName
       lastName
+      email
+      role
+      isDeleted
+      version
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -92,8 +99,15 @@ export const COMMENT_LIKE_FRAGMENT = gql`
     likesCount
     likers {
       id
+      uuid
       firstName
       lastName
+      email
+      role
+      isDeleted
+      version
+      createdAt
+      updatedAt
     }
     timestamp
   }

@@ -69,6 +69,18 @@ interface ProjectDetails {
     updatedAt: string;
     likesCount: number;
     isLikedByUser: boolean;
+    likers?: Array<{
+      id: string;
+      uuid: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: string;
+      isDeleted: boolean;
+      version: number;
+      createdAt: string;
+      updatedAt: string;
+    }>;
   }>;
 }
 
