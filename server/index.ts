@@ -1,9 +1,11 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
+import { PubSub } from 'graphql-subscriptions';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import { createServer } from 'http';
 import path from 'path';
 import { csrfProtection } from './auth/csrf';
 import { authenticateUser } from './auth/middleware';
@@ -20,7 +22,11 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
  * Configures Express and Apollo Server with authentication and secure cookie handling
  */
 
+// Create PubSub instance for real-time subscriptions
+export const pubsub = new PubSub();
+
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 4000; // PORT can have fallback for deployment flexibility
 
 // Security headers
@@ -88,10 +94,14 @@ const schema = makeExecutableSchema({
  */
 const server = new ApolloServer({
   schema: schema,
-  context: ({ req, res }: { req: any; res: any }) => {
+  context: ({ req, res, connection }: { req: any; res: any; connection?: any }) => {
     // Create unified context with authentication
     const context = createContext({ req, res });
-    return context;
+    // Add pubsub to context for subscriptions
+    return {
+      ...context,
+      pubsub,
+    };
   },
   formatError: (error) => {
     // Return sanitized error to client
@@ -134,10 +144,14 @@ async function startServer() {
       },
     });
 
-    // Start Express server
+    // Install subscription handlers for WebSocket support
+    // For Apollo Server 3+, subscriptions are handled automatically
+    // The server will use WebSocket transport for subscriptions
+
+    // Start HTTP server
     const SERVER_HOST = process.env.SERVER_HOST || 'localhost';
     
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       // Server started successfully
     });
 

@@ -705,4 +705,19 @@ export const typeDefs = gql`
     updateProjectMemberRole(projectId: ID!, userId: ID!, role: String!): ProjectMember!
     removeProjectMember(projectId: ID!, userId: ID!): Boolean!
   }
+
+  # Subscription types for real-time updates
+  type Subscription {
+    # Comment subscriptions for real-time collaboration
+    commentAdded(projectId: ID!): Comment!
+    commentUpdated(projectId: ID!): Comment!
+    commentDeleted(projectId: ID!): CommentDeletedEvent!
+  }
+
+  # Comment deleted event type for subscriptions
+  type CommentDeletedEvent {
+    commentId: ID!
+    projectId: ID!
+    deletedAt: String!
+  }
 `;

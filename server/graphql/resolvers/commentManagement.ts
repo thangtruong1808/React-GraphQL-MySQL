@@ -263,6 +263,18 @@ export const updateComment = async (
       // Error handling without console.log for production
     }
 
+    // Publish real-time subscription event for comment update
+    try {
+      if (context.pubsub) {
+        await context.pubsub.publish(`COMMENT_UPDATED_${comment.task.projectId}`, {
+          commentUpdated: comment
+        });
+      }
+    } catch (subscriptionError) {
+      // Log subscription error but don't fail the comment update
+      // Error handling without console.log for production
+    }
+
     // Get likes count
     const likesCount = await CommentLike.count({
       where: { commentId: comment.id },
@@ -374,6 +386,22 @@ export const deleteComment = async (
       }
     } catch (notificationError) {
       // Log notification error but don't fail the comment deletion
+      // Error handling without console.log for production
+    }
+
+    // Publish real-time subscription event for comment deletion
+    try {
+      if (context.pubsub) {
+        await context.pubsub.publish(`COMMENT_DELETED_${comment.task.projectId}`, {
+          commentDeleted: {
+            commentId: comment.id.toString(),
+            projectId: comment.task.projectId.toString(),
+            deletedAt: new Date().toISOString()
+          }
+        });
+      }
+    } catch (subscriptionError) {
+      // Log subscription error but don't fail the comment deletion
       // Error handling without console.log for production
     }
 

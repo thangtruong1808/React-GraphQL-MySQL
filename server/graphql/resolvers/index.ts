@@ -3,6 +3,7 @@ import { publicStatsResolvers } from './publicStats';
 import { teamResolvers } from './teamResolvers';
 import { projectsResolvers } from './projectsResolvers';
 import { commentsResolvers } from './commentsResolvers';
+import { commentSubscriptionResolvers } from './commentSubscriptions';
 import { searchMembers, searchProjects, searchTasks } from './searchResolvers';
 import { userManagementResolvers } from './userManagement';
 import { projectManagementResolvers } from './projectManagement';
@@ -60,6 +61,9 @@ export const resolvers = {
     ...activityManagementResolvers.Mutation,
     ...notificationManagementResolvers.Mutation,
     ...tagsManagementResolvers.Mutation,
+  },
+  Subscription: {
+    ...commentSubscriptionResolvers.Subscription,
   },
   // Type resolvers for nested relationships
   User: {

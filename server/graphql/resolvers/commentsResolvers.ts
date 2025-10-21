@@ -242,6 +242,18 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       ]
     });
 
+    // Publish real-time subscription event for comment creation
+    try {
+      if (context.pubsub) {
+        await context.pubsub.publish(`COMMENT_ADDED_${input.projectId}`, {
+          commentAdded: createdComment
+        });
+      }
+    } catch (subscriptionError) {
+      // Log subscription error but don't fail the comment creation
+      // Error handling without console.log for production
+    }
+
     return {
       id: createdComment!.id.toString(),
       uuid: createdComment!.uuid,
