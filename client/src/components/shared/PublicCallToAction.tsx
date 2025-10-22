@@ -1,9 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 /**
  * Public Call to Action Component
  * Displays call-to-action section with features and login button
- * Encourages users to join the platform
+ * Encourages users to join the platform with real database statistics
+ * Hides login button for authenticated users
  */
 
 interface PublicStats {
@@ -13,6 +16,8 @@ interface PublicStats {
   completedTasks: number;
   inProgressTasks: number;
   todoTasks: number;
+  totalComments: number;
+  recentActivity: number;
 }
 
 interface PublicCallToActionProps {
@@ -20,6 +25,9 @@ interface PublicCallToActionProps {
 }
 
 const PublicCallToAction: React.FC<PublicCallToActionProps> = ({ stats }) => {
+  // Get authentication state to conditionally show login button
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
@@ -32,25 +40,50 @@ const PublicCallToAction: React.FC<PublicCallToActionProps> = ({ stats }) => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Ready to Join Our Community?
+              {isAuthenticated ? 'Welcome to Our Community!' : 'Ready to Join Our Community?'}
             </h2>
-            <p className="text-xl text-gray-700 mb-8">
-              Join {stats.totalUsers} team members managing {stats.totalProjects} projects with {stats.totalTasks} tasks across our platform.
+            <p className="text-xl text-gray-700 mb-6">
+              {isAuthenticated
+                ? `You're part of ${stats.totalUsers} team members managing ${stats.totalProjects} projects with ${stats.totalTasks} tasks across our platform.`
+                : `Join ${stats.totalUsers} team members managing ${stats.totalProjects} projects with ${stats.totalTasks} tasks across our platform.`
+              }
             </p>
+
+            {/* Enhanced Statistics Display */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">{stats.totalProjects}</div>
+                <div className="text-sm text-gray-600">Active Projects</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">{stats.totalTasks}</div>
+                <div className="text-sm text-gray-600">Total Tasks</div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{stats.totalComments}</div>
+                <div className="text-sm text-gray-600">Comments</div>
+              </div>
+              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">{stats.recentActivity}</div>
+                <div className="text-sm text-gray-600">Recent Activity</div>
+              </div>
+            </div>
           </div>
 
-          {/* Login Button */}
-          <div className="mb-8">
-            <a
-              href="/login"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-              </svg>
-              Get Started with TaskFlow
-            </a>
-          </div>
+          {/* Login Button - Only show for non-authenticated users */}
+          {!isAuthenticated && (
+            <div className="mb-8">
+              <Link
+                to="/login"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Get Started with TaskFlow
+              </Link>
+            </div>
+          )}
 
           {/* Features List */}
           <div className="border-t border-gray-300 pt-8">

@@ -15,6 +15,7 @@ interface MainContentSectionProps {
     totalProjects: number;
     activeProjects: number;
     completedProjects: number;
+    planningProjects: number;
     totalTasks: number;
     completedTasks: number;
     inProgressTasks: number;
@@ -26,20 +27,6 @@ interface MainContentSectionProps {
     totalUsers: number;
     recentActivity: number;
     averageProjectCompletion: number;
-    likesOnCompletedTasks: number;
-    likesOnInProgressTasks: number;
-    likesOnTodoTasks: number;
-    tasksWithLikesCompleted: Array<{ taskName: string; likeCount: number }>;
-    tasksWithLikesInProgress: Array<{ taskName: string; likeCount: number }>;
-    tasksWithLikesTodo: Array<{ taskName: string; likeCount: number }>;
-    // Project likes data by status
-    likesOnCompletedProjects: number;
-    likesOnActiveProjects: number;
-    likesOnPlanningProjects: number;
-    projectsWithLikesCompleted: Array<{ projectName: string; likeCount: number }>;
-    projectsWithLikesActive: Array<{ projectName: string; likeCount: number }>;
-    projectsWithLikesPlanning: Array<{ projectName: string; likeCount: number }>;
-    // Comment likes data by task status
     likesOnCommentsOnCompletedTasks: number;
     likesOnCommentsOnInProgressTasks: number;
     likesOnCommentsOnTodoTasks: number;

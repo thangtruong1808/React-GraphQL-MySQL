@@ -20,6 +20,7 @@ interface PublicStats {
   totalProjects: number;
   activeProjects: number;
   completedProjects: number;
+  planningProjects: number;
   totalTasks: number;
   completedTasks: number;
   inProgressTasks: number;
@@ -82,6 +83,7 @@ const PublicDashboard: React.FC = () => {
     totalProjects: 0,
     activeProjects: 0,
     completedProjects: 0,
+    planningProjects: 0,
     totalTasks: 0,
     completedTasks: 0,
     inProgressTasks: 0,
@@ -155,7 +157,16 @@ const PublicDashboard: React.FC = () => {
         <MainContentSection stats={stats} />
 
         {/* Call to Action - Real data from database */}
-        <PublicCallToAction stats={stats} />
+        <PublicCallToAction stats={{
+          totalProjects: stats.totalProjects,
+          totalUsers: stats.totalUsers,
+          totalTasks: stats.totalTasks,
+          completedTasks: stats.completedTasks,
+          inProgressTasks: stats.inProgressTasks,
+          todoTasks: stats.todoTasks,
+          totalComments: stats.totalComments,
+          recentActivity: stats.recentActivity
+        }} />
       </div>
     </div>
   );

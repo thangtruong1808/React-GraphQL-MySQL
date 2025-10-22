@@ -12,6 +12,7 @@ export interface PublicStats {
   totalProjects: number;
   activeProjects: number;
   completedProjects: number;
+  planningProjects: number;
   totalTasks: number;
   completedTasks: number;
   inProgressTasks: number;
@@ -93,6 +94,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
           SUM(CASE WHEN p.is_deleted = false THEN 1 ELSE 0 END) as totalProjects,
           SUM(CASE WHEN p.status = 'IN_PROGRESS' AND p.is_deleted = false THEN 1 ELSE 0 END) as activeProjects,
           SUM(CASE WHEN p.status = 'COMPLETED' AND p.is_deleted = false THEN 1 ELSE 0 END) as completedProjects,
+          SUM(CASE WHEN p.status = 'PLANNING' AND p.is_deleted = false THEN 1 ELSE 0 END) as planningProjects,
           
           -- Task counts by status
           (SELECT COUNT(*) FROM tasks WHERE is_deleted = false) as totalTasks,
@@ -298,6 +300,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
         totalProjects: parseInt(basicStats.totalProjects) || 0,
         activeProjects: parseInt(basicStats.activeProjects) || 0,
         completedProjects: parseInt(basicStats.completedProjects) || 0,
+        planningProjects: parseInt(basicStats.planningProjects) || 0,
         totalTasks: parseInt(basicStats.totalTasks) || 0,
         completedTasks: parseInt(basicStats.completedTasks) || 0,
         inProgressTasks: parseInt(basicStats.inProgressTasks) || 0,
@@ -341,6 +344,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
       totalProjects: 0,
       activeProjects: 0,
       completedProjects: 0,
+      planningProjects: 0,
       totalTasks: 0,
       completedTasks: 0,
       inProgressTasks: 0,

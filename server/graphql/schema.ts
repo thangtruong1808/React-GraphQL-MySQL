@@ -496,6 +496,7 @@ export const typeDefs = gql`
     totalProjects: Int!
     activeProjects: Int!
     completedProjects: Int!
+    planningProjects: Int!
     totalTasks: Int!
     completedTasks: Int!
     inProgressTasks: Int!

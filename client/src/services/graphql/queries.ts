@@ -90,6 +90,7 @@ export const GET_PUBLIC_STATS = gql`
       totalProjects
       activeProjects
       completedProjects
+      planningProjects
       totalTasks
       completedTasks
       inProgressTasks

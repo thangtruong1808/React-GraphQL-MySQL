@@ -1,12 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '../../../constants/routingConstants';
+import { useAuth } from '../../../contexts/AuthContext';
 
 /**
  * Projects Call to Action Component
  * Displays call to action section for project exploration
+ * Hides section for authenticated users since they can already create projects
  */
 const ProjectsCallToAction: React.FC = () => {
+  // Get authentication state to conditionally show CTA section
+  const { isAuthenticated } = useAuth();
+
+  // Don't render the CTA section for authenticated users
+  if (isAuthenticated) {
+    return null;
+  }
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">

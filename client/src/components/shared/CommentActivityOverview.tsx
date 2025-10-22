@@ -31,7 +31,13 @@ interface CommentActivityOverviewProps {
 const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 max-w-7xl mx-auto">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Comment Activity Overview</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2 text-center">Comment Activity Overview</h3>
+
+      {/* Description */}
+      <p className="text-sm text-gray-600 mb-6 text-center leading-relaxed">
+        Monitor comment engagement across your project tasks. Track discussion activity to understand team collaboration patterns and identify where more communication might be needed.
+      </p>
+
       <div className="space-y-6">
         {/* Total Comments Display */}
         <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
