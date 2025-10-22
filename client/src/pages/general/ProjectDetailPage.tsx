@@ -13,7 +13,6 @@ import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 import { useRealTimeCommentsWithLikes } from '../../hooks/custom/useRealTimeCommentsWithLikes';
 import CommentLikers from '../../components/comments/CommentLikers';
-import WebSocketTest from '../../components/debug/WebSocketTest';
 
 /**
  * Project Detail Page Component
@@ -476,15 +475,12 @@ const ProjectDetailPage: React.FC = () => {
 
   const project = data.project;
 
-  // Check if user can post comments (ADMIN or team member) and project is not completed
+  // Check if user can post comments (only team members) and project is not completed
   const canPostComments = () => {
     // Don't allow comments on completed projects
     if (project.status === 'COMPLETED') return false;
 
     if (!isAuthenticated || !user) return false;
-
-    // ADMIN users can always post comments (except on completed projects)
-    if (isAdminRole(user.role)) return true;
 
     // Check if user is project owner
     if (project.owner && project.owner.id === user.id) return true;
@@ -495,20 +491,14 @@ const ProjectDetailPage: React.FC = () => {
     return isTeamMember;
   };
 
-  // Check if user can like comments (same as posting comments - ADMIN or team member)
+  // Check if user can like comments (same as posting comments - only team members)
   const canLikeComments = () => {
     return canPostComments();
   };
 
-  // Check if user can view comments (ADMIN, Project Manager, or team member)
+  // Check if user can view comments (only team members)
   const canViewComments = () => {
     if (!isAuthenticated || !user) return false;
-
-    // ADMIN users can always view comments
-    if (isAdminRole(user.role)) return true;
-
-    // Project Manager role can view comments (including on completed projects)
-    if (user.role === 'Project Manager') return true;
 
     // For non-completed projects, check team membership
     if (project.status !== 'COMPLETED') {
@@ -520,7 +510,7 @@ const ProjectDetailPage: React.FC = () => {
       return isTeamMember;
     }
 
-    // For completed projects, only ADMIN and Project Manager can view comments
+    // For completed projects, only team members can view comments
     return false;
   };
 
@@ -735,11 +725,6 @@ const ProjectDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* WebSocket Test - Debug Component */}
-        <div className="mt-6">
-          <WebSocketTest projectId={id || ''} />
-        </div>
-
         {/* Comments Section */}
         <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
           <div className="flex items-center justify-between mb-2">
@@ -784,7 +769,7 @@ const ProjectDetailPage: React.FC = () => {
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-blue-900 mb-1">Comment and View Permission</h3>
                     <p className="text-sm text-blue-700 leading-relaxed">
-                      Only <span className="font-semibold">team members</span> and <span className="font-semibold">admins</span> are authorized to view or post comments.
+                      Only <span className="font-semibold">team members</span> are authorized to view or post comments.
                     </p>
                   </div>
                 </div>
@@ -801,7 +786,7 @@ const ProjectDetailPage: React.FC = () => {
                   <div className="flex-1">
                     <h3 className="text-sm font-medium text-yellow-900 mb-1">Comment Access Restricted</h3>
                     <p className="text-sm text-yellow-700 leading-relaxed">
-                      Sorry, only <span className="font-semibold">team members</span> and <span className="font-semibold">ADMIN</span> can view or post comments.
+                      Sorry, only <span className="font-semibold">team members</span> can view or post comments.
                     </p>
                   </div>
                 </div>

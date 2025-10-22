@@ -4,12 +4,12 @@ import { Comment, ProjectMember, Project } from '../../db';
 /**
  * Comment Subscription Resolvers
  * Handles real-time comment events for collaborative discussions
- * Provides filtered subscriptions based on project membership
+ * Provides filtered subscriptions based on team membership
  */
 
 /**
  * Comment Added Subscription
- * Notifies project members when a new comment is added
+ * Notifies team members when a new comment is added
  */
 export const commentAdded = {
   subscribe: withFilter(
@@ -23,14 +23,6 @@ export const commentAdded = {
       }
 
       try {
-        // Check if user is admin or project manager (can see all comments)
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        if (isAdminOrManager) {
-          return true;
-        }
-
         // Check if user is project owner
         const project = await Project.findByPk(parseInt(variables.projectId), {
           attributes: ['id', 'ownerId']
@@ -40,7 +32,7 @@ export const commentAdded = {
           return true;
         }
 
-        // Check if user is a project member
+        // Check if user is a project member (only team members can view comments)
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),
@@ -98,7 +90,7 @@ export const commentAdded = {
 
 /**
  * Comment Updated Subscription
- * Notifies project members when a comment is updated
+ * Notifies team members when a comment is updated
  */
 export const commentUpdated = {
   subscribe: withFilter(
@@ -112,14 +104,6 @@ export const commentUpdated = {
       }
 
       try {
-        // Check if user is admin or project manager (can see all comments)
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        if (isAdminOrManager) {
-          return true;
-        }
-
         // Check if user is project owner
         const project = await Project.findByPk(parseInt(variables.projectId), {
           attributes: ['id', 'ownerId']
@@ -129,7 +113,7 @@ export const commentUpdated = {
           return true;
         }
 
-        // Check if user is a project member
+        // Check if user is a project member (only team members can view comments)
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),
@@ -187,7 +171,7 @@ export const commentUpdated = {
 
 /**
  * Comment Deleted Subscription
- * Notifies project members when a comment is deleted
+ * Notifies team members when a comment is deleted
  */
 export const commentDeleted = {
   subscribe: withFilter(
@@ -201,14 +185,6 @@ export const commentDeleted = {
       }
 
       try {
-        // Check if user is admin or project manager (can see all comments)
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        if (isAdminOrManager) {
-          return true;
-        }
-
         // Check if user is project owner
         const project = await Project.findByPk(parseInt(variables.projectId), {
           attributes: ['id', 'ownerId']
@@ -218,7 +194,7 @@ export const commentDeleted = {
           return true;
         }
 
-        // Check if user is a project member
+        // Check if user is a project member (only team members can view comments)
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),

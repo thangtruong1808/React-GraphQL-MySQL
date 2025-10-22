@@ -216,11 +216,8 @@ export const updateComment = async (
       throw new Error('Comment not found');
     }
 
-    // Check if user can update this comment (author or admin/project manager)
-    const userRole = context.user.role?.toLowerCase();
-    const canUpdate = userRole === 'admin' || 
-                     userRole === 'project manager' || 
-                     comment.userId === context.user.id;
+    // Check if user can update this comment (author only)
+    const canUpdate = comment.userId === context.user.id;
     if (!canUpdate) {
       throw new AuthenticationError('You can only update your own comments');
     }
@@ -361,11 +358,8 @@ export const deleteComment = async (
       throw new Error('Comment not found');
     }
 
-    // Check if user can delete this comment (author or admin/project manager)
-    const userRole = context.user.role?.toLowerCase();
-    const canDelete = userRole === 'admin' || 
-                     userRole === 'project manager' || 
-                     comment.userId === context.user.id;
+    // Check if user can delete this comment (author only)
+    const canDelete = comment.userId === context.user.id;
     if (!canDelete) {
       throw new AuthenticationError('You can only delete your own comments');
     }

@@ -160,7 +160,7 @@ export const getProjectComments = async (projectId: number, context?: any) => {
 /**
  * Create a new comment on a project
  * Requires authentication and validates user permissions
- * Only ADMIN users or project team members can post comments
+ * Only project team members can post comments
  * Uses the first task in the project as the target for the comment
  */
 export const createProjectComment = async (parent: any, args: any, context: any, info: any) => {
@@ -192,30 +192,24 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       throw new Error('Project not found');
     }
 
-    // Check if user has permission to create comments
-    const userRole = context.user.role?.toLowerCase();
-    const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-    
-    // If not admin/manager, check if user is a team member of this project
+    // Check if user has permission to create comments (only team members)
     let isProjectMember = false;
-    if (!isAdminOrManager) {
-      try {
-        const projectMember = await ProjectMember.findOne({
-          where: {
-            projectId: parseInt(input.projectId),
-            userId: context.user.id,
-            isDeleted: false
-          }
-        });
-        isProjectMember = !!projectMember;
-      } catch (error) {
-        isProjectMember = false;
-      }
+    try {
+      const projectMember = await ProjectMember.findOne({
+        where: {
+          projectId: parseInt(input.projectId),
+          userId: context.user.id,
+          isDeleted: false
+        }
+      });
+      isProjectMember = !!projectMember;
+    } catch (error) {
+      isProjectMember = false;
     }
     
-    const canCreateComment = isAdminOrManager || isProjectMember;
+    const canCreateComment = isProjectMember;
     if (!canCreateComment) {
-      throw new AuthenticationError('Only administrators, project managers, or project team members can create comments');
+      throw new AuthenticationError('Only project team members can create comments');
     }
 
     // Get a task from this project to attach the comment to
@@ -352,7 +346,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
 /**
  * Toggle like/unlike on a comment
  * Requires authentication and validates user permissions
- * Only ADMIN users or project team members can like comments
+ * Only project team members can like comments
  */
 export const toggleCommentLike = async (parent: any, args: any, context: any, info: any) => {
   try {
@@ -390,26 +384,19 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
     // Get the project ID from the comment's task
     const projectId = comment.task.projectId;
 
-    // Check if user has permission to like comments
-    const userRole = context.user.role?.toLowerCase();
-    const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
+    // Check if user has permission to like comments (only team members)
+    const projectMember = await ProjectMember.findOne({
+      where: {
+        projectId: projectId,
+        userId: context.user.id,
+        isDeleted: false
+      }
+    });
+    const isProjectMember = !!projectMember;
     
-    // If not admin/manager, check if user is a team member of this project
-    let isProjectMember = false;
-    if (!isAdminOrManager) {
-      const projectMember = await ProjectMember.findOne({
-        where: {
-          projectId: projectId,
-          userId: context.user.id,
-          isDeleted: false
-        }
-      });
-      isProjectMember = !!projectMember;
-    }
-    
-    const canLikeComment = isAdminOrManager || isProjectMember;
+    const canLikeComment = isProjectMember;
     if (!canLikeComment) {
-      throw new AuthenticationError('Only administrators, project managers, or project team members can like comments');
+      throw new AuthenticationError('Only project team members can like comments');
     }
 
     // Check if user already liked this comment

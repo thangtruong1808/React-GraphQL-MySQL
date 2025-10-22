@@ -4,12 +4,12 @@ import { CommentLike, ProjectMember, Project } from '../../db';
 /**
  * Comment Likes Subscription Resolvers
  * Handles real-time comment like events for collaborative interactions
- * Provides filtered subscriptions based on project membership
+ * Provides filtered subscriptions based on team membership
  */
 
 /**
  * Comment Liked Subscription
- * Notifies project members when a comment is liked
+ * Notifies team members when a comment is liked
  */
 export const commentLiked = {
   subscribe: withFilter(
@@ -23,14 +23,6 @@ export const commentLiked = {
       }
 
       try {
-        // Check if user is admin or project manager (can see all likes)
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        if (isAdminOrManager) {
-          return true;
-        }
-
         // Check if user is project owner
         const project = await Project.findByPk(parseInt(variables.projectId), {
           attributes: ['id', 'ownerId']
@@ -40,7 +32,7 @@ export const commentLiked = {
           return true;
         }
 
-        // Check if user is a project member
+        // Check if user is a project member (only team members can view likes)
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),
@@ -77,7 +69,7 @@ export const commentLiked = {
 
 /**
  * Comment Unliked Subscription
- * Notifies project members when a comment is unliked
+ * Notifies team members when a comment is unliked
  */
 export const commentUnliked = {
   subscribe: withFilter(
@@ -91,14 +83,6 @@ export const commentUnliked = {
       }
 
       try {
-        // Check if user is admin or project manager (can see all likes)
-        const userRole = context.user.role?.toLowerCase();
-        const isAdminOrManager = userRole === 'admin' || userRole === 'project manager';
-        
-        if (isAdminOrManager) {
-          return true;
-        }
-
         // Check if user is project owner
         const project = await Project.findByPk(parseInt(variables.projectId), {
           attributes: ['id', 'ownerId']
@@ -108,7 +92,7 @@ export const commentUnliked = {
           return true;
         }
 
-        // Check if user is a project member
+        // Check if user is a project member (only team members can view likes)
         const isMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(variables.projectId),

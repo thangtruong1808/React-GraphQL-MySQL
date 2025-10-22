@@ -312,7 +312,7 @@ const RealTimeCommentsSection: React.FC<RealTimeCommentsSectionProps> = ({
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-blue-900 mb-1">Comment and View Permission</h3>
                 <p className="text-sm text-blue-700 leading-relaxed">
-                  Only <span className="font-semibold">team members</span> and <span className="font-semibold">admins</span> are authorized to view or post comments.
+                  Only <span className="font-semibold">team members</span> are authorized to view or post comments.
                 </p>
               </div>
             </div>
@@ -329,7 +329,7 @@ const RealTimeCommentsSection: React.FC<RealTimeCommentsSectionProps> = ({
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-yellow-900 mb-1">Comment Access Restricted</h3>
                 <p className="text-sm text-yellow-700 leading-relaxed">
-                  Sorry, only <span className="font-semibold">team members</span> and <span className="font-semibold">ADMIN</span> can view or post comments.
+                  Sorry, only <span className="font-semibold">team members</span> can view or post comments.
                 </p>
               </div>
             </div>
