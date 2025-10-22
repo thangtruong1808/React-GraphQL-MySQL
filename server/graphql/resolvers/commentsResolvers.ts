@@ -41,7 +41,6 @@ const getProjectDiscussionTask = async (projectId: number): Promise<number | nul
  */
 export const getProjectComments = async (projectId: number, context?: any) => {
   try {
-    console.log('getProjectComments called for projectId:', projectId);
     // Get all tasks for this project
     const projectTasks = await Task.findAll({
       where: {
@@ -125,7 +124,6 @@ export const getProjectComments = async (projectId: number, context?: any) => {
         updatedAt: like.user.updatedAt
       })) : [];
 
-      console.log(`Comment ${comment.id} returning likers:`, likersData);
 
 
 
@@ -153,10 +151,8 @@ export const getProjectComments = async (projectId: number, context?: any) => {
       };
     }));
 
-    console.log('getProjectComments returning:', commentsWithLikes.length, 'comments');
     return commentsWithLikes;
   } catch (error) {
-    console.log('getProjectComments error:', error);
     return [];
   }
 };
@@ -315,7 +311,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
           createdAt: createdComment!.createdAt.toISOString(),
           updatedAt: createdComment!.updatedAt.toISOString(),
           likesCount: 0, // New comments have no likes
-          isLikedByUser: false, // New comments are not liked by the creator
+          isLikedByUser: false, // New comments are not liked by anyone initially
           likers: [] // New comments have no likers
         };
         

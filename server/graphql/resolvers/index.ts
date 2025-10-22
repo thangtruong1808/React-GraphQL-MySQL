@@ -294,10 +294,8 @@ export const resolvers = {
     // Resolver for likers field on Comment type
     likers: async (parent: any) => {
       try {
-        console.log('Comment likers resolver called for comment:', parent.id, 'likers already present:', !!parent.likers);
         // If likers are already populated (from subscription payload), return them directly
         if (parent.likers) {
-          console.log('Returning existing likers:', parent.likers.length);
           return parent.likers;
         }
         

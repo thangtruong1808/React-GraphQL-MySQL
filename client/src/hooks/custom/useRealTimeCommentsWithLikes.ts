@@ -1,9 +1,10 @@
 import { useCallback, useState, useEffect } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { useCommentSubscriptions, UseCommentSubscriptionsOptions } from './useCommentSubscriptions';
 import { useCommentLikesSubscriptions, UseCommentLikesSubscriptionsOptions, CommentLikeEvent } from './useCommentLikesSubscriptions';
 import { Comment } from '../../services/graphql/commentQueries';
 import { GET_PROJECT_DETAILS } from '../../services/graphql/queries';
+import { useAuth } from '../../contexts/AuthContext';
 
 /**
  * Real-time Comments with Likes Hook Options
@@ -36,6 +37,12 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
     initialComments = []
   } = options;
 
+  // Get current user for proper isLikedByUser handling
+  const { user } = useAuth();
+
+  // Get Apollo client for cache updates
+  const apolloClient = useApolloClient();
+
   // Local state for comments
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [isConnected, setIsConnected] = useState(false);
@@ -59,19 +66,64 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
 
   // Handle comment added with state update
   const handleCommentAdded = useCallback((comment: Comment) => {
-    setComments(prev => {
-      // Check if comment already exists to prevent duplicates
-      const exists = prev.some(c => c.id === comment.id);
-      if (exists) {
-        return prev;
+    // Update Apollo cache directly
+    try {
+      const existingProject = apolloClient.readQuery({
+        query: GET_PROJECT_DETAILS,
+        variables: { projectId }
+      });
+
+      if (existingProject?.project) {
+        // Check if comment already exists to prevent duplicates
+        const exists = existingProject.project.comments.some((c: any) => c.id === comment.id);
+        if (exists) {
+          return;
+        }
+        
+        // New comments should always have isLikedByUser: false initially
+        const commentWithCorrectLikeStatus = {
+          ...comment,
+          isLikedByUser: false // New comments are never liked by anyone initially
+        };
+        
+        // Add new comment and sort by creation date (latest first)
+        const updatedComments = [commentWithCorrectLikeStatus, ...existingProject.project.comments].sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        apolloClient.writeQuery({
+          query: GET_PROJECT_DETAILS,
+          variables: { projectId },
+          data: {
+            project: {
+              ...existingProject.project,
+              comments: updatedComments
+            }
+          }
+        });
       }
-      
-      // Add new comment and sort by creation date (latest first)
-      const updated = [comment, ...prev];
-      return updated.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    });
+    } catch (error) {
+      // Fallback to local state update if cache update fails
+      setComments(prev => {
+        // Check if comment already exists to prevent duplicates
+        const exists = prev.some(c => c.id === comment.id);
+        if (exists) {
+          return prev;
+        }
+        
+        // New comments should always have isLikedByUser: false initially
+        const commentWithCorrectLikeStatus = {
+          ...comment,
+          isLikedByUser: false // New comments are never liked by anyone initially
+        };
+        
+        // Add new comment and sort by creation date (latest first)
+        const updated = [commentWithCorrectLikeStatus, ...prev];
+        return updated.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
+    }
     
     // Call custom handler if provided
     if (onCommentAdded) {
@@ -83,70 +135,196 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
       // You can integrate with your notification system here
       // showNotification(`New comment by ${comment.author.firstName} ${comment.author.lastName}`, 'info');
     }
-  }, [onCommentAdded, showNotifications]);
+  }, [onCommentAdded, showNotifications, apolloClient, projectId]);
 
   // Handle comment updated with state update
   const handleCommentUpdated = useCallback((updatedComment: Comment) => {
-    setComments(prev => {
-      // Update the comment and maintain sorted order
-      const updated = prev.map(comment => 
-        comment.id === updatedComment.id ? updatedComment : comment
-      );
-      // Sort by creation date (latest first) to maintain consistent ordering
-      return updated.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    });
+    // Update Apollo cache directly
+    try {
+      const existingProject = apolloClient.readQuery({
+        query: GET_PROJECT_DETAILS,
+        variables: { projectId }
+      });
+
+      if (existingProject?.project) {
+        const updatedComments = existingProject.project.comments.map((comment: any) => 
+          comment.id === updatedComment.id ? updatedComment : comment
+        );
+
+        apolloClient.writeQuery({
+          query: GET_PROJECT_DETAILS,
+          variables: { projectId },
+          data: {
+            project: {
+              ...existingProject.project,
+              comments: updatedComments
+            }
+          }
+        });
+      }
+    } catch (error) {
+      // Fallback to local state update if cache update fails
+      setComments(prev => {
+        // Update the comment and maintain sorted order
+        const updated = prev.map(comment => 
+          comment.id === updatedComment.id ? updatedComment : comment
+        );
+        // Sort by creation date (latest first) to maintain consistent ordering
+        return updated.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
+    }
     
     // Call custom handler if provided
     if (onCommentUpdated) {
       onCommentUpdated(updatedComment);
     }
-  }, [onCommentUpdated]);
+  }, [onCommentUpdated, apolloClient, projectId]);
 
   // Handle comment deleted with state update
   const handleCommentDeleted = useCallback((event: { commentId: string; projectId: string; deletedAt: string }) => {
-    setComments(prev => 
-      prev.filter(comment => comment.id !== event.commentId)
-    );
+    // Update Apollo cache directly
+    try {
+      const existingProject = apolloClient.readQuery({
+        query: GET_PROJECT_DETAILS,
+        variables: { projectId }
+      });
+
+      if (existingProject?.project) {
+        const updatedComments = existingProject.project.comments.filter((comment: any) => 
+          comment.id !== event.commentId
+        );
+
+        apolloClient.writeQuery({
+          query: GET_PROJECT_DETAILS,
+          variables: { projectId },
+          data: {
+            project: {
+              ...existingProject.project,
+              comments: updatedComments
+            }
+          }
+        });
+      }
+    } catch (error) {
+      // Fallback to local state update if cache update fails
+      setComments(prev => 
+        prev.filter(comment => comment.id !== event.commentId)
+      );
+    }
     
     // Call custom handler if provided
     if (onCommentDeleted) {
       onCommentDeleted(event);
     }
-  }, [onCommentDeleted]);
+  }, [onCommentDeleted, apolloClient, projectId]);
 
   // Handle comment liked with state update
   const handleCommentLiked = useCallback((event: CommentLikeEvent) => {
-    setComments(prev => 
-      prev.map(comment => 
-        comment.id === event.commentId 
-          ? { ...comment, likesCount: event.likesCount, isLikedByUser: true, likers: event.likers || [] }
-          : comment
-      )
-    );
+    // Update Apollo cache directly
+    try {
+      const existingProject = apolloClient.readQuery({
+        query: GET_PROJECT_DETAILS,
+        variables: { projectId }
+      });
+
+      if (existingProject?.project) {
+        const updatedComments = existingProject.project.comments.map((comment: any) =>
+          comment.id === event.commentId 
+            ? { 
+                ...comment, 
+                likesCount: event.likesCount, 
+                likers: event.likers || []
+                // Don't update isLikedByUser - preserve existing value
+              }
+            : comment
+        );
+
+        apolloClient.writeQuery({
+          query: GET_PROJECT_DETAILS,
+          variables: { projectId },
+          data: {
+            project: {
+              ...existingProject.project,
+              comments: updatedComments
+            }
+          }
+        });
+      }
+    } catch (error) {
+      // Fallback to local state update if cache update fails
+      setComments(prev => 
+        prev.map(comment => 
+          comment.id === event.commentId 
+            ? { 
+                ...comment, 
+                likesCount: event.likesCount, 
+                likers: event.likers || []
+              }
+            : comment
+        )
+      );
+    }
     
     // Call custom handler if provided
     if (onCommentLiked) {
       onCommentLiked(event);
     }
-  }, [onCommentLiked]);
+  }, [onCommentLiked, apolloClient, projectId]);
 
   // Handle comment unliked with state update
   const handleCommentUnliked = useCallback((event: CommentLikeEvent) => {
-    setComments(prev => 
-      prev.map(comment => 
-        comment.id === event.commentId 
-          ? { ...comment, likesCount: event.likesCount, isLikedByUser: false, likers: event.likers || [] }
-          : comment
-      )
-    );
+    // Update Apollo cache directly
+    try {
+      const existingProject = apolloClient.readQuery({
+        query: GET_PROJECT_DETAILS,
+        variables: { projectId }
+      });
+
+      if (existingProject?.project) {
+        const updatedComments = existingProject.project.comments.map((comment: any) =>
+          comment.id === event.commentId 
+            ? { 
+                ...comment, 
+                likesCount: event.likesCount, 
+                likers: event.likers || []
+                // Don't update isLikedByUser - preserve existing value
+              }
+            : comment
+        );
+
+        apolloClient.writeQuery({
+          query: GET_PROJECT_DETAILS,
+          variables: { projectId },
+          data: {
+            project: {
+              ...existingProject.project,
+              comments: updatedComments
+            }
+          }
+        });
+      }
+    } catch (error) {
+      // Fallback to local state update if cache update fails
+      setComments(prev => 
+        prev.map(comment => 
+          comment.id === event.commentId 
+            ? { 
+                ...comment, 
+                likesCount: event.likesCount, 
+                likers: event.likers || []
+              }
+            : comment
+        )
+      );
+    }
     
     // Call custom handler if provided
     if (onCommentUnliked) {
       onCommentUnliked(event);
     }
-  }, [onCommentUnliked]);
+  }, [onCommentUnliked, apolloClient, projectId]);
 
   // Handle subscription errors
   const handleError = useCallback((error: Error) => {
@@ -216,8 +394,8 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
   }, []);
 
   return {
-    // Comment state
-    comments,
+    // Comment state - use Apollo cache data instead of local state
+    comments: projectData?.project?.comments || comments,
     isConnected,
     loading: queryLoading || commentSubscription.loading || commentLikesSubscription.loading,
     error: queryError || commentSubscription.error,

@@ -12,6 +12,7 @@ import { updateActivity } from '../../utils/tokenManager';
 import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 import { useRealTimeCommentsWithLikes } from '../../hooks/custom/useRealTimeCommentsWithLikes';
+import CommentLikers from '../../components/comments/CommentLikers';
 import WebSocketTest from '../../components/debug/WebSocketTest';
 
 /**
@@ -974,6 +975,16 @@ const ProjectDetailPage: React.FC = () => {
                                     {comment.likesCount > 0 ? comment.likesCount : ''} Like{comment.likesCount !== 1 ? 's' : ''}
                                   </span>
                                 </button>
+
+                                {/* Show who liked the comment */}
+                                {comment.likesCount > 0 && (
+                                  <div className="mt-1">
+                                    <CommentLikers
+                                      likers={comment.likers}
+                                      totalLikes={comment.likesCount}
+                                    />
+                                  </div>
+                                )}
 
                                 <button
                                   onClick={() => handleReply(comment.id, `${comment.author.firstName} ${comment.author.lastName}`)}
