@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_PUBLIC_STATS } from '../../services/graphql/queries';

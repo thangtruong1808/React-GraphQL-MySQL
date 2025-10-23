@@ -4,6 +4,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "skipLibCheck": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "module": "Node16"
   }
 }

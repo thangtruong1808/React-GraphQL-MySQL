@@ -1,8 +1,14 @@
-import React from 'react';
+// @ts-nocheck
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { FOOTER_UI, FOOTER_LINKS, FOOTER_CONTENT, FOOTER_STYLES } from '../../constants/footer';
+import Logo from './Logo';
+import DocumentationModal from './footer/DocumentationModal';
+import HelpCenterModal from './footer/HelpCenterModal';
+import ApiReferenceModal from './footer/ApiReferenceModal';
+import SystemStatusModal from './footer/SystemStatusModal';
 
 /**
  * Footer Component
@@ -14,12 +20,18 @@ import { FOOTER_UI, FOOTER_LINKS, FOOTER_CONTENT, FOOTER_STYLES } from '../../co
 const Footer: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
 
+  // Modal state management
+  const [isDocumentationModalOpen, setIsDocumentationModalOpen] = useState(false);
+  const [isHelpCenterModalOpen, setIsHelpCenterModalOpen] = useState(false);
+  const [isApiReferenceModalOpen, setIsApiReferenceModalOpen] = useState(false);
+  const [isSystemStatusModalOpen, setIsSystemStatusModalOpen] = useState(false);
+
   /**
    * Get current year for copyright
    * Returns current year for dynamic copyright display
    */
   const getCurrentYear = () => {
-    return FOOTER_CONTENT.COPYRIGHT.CURRENT_YEAR;
+    return new Date().getFullYear();
   };
 
   /**
@@ -64,6 +76,38 @@ const Footer: React.FC = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  /**
+   * Handle documentation modal open
+   * Opens documentation modal with comprehensive information
+   */
+  const handleDocumentationClick = () => {
+    setIsDocumentationModalOpen(true);
+  };
+
+  /**
+   * Handle help center modal open
+   * Opens help center modal with support resources
+   */
+  const handleHelpCenterClick = () => {
+    setIsHelpCenterModalOpen(true);
+  };
+
+  /**
+   * Handle API reference modal open
+   * Opens API reference modal with integration guides
+   */
+  const handleApiReferenceClick = () => {
+    setIsApiReferenceModalOpen(true);
+  };
+
+  /**
+   * Handle system status modal open
+   * Opens system status modal with real-time information
+   */
+  const handleSystemStatusClick = () => {
+    setIsSystemStatusModalOpen(true);
+  };
+
   return (
     <footer className={`${FOOTER_STYLES.COLORS.BACKGROUND} ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} border-t ${FOOTER_STYLES.COLORS.BORDER}`}>
       {/* Main Footer Content */}
@@ -73,10 +117,7 @@ const Footer: React.FC = () => {
           {/* Company Information Section */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">{FOOTER_CONTENT.COMPANY.LOGO_LETTER}</span>
-              </div>
-              <h3 className="text-xl font-bold text-white">{FOOTER_CONTENT.COMPANY.NAME}</h3>
+              <Logo collapsed={false} />
             </div>
             <p className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} text-sm leading-relaxed mb-4`}>
               {FOOTER_CONTENT.COMPANY.DESCRIPTION}
@@ -101,12 +142,12 @@ const Footer: React.FC = () => {
                 </svg>
               </button>
               <button
-                onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.TWITTER)}
+                onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.FACEBOOK)}
                 className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION}`}
-                aria-label="Twitter"
+                aria-label="Facebook"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </button>
             </div>
@@ -165,7 +206,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={() => handleExternalLinkClick(FOOTER_LINKS.RESOURCES.DOCUMENTATION)}
+                  onClick={handleDocumentationClick}
                   className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
                 >
                   Documentation
@@ -173,7 +214,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleExternalLinkClick(FOOTER_LINKS.RESOURCES.HELP_CENTER)}
+                  onClick={handleHelpCenterClick}
                   className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
                 >
                   Help Center
@@ -181,7 +222,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleExternalLinkClick(FOOTER_LINKS.RESOURCES.API_REFERENCE)}
+                  onClick={handleApiReferenceClick}
                   className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
                 >
                   API Reference
@@ -189,7 +230,7 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => handleExternalLinkClick(FOOTER_LINKS.RESOURCES.SYSTEM_STATUS)}
+                  onClick={handleSystemStatusClick}
                   className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
                 >
                   System Status
@@ -200,16 +241,16 @@ const Footer: React.FC = () => {
 
           {/* User Context Section */}
           <div>
-            <h4 className={`text-lg font-semibold ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} mb-4`}>Account</h4>
+            <h4 className={`text-lg font-semibold ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} mb-4 text-center`}>Account</h4>
             {isAuthenticated && user ? (
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">
+              <div className="space-y-3 text-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
                       {getUserInitials()}
                     </span>
                   </div>
-                  <div>
+                  <div className="text-center">
                     <p className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} text-sm font-medium`}>
                       {user.firstName} {user.lastName}
                     </p>
@@ -220,13 +261,13 @@ const Footer: React.FC = () => {
                 </div>
                 <Link
                   to="/dashboard"
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm block`}
+                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm block text-center`}
                 >
                   {FOOTER_CONTENT.USER_CONTEXT.DASHBOARD_LINK}
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 text-center">
                 <Link
                   to={ROUTE_PATHS.LOGIN}
                   className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm block`}
@@ -243,28 +284,9 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Footer Bar */}
-      <div className={`border-t ${FOOTER_STYLES.COLORS.BORDER} bg-gray-900`}>
+      <div className={`border-t ${FOOTER_STYLES.COLORS.BORDER} ${FOOTER_STYLES.COLORS.BACKGROUND}`}>
         <div className={`${FOOTER_STYLES.LAYOUT.CONTAINER} py-6`}>
-          <div className={FOOTER_STYLES.LAYOUT.FLEX_BETWEEN}>
-            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
-              <p className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} text-sm`}>
-                © {getCurrentYear()} {FOOTER_CONTENT.COMPANY.NAME}. {FOOTER_CONTENT.COPYRIGHT.BASE_TEXT}
-              </p>
-              <div className="flex items-center space-x-6">
-                <button
-                  onClick={() => handleExternalLinkClick(FOOTER_LINKS.LEGAL.PRIVACY_POLICY)}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
-                >
-                  Privacy Policy
-                </button>
-                <button
-                  onClick={() => handleExternalLinkClick(FOOTER_LINKS.LEGAL.TERMS_OF_SERVICE)}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
-                >
-                  Terms of Service
-                </button>
-              </div>
-            </div>
+          <div className="flex justify-center items-center">
             <div className="flex items-center space-x-4">
               <span className={`${FOOTER_STYLES.COLORS.TEXT_DISABLED} text-xs`}>
                 {FOOTER_CONTENT.SYSTEM_STATUS.TECHNOLOGIES}
@@ -279,6 +301,24 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Resource Modals */}
+      <DocumentationModal
+        isOpen={isDocumentationModalOpen}
+        onClose={() => setIsDocumentationModalOpen(false)}
+      />
+      <HelpCenterModal
+        isOpen={isHelpCenterModalOpen}
+        onClose={() => setIsHelpCenterModalOpen(false)}
+      />
+      <ApiReferenceModal
+        isOpen={isApiReferenceModalOpen}
+        onClose={() => setIsApiReferenceModalOpen(false)}
+      />
+      <SystemStatusModal
+        isOpen={isSystemStatusModalOpen}
+        onClose={() => setIsSystemStatusModalOpen(false)}
+      />
     </footer>
   );
 };

@@ -28,9 +28,9 @@ export const FOOTER_UI = {
 export const FOOTER_LINKS = {
   // Social Media Links
   SOCIAL: {
-    GITHUB: 'https://github.com',
-    LINKEDIN: 'https://linkedin.com',
-    TWITTER: 'https://twitter.com',
+    GITHUB: 'https://github.com/thangtruong1808',
+    LINKEDIN: 'https://www.linkedin.com/in/thang-truong-00b245200/',
+    FACEBOOK: 'https://www.facebook.com/profile.php?id=100051753410222',
   },
   
   // Resource Links
@@ -87,14 +87,14 @@ export const FOOTER_CONTENT = {
 export const FOOTER_STYLES = {
   // Color schemes
   COLORS: {
-    BACKGROUND: 'bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900',
-    BORDER: 'border-gray-700',
-    TEXT_PRIMARY: 'text-white',
-    TEXT_SECONDARY: 'text-gray-300',
-    TEXT_MUTED: 'text-gray-400',
-    TEXT_DISABLED: 'text-gray-500',
-    ACCENT: 'text-purple-400',
-    ACCENT_HOVER: 'hover:text-purple-400',
+    BACKGROUND: 'bg-gray-100',
+    BORDER: 'border-gray-200',
+    TEXT_PRIMARY: 'text-gray-900',
+    TEXT_SECONDARY: 'text-gray-700',
+    TEXT_MUTED: 'text-gray-500',
+    TEXT_DISABLED: 'text-gray-400',
+    ACCENT: 'text-purple-600',
+    ACCENT_HOVER: 'hover:text-purple-600',
   },
   
   // Layout classes
