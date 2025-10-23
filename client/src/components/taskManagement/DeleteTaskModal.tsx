@@ -129,6 +129,21 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
                       <p className="text-gray-900">{task.assignedUser.firstName} {task.assignedUser.lastName}</p>
                     </div>
                   )}
+                  {task.tags && task.tags.length > 0 && (
+                    <div className="col-span-2">
+                      <span className="font-medium text-gray-700">Tags:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {task.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="col-span-2">
                     <span className="font-medium text-gray-700">Created:</span>
                     <p className="text-gray-900">{new Date(task.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>

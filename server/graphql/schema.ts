@@ -133,6 +133,7 @@ export const typeDefs = gql`
     dueDate: String
     project: Project!
     assignedUser: User
+    tags: [Tag!]!
     isDeleted: Boolean!
     version: Int!
     createdAt: String
@@ -338,6 +339,7 @@ export const typeDefs = gql`
     dueDate: String
     projectId: ID!
     assignedUserId: ID
+    tagIds: [ID!]
   }
 
   # Task Update Input Type - for updating existing tasks
@@ -349,6 +351,7 @@ export const typeDefs = gql`
     dueDate: String
     projectId: ID
     assignedUserId: ID
+    tagIds: [ID!]
   }
 
   # Paginated Dashboard Tasks Response Type - for task management with pagination

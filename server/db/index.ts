@@ -13,6 +13,7 @@ import Tag from './models/tag';
 import TaskLike from './models/taskLike';
 import ProjectLike from './models/projectLike';
 import CommentLike from './models/commentLike';
+import TaskTag from './models/taskTag';
 
 /**
  * Database Models Index
@@ -34,6 +35,7 @@ export {
   TaskLike,
   ProjectLike,
   CommentLike,
+  TaskTag,
 };
 
 // Export sequelize instance and database functions
@@ -102,6 +104,12 @@ export const setupAssociations = (): void => {
   // Notification associations
   User.hasMany(Notification, { foreignKey: 'user_id', as: 'userNotifications' });
   Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+  // Task-Tag associations (many-to-many through task_tags table)
+  Task.belongsToMany(Tag, { through: TaskTag, foreignKey: 'taskId', otherKey: 'tagId', as: 'tags' });
+  Tag.belongsToMany(Task, { through: TaskTag, foreignKey: 'tagId', otherKey: 'taskId', as: 'tasks' });
+  TaskTag.belongsTo(Task, { foreignKey: 'taskId', as: 'task' });
+  TaskTag.belongsTo(Tag, { foreignKey: 'tagId', as: 'tag' });
 };
 
 // Associations will be set up when the server starts

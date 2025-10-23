@@ -253,6 +253,10 @@ const TasksTable: React.FC<TasksTableProps> = ({
               <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Assigned To
               </th>
+              {/* Tags Column - Hidden on mobile and tablet */}
+              <th className="hidden lg:table-cell w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Tags
+              </th>
               {/* Due Date Column - Hidden on mobile and tablet */}
               <th
                 className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
@@ -357,7 +361,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 <td colSpan={6} className="hidden sm:table-cell lg:hidden px-4 py-8 text-center text-gray-500">
                   No tasks found
                 </td>
-                <td colSpan={11} className="hidden lg:table-cell px-4 py-8 text-center text-gray-500">
+                <td colSpan={12} className="hidden lg:table-cell px-4 py-8 text-center text-gray-500">
                   No tasks found
                 </td>
               </tr>
@@ -399,6 +403,24 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="truncate" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
                       {task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}
+                    </div>
+                  </td>
+                  {/* Tags Column - Hidden on mobile and tablet */}
+                  <td className="hidden lg:table-cell px-4 py-4 text-sm text-gray-900 text-left">
+                    <div className="flex flex-wrap gap-1">
+                      {task.tags && task.tags.length > 0 ? (
+                        task.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                            title={tag.description}
+                          >
+                            {tag.name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-xs">No tags</span>
+                      )}
                     </div>
                   </td>
                   {/* Due Date Column - Hidden on mobile and tablet */}

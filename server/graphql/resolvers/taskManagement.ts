@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Task, Project, User, ProjectMember } from '../../db';
+import { Task, Project, User, ProjectMember, Tag, TaskTag } from '../../db';
 import { sendNotificationsToProjectMembers, notifyUserIfNeeded } from '../utils/notificationHelpers';
 import { setActivityContext, clearActivityContext } from '../../db/utils/activityContext';
 
@@ -58,6 +58,11 @@ export const getDashboardTasks = async (
           model: User, 
           as: 'assignedUser', 
           attributes: ['id', 'firstName', 'lastName', 'email'] 
+        },
+        { 
+          model: Tag, 
+          as: 'tags', 
+          attributes: ['id', 'name', 'description', 'title', 'type', 'category'] 
         }
       ],
       attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate', 'projectId', 'assignedTo', 'isDeleted', 'version', 'createdAt', 'updatedAt'],
@@ -100,7 +105,7 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
       });
     }
 
-    const { title, description, status, priority, dueDate, projectId, assignedUserId } = input;
+    const { title, description, status, priority, dueDate, projectId, assignedUserId, tagIds } = input;
 
     // Validate required fields
     if (!title || !description || !status || !priority || !projectId) {
@@ -133,6 +138,28 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
       isDeleted: false,
       version: 1
     });
+
+    // Handle tag relationships if tagIds provided
+    if (tagIds && tagIds.length > 0) {
+      // Validate that all tags exist
+      const tags = await Tag.findAll({
+        where: { id: tagIds }
+      });
+      
+      if (tags.length !== tagIds.length) {
+        throw new Error('One or more tags not found');
+      }
+
+      // Create task-tag relationships
+      await Promise.all(
+        tagIds.map((tagId: string) =>
+          TaskTag.create({
+            taskId: task.id,
+            tagId: parseInt(tagId)
+          })
+        )
+      );
+    }
 
     // If task is assigned to a user, add them as a project member
     if (assignedUserId) {
@@ -224,7 +251,7 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
       throw new Error('Cannot update deleted task');
     }
 
-    const { title, description, status, priority, dueDate, projectId, assignedUserId } = input;
+    const { title, description, status, priority, dueDate, projectId, assignedUserId, tagIds } = input;
 
     // Validate project if provided
     if (projectId) {
@@ -270,6 +297,36 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
     const originalAssignedUserId = task.assignedTo;
     
     await task.update(updateData);
+
+    // Handle tag relationships if tagIds provided
+    if (tagIds !== undefined) {
+      // Remove existing tag relationships
+      await TaskTag.destroy({
+        where: { taskId: task.id }
+      });
+
+      // Add new tag relationships if tagIds provided
+      if (tagIds && tagIds.length > 0) {
+        // Validate that all tags exist
+        const tags = await Tag.findAll({
+          where: { id: tagIds }
+        });
+        
+        if (tags.length !== tagIds.length) {
+          throw new Error('One or more tags not found');
+        }
+
+        // Create new task-tag relationships
+        await Promise.all(
+          tagIds.map((tagId: string) =>
+            TaskTag.create({
+              taskId: task.id,
+              tagId: parseInt(tagId)
+            })
+          )
+        );
+      }
+    }
 
     // Handle project member updates when task assignment changes
     if (assignedUserId !== undefined) {

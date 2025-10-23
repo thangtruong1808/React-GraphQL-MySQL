@@ -28,6 +28,16 @@ export const TASK_FRAGMENT = gql`
       lastName
       email
     }
+    tags {
+      id
+      name
+      description
+      title
+      type
+      category
+      createdAt
+      updatedAt
+    }
     isDeleted
     version
     createdAt
@@ -43,6 +53,22 @@ export const PAGINATION_INFO_FRAGMENT = gql`
     totalCount
     currentPage
     totalPages
+  }
+`;
+
+// Get Tags Query - for tag selection dropdown
+export const GET_TAGS_FOR_DROPDOWN_QUERY = gql`
+  query GetTagsForDropdown {
+    dashboardTags(limit: 100, offset: 0) {
+      tags {
+        id
+        name
+        description
+        title
+        type
+        category
+      }
+    }
   }
 `;
 

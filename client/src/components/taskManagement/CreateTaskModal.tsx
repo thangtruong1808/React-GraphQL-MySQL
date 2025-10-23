@@ -3,7 +3,7 @@ import { FaTimes, FaTasks, FaAlignLeft, FaFlag, FaCalendarAlt, FaFolder, FaUser,
 import { useQuery } from '@apollo/client';
 import { CreateTaskModalProps, TaskInput } from '../../types/taskManagement';
 import { TASK_STATUS_OPTIONS, TASK_PRIORITY_OPTIONS, TASK_ERROR_MESSAGES } from '../../constants/taskManagement';
-import { GET_PROJECTS_FOR_DROPDOWN_QUERY, GET_USERS_FOR_DROPDOWN_QUERY } from '../../services/graphql/taskQueries';
+import { GET_PROJECTS_FOR_DROPDOWN_QUERY, GET_USERS_FOR_DROPDOWN_QUERY, GET_TAGS_FOR_DROPDOWN_QUERY } from '../../services/graphql/taskQueries';
 
 /**
  * Create Task Modal Component
@@ -23,7 +23,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     priority: 'MEDIUM',
     dueDate: '',
     projectId: '',
-    assignedUserId: ''
+    assignedUserId: '',
+    tagIds: []
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -34,6 +35,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   });
 
   const { data: usersData, loading: usersLoading, error: usersError } = useQuery(GET_USERS_FOR_DROPDOWN_QUERY, {
+    skip: !isOpen, // Only fetch when modal is open
+    errorPolicy: 'ignore' // Ignore errors to prevent connection issues
+  });
+
+  const { data: tagsData, loading: tagsLoading, error: tagsError } = useQuery(GET_TAGS_FOR_DROPDOWN_QUERY, {
     skip: !isOpen, // Only fetch when modal is open
     errorPolicy: 'ignore' // Ignore errors to prevent connection issues
   });
@@ -50,7 +56,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         priority: 'MEDIUM',
         dueDate: '',
         projectId: '',
-        assignedUserId: ''
+        assignedUserId: '',
+        tagIds: []
       });
       setErrors({});
     }
@@ -413,6 +420,52 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
                   Select a user to assign this task to
+                </p>
+              </div>
+
+              {/* Tag Selection field */}
+              <div>
+                <label htmlFor="tagIds" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <FaFlag className="inline h-4 w-4 mr-2 text-purple-600" />
+                  Tags (Optional)
+                </label>
+                <div className="relative">
+                  <select
+                    id="tagIds"
+                    name="tagIds"
+                    multiple
+                    value={formData.tagIds || []}
+                    onChange={(e) => {
+                      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+                      setFormData(prev => ({
+                        ...prev,
+                        tagIds: selectedOptions
+                      }));
+                    }}
+                    disabled={loading || tagsLoading}
+                    className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:border-gray-400"
+                    size={4}
+                  >
+                    {tagsData?.dashboardTags?.tags?.map((tag) => (
+                      <option key={tag.id} value={tag.id}>
+                        {tag.name} - {tag.description}
+                      </option>
+                    ))}
+                    {!tagsLoading && !tagsError && !tagsData?.dashboardTags?.tags?.length && (
+                      <option value="" disabled>No tags available</option>
+                    )}
+                  </select>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaFlag className={`h-4 w-4 ${tagsLoading ? 'text-gray-300' : 'text-gray-400'}`} />
+                  </div>
+                  {tagsLoading && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+                    </div>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Select one or more tags for this task (hold Ctrl/Cmd to select multiple)
                 </p>
               </div>
 

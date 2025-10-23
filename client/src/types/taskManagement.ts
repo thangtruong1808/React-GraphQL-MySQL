@@ -12,6 +12,18 @@ export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 // Project Status Enum (for task project reference)
 export type ProjectStatus = 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED';
 
+// Tag Interface - matches GraphQL Tag type
+export interface Tag {
+  id: string;
+  name: string;
+  description: string;
+  title?: string;
+  type?: string;
+  category?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Task Interface - matches GraphQL Task type
 export interface Task {
   id: string;
@@ -33,6 +45,7 @@ export interface Task {
     lastName: string;
     email: string;
   };
+  tags: Tag[];
   isDeleted: boolean;
   version: number;
   createdAt: string;
@@ -48,6 +61,7 @@ export interface TaskInput {
   dueDate?: string;
   projectId: string;
   assignedUserId?: string;
+  tagIds?: string[];
 }
 
 // Task Update Input Interface - for updating existing tasks
@@ -59,6 +73,7 @@ export interface TaskUpdateInput {
   dueDate?: string;
   projectId?: string;
   assignedUserId?: string;
+  tagIds?: string[];
 }
 
 // Pagination Info Interface

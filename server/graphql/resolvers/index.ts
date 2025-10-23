@@ -248,6 +248,38 @@ export const resolvers = {
       } catch (error) {
         return null;
       }
+    },
+    
+    // Resolver for tags field on Task type
+    tags: async (parent: any) => {
+      try {
+        // If tags are already included (from Sequelize include), return them directly
+        if (parent.tags) {
+          return parent.tags;
+        }
+        
+        // Otherwise, fetch tags using the many-to-many relationship
+        const taskId = parent.id;
+        if (!taskId) {
+          return [];
+        }
+        
+        const { Tag, TaskTag } = await import('../../db');
+        const taskTags = await TaskTag.findAll({
+          where: { taskId: parseInt(taskId) },
+          include: [
+            {
+              model: Tag,
+              as: 'tag',
+              attributes: ['id', 'name', 'description', 'title', 'type', 'category', 'createdAt', 'updatedAt']
+            }
+          ]
+        });
+        
+        return taskTags.map((taskTag: any) => taskTag.tag);
+      } catch (error) {
+        return [];
+      }
     }
   },
   // Comment type resolvers
