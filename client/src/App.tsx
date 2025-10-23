@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ErrorProvider, useError } from './contexts/ErrorContext';
 import { AppRoutes } from './components/routing';
 import NavBar from './components/layout/NavBar';
+import Footer from './components/layout/Footer';
 import { ActivityTracker } from './components/activity';
 import { DatabaseErrorBoundary, NetworkErrorBoundary } from './components/errors';
 
@@ -154,6 +155,9 @@ const AppContent: React.FC = () => {
       <main className="flex-1">
         <AppRoutes />
       </main>
+
+      {/* Footer - show for non-authenticated users and authenticated users on homepage */}
+      {shouldShowNavBar && <Footer />}
     </div>
   );
 };
