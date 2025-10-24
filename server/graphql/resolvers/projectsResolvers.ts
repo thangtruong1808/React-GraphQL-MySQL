@@ -1,4 +1,4 @@
-import { Project, Task, User, sequelize } from '../../db';
+import { Project, Task, User, Tag, sequelize } from '../../db';
 import { QueryTypes } from 'sequelize';
 
 /**
@@ -73,7 +73,7 @@ export const projects = async () => {
 
     return formattedProjects;
   } catch (error) {
-    console.error('Error fetching public projects:', error);
+    // Return empty array on error to prevent application crash
     return [];
   }
 };
@@ -167,7 +167,7 @@ export const paginatedProjects = async (_: any, { limit = 12, offset = 0, status
       paginationInfo
     };
   } catch (error) {
-    console.error('Error fetching paginated projects:', error);
+    // Return empty result on error to prevent application crash
     return {
       projects: [],
       paginationInfo: {
@@ -209,6 +209,13 @@ export const project = async (_: any, { id }: { id: string }) => {
               as: 'assignedUser',
               attributes: ['firstName', 'lastName'],
               required: false
+            },
+            {
+              model: Tag,
+              as: 'tags',
+              attributes: ['id', 'name', 'description', 'title', 'type', 'category'],
+              required: false,
+              through: { attributes: [] }
             }
           ]
         }
@@ -322,7 +329,15 @@ export const project = async (_: any, { id }: { id: string }) => {
         assignedUser: task.assignedUser ? {
           firstName: task.assignedUser.firstName,
           lastName: task.assignedUser.lastName
-        } : null
+        } : null,
+        tags: task.tags?.map((tag: any) => ({
+          id: tag.id.toString(),
+          name: tag.name,
+          description: tag.description,
+          title: tag.title,
+          type: tag.type,
+          category: tag.category
+        })) || []
       })) || [],
       members: membersData.map((member: any) => ({
         id: member.id.toString(),
@@ -336,7 +351,7 @@ export const project = async (_: any, { id }: { id: string }) => {
 
     return formattedProject;
   } catch (error) {
-    console.error('Error fetching single project:', error);
+    // Return null on error to prevent application crash
     return null;
   }
 };

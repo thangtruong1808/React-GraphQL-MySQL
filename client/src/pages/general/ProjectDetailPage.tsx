@@ -45,6 +45,14 @@ interface ProjectDetails {
       firstName: string;
       lastName: string;
     };
+    tags: Array<{
+      id: string;
+      name: string;
+      description: string;
+      title?: string;
+      type?: string;
+      category?: string;
+    }>;
   }>;
   members: Array<{
     id: string;
@@ -653,6 +661,26 @@ const ProjectDetailPage: React.FC = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Tags Row */}
+                      {task.tags && task.tags.length > 0 && (
+                        <div className="mt-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm text-gray-500 font-medium">Tags:</span>
+                            {task.tags.map((tag) => (
+                              <span
+                                key={tag.id}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200"
+                              >
+                                <span className="font-semibold">{tag.name}</span>
+                                {tag.description && (
+                                  <span className="ml-1 text-blue-600">- {tag.description}</span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

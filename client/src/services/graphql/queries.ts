@@ -457,6 +457,14 @@ export const GET_PROJECT_DETAILS = gql`
           firstName
           lastName
         }
+        tags {
+          id
+          name
+          description
+          title
+          type
+          category
+        }
       }
       members {
         id

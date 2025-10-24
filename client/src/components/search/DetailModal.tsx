@@ -46,6 +46,14 @@ interface Task {
     email: string;
     role: string;
   };
+  tags?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    title?: string;
+    type?: string;
+    category?: string;
+  }>;
 }
 
 interface DetailModalProps {
@@ -244,11 +252,30 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, data, type }
             {project.tasks.map((task) => (
               <div key={task.id} className="p-4 bg-white border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <h4 className="font-semibold text-gray-900">{task.title}</h4>
                     <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+
+                    {/* Tags Display */}
+                    {task.tags && task.tags.length > 0 && (
+                      <div className="mt-2">
+                        <div className="flex flex-wrap items-center gap-1">
+                          {task.tags.map((tag) => (
+                            <span
+                              key={tag.id}
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                            >
+                              <span className="font-semibold">{tag.name}</span>
+                              {tag.description && (
+                                <span className="ml-1 text-green-600">- {tag.description}</span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 ml-4">
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                       {task.status.replace('_', ' ')}
                     </span>
