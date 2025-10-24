@@ -200,7 +200,7 @@ export const project = async (_: any, { id }: { id: string }) => {
         {
           model: Task,
           as: 'tasks',
-          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate'],
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate', 'createdAt'],
           required: false,
           where: { isDeleted: false },
           include: [
@@ -304,6 +304,34 @@ export const project = async (_: any, { id }: { id: string }) => {
       replacements: { projectId: parseInt(id) }
     });
 
+    // Calculate real last update time from project activities
+    let realLastUpdate = projectData.updatedAt;
+    
+    try {
+      // Simplified query to avoid complex joins that might cause issues
+      const lastUpdateQuery = `
+        SELECT MAX(activity_time) as last_activity
+        FROM (
+          SELECT updated_at as activity_time FROM projects WHERE id = :projectId
+          UNION ALL
+          SELECT updated_at as activity_time FROM tasks WHERE project_id = :projectId AND is_deleted = false
+        ) as all_activities
+      `;
+
+      const lastUpdateResult = await sequelize.query(lastUpdateQuery, {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: { projectId: parseInt(id) }
+      });
+
+      if (lastUpdateResult && lastUpdateResult[0] && lastUpdateResult[0].last_activity) {
+        realLastUpdate = lastUpdateResult[0].last_activity;
+      }
+    } catch (error) {
+      // If query fails, fall back to project's updatedAt
+      // Silent error handling to prevent project loading issues
+    }
+
     // Format the response
     const formattedProject = {
       id: projectData.id.toString(),
@@ -319,7 +347,7 @@ export const project = async (_: any, { id }: { id: string }) => {
         role: projectData.owner.role
       } : null,
       createdAt: projectData.createdAt,
-      updatedAt: projectData.updatedAt,
+      updatedAt: realLastUpdate,
       tasks: projectData.tasks?.map((task: any) => ({
         id: task.id.toString(),
         title: task.title,
@@ -327,6 +355,7 @@ export const project = async (_: any, { id }: { id: string }) => {
         status: task.status,
         priority: task.priority,
         dueDate: task.dueDate,
+        createdAt: task.createdAt,
         assignedUser: task.assignedUser ? {
           firstName: task.assignedUser.firstName,
           lastName: task.assignedUser.lastName

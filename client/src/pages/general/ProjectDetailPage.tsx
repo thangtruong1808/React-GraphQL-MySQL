@@ -43,6 +43,7 @@ interface ProjectDetails {
     status: string;
     priority: string;
     dueDate?: string;
+    createdAt: string;
     assignedUser?: {
       firstName: string;
       lastName: string;
@@ -115,23 +116,28 @@ const ProjectDetailPage: React.FC = () => {
   });
 
   // Use real-time tasks hook for live task updates
-  const { tasks: realTimeTasks, notifications: taskNotifications, loading: tasksLoading } = useRealTimeTasks({
+  const { tasks: realTimeTasks, loading: tasksLoading } = useRealTimeTasks({
     projectId: id || '',
     initialTasks: data?.project?.tasks || [],
-    showNotifications: true,
+    showNotifications: false, // Disable notifications to prevent duplicate toasts
     onTaskAdded: (task) => {
-      // Handle new task added
+      // Handle new task added - real-time updates will show the task automatically
     },
     onTaskUpdated: (task) => {
-      // Handle task updated
+      // Handle task updated - real-time updates will show the changes automatically
     },
     onTaskDeleted: (event) => {
-      // Handle task deleted
+      // Handle task deleted - real-time updates will remove the task automatically
     }
   });
 
   // Always use real-time tasks (they are initialized with data from query)
-  const displayTasks = realTimeTasks;
+  // Sort tasks by creation date (oldest to latest)
+  const displayTasks = [...realTimeTasks].sort((a, b) => {
+    const dateA = new Date(a.createdAt || 0);
+    const dateB = new Date(b.createdAt || 0);
+    return dateA.getTime() - dateB.getTime();
+  });
 
   // Create comment mutation - let real-time subscription handle UI updates
   const [createComment, { data: createCommentData }] = useMutation(CREATE_COMMENT, {
@@ -351,6 +357,28 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
+  // Format due date for display - shows only date without time
+  const formatDueDate = (dateString: string) => {
+    try {
+      if (!dateString) return 'N/A';
+
+      const date = new Date(dateString);
+
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'N/A';
+      }
+
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
   // Show loading state
   if (loading) {
     return (
@@ -559,19 +587,6 @@ const ProjectDetailPage: React.FC = () => {
           </Link>
         </div>
 
-        {/* Real-time Task Notifications */}
-        {taskNotifications && taskNotifications.length > 0 && (
-          <div className="mb-4">
-            {taskNotifications.map((notification, index) => (
-              <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 animate-pulse"></div>
-                  <span className="text-sm text-blue-800">{notification}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Project Header */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
@@ -639,11 +654,11 @@ const ProjectDetailPage: React.FC = () => {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Created:</span>
-                <span className="font-medium">{formatDate(project.createdAt)}</span>
+                <span className="text-gray-700 text-sm">{formatDate(project.createdAt)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Last Updated:</span>
-                <span className="font-medium">{formatDate(project.updatedAt)}</span>
+                <span className="text-gray-700 text-sm">{formatDate(project.updatedAt)}</span>
               </div>
             </div>
           </div>
@@ -668,7 +683,7 @@ const ProjectDetailPage: React.FC = () => {
               No tasks found for this project.
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {displayTasks.map((task) => (
                 <div key={task.id} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-all duration-200 hover:border-gray-300">
                   <div className="flex items-start justify-between">
@@ -705,7 +720,7 @@ const ProjectDetailPage: React.FC = () => {
                             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span>Due: {formatDate(task.dueDate)}</span>
+                            <span>Due: {formatDueDate(task.dueDate)}</span>
                           </div>
                         )}
                       </div>

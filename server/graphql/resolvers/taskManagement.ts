@@ -217,21 +217,68 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
       // Swallow errors to avoid failing task creation
     }
 
+    // Fetch complete task data with all relationships for real-time updates
+    const completeTask = await Task.findByPk(task.id, {
+      include: [
+        { 
+          model: Project, 
+          as: 'project', 
+          attributes: ['id', 'name', 'description', 'status'] 
+        },
+        { 
+          model: User, 
+          as: 'assignedUser', 
+          attributes: ['id', 'firstName', 'lastName', 'email', 'role'] 
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['id', 'name', 'description', 'title', 'type', 'category', 'createdAt', 'updatedAt'],
+          through: { attributes: [] }
+        }
+      ]
+    });
+
+    // Ensure we have the complete task data
+    if (!completeTask) {
+      throw new Error('Failed to fetch created task data');
+    }
+
     // Publish task added event for real-time updates
     try {
-      if (context.pubsub) {
+      if (context.pubsub && completeTask) {
         await context.pubsub.publish(`TASK_ADDED_${projectId}`, {
           taskAdded: {
-            ...task.toJSON(),
-            project: { id: project.id, name: project.name },
-            assignedUser: task.assignedUser ? {
-              id: task.assignedUser.id.toString(),
-              firstName: task.assignedUser.firstName,
-              lastName: task.assignedUser.lastName,
-              email: task.assignedUser.email,
-              role: task.assignedUser.role
+            id: completeTask.id.toString(),
+            uuid: completeTask.uuid,
+            title: completeTask.title,
+            description: completeTask.description,
+            status: completeTask.status,
+            priority: completeTask.priority,
+            dueDate: completeTask.dueDate,
+            isDeleted: completeTask.isDeleted,
+            version: completeTask.version,
+            createdAt: completeTask.createdAt,
+            updatedAt: completeTask.updatedAt,
+            project: { 
+              id: completeTask.project?.id.toString() || project.id.toString(), 
+              name: completeTask.project?.name || project.name 
+            },
+            assignedUser: completeTask.assignedUser ? {
+              id: completeTask.assignedUser.id.toString(),
+              firstName: completeTask.assignedUser.firstName,
+              lastName: completeTask.assignedUser.lastName,
+              email: completeTask.assignedUser.email,
+              role: completeTask.assignedUser.role
             } : null,
-            tags: task.tags || []
+            tags: completeTask.tags?.map((tag: any) => ({
+              id: tag.id.toString(),
+              name: tag.name,
+              description: tag.description,
+              title: tag.title,
+              type: tag.type,
+              category: tag.category
+            })) || []
           }
         });
       }
@@ -239,8 +286,42 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
       // Swallow errors to avoid failing task creation
     }
 
-    // Return the created task directly to avoid triggering additional hooks
-    return task;
+    // Return the complete task data in the expected format
+    return {
+      id: completeTask.id.toString(),
+      uuid: completeTask.uuid,
+      title: completeTask.title,
+      description: completeTask.description,
+      status: completeTask.status,
+      priority: completeTask.priority,
+      dueDate: completeTask.dueDate,
+      isDeleted: completeTask.isDeleted,
+      version: completeTask.version,
+      createdAt: completeTask.createdAt,
+      updatedAt: completeTask.updatedAt,
+      project: {
+        id: completeTask.project?.id.toString() || project.id.toString(),
+        name: completeTask.project?.name || project.name,
+        description: completeTask.project?.description || project.description,
+        status: completeTask.project?.status || project.status
+      },
+      assignedUser: completeTask.assignedUser ? {
+        id: completeTask.assignedUser.id.toString(),
+        firstName: completeTask.assignedUser.firstName,
+        lastName: completeTask.assignedUser.lastName,
+        email: completeTask.assignedUser.email
+      } : null,
+      tags: completeTask.tags?.map((tag: any) => ({
+        id: tag.id.toString(),
+        name: tag.name,
+        description: tag.description,
+        title: tag.title,
+        type: tag.type,
+        category: tag.category,
+        createdAt: tag.createdAt,
+        updatedAt: tag.updatedAt
+      })) || []
+    };
   } catch (error) {
     throw new Error('Failed to create task');
   } finally {
@@ -473,11 +554,24 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
 
     // Publish task updated event for real-time updates
     try {
-      if (context.pubsub) {
+      if (context.pubsub && updatedTask) {
         await context.pubsub.publish(`TASK_UPDATED_${updatedTask.projectId}`, {
           taskUpdated: {
-            ...updatedTask.toJSON(),
-            project: { id: updatedTask.project.id, name: updatedTask.project.name },
+            id: updatedTask.id.toString(),
+            uuid: updatedTask.uuid,
+            title: updatedTask.title,
+            description: updatedTask.description,
+            status: updatedTask.status,
+            priority: updatedTask.priority,
+            dueDate: updatedTask.dueDate,
+            isDeleted: updatedTask.isDeleted,
+            version: updatedTask.version,
+            createdAt: updatedTask.createdAt,
+            updatedAt: updatedTask.updatedAt,
+            project: { 
+              id: updatedTask.project?.id.toString() || updatedTask.projectId.toString(), 
+              name: updatedTask.project?.name || 'Unknown Project' 
+            },
             assignedUser: updatedTask.assignedUser ? {
               id: updatedTask.assignedUser.id.toString(),
               firstName: updatedTask.assignedUser.firstName,
@@ -485,7 +579,14 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
               email: updatedTask.assignedUser.email,
               role: updatedTask.assignedUser.role
             } : null,
-            tags: updatedTask.tags || []
+            tags: updatedTask.tags?.map((tag: any) => ({
+              id: tag.id.toString(),
+              name: tag.name,
+              description: tag.description,
+              title: tag.title,
+              type: tag.type,
+              category: tag.category
+            })) || []
           }
         });
       }
@@ -493,7 +594,42 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
       // Swallow errors to avoid failing task update
     }
 
-    return updatedTask;
+    // Return the complete task data in the expected format
+    return {
+      id: updatedTask.id.toString(),
+      uuid: updatedTask.uuid,
+      title: updatedTask.title,
+      description: updatedTask.description,
+      status: updatedTask.status,
+      priority: updatedTask.priority,
+      dueDate: updatedTask.dueDate,
+      isDeleted: updatedTask.isDeleted,
+      version: updatedTask.version,
+      createdAt: updatedTask.createdAt,
+      updatedAt: updatedTask.updatedAt,
+      project: {
+        id: updatedTask.project?.id.toString() || updatedTask.projectId.toString(),
+        name: updatedTask.project?.name || 'Unknown Project',
+        description: updatedTask.project?.description || '',
+        status: updatedTask.project?.status || 'PLANNING'
+      },
+      assignedUser: updatedTask.assignedUser ? {
+        id: updatedTask.assignedUser.id.toString(),
+        firstName: updatedTask.assignedUser.firstName,
+        lastName: updatedTask.assignedUser.lastName,
+        email: updatedTask.assignedUser.email
+      } : null,
+      tags: updatedTask.tags?.map((tag: any) => ({
+        id: tag.id.toString(),
+        name: tag.name,
+        description: tag.description,
+        title: tag.title,
+        type: tag.type,
+        category: tag.category,
+        createdAt: tag.createdAt,
+        updatedAt: tag.updatedAt
+      })) || []
+    };
   } catch (error) {
     throw new Error('Failed to update task');
   } finally {

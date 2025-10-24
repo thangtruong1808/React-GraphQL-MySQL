@@ -454,6 +454,7 @@ export const GET_PROJECT_DETAILS = gql`
         status
         priority
         dueDate
+        createdAt
         assignedUser {
           firstName
           lastName

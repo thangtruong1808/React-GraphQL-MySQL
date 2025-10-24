@@ -388,17 +388,32 @@ export const toggleCommentLike = async (parent: any, args: any, context: any, in
     // Get the project ID from the comment's task
     const projectId = comment.task.projectId;
 
-    // Check if user has permission to like comments (only team members)
-    const projectMember = await ProjectMember.findOne({
-      where: {
-        projectId: projectId,
-        userId: context.user.id,
-        isDeleted: false
-      }
-    });
-    const isProjectMember = !!projectMember;
+    // Check if user has permission to like comments (project owner or team members)
+    let canLikeComment = false;
     
-    const canLikeComment = isProjectMember;
+    try {
+      // First check if user is project owner
+      const project = await Project.findByPk(projectId, {
+        attributes: ['ownerId']
+      });
+      
+      if (project && project.ownerId === context.user.id) {
+        canLikeComment = true;
+      } else {
+        // Check if user is a project member
+        const projectMember = await ProjectMember.findOne({
+          where: {
+            projectId: projectId,
+            userId: context.user.id,
+            isDeleted: false
+          }
+        });
+        canLikeComment = !!projectMember;
+      }
+    } catch (error) {
+      canLikeComment = false;
+    }
+    
     if (!canLikeComment) {
       throw new AuthenticationError('Only project team members can like comments');
     }
