@@ -200,7 +200,7 @@ export const project = async (_: any, { id }: { id: string }) => {
         {
           model: Task,
           as: 'tasks',
-          attributes: ['id', 'uuid', 'title', 'status', 'priority', 'dueDate'],
+          attributes: ['id', 'uuid', 'title', 'description', 'status', 'priority', 'dueDate'],
           required: false,
           where: { isDeleted: false },
           include: [
@@ -323,6 +323,7 @@ export const project = async (_: any, { id }: { id: string }) => {
       tasks: projectData.tasks?.map((task: any) => ({
         id: task.id.toString(),
         title: task.title,
+        description: task.description,
         status: task.status,
         priority: task.priority,
         dueDate: task.dueDate,

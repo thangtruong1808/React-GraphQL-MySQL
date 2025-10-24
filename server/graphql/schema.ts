@@ -721,6 +721,10 @@ export const typeDefs = gql`
     # Comment likes subscriptions for real-time like updates
     commentLiked(projectId: ID!): CommentLikeEvent!
     commentUnliked(projectId: ID!): CommentLikeEvent!
+    # Task subscriptions for real-time task management
+    taskAdded(projectId: ID!): Task!
+    taskUpdated(projectId: ID!): Task!
+    taskDeleted(projectId: ID!): TaskDeletedEvent!
   }
 
   # Comment deleted event type for subscriptions
@@ -739,5 +743,12 @@ export const typeDefs = gql`
     likesCount: Int!
     likers: [User!]
     timestamp: String!
+  }
+
+  # Task deleted event type for subscriptions
+  type TaskDeletedEvent {
+    taskId: ID!
+    projectId: ID!
+    deletedAt: String!
   }
 `;

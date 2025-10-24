@@ -12,6 +12,7 @@ import { updateActivity } from '../../utils/tokenManager';
 import { ensureAuthDataReady } from '../../services/graphql/apollo-client';
 import { useAuthenticatedMutation } from '../../hooks/custom/useAuthenticatedMutation';
 import { useRealTimeCommentsWithLikes } from '../../hooks/custom/useRealTimeCommentsWithLikes';
+import { useRealTimeTasks } from '../../hooks/custom/useRealTimeTasks';
 import CommentLikers from '../../components/comments/CommentLikers';
 
 /**
@@ -38,6 +39,7 @@ interface ProjectDetails {
   tasks: Array<{
     id: string;
     title: string;
+    description: string;
     status: string;
     priority: string;
     dueDate?: string;
@@ -111,6 +113,25 @@ const ProjectDetailPage: React.FC = () => {
     projectId: id || '',
     initialComments: data?.project?.comments || []
   });
+
+  // Use real-time tasks hook for live task updates
+  const { tasks: realTimeTasks, notifications: taskNotifications, loading: tasksLoading } = useRealTimeTasks({
+    projectId: id || '',
+    initialTasks: data?.project?.tasks || [],
+    showNotifications: true,
+    onTaskAdded: (task) => {
+      // Handle new task added
+    },
+    onTaskUpdated: (task) => {
+      // Handle task updated
+    },
+    onTaskDeleted: (event) => {
+      // Handle task deleted
+    }
+  });
+
+  // Always use real-time tasks (they are initialized with data from query)
+  const displayTasks = realTimeTasks;
 
   // Create comment mutation - let real-time subscription handle UI updates
   const [createComment, { data: createCommentData }] = useMutation(CREATE_COMMENT, {
@@ -538,6 +559,20 @@ const ProjectDetailPage: React.FC = () => {
           </Link>
         </div>
 
+        {/* Real-time Task Notifications */}
+        {taskNotifications && taskNotifications.length > 0 && (
+          <div className="mb-4">
+            {taskNotifications.map((notification, index) => (
+              <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 animate-pulse"></div>
+                  <span className="text-sm text-blue-800">{notification}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Project Header */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
           <div className="flex items-start justify-between mb-6">
@@ -553,7 +588,7 @@ const ProjectDetailPage: React.FC = () => {
           {/* Project Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{project.tasks.length}</div>
+              <div className="text-2xl font-bold text-purple-600">{displayTasks.length}</div>
               <div className="text-sm text-gray-600">Total Tasks</div>
             </div>
             <div className="text-center">
@@ -562,13 +597,13 @@ const ProjectDetailPage: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {project.tasks.filter(task => task.status === 'DONE').length}
+                {displayTasks.filter(task => task.status === 'DONE').length}
               </div>
               <div className="text-sm text-gray-600">Completed Tasks</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
-                {project.tasks.filter(task => task.status === 'IN_PROGRESS').length}
+                {displayTasks.filter(task => task.status === 'IN_PROGRESS').length}
               </div>
               <div className="text-sm text-gray-600">In Progress</div>
             </div>
@@ -616,8 +651,16 @@ const ProjectDetailPage: React.FC = () => {
 
         {/* Tasks Section */}
         <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Tasks</h2>
-          {project.tasks.length === 0 ? (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Project Tasks</h2>
+            {tasksLoading && (
+              <div className="flex items-center text-sm text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600 mr-2"></div>
+                Updating tasks...
+              </div>
+            )}
+          </div>
+          {displayTasks.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -626,11 +669,16 @@ const ProjectDetailPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {project.tasks.map((task) => (
+              {displayTasks.map((task) => (
                 <div key={task.id} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-all duration-200 hover:border-gray-300">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-3 text-lg">{task.title}</h3>
+
+                      {/* Task Description */}
+                      {task.description && (
+                        <p className="text-gray-600 mb-3 text-sm leading-relaxed">{task.description}</p>
+                      )}
 
                       {/* Status and Priority Row */}
                       <div className="flex items-center space-x-3 mb-3">

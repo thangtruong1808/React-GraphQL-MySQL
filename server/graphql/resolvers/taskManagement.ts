@@ -217,6 +217,28 @@ export const createTask = async (_: any, { input }: { input: any }, context: any
       // Swallow errors to avoid failing task creation
     }
 
+    // Publish task added event for real-time updates
+    try {
+      if (context.pubsub) {
+        await context.pubsub.publish(`TASK_ADDED_${projectId}`, {
+          taskAdded: {
+            ...task.toJSON(),
+            project: { id: project.id, name: project.name },
+            assignedUser: task.assignedUser ? {
+              id: task.assignedUser.id.toString(),
+              firstName: task.assignedUser.firstName,
+              lastName: task.assignedUser.lastName,
+              email: task.assignedUser.email,
+              role: task.assignedUser.role
+            } : null,
+            tags: task.tags || []
+          }
+        });
+      }
+    } catch (pubsubError) {
+      // Swallow errors to avoid failing task creation
+    }
+
     // Return the created task directly to avoid triggering additional hooks
     return task;
   } catch (error) {
@@ -242,7 +264,26 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
       });
     }
 
-    const task = await Task.findByPk(id);
+    const task = await Task.findByPk(id, {
+      include: [
+        {
+          model: Project,
+          as: 'project',
+          attributes: ['id', 'name']
+        },
+        {
+          model: User,
+          as: 'assignedUser',
+          attributes: ['id', 'firstName', 'lastName', 'email', 'role']
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['id', 'name', 'description', 'title', 'type', 'category'],
+          through: { attributes: [] }
+        }
+      ]
+    });
     if (!task) {
       throw new Error('Task not found');
     }
@@ -365,7 +406,7 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
       }
     }
 
-    // Fetch updated task with relationships
+    // Fetch updated task with all relationships for real-time updates
     const updatedTask = await Task.findByPk(id, {
       include: [
         { 
@@ -376,7 +417,13 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
         { 
           model: User, 
           as: 'assignedUser', 
-          attributes: ['id', 'firstName', 'lastName', 'email'] 
+          attributes: ['id', 'firstName', 'lastName', 'email', 'role'] 
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['id', 'name', 'description', 'title', 'type', 'category'],
+          through: { attributes: [] }
         }
       ]
     });
@@ -421,6 +468,28 @@ export const updateTask = async (_: any, { id, input }: { id: string; input: any
         );
       }
     } catch (notificationError) {
+      // Swallow errors to avoid failing task update
+    }
+
+    // Publish task updated event for real-time updates
+    try {
+      if (context.pubsub) {
+        await context.pubsub.publish(`TASK_UPDATED_${updatedTask.projectId}`, {
+          taskUpdated: {
+            ...updatedTask.toJSON(),
+            project: { id: updatedTask.project.id, name: updatedTask.project.name },
+            assignedUser: updatedTask.assignedUser ? {
+              id: updatedTask.assignedUser.id.toString(),
+              firstName: updatedTask.assignedUser.firstName,
+              lastName: updatedTask.assignedUser.lastName,
+              email: updatedTask.assignedUser.email,
+              role: updatedTask.assignedUser.role
+            } : null,
+            tags: updatedTask.tags || []
+          }
+        });
+      }
+    } catch (pubsubError) {
       // Swallow errors to avoid failing task update
     }
 
@@ -506,6 +575,21 @@ export const deleteTask = async (_: any, { id }: { id: string }, context: any) =
         assignedTo: task.assignedTo
       }
     });
+
+    // Publish task deleted event for real-time updates
+    try {
+      if (context.pubsub) {
+        await context.pubsub.publish(`TASK_DELETED_${task.projectId}`, {
+          taskDeleted: {
+            taskId: task.id.toString(),
+            projectId: task.projectId.toString(),
+            deletedAt: new Date().toISOString()
+          }
+        });
+      }
+    } catch (pubsubError) {
+      // Swallow errors to avoid failing task deletion
+    }
 
     return true;
   } catch (error) {

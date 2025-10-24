@@ -192,22 +192,26 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       throw new Error('Project not found');
     }
 
-    // Check if user has permission to create comments (only team members)
-    let isProjectMember = false;
+    // Check if user has permission to create comments (project owner or team member)
+    let canCreateComment = false;
     try {
-      const projectMember = await ProjectMember.findOne({
-        where: {
-          projectId: parseInt(input.projectId),
-          userId: context.user.id,
-          isDeleted: false
-        }
-      });
-      isProjectMember = !!projectMember;
+      // Check if user is project owner
+      if (project.ownerId === context.user.id) {
+        canCreateComment = true;
+      } else {
+        // Check if user is a project member
+        const projectMember = await ProjectMember.findOne({
+          where: {
+            projectId: parseInt(input.projectId),
+            userId: context.user.id,
+            isDeleted: false
+          }
+        });
+        canCreateComment = !!projectMember;
+      }
     } catch (error) {
-      isProjectMember = false;
+      canCreateComment = false;
     }
-    
-    const canCreateComment = isProjectMember;
     if (!canCreateComment) {
       throw new AuthenticationError('Only project team members can create comments');
     }

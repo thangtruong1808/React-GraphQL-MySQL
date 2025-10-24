@@ -450,6 +450,7 @@ export const GET_PROJECT_DETAILS = gql`
       tasks {
         id
         title
+        description
         status
         priority
         dueDate
