@@ -87,7 +87,6 @@ export const FOOTER_CONTENT = {
 export const FOOTER_STYLES = {
   // Color schemes
   COLORS: {
-    BACKGROUND: 'bg-gray-100',
     BORDER: 'border-gray-200',
     TEXT_PRIMARY: 'text-gray-900',
     TEXT_SECONDARY: 'text-gray-700',

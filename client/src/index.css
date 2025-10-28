@@ -19,6 +19,8 @@
   --input-bg: #ffffff;            /* input background */
   --modal-bg: #ffffff;            /* modal background */
   --shadow-color: rgba(0, 0, 0, 0.1); /* shadow color */
+  --navbar-bg: #f9fafb;          /* navbar background */
+  --footer-bg: #f9fafb;          /* footer background */
 }
 
 [data-theme="light"] {
@@ -36,6 +38,8 @@
   --input-bg: #ffffff;
   --modal-bg: #ffffff;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --navbar-bg: #f9fafb;          /* light navbar background */
+  --footer-bg: #f9fafb;          /* light footer background */
 }
 
 [data-theme="dark"] {
@@ -53,6 +57,8 @@
   --input-bg: #1f2937;     /* gray-800 - consistent with cards */
   --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
   --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
+  --navbar-bg: #1f2937;    /* dark navbar background */
+  --footer-bg: #1f2937;    /* dark footer background */
 }
 
 [data-theme="brand"] {
@@ -70,6 +76,8 @@
   --input-bg: #faf5ff;
   --modal-bg: #faf5ff;
   --shadow-color: rgba(124, 58, 237, 0.2);
+  --navbar-bg: #faf5ff;   /* brand navbar background */
+  --footer-bg: #faf5ff;   /* brand footer background */
 }
 
 /* Helper class to apply theme accent gradient */
@@ -80,6 +88,15 @@
 /* Make Tailwind bg-white respect the active theme's base color */
 .bg-white {
   background-color: var(--bg-base) !important;
+}
+
+/* Theme-aware navbar and footer backgrounds */
+.theme-navbar-bg {
+  background-color: var(--navbar-bg) !important;
+}
+
+.theme-footer-bg {
+  background-color: var(--footer-bg) !important;
 }
 
 /* Theme-aware text colors */
