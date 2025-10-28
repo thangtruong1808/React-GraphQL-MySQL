@@ -41,7 +41,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
 
         {/* Dropdown Icon */}
         <svg
-          className={`w-4 h-4 text-gray-500 transition-all duration-300 ${isDropdownOpen ? 'rotate-180 text-emerald-600' : ''
+          className={`w-4 h-4 theme-navbar-text-secondary transition-all duration-300 ${isDropdownOpen ? 'rotate-180 text-emerald-600' : ''
             }`}
           fill="none"
           stroke="currentColor"
@@ -53,9 +53,9 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
 
       {/* Dropdown Menu */}
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl z-50 border border-gray-100 backdrop-blur-sm bg-opacity-95 animate-in slide-in-from-top-2 duration-300">
+        <div className="absolute right-0 mt-3 w-64 theme-user-dropdown-bg rounded-2xl shadow-2xl z-50 theme-user-dropdown-border border backdrop-blur-sm bg-opacity-95 animate-in slide-in-from-top-2 duration-300">
           {/* User Profile Section */}
-          <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-t-2xl">
+          <div className="px-6 py-4 theme-user-profile-bg rounded-t-2xl">
             <div className="flex items-center space-x-4">
               {/* User Avatar in Dropdown */}
               <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
@@ -64,14 +64,14 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-base font-bold text-gray-900 truncate">
+                <div className="text-base font-bold theme-user-profile-text truncate">
                   {user?.firstName} {user?.lastName}
                 </div>
-                <div className="text-sm text-gray-600 truncate mt-1">
+                <div className="text-sm theme-user-profile-text-secondary truncate mt-1">
                   {user?.email}
                 </div>
                 <div className="flex items-center mt-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 shadow-sm">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold theme-user-profile-role-bg theme-user-profile-role-text shadow-sm">
                     {user?.role ? formatRoleForDisplay(user.role) : ''}
                   </span>
                 </div>
@@ -79,17 +79,12 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
             </div>
           </div>
 
-          {/* Menu Items */}
-          <div className="py-2">
-            {/* No additional menu items for minimal login feature */}
-          </div>
-
           {/* Logout Section */}
-          <div className="border-t border-gray-100 pt-2 rounded-b-2xl">
+          <div className="theme-user-dropdown-border border-t rounded-b-2xl overflow-hidden">
             <button
               onClick={onLogout}
               disabled={logoutLoading}
-              className="w-full flex items-center px-6 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 transition-all duration-300 hover:shadow-inner rounded-b-2xl"
+              className="w-full flex items-center px-6 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 transition-all duration-300 hover:shadow-inner"
             >
               {logoutLoading ? (
                 <>

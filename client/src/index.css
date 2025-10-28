@@ -89,6 +89,15 @@
   --shadow-color: rgba(0, 0, 0, 0.1); /* shadow color */
   --navbar-bg: #f9fafb;          /* navbar background */
   --footer-bg: #f9fafb;          /* footer background */
+  --navbar-text: #374151;        /* navbar text color */
+  --navbar-text-secondary: #6b7280; /* navbar secondary text color */
+  --user-dropdown-bg: #ffffff;   /* user dropdown background */
+  --user-dropdown-border: #e5e7eb; /* user dropdown border */
+  --user-profile-bg: #f0fdf4;    /* user profile section background */
+  --user-profile-text: #111827;  /* user profile text color */
+  --user-profile-text-secondary: #4b5563; /* user profile secondary text */
+  --user-profile-role-bg: #d1fae5; /* user profile role badge background */
+  --user-profile-role-text: #065f46; /* user profile role badge text */
 }
 
 [data-theme="light"] {
@@ -176,6 +185,15 @@
   --shadow-color: rgba(0, 0, 0, 0.1);
   --navbar-bg: #f9fafb;          /* light navbar background */
   --footer-bg: #f9fafb;          /* light footer background */
+  --navbar-text: #374151;        /* light navbar text color */
+  --navbar-text-secondary: #6b7280; /* light navbar secondary text color */
+  --user-dropdown-bg: #ffffff;   /* light user dropdown background */
+  --user-dropdown-border: #e5e7eb; /* light user dropdown border */
+  --user-profile-bg: #f0fdf4;    /* light user profile section background */
+  --user-profile-text: #111827;  /* light user profile text color */
+  --user-profile-text-secondary: #4b5563; /* light user profile secondary text */
+  --user-profile-role-bg: #d1fae5; /* light user profile role badge background */
+  --user-profile-role-text: #065f46; /* light user profile role badge text */
 }
 
 [data-theme="dark"] {
@@ -263,6 +281,15 @@
   --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
   --navbar-bg: #1f2937;    /* dark navbar background */
   --footer-bg: #1f2937;    /* dark footer background */
+  --navbar-text: #f9fafb;  /* dark navbar text color */
+  --navbar-text-secondary: #d1d5db; /* dark navbar secondary text color */
+  --user-dropdown-bg: #374151; /* dark user dropdown background */
+  --user-dropdown-border: #4b5563; /* dark user dropdown border */
+  --user-profile-bg: #064e3b; /* dark user profile section background */
+  --user-profile-text: #ffffff; /* dark user profile text color */
+  --user-profile-text-secondary: #d1d5db; /* dark user profile secondary text */
+  --user-profile-role-bg: #065f46; /* dark user profile role badge background */
+  --user-profile-role-text: #ffffff; /* dark user profile role badge text */
 }
 
 [data-theme="brand"] {
@@ -350,6 +377,15 @@
   --shadow-color: rgba(124, 58, 237, 0.2);
   --navbar-bg: #faf5ff;   /* brand navbar background */
   --footer-bg: #faf5ff;   /* brand footer background */
+  --navbar-text: #581c87; /* brand navbar text color */
+  --navbar-text-secondary: #7c3aed; /* brand navbar secondary text color */
+  --user-dropdown-bg: #ffffff; /* brand user dropdown background */
+  --user-dropdown-border: #e9d5ff; /* brand user dropdown border */
+  --user-profile-bg: #f3e8ff; /* brand user profile section background */
+  --user-profile-text: #581c87; /* brand user profile text color */
+  --user-profile-text-secondary: #7c3aed; /* brand user profile secondary text */
+  --user-profile-role-bg: #e9d5ff; /* brand user profile role badge background */
+  --user-profile-role-text: #581c87; /* brand user profile role badge text */
 }
 
 /* Helper class to apply theme accent gradient */
@@ -369,6 +405,45 @@
 
 .theme-footer-bg {
   background-color: var(--footer-bg) !important;
+}
+
+/* Theme-aware navbar text colors */
+.theme-navbar-text {
+  color: var(--navbar-text) !important;
+}
+
+.theme-navbar-text-secondary {
+  color: var(--navbar-text-secondary) !important;
+}
+
+/* Theme-aware user dropdown styles */
+.theme-user-dropdown-bg {
+  background-color: var(--user-dropdown-bg) !important;
+}
+
+.theme-user-dropdown-border {
+  border-color: var(--user-dropdown-border) !important;
+}
+
+/* Theme-aware user profile styles */
+.theme-user-profile-bg {
+  background-color: var(--user-profile-bg) !important;
+}
+
+.theme-user-profile-text {
+  color: var(--user-profile-text) !important;
+}
+
+.theme-user-profile-text-secondary {
+  color: var(--user-profile-text-secondary) !important;
+}
+
+.theme-user-profile-role-bg {
+  background-color: var(--user-profile-role-bg) !important;
+}
+
+.theme-user-profile-role-text {
+  color: var(--user-profile-role-text) !important;
 }
 
 /* Theme-aware border colors */
