@@ -395,6 +395,37 @@ const ProjectsPage: React.FC = () => {
   }, [memberSortBy, memberSortOrder, getProjectMembers]);
 
   /**
+   * Fetch project members with specific sorting parameters
+   * Used for immediate sorting without waiting for state update
+   */
+  const fetchProjectMembersWithSort = useCallback(async (projectId: string, page: number, pageSize: number, search: string, sortBy: string, sortOrder: string) => {
+    try {
+      setMemberState(prev => ({
+        ...prev,
+        loading: true,
+        error: null
+      }));
+
+      await getProjectMembers({
+        variables: {
+          projectId,
+          limit: pageSize,
+          offset: (page - 1) * pageSize,
+          search: search || undefined,
+          sortBy,
+          sortOrder
+        }
+      });
+    } catch (error) {
+      setMemberState(prev => ({
+        ...prev,
+        error: 'Failed to fetch project members',
+        loading: false
+      }));
+    }
+  }, [getProjectMembers]);
+
+  /**
    * Handle member search query change
    * Debounced search with pagination reset
    */
@@ -425,9 +456,10 @@ const ProjectsPage: React.FC = () => {
     setMemberSortOrder(newSortOrder);
     setMemberState(prev => ({ ...prev, currentPage: 1 }));
     if (state.selectedProject) {
-      fetchProjectMembers(state.selectedProject.id, 1, memberState.pageSize, memberState.searchQuery);
+      // Fetch with new sorting parameters immediately
+      fetchProjectMembersWithSort(state.selectedProject.id, 1, memberState.pageSize, memberState.searchQuery, newSortBy, newSortOrder);
     }
-  }, [state.selectedProject, memberState.pageSize, memberState.searchQuery, fetchProjectMembers]);
+  }, [state.selectedProject, memberState.pageSize, memberState.searchQuery]);
 
   /**
    * Handle member page change

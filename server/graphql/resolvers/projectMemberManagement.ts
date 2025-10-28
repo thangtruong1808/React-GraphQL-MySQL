@@ -90,19 +90,53 @@ export const getProjectMembers = async (
       : '';
 
     // Validate sort fields
-    const allowedSortFields = ['firstName', 'lastName', 'email', 'memberRole', 'createdAt'];
+    const allowedSortFields = ['firstName', 'lastName', 'email', 'memberRole', 'role', 'userId', 'createdAt'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'firstName';
     const validSortOrder = ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
 
     // Map sort field to SQL column (use column names from SELECT, not table aliases)
     let sortColumn;
+    let orderByClause;
+    
     switch (validSortBy) {
-      case 'firstName': sortColumn = 'firstName'; break;
-      case 'lastName': sortColumn = 'lastName'; break;
-      case 'email': sortColumn = 'email'; break;
-      case 'memberRole': sortColumn = 'memberRole'; break;
-      case 'createdAt': sortColumn = 'created_at'; break;
-      default: sortColumn = 'firstName';
+      case 'firstName': 
+        sortColumn = 'firstName'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      case 'lastName': 
+        sortColumn = 'lastName'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      case 'email': 
+        sortColumn = 'email'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      case 'memberRole': 
+        sortColumn = 'memberRole'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      case 'role': 
+        // Sort by project role since that's what's displayed in the ROLE column
+        sortColumn = 'projectRole'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      case 'userId': 
+        sortColumn = 'id'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      case 'createdAt': 
+        sortColumn = 'created_at'; 
+        orderByClause = `${sortColumn} ${validSortOrder}`;
+        break;
+      default: 
+        // Default behavior: sort by role priority, then by firstName
+        orderByClause = `CASE 
+          WHEN memberRole = 'OWNER' THEN 1 
+          WHEN memberRole = 'EDITOR' THEN 2
+          WHEN memberRole = 'VIEWER' THEN 3
+          WHEN memberRole = 'ASSIGNEE' THEN 4
+          ELSE 5
+        END, firstName ASC`;
     }
 
     // Get comprehensive members using the same logic as project detail page
@@ -117,7 +151,8 @@ export const getProjectMembers = async (
           u.role,
           'OWNER' as memberRole,
           u.created_at,
-          NULL as projectMemberRole
+          NULL as projectMemberRole,
+          'OWNER' as projectRole
         FROM projects p
         JOIN users u ON u.id = p.owner_id
         WHERE p.id = :projectId 
@@ -137,7 +172,8 @@ export const getProjectMembers = async (
           u.role,
           COALESCE(pm.role, 'VIEWER') as memberRole,
           u.created_at,
-          pm.role as projectMemberRole
+          pm.role as projectMemberRole,
+          COALESCE(pm.role, 'VIEWER') as projectRole
         FROM projects p
         JOIN project_members pm ON pm.project_id = p.id
         JOIN users u ON u.id = pm.user_id
@@ -159,7 +195,8 @@ export const getProjectMembers = async (
           u.role,
           'ASSIGNEE' as memberRole,
           u.created_at,
-          NULL as projectMemberRole
+          NULL as projectMemberRole,
+          'ASSIGNEE' as projectRole
         FROM projects p
         JOIN tasks t ON t.project_id = p.id
         JOIN users u ON u.id = t.assigned_to
@@ -178,14 +215,7 @@ export const getProjectMembers = async (
           ${searchCondition}
       )
       ORDER BY 
-        CASE 
-          WHEN memberRole = 'OWNER' THEN 1 
-          WHEN memberRole = 'EDITOR' THEN 2
-          WHEN memberRole = 'VIEWER' THEN 3
-          WHEN memberRole = 'ASSIGNEE' THEN 4
-          ELSE 5
-        END,
-        ${sortColumn} ${validSortOrder}
+        ${orderByClause}
       LIMIT :limit OFFSET :offset
     `, {
       type: QueryTypes.SELECT,

@@ -687,6 +687,79 @@ tr:hover span .theme-avatar-text,
   color: var(--sort-icon-active) !important;
 }
 
+/* Force consistent sort icons for ALL columns - highest specificity */
+table th .theme-sort-icon,
+table th .theme-sort-icon-active,
+table th[onclick*="userId"] .theme-sort-icon,
+table th[onclick*="userId"] .theme-sort-icon-active,
+table th[onclick*="memberRole"] .theme-sort-icon,
+table th[onclick*="memberRole"] .theme-sort-icon-active,
+table th[onclick*="role"] .theme-sort-icon,
+table th[onclick*="role"] .theme-sort-icon-active,
+table th[onclick*="createdAt"] .theme-sort-icon,
+table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Force consistent active sort icons for ALL columns */
+table th .theme-sort-icon-active,
+table th[onclick*="userId"] .theme-sort-icon-active,
+table th[onclick*="memberRole"] .theme-sort-icon-active,
+table th[onclick*="role"] .theme-sort-icon-active,
+table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon-active) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Ultimate override for ProjectMembersTable sort icons - maximum specificity */
+.ProjectMembersTable table th .theme-sort-icon,
+.ProjectMembersTable table th .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="userId"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="userId"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="memberRole"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="memberRole"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="role"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="role"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="createdAt"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.ProjectMembersTable table th .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="userId"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="memberRole"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="role"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon-active) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
 /* Theme-aware role selection styling */
 .theme-role-selection-bg {
   background-color: var(--role-selection-bg) !important;
@@ -845,6 +918,26 @@ button:hover, .btn:hover {
 [data-theme="dark"] .table-row-hover:hover .theme-role-selection-text,
 [data-theme="dark"] .table-row-hover:hover .theme-role-selection-text-secondary {
   color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Table header hover text contrast - use same text color as table rows */
+.table-row-hover:hover .theme-table-text-secondary {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
+}
+
+/* Table header labels hover text contrast - target header text labels */
+.table-row-hover:hover span {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
+}
+
+/* Dark theme specific table header hover text colors */
+[data-theme="dark"] .table-row-hover:hover .theme-table-text-secondary {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
+}
+
+/* Dark theme specific table header labels hover text colors */
+[data-theme="dark"] .table-row-hover:hover span {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
 }
 
 /* Custom hover background for table rows */
