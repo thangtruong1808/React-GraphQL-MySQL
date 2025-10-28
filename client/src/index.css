@@ -15,9 +15,77 @@
   --text-muted: #9ca3af;          /* muted text color */
   --border-color: #e5e7eb;        /* border color */
   --border-light: #f3f4f6;        /* light border color */
+  --border-medium: #d1d5db;       /* medium border color */
+  --border-dark: #9ca3af;         /* dark border color */
   --card-bg: #ffffff;             /* card background */
   --input-bg: #ffffff;            /* input background */
   --modal-bg: #ffffff;            /* modal background */
+  --table-header-bg: #f8fafc;      /* table header background - lighter than rows */
+  --table-row-bg: #ffffff;         /* table row background */
+  --table-row-hover-bg: #f9fafb;   /* table row hover background */
+  --project-info-bg: #f8fafc;      /* project info section background */
+  --project-info-border: #e2e8f0;  /* project info section border */
+  --project-info-text: #1e293b;    /* project info text color */
+  --project-info-text-secondary: #475569; /* project info secondary text */
+  --tab-active-bg: #f1f5f9;      /* active tab background */
+  --tab-active-text: #1e293b;    /* active tab text color */
+  --tab-active-border: #cbd5e1;  /* active tab border */
+  --tab-inactive-text: #64748b;  /* inactive tab text color */
+  --tab-inactive-hover-bg: #f8fafc; /* inactive tab hover background */
+  --tab-inactive-border: #e2e8f0; /* inactive tab border */
+  --notification-drawer-bg: #ffffff; /* notification drawer background */
+  --notification-drawer-border: #e5e7eb; /* notification drawer border */
+  --notification-drawer-header-bg: #f9fafb; /* notification drawer header background */
+  --notification-drawer-text: #111827; /* notification drawer text color */
+  --notification-drawer-text-secondary: #6b7280; /* notification drawer secondary text */
+  --notification-unread-bg: #eff6ff; /* unread notification background */
+  --notification-unread-border: #bfdbfe; /* unread notification border */
+  --notification-read-bg: #f9fafb; /* read notification background */
+  --notification-read-border: #e5e7eb; /* read notification border */
+  --notification-read-hover-bg: #f3f4f6; /* read notification hover background */
+  --button-primary-bg: #7c3aed; /* primary button background */
+  --button-primary-hover-bg: #6d28d9; /* primary button hover background */
+  --button-primary-text: #ffffff; /* primary button text color */
+  --button-primary-ring: #a855f7; /* primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* secondary button background */
+  --button-secondary-hover-bg: #2563eb; /* secondary button hover background */
+  --button-secondary-text: #ffffff; /* secondary button text color */
+  --button-secondary-ring: #60a5fa; /* secondary button focus ring */
+  --button-success-bg: #16a34a; /* success button background */
+  --button-success-hover-bg: #15803d; /* success button hover background */
+  --button-success-text: #ffffff; /* success button text color */
+  --button-danger-bg: #dc2626; /* danger button background */
+  --button-danger-hover-bg: #b91c1c; /* danger button hover background */
+  --button-danger-text: #ffffff; /* danger button text color */
+  --table-text-primary: #111827; /* primary table text color */
+  --table-text-secondary: #6b7280; /* secondary table text color */
+  --table-text-muted: #9ca3af; /* muted table text color */
+  --table-text-hover: #111827; /* table text color on hover */
+  --badge-primary-bg: #f3e8ff; /* primary badge background */
+  --badge-primary-text: #7c3aed; /* primary badge text */
+  --badge-secondary-bg: #dbeafe; /* secondary badge background */
+  --badge-secondary-text: #1d4ed8; /* secondary badge text */
+  --badge-success-bg: #dcfce7; /* success badge background */
+  --badge-success-text: #166534; /* success badge text */
+  --badge-warning-bg: #fed7aa; /* warning badge background */
+  --badge-warning-text: #c2410c; /* warning badge text */
+  --badge-neutral-bg: #f3f4f6; /* neutral badge background */
+  --badge-neutral-text: #374151; /* neutral badge text */
+  --avatar-bg: #f3e8ff; /* avatar background */
+  --avatar-text: #7c3aed; /* avatar text */
+  --sort-icon: #9ca3af; /* sort icon color */
+  --sort-icon-active: #7c3aed; /* active sort icon color */
+  --role-selection-bg: #ffffff; /* role selection background */
+  --role-selection-border: #e5e7eb; /* role selection border */
+  --role-selection-border-hover: #d1d5db; /* role selection border hover */
+  --role-selection-active-bg: #eff6ff; /* role selection active background */
+  --role-selection-active-border: #3b82f6; /* role selection active border */
+  --role-selection-text: #111827; /* role selection text */
+  --role-selection-text-secondary: #6b7280; /* role selection secondary text */
+  --text-badge-primary-bg: #f8fafc; /* text badge primary background */
+  --text-badge-primary-text: #1e293b; /* text badge primary text */
+  --text-badge-secondary-bg: #f1f5f9; /* text badge secondary background */
+  --text-badge-secondary-text: #475569; /* text badge secondary text */
   --shadow-color: rgba(0, 0, 0, 0.1); /* shadow color */
   --navbar-bg: #f9fafb;          /* navbar background */
   --footer-bg: #f9fafb;          /* footer background */
@@ -34,9 +102,77 @@
   --text-muted: #9ca3af;
   --border-color: #e5e7eb;
   --border-light: #f3f4f6;
+  --border-medium: #d1d5db;
+  --border-dark: #9ca3af;
   --card-bg: #ffffff;
   --input-bg: #ffffff;
   --modal-bg: #ffffff;
+  --table-header-bg: #f8fafc;      /* light table header background - distinct from rows */
+  --table-row-bg: #ffffff;         /* light table row background */
+  --table-row-hover-bg: #f9fafb;   /* light table row hover background */
+  --project-info-bg: #f8fafc;      /* light project info section background */
+  --project-info-border: #e2e8f0;  /* light project info section border */
+  --project-info-text: #1e293b;    /* light project info text color */
+  --project-info-text-secondary: #475569; /* light project info secondary text */
+  --tab-active-bg: #f1f5f9;      /* light active tab background */
+  --tab-active-text: #1e293b;    /* light active tab text color */
+  --tab-active-border: #cbd5e1;  /* light active tab border */
+  --tab-inactive-text: #64748b;  /* light inactive tab text color */
+  --tab-inactive-hover-bg: #f8fafc; /* light inactive tab hover background */
+  --tab-inactive-border: #e2e8f0; /* light inactive tab border */
+  --notification-drawer-bg: #ffffff; /* light notification drawer background */
+  --notification-drawer-border: #e5e7eb; /* light notification drawer border */
+  --notification-drawer-header-bg: #f9fafb; /* light notification drawer header background */
+  --notification-drawer-text: #111827; /* light notification drawer text color */
+  --notification-drawer-text-secondary: #6b7280; /* light notification drawer secondary text */
+  --notification-unread-bg: #eff6ff; /* light unread notification background */
+  --notification-unread-border: #bfdbfe; /* light unread notification border */
+  --notification-read-bg: #f9fafb; /* light read notification background */
+  --notification-read-border: #e5e7eb; /* light read notification border */
+  --notification-read-hover-bg: #f3f4f6; /* light read notification hover background */
+  --button-primary-bg: #7c3aed; /* light primary button background */
+  --button-primary-hover-bg: #6d28d9; /* light primary button hover background */
+  --button-primary-text: #ffffff; /* light primary button text color */
+  --button-primary-ring: #a855f7; /* light primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* light secondary button background */
+  --button-secondary-hover-bg: #2563eb; /* light secondary button hover background */
+  --button-secondary-text: #ffffff; /* light secondary button text color */
+  --button-secondary-ring: #60a5fa; /* light secondary button focus ring */
+  --button-success-bg: #16a34a; /* light success button background */
+  --button-success-hover-bg: #15803d; /* light success button hover background */
+  --button-success-text: #ffffff; /* light success button text color */
+  --button-danger-bg: #dc2626; /* light danger button background */
+  --button-danger-hover-bg: #b91c1c; /* light danger button hover background */
+  --button-danger-text: #ffffff; /* light danger button text color */
+  --table-text-primary: #111827; /* light primary table text color */
+  --table-text-secondary: #6b7280; /* light secondary table text color */
+  --table-text-muted: #9ca3af; /* light muted table text color */
+  --table-text-hover: #111827; /* light table text color on hover */
+  --badge-primary-bg: #f3e8ff; /* light primary badge background */
+  --badge-primary-text: #7c3aed; /* light primary badge text */
+  --badge-secondary-bg: #dbeafe; /* light secondary badge background */
+  --badge-secondary-text: #1d4ed8; /* light secondary badge text */
+  --badge-success-bg: #dcfce7; /* light success badge background */
+  --badge-success-text: #166534; /* light success badge text */
+  --badge-warning-bg: #fed7aa; /* light warning badge background */
+  --badge-warning-text: #c2410c; /* light warning badge text */
+  --badge-neutral-bg: #f3f4f6; /* light neutral badge background */
+  --badge-neutral-text: #374151; /* light neutral badge text */
+  --avatar-bg: #f3e8ff; /* light avatar background */
+  --avatar-text: #7c3aed; /* light avatar text */
+  --sort-icon: #9ca3af; /* light sort icon color */
+  --sort-icon-active: #7c3aed; /* light active sort icon color */
+  --role-selection-bg: #ffffff; /* light role selection background */
+  --role-selection-border: #e5e7eb; /* light role selection border */
+  --role-selection-border-hover: #d1d5db; /* light role selection border hover */
+  --role-selection-active-bg: #eff6ff; /* light role selection active background */
+  --role-selection-active-border: #3b82f6; /* light role selection active border */
+  --role-selection-text: #111827; /* light role selection text */
+  --role-selection-text-secondary: #6b7280; /* light role selection secondary text */
+  --text-badge-primary-bg: #f8fafc; /* light text badge primary background */
+  --text-badge-primary-text: #1e293b; /* light text badge primary text */
+  --text-badge-secondary-bg: #f1f5f9; /* light text badge secondary background */
+  --text-badge-secondary-text: #475569; /* light text badge secondary text */
   --shadow-color: rgba(0, 0, 0, 0.1);
   --navbar-bg: #f9fafb;          /* light navbar background */
   --footer-bg: #f9fafb;          /* light footer background */
@@ -53,9 +189,77 @@
   --text-muted: #9ca3af;   /* gray-400 - still readable */
   --border-color: #4b5563; /* gray-600 - more visible borders */
   --border-light: #6b7280; /* gray-500 - lighter borders */
+  --border-medium: #4b5563; /* gray-600 - medium borders */
+  --border-dark: #374151;  /* gray-700 - dark borders */
   --card-bg: #1f2937;      /* gray-800 - lighter than base */
   --input-bg: #1f2937;     /* gray-800 - consistent with cards */
   --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
+  --table-header-bg: #374151; /* dark table header background - darker than rows */
+  --table-row-bg: #1f2937;    /* dark table row background */
+  --table-row-hover-bg: #4b5563; /* dark table row hover background - lighter for better contrast */
+  --project-info-bg: #374151;    /* dark project info section background */
+  --project-info-border: #4b5563; /* dark project info section border */
+  --project-info-text: #f9fafb;  /* dark project info text color */
+  --project-info-text-secondary: #d1d5db; /* dark project info secondary text */
+  --tab-active-bg: #374151;    /* dark active tab background */
+  --tab-active-text: #f9fafb;  /* dark active tab text color */
+  --tab-active-border: #4b5563; /* dark active tab border */
+  --tab-inactive-text: #9ca3af; /* dark inactive tab text color */
+  --tab-inactive-hover-bg: #374151; /* dark inactive tab hover background */
+  --tab-inactive-border: #4b5563; /* dark inactive tab border */
+  --notification-drawer-bg: #1f2937; /* dark notification drawer background */
+  --notification-drawer-border: #4b5563; /* dark notification drawer border */
+  --notification-drawer-header-bg: #374151; /* dark notification drawer header background */
+  --notification-drawer-text: #f9fafb; /* dark notification drawer text color */
+  --notification-drawer-text-secondary: #d1d5db; /* dark notification drawer secondary text */
+  --notification-unread-bg: #1e3a8a; /* dark unread notification background */
+  --notification-unread-border: #3b82f6; /* dark unread notification border */
+  --notification-read-bg: #374151; /* dark read notification background */
+  --notification-read-border: #4b5563; /* dark read notification border */
+  --notification-read-hover-bg: #4b5563; /* dark read notification hover background */
+  --button-primary-bg: #7c3aed; /* dark primary button background */
+  --button-primary-hover-bg: #8b5cf6; /* dark primary button hover background */
+  --button-primary-text: #ffffff; /* dark primary button text color */
+  --button-primary-ring: #a855f7; /* dark primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* dark secondary button background */
+  --button-secondary-hover-bg: #1d4ed8; /* dark secondary button hover background */
+  --button-secondary-text: #ffffff; /* dark secondary button text color */
+  --button-secondary-ring: #60a5fa; /* dark secondary button focus ring */
+  --button-success-bg: #16a34a; /* dark success button background */
+  --button-success-hover-bg: #15803d; /* dark success button hover background */
+  --button-success-text: #ffffff; /* dark success button text color */
+  --button-danger-bg: #dc2626; /* dark danger button background */
+  --button-danger-hover-bg: #b91c1c; /* dark danger button hover background */
+  --button-danger-text: #ffffff; /* dark danger button text color */
+  --table-text-primary: #ffffff; /* dark primary table text color - pure white for maximum contrast */
+  --table-text-secondary: #e5e7eb; /* dark secondary table text color - lighter gray for better contrast */
+  --table-text-muted: #d1d5db; /* dark muted table text color */
+  --table-text-hover: #ffffff; /* dark table text color on hover - pure white */
+  --badge-primary-bg: #4c1d95; /* dark primary badge background */
+  --badge-primary-text: #c4b5fd; /* dark primary badge text */
+  --badge-secondary-bg: #1e3a8a; /* dark secondary badge background */
+  --badge-secondary-text: #93c5fd; /* dark secondary badge text */
+  --badge-success-bg: #14532d; /* dark success badge background */
+  --badge-success-text: #86efac; /* dark success badge text */
+  --badge-warning-bg: #9a3412; /* dark warning badge background */
+  --badge-warning-text: #fed7aa; /* dark warning badge text */
+  --badge-neutral-bg: #374151; /* dark neutral badge background */
+  --badge-neutral-text: #d1d5db; /* dark neutral badge text */
+  --avatar-bg: #4c1d95; /* dark avatar background */
+  --avatar-text: #c4b5fd; /* dark avatar text */
+  --sort-icon: #6b7280; /* dark sort icon color */
+  --sort-icon-active: #a855f7; /* dark active sort icon color */
+  --role-selection-bg: #1f2937; /* dark role selection background */
+  --role-selection-border: #4b5563; /* dark role selection border */
+  --role-selection-border-hover: #6b7280; /* dark role selection border hover */
+  --role-selection-active-bg: #1e3a8a; /* dark role selection active background */
+  --role-selection-active-border: #3b82f6; /* dark role selection active border */
+  --role-selection-text: #f9fafb; /* dark role selection text */
+  --role-selection-text-secondary: #d1d5db; /* dark role selection secondary text */
+  --text-badge-primary-bg: #374151; /* dark text badge primary background */
+  --text-badge-primary-text: #ffffff; /* dark text badge primary text */
+  --text-badge-secondary-bg: #4b5563; /* dark text badge secondary background */
+  --text-badge-secondary-text: #e5e7eb; /* dark text badge secondary text */
   --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
   --navbar-bg: #1f2937;    /* dark navbar background */
   --footer-bg: #1f2937;    /* dark footer background */
@@ -72,9 +276,77 @@
   --text-muted: #a855f7;
   --border-color: #c084fc;
   --border-light: #ddd6fe;
+  --border-medium: #c084fc;
+  --border-dark: #a855f7;
   --card-bg: #faf5ff;
   --input-bg: #faf5ff;
   --modal-bg: #faf5ff;
+  --table-header-bg: #f3e8ff;   /* brand table header background - lighter than rows */
+  --table-row-bg: #faf5ff;      /* brand table row background */
+  --table-row-hover-bg: #f3e8ff; /* brand table row hover background */
+  --project-info-bg: #f3e8ff;   /* brand project info section background */
+  --project-info-border: #c084fc; /* brand project info section border */
+  --project-info-text: #581c87; /* brand project info text color */
+  --project-info-text-secondary: #7c3aed; /* brand project info secondary text */
+  --tab-active-bg: #f3e8ff;   /* brand active tab background */
+  --tab-active-text: #581c87; /* brand active tab text color */
+  --tab-active-border: #c084fc; /* brand active tab border */
+  --tab-inactive-text: #a855f7; /* brand inactive tab text color */
+  --tab-inactive-hover-bg: #faf5ff; /* brand inactive tab hover background */
+  --tab-inactive-border: #c084fc; /* brand inactive tab border */
+  --notification-drawer-bg: #faf5ff; /* brand notification drawer background */
+  --notification-drawer-border: #c084fc; /* brand notification drawer border */
+  --notification-drawer-header-bg: #f3e8ff; /* brand notification drawer header background */
+  --notification-drawer-text: #581c87; /* brand notification drawer text color */
+  --notification-drawer-text-secondary: #7c3aed; /* brand notification drawer secondary text */
+  --notification-unread-bg: #ede9fe; /* brand unread notification background */
+  --notification-unread-border: #a855f7; /* brand unread notification border */
+  --notification-read-bg: #f3e8ff; /* brand read notification background */
+  --notification-read-border: #c084fc; /* brand read notification border */
+  --notification-read-hover-bg: #e9d5ff; /* brand read notification hover background */
+  --button-primary-bg: #7c3aed; /* brand primary button background */
+  --button-primary-hover-bg: #6d28d9; /* brand primary button hover background */
+  --button-primary-text: #ffffff; /* brand primary button text color */
+  --button-primary-ring: #a855f7; /* brand primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* brand secondary button background */
+  --button-secondary-hover-bg: #2563eb; /* brand secondary button hover background */
+  --button-secondary-text: #ffffff; /* brand secondary button text color */
+  --button-secondary-ring: #60a5fa; /* brand secondary button focus ring */
+  --button-success-bg: #16a34a; /* brand success button background */
+  --button-success-hover-bg: #15803d; /* brand success button hover background */
+  --button-success-text: #ffffff; /* brand success button text color */
+  --button-danger-bg: #dc2626; /* brand danger button background */
+  --button-danger-hover-bg: #b91c1c; /* brand danger button hover background */
+  --button-danger-text: #ffffff; /* brand danger button text color */
+  --table-text-primary: #581c87; /* brand primary table text color */
+  --table-text-secondary: #7c3aed; /* brand secondary table text color */
+  --table-text-muted: #a855f7; /* brand muted table text color */
+  --table-text-hover: #581c87; /* brand table text color on hover */
+  --badge-primary-bg: #f3e8ff; /* brand primary badge background */
+  --badge-primary-text: #7c3aed; /* brand primary badge text */
+  --badge-secondary-bg: #dbeafe; /* brand secondary badge background */
+  --badge-secondary-text: #1d4ed8; /* brand secondary badge text */
+  --badge-success-bg: #dcfce7; /* brand success badge background */
+  --badge-success-text: #166534; /* brand success badge text */
+  --badge-warning-bg: #fed7aa; /* brand warning badge background */
+  --badge-warning-text: #c2410c; /* brand warning badge text */
+  --badge-neutral-bg: #f3f4f6; /* brand neutral badge background */
+  --badge-neutral-text: #374151; /* brand neutral badge text */
+  --avatar-bg: #f3e8ff; /* brand avatar background */
+  --avatar-text: #7c3aed; /* brand avatar text */
+  --sort-icon: #a855f7; /* brand sort icon color */
+  --sort-icon-active: #7c3aed; /* brand active sort icon color */
+  --role-selection-bg: #faf5ff; /* brand role selection background */
+  --role-selection-border: #c084fc; /* brand role selection border */
+  --role-selection-border-hover: #a855f7; /* brand role selection border hover */
+  --role-selection-active-bg: #ede9fe; /* brand role selection active background */
+  --role-selection-active-border: #7c3aed; /* brand role selection active border */
+  --role-selection-text: #581c87; /* brand role selection text */
+  --role-selection-text-secondary: #7c3aed; /* brand role selection secondary text */
+  --text-badge-primary-bg: #f3e8ff; /* brand text badge primary background */
+  --text-badge-primary-text: #581c87; /* brand text badge primary text */
+  --text-badge-secondary-bg: #ede9fe; /* brand text badge secondary background */
+  --text-badge-secondary-text: #7c3aed; /* brand text badge secondary text */
   --shadow-color: rgba(124, 58, 237, 0.2);
   --navbar-bg: #faf5ff;   /* brand navbar background */
   --footer-bg: #faf5ff;   /* brand footer background */
@@ -97,6 +369,351 @@
 
 .theme-footer-bg {
   background-color: var(--footer-bg) !important;
+}
+
+/* Theme-aware border colors */
+.theme-border {
+  border-color: var(--border-color) !important;
+}
+
+.theme-border-light {
+  border-color: var(--border-light) !important;
+}
+
+.theme-border-medium {
+  border-color: var(--border-medium) !important;
+}
+
+.theme-border-dark {
+  border-color: var(--border-dark) !important;
+}
+
+/* Theme-aware table styling */
+.theme-table-header-bg {
+  background-color: var(--table-header-bg) !important;
+}
+
+.theme-table-row-bg {
+  background-color: var(--table-row-bg) !important;
+}
+
+.theme-table-row-hover-bg:hover {
+  background-color: var(--table-row-hover-bg) !important;
+}
+
+.theme-table-border {
+  border-color: var(--border-color) !important;
+}
+
+.theme-table-divide {
+  border-color: var(--border-color) !important;
+}
+
+/* Theme-aware project info styling */
+.theme-project-info-bg {
+  background-color: var(--project-info-bg) !important;
+}
+
+.theme-project-info-border {
+  border-color: var(--project-info-border) !important;
+}
+
+.theme-project-info-text {
+  color: var(--project-info-text) !important;
+}
+
+.theme-project-info-text-secondary {
+  color: var(--project-info-text-secondary) !important;
+}
+
+/* Theme-aware tab styling */
+.theme-tab-active-bg {
+  background-color: var(--tab-active-bg) !important;
+}
+
+.theme-tab-active-text {
+  color: var(--tab-active-text) !important;
+}
+
+.theme-tab-active-border {
+  border-color: var(--tab-active-border) !important;
+}
+
+.theme-tab-inactive-text {
+  color: var(--tab-inactive-text) !important;
+}
+
+.theme-tab-inactive-hover-bg:hover {
+  background-color: var(--tab-inactive-hover-bg) !important;
+}
+
+.theme-tab-inactive-border {
+  border-color: var(--tab-inactive-border) !important;
+}
+
+/* Theme-aware notification drawer styling */
+.theme-notification-drawer-bg {
+  background-color: var(--notification-drawer-bg) !important;
+}
+
+.theme-notification-drawer-border {
+  border-color: var(--notification-drawer-border) !important;
+}
+
+.theme-notification-drawer-header-bg {
+  background-color: var(--notification-drawer-header-bg) !important;
+}
+
+.theme-notification-drawer-text {
+  color: var(--notification-drawer-text) !important;
+}
+
+.theme-notification-drawer-text-secondary {
+  color: var(--notification-drawer-text-secondary) !important;
+}
+
+.theme-notification-unread-bg {
+  background-color: var(--notification-unread-bg) !important;
+}
+
+.theme-notification-unread-border {
+  border-color: var(--notification-unread-border) !important;
+}
+
+.theme-notification-read-bg {
+  background-color: var(--notification-read-bg) !important;
+}
+
+.theme-notification-read-border {
+  border-color: var(--notification-read-border) !important;
+}
+
+.theme-notification-read-hover-bg:hover {
+  background-color: var(--notification-read-hover-bg) !important;
+}
+
+/* Theme-aware button styling */
+.theme-button-primary {
+  background-color: var(--button-primary-bg) !important;
+  color: var(--button-primary-text) !important;
+}
+
+.theme-button-primary:hover {
+  background-color: var(--button-primary-hover-bg) !important;
+}
+
+.theme-button-primary:focus {
+  --tw-ring-color: var(--button-primary-ring) !important;
+}
+
+.theme-button-secondary {
+  background-color: var(--button-secondary-bg) !important;
+  color: var(--button-secondary-text) !important;
+}
+
+.theme-button-secondary:hover {
+  background-color: var(--button-secondary-hover-bg) !important;
+}
+
+.theme-button-secondary:focus {
+  --tw-ring-color: var(--button-secondary-ring) !important;
+}
+
+.theme-button-success {
+  background-color: var(--button-success-bg) !important;
+  color: var(--button-success-text) !important;
+}
+
+.theme-button-success:hover {
+  background-color: var(--button-success-hover-bg) !important;
+}
+
+.theme-button-danger {
+  background-color: var(--button-danger-bg) !important;
+  color: var(--button-danger-text) !important;
+}
+
+.theme-button-danger:hover {
+  background-color: var(--button-danger-hover-bg) !important;
+}
+
+/* Theme-aware table text styling */
+.theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+.theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+.theme-table-text-muted {
+  color: var(--table-text-muted) !important;
+}
+
+/* Ensure text colors are maintained with maximum specificity */
+.theme-table-row-hover-bg:hover .theme-table-text-primary,
+.theme-table-row-hover-bg:hover td .theme-table-text-primary,
+.theme-table-row-hover-bg:hover div .theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-table-text-secondary,
+.theme-table-row-hover-bg:hover td .theme-table-text-secondary,
+.theme-table-row-hover-bg:hover div .theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-table-text-muted,
+.theme-table-row-hover-bg:hover td .theme-table-text-muted,
+.theme-table-row-hover-bg:hover div .theme-table-text-muted {
+  color: var(--table-text-muted) !important;
+}
+
+/* Additional specificity for hover:bg-gray-50 class */
+.hover\:bg-gray-50:hover .theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+.hover\:bg-gray-50:hover .theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+.hover\:bg-gray-50:hover .theme-table-text-muted {
+  color: var(--table-text-muted) !important;
+}
+
+.hover\:bg-gray-50:hover .theme-avatar-text {
+  color: var(--avatar-text) !important;
+}
+
+.theme-table-text-hover:hover {
+  color: var(--table-text-hover) !important;
+}
+
+/* Force text colors on hover with maximum specificity */
+tr:hover td .theme-table-text-primary,
+tr:hover div .theme-table-text-primary,
+tr:hover span .theme-table-text-primary,
+.hover\:bg-gray-50:hover td .theme-table-text-primary,
+.hover\:bg-gray-50:hover div .theme-table-text-primary,
+.hover\:bg-gray-50:hover span .theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+tr:hover td .theme-table-text-secondary,
+tr:hover div .theme-table-text-secondary,
+tr:hover span .theme-table-text-secondary,
+.hover\:bg-gray-50:hover td .theme-table-text-secondary,
+.hover\:bg-gray-50:hover div .theme-table-text-secondary,
+.hover\:bg-gray-50:hover span .theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+tr:hover td .theme-avatar-text,
+tr:hover div .theme-avatar-text,
+tr:hover span .theme-avatar-text,
+.hover\:bg-gray-50:hover td .theme-avatar-text,
+.hover\:bg-gray-50:hover div .theme-avatar-text,
+.hover\:bg-gray-50:hover span .theme-avatar-text {
+  color: var(--avatar-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-primary {
+  background-color: var(--badge-primary-bg) !important;
+  color: var(--badge-primary-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-secondary {
+  background-color: var(--badge-secondary-bg) !important;
+  color: var(--badge-secondary-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-success {
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-warning {
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-neutral {
+  background-color: var(--badge-neutral-bg) !important;
+  color: var(--badge-neutral-text) !important;
+}
+
+/* Theme-aware badge styling */
+.theme-badge-primary {
+  background-color: var(--badge-primary-bg) !important;
+  color: var(--badge-primary-text) !important;
+}
+
+.theme-badge-secondary {
+  background-color: var(--badge-secondary-bg) !important;
+  color: var(--badge-secondary-text) !important;
+}
+
+.theme-badge-success {
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+}
+
+.theme-badge-warning {
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+}
+
+.theme-badge-neutral {
+  background-color: var(--badge-neutral-bg) !important;
+  color: var(--badge-neutral-text) !important;
+}
+
+/* Theme-aware avatar styling */
+.theme-avatar-bg {
+  background-color: var(--avatar-bg) !important;
+}
+
+.theme-avatar-text {
+  color: var(--avatar-text) !important;
+}
+
+/* Theme-aware sort icon styling */
+.theme-sort-icon {
+  color: var(--sort-icon) !important;
+}
+
+.theme-sort-icon-active {
+  color: var(--sort-icon-active) !important;
+}
+
+/* Theme-aware role selection styling */
+.theme-role-selection-bg {
+  background-color: var(--role-selection-bg) !important;
+}
+
+.theme-role-selection-border {
+  border-color: var(--role-selection-border) !important;
+}
+
+.theme-role-selection-border-hover:hover {
+  border-color: var(--role-selection-border-hover) !important;
+}
+
+.theme-role-selection-active-bg {
+  background-color: var(--role-selection-active-bg) !important;
+}
+
+.theme-role-selection-active-border {
+  border-color: var(--role-selection-active-border) !important;
+}
+
+.theme-role-selection-text {
+  color: var(--role-selection-text) !important;
+}
+
+.theme-role-selection-text-secondary {
+  color: var(--role-selection-text-secondary) !important;
 }
 
 /* Theme-aware text colors */
@@ -196,8 +813,68 @@ button:hover, .btn:hover {
   color: var(--text-primary) !important;
 }
 
-.nav-item:hover, .nav-link:hover {
-  background-color: var(--border-light) !important;
+/* Ensure badge backgrounds have good contrast on hover */
+.table-row-hover:hover .theme-badge-primary,
+.table-row-hover:hover .theme-badge-secondary,
+.table-row-hover:hover .theme-badge-neutral {
+  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Ensure other text elements have good contrast on hover */
+.table-row-hover:hover .theme-table-text-primary,
+.table-row-hover:hover .theme-table-text-secondary,
+.table-row-hover:hover .theme-avatar-text {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Dark theme specific text hover colors */
+[data-theme="dark"] .table-row-hover:hover .theme-table-text-primary,
+[data-theme="dark"] .table-row-hover:hover .theme-table-text-secondary,
+[data-theme="dark"] .table-row-hover:hover .theme-avatar-text {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Add Member Dialog hover effects */
+.table-row-hover:hover .theme-role-selection-text,
+.table-row-hover:hover .theme-role-selection-text-secondary {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Dark theme specific dialog hover colors */
+[data-theme="dark"] .table-row-hover:hover .theme-role-selection-text,
+[data-theme="dark"] .table-row-hover:hover .theme-role-selection-text-secondary {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Custom hover background for table rows */
+.table-row-hover:hover {
+  background-color: #f9fafb !important; /* bg-gray-50 */
+}
+
+/* Dark theme specific hover background - ensure it works in dark theme */
+[data-theme="dark"] .table-row-hover:hover {
+  background-color: #f3f4f6 !important; /* gray-100 - very light gray for excellent visibility in dark theme */
+}
+
+/* Additional specificity for dark theme hover - ensure it overrides any conflicting styles */
+[data-theme="dark"] tr.table-row-hover:hover,
+[data-theme="dark"] .table-row-hover:hover td,
+[data-theme="dark"] .table-row-hover:hover div {
+  background-color: #f3f4f6 !important; /* gray-100 - very light gray for excellent visibility */
+}
+
+/* Ensure text colors have good contrast on hover in dark theme */
+[data-theme="dark"] .table-row-hover:hover .theme-table-text-primary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-secondary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
+  color: #1f2937 !important; /* gray-800 - dark text for contrast with light hover background */
+}
+
+[data-theme="dark"] .table-row-hover:hover .theme-table-text-secondary,
+[data-theme="dark"] .table-row-hover:hover .theme-avatar-text {
+  color: #374151 !important; /* gray-700 - medium dark text for contrast */
 }
 
 /* Theme-aware badges and labels */

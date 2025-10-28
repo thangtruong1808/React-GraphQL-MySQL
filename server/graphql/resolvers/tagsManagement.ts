@@ -260,10 +260,92 @@ export const deleteTag = async (
   }
 };
 
+/**
+ * Get distinct tag types from database
+ * Returns unique type values with proper labels
+ */
+export const getTagTypes = async (
+  parent: any,
+  args: any,
+  context: any
+) => {
+  try {
+    // Check authentication
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to view tag types');
+    }
+
+    // Get distinct type values from database
+    const types = await Tag.findAll({
+      attributes: ['type'],
+      where: {
+        type: {
+          [Op.ne]: null, // Not null
+          [Op.ne]: '',   // Not empty string
+        },
+      },
+      group: ['type'],
+      order: [['type', 'ASC']],
+    });
+
+    // Transform to GraphQL response format
+    const transformedTypes = types.map((tag: any) => ({
+      value: tag.type,
+      label: tag.type.charAt(0).toUpperCase() + tag.type.slice(1).toLowerCase(),
+    }));
+
+    return transformedTypes;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch tag types: ${error.message}`);
+  }
+};
+
+/**
+ * Get distinct tag categories from database
+ * Returns unique category values with proper labels
+ */
+export const getTagCategories = async (
+  parent: any,
+  args: any,
+  context: any
+) => {
+  try {
+    // Check authentication
+    if (!context.user) {
+      throw new AuthenticationError('You must be logged in to view tag categories');
+    }
+
+    // Get distinct category values from database
+    const categories = await Tag.findAll({
+      attributes: ['category'],
+      where: {
+        category: {
+          [Op.ne]: null, // Not null
+          [Op.ne]: '',   // Not empty string
+        },
+      },
+      group: ['category'],
+      order: [['category', 'ASC']],
+    });
+
+    // Transform to GraphQL response format
+    const transformedCategories = categories.map((tag: any) => ({
+      value: tag.category,
+      label: tag.category.charAt(0).toUpperCase() + tag.category.slice(1).toLowerCase(),
+    }));
+
+    return transformedCategories;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch tag categories: ${error.message}`);
+  }
+};
+
 // Export resolvers
 export const tagsManagementResolvers = {
   Query: {
     dashboardTags: getDashboardTags,
+    tagTypes: getTagTypes,
+    tagCategories: getTagCategories,
   },
   Mutation: {
     createTag,

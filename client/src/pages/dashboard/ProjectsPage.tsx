@@ -566,7 +566,7 @@ const ProjectsPage: React.FC = () => {
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
-        <div className="bg-white border-b border-gray-200 w-full">
+        <div className="bg-white theme-border-medium w-full">
           <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
@@ -581,7 +581,7 @@ const ProjectsPage: React.FC = () => {
                 /* Create Project Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
                   onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 >
                   <FaPlus className="h-5 w-5" aria-hidden="true" />
@@ -593,7 +593,7 @@ const ProjectsPage: React.FC = () => {
                 /* Add Member Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
                   onClick={() => setMemberState(prev => ({ ...prev, addModalOpen: true }))}
                 >
                   <FaUsers className="h-5 w-5" aria-hidden="true" />
@@ -609,13 +609,13 @@ const ProjectsPage: React.FC = () => {
         <div className="w-full">
           <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             {/* Tabs Navigation */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div className="bg-white rounded-lg shadow-sm theme-border mb-6">
               <nav className="flex">
                 <button
                   onClick={() => setActiveTab('projects')}
                   className={`flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 ${activeTab === 'projects'
-                    ? 'bg-purple-50 text-purple-700 border-r border-purple-200'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-r border-gray-200'
+                    ? 'theme-tab-active-bg theme-tab-active-text theme-tab-active-border border-r'
+                    : 'theme-tab-inactive-text theme-tab-inactive-hover-bg theme-tab-inactive-border border-r'
                     }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
@@ -625,15 +625,15 @@ const ProjectsPage: React.FC = () => {
                 <button
                   onClick={() => setActiveTab('members')}
                   className={`flex-1 py-4 px-6 text-center font-medium text-sm transition-all duration-200 ${activeTab === 'members'
-                    ? 'bg-purple-50 text-purple-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'theme-tab-active-bg theme-tab-active-text'
+                    : 'theme-tab-inactive-text theme-tab-inactive-hover-bg'
                     }`}
                 >
                   <div className="flex items-center justify-center space-x-2">
                     <FaUsers className="w-4 h-4" />
                     <span>Members</span>
                     {state.selectedProject && (
-                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                      <span className="theme-tab-active-bg theme-tab-active-text px-2 py-1 rounded-full text-xs">
                         {state.selectedProject.name}
                       </span>
                     )}
@@ -728,7 +728,7 @@ const ProjectsPage: React.FC = () => {
                     <div className="mt-4">
                       <button
                         onClick={() => setActiveTab('projects')}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                       >
                         View Projects
                       </button>
@@ -737,7 +737,7 @@ const ProjectsPage: React.FC = () => {
                 ) : (
                   <>
                     {/* Project Info */}
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="theme-project-info-bg theme-project-info-border rounded-lg p-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0">
                           <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
@@ -747,10 +747,10 @@ const ProjectsPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="ml-3">
-                          <h3 className="text-sm font-medium text-purple-900">
+                          <h3 className="text-sm font-medium theme-project-info-text">
                             {state.selectedProject.name}
                           </h3>
-                          <p className="text-sm text-purple-700">
+                          <p className="text-sm theme-project-info-text-secondary">
                             {state.selectedProject.description}
                           </p>
                         </div>

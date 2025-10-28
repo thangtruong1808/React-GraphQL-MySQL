@@ -194,12 +194,12 @@ const TasksTable: React.FC<TasksTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white rounded-lg shadow-sm theme-border">
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-fixed">
+        <table className="min-w-full theme-table-divide table-fixed">
           {/* Table Header */}
-          <thead className="bg-gray-50">
+          <thead className="theme-table-header-bg">
             <tr>
               {/* ID Column - Hidden on mobile and tablet */}
               <th
@@ -295,7 +295,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
           </thead>
 
           {/* Table Body */}
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="theme-table-row-bg theme-table-divide">
             {loading ? (
               // Loading skeleton rows
               Array.from({ length: 5 }).map((_, index) => (
@@ -368,7 +368,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : (
               // Data rows
               tasks.map((task) => (
-                <tr key={task.id} className="hover:bg-gray-50">
+                <tr key={task.id} className="theme-table-row-hover-bg">
                   {/* ID Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {task.id}
@@ -462,7 +462,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">

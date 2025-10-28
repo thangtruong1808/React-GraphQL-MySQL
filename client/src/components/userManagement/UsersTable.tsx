@@ -128,11 +128,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div className="bg-white shadow-sm rounded-lg theme-border">
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-fixed">
-          <thead className="bg-gray-50">
+        <table className="min-w-full theme-table-divide table-fixed">
+          <thead className="theme-table-header-bg">
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
@@ -206,7 +206,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="theme-table-row-bg theme-table-divide">
             {users.length === 0 ? (
               // Empty state
               <tr>
@@ -223,7 +223,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             ) : (
               // User rows
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 transition-colors duration-150">
+                <tr key={user.id} className="theme-table-row-hover-bg transition-colors duration-150">
                   {/* ID Column - Hidden on mobile */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {user.id}
@@ -293,7 +293,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">

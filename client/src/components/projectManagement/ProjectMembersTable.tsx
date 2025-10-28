@@ -46,13 +46,13 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'OWNER':
-        return 'bg-purple-100 text-purple-800';
+        return 'theme-badge-primary';
       case 'EDITOR':
-        return 'bg-blue-100 text-blue-800';
+        return 'theme-badge-secondary';
       case 'VIEWER':
-        return 'bg-gray-100 text-gray-800';
+        return 'theme-badge-neutral';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'theme-badge-neutral';
     }
   };
 
@@ -60,15 +60,15 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
   const getMemberTypeBadgeColor = (memberType: string) => {
     switch (memberType) {
       case 'OWNER':
-        return { color: 'bg-purple-100 text-purple-800', text: 'Owner' };
+        return { color: 'theme-badge-primary', text: 'Owner' };
       case 'EDITOR':
-        return { color: 'bg-blue-100 text-blue-800', text: 'Editor' };
+        return { color: 'theme-badge-secondary', text: 'Editor' };
       case 'VIEWER':
-        return { color: 'bg-green-100 text-green-800', text: 'Viewer' };
+        return { color: 'theme-badge-success', text: 'Viewer' };
       case 'ASSIGNEE':
-        return { color: 'bg-orange-100 text-orange-800', text: 'Task Assignee' };
+        return { color: 'theme-badge-warning', text: 'Task Assignee' };
       default:
-        return { color: 'bg-gray-100 text-gray-800', text: 'Member' };
+        return { color: 'theme-badge-neutral', text: 'Member' };
     }
   };
 
@@ -76,18 +76,18 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
   const getSortIcon = (column: string) => {
     if (currentSortBy !== column) {
       return (
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 theme-sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
     }
 
     return currentSortOrder === 'ASC' ? (
-      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
       </svg>
     ) : (
-      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     );
@@ -112,12 +112,12 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full theme-table-divide">
+          <thead className="theme-table-header-bg">
             <tr>
               {/* ID Column - Hidden on large screens */}
               <th
-                className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('userId')}
               >
                 <div className="flex items-center space-x-1">
@@ -126,12 +126,12 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                 </div>
               </th>
               {/* User Column */}
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 User
               </th>
               {/* Member Type Column */}
               <th
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('memberRole')}
               >
                 <div className="flex items-center space-x-1">
@@ -141,7 +141,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
               </th>
               {/* Role Column */}
               <th
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('role')}
               >
                 <div className="flex items-center space-x-1">
@@ -150,12 +150,12 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                 </div>
               </th>
               {/* User Role Column - Hidden on small screens */}
-              <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 User Role
               </th>
               {/* Joined Column - Hidden on extra small screens */}
               <th
-                className="hidden xs:table-cell px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden xs:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -163,46 +163,50 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                   {getSortIcon('createdAt')}
                 </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="theme-table-row-bg theme-table-divide">
             {members.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-12 text-center theme-table-text-secondary">
                   <div className="flex flex-col items-center">
-                    <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-12 h-12 theme-table-text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
-                    <p className="text-lg font-medium text-gray-900 mb-1">No members found</p>
-                    <p className="text-gray-500">Add members to this project to get started.</p>
+                    <p className="text-lg font-medium theme-table-text-primary mb-1">No members found</p>
+                    <p className="theme-table-text-secondary">Add members to this project to get started.</p>
                   </div>
                 </td>
               </tr>
             ) : (
               members.map((member) => (
-                <tr key={`${member.projectId}-${member.userId}`} className="hover:bg-gray-50 transition-colors duration-200">
+                <tr key={`${member.projectId}-${member.userId}`} className="table-row-hover transition-colors duration-200">
                   {/* ID Column - Hidden on large screens */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {member.userId}
                   </td>
                   {/* User */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-8 w-8">
-                        <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
-                          <span className="text-sm font-medium text-purple-600">
+                        <div className="h-8 w-8 rounded-full theme-avatar-bg flex items-center justify-center">
+                          <span className="text-sm font-medium theme-avatar-text">
                             {member.user.firstName.charAt(0)}{member.user.lastName.charAt(0)}
                           </span>
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
+                        <span className="inline-flex items-center px-2 py-1 rounded text-sm font-medium theme-badge-primary">
                           {member.user.firstName} {member.user.lastName}
+                        </span>
+                        <div className="mt-1">
+                          <span className="inline-flex items-center px-2 py-1 rounded text-sm theme-badge-secondary">
+                            {member.user.email}
+                          </span>
                         </div>
-                        <div className="text-sm text-gray-500">{member.user.email}</div>
                       </div>
                     </div>
                   </td>
@@ -227,14 +231,14 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                   </td>
 
                   {/* User Role Column - Hidden on small screens */}
-                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium theme-badge-neutral">
                       {formatRoleForDisplay(member.user.role)}
                     </span>
                   </td>
 
                   {/* Joined Column - Hidden on extra small screens */}
-                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     {formatDate(member.createdAt)}
                   </td>
 
@@ -243,14 +247,14 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                     <div className="flex justify-start space-x-2">
                       {/* Show different actions based on member type */}
                       {member.memberType === 'OWNER' ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium theme-badge-primary">
                           Project Owner
                         </span>
                       ) : member.memberType === 'ASSIGNEE' ? (
                         <div className="flex space-x-2">
                           <button
                             onClick={() => onUpdateRole(member)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-success focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
                             title="Promote to project member"
                           >
                             <FaUserPlus className="w-3 h-3 mr-1" />
@@ -262,7 +266,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                           {/* Update Role button */}
                           <button
                             onClick={() => onUpdateRole(member)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                             title="Edit member role"
                           >
                             <FaEdit className="w-3 h-3 mr-1" />
@@ -271,7 +275,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                           {/* Remove button */}
                           <button
                             onClick={() => onRemoveMember(member)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-danger focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                             title="Remove member"
                           >
                             <FaTrash className="w-3 h-3 mr-1" />

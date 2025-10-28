@@ -211,6 +211,12 @@ export const typeDefs = gql`
     updatedAt: String
   }
 
+  # Tag Option Type - for dynamic form options
+  type TagOption {
+    value: String!
+    label: String!
+  }
+
   # Project Like Info Type - for displaying project names with like counts
   type ProjectLikeInfo {
     projectName: String!
@@ -644,6 +650,9 @@ export const typeDefs = gql`
     dashboardNotifications(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardNotificationsResponse!
     # Tags management - for dashboard tags page
     dashboardTags(limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "id", sortOrder: String = "ASC"): PaginatedDashboardTagsResponse!
+    # Tag types and categories - for dynamic form options
+    tagTypes: [TagOption!]!
+    tagCategories: [TagOption!]!
     # Project members management - for project members page
     projectMembers(projectId: ID!, limit: Int = 10, offset: Int = 0, search: String, sortBy: String = "createdAt", sortOrder: String = "DESC"): PaginatedProjectMembersResponse!
     # Available users - for adding members to projects

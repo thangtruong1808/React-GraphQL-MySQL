@@ -21,16 +21,16 @@ const RoleSelectionGrid: React.FC<RoleSelectionGridProps> = ({
         <div
           key={role.value}
           className={`relative p-3 border-2 rounded-lg cursor-pointer transition-colors ${selectedRole === role.value
-            ? 'border-purple-500 bg-purple-50'
-            : 'border-gray-200 hover:border-gray-300'
+            ? 'theme-role-selection-active-border theme-role-selection-active-bg'
+            : 'theme-role-selection-border theme-role-selection-border-hover'
             }`}
           onClick={() => onRoleSelect(role.value)}
         >
           <div className="text-center">
-            <div className="text-sm font-medium text-gray-900 mb-1">
+            <div className="text-sm font-medium theme-role-selection-text mb-1">
               {role.label}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs theme-role-selection-text-secondary">
               {role.value === 'VIEWER' && 'Can view project and tasks'}
               {role.value === 'EDITOR' && 'Can post comments. Cannot edit tasks (Admin/PM only)'}
               {role.value === 'OWNER' && 'Full project management access'}
@@ -38,7 +38,7 @@ const RoleSelectionGrid: React.FC<RoleSelectionGridProps> = ({
           </div>
           {selectedRole === role.value && (
             <div className="absolute top-2 right-2">
-              <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
+              <div className="h-4 w-4 theme-button-primary rounded-full flex items-center justify-center">
                 <svg className="h-2 w-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>

@@ -153,11 +153,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div className="bg-white shadow-sm rounded-lg theme-border">
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-fixed">
-          <thead className="bg-gray-50">
+        <table className="min-w-full theme-table-divide table-fixed">
+          <thead className="theme-table-header-bg">
             <tr>
               <th
                 className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
@@ -212,7 +212,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="theme-table-row-bg theme-table-divide">
             {loading ? (
               // Loading skeleton
               Array.from({ length: currentPageSize }).map((_, index) => (
@@ -259,7 +259,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ) : (
               // Project rows
               projects.map((project) => (
-                <tr key={project.id} className="hover:bg-gray-50">
+                <tr key={project.id} className="theme-table-row-hover-bg">
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left hidden lg:table-cell">{project.id}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="max-w-xs truncate" title={project.name}>
@@ -290,7 +290,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       {onViewMembers && (
                         <button
                           onClick={() => onViewMembers(project)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                           title="View project members"
                         >
                           <FaUsers className="w-3 h-3 mr-1" />
@@ -299,7 +299,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       )}
                       <button
                         onClick={() => onEdit(project)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
                         title="Edit project"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -323,7 +323,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">

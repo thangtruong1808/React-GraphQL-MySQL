@@ -31,9 +31,9 @@ const UserSelectionList: React.FC<UserSelectionListProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="border border-gray-300 rounded-md max-h-48 overflow-y-auto">
-        <div className="p-4 text-center text-gray-500">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2"></div>
+      <div className="theme-border rounded-md max-h-48 overflow-y-auto">
+        <div className="p-4 text-center theme-table-text-secondary">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 theme-button-primary mx-auto mb-2"></div>
           Loading users...
         </div>
       </div>
@@ -42,8 +42,8 @@ const UserSelectionList: React.FC<UserSelectionListProps> = ({
 
   if (users.length === 0) {
     return (
-      <div className="border border-gray-300 rounded-md max-h-48 overflow-y-auto">
-        <div className="p-4 text-center text-gray-500">
+      <div className="theme-border rounded-md max-h-48 overflow-y-auto">
+        <div className="p-4 text-center theme-table-text-secondary">
           {searchTerm ? 'No users found matching your search.' : 'No available users to add.'}
         </div>
       </div>
@@ -51,31 +51,31 @@ const UserSelectionList: React.FC<UserSelectionListProps> = ({
   }
 
   return (
-    <div className="border border-gray-300 rounded-md max-h-48 overflow-y-auto">
-      <div className="divide-y divide-gray-200">
+    <div className="theme-border rounded-md max-h-48 overflow-y-auto">
+      <div className="theme-table-divide">
         {users.map((user) => (
           <div
             key={user.id}
-            className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${selectedUserId === user.id ? 'bg-purple-50 border-l-4 border-purple-600' : ''
+            className={`p-3 cursor-pointer table-row-hover transition-colors border-b theme-border-medium ${selectedUserId === user.id ? 'theme-tab-active-bg border-l-4 theme-tab-active-border' : ''
               }`}
             onClick={() => onUserSelect(user.id)}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                  <span className="text-sm font-medium text-purple-600">
+                <div className="flex-shrink-0 h-8 w-8 rounded-full theme-avatar-bg flex items-center justify-center mr-3 border theme-border-medium">
+                  <span className="text-sm font-medium theme-avatar-text">
                     {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                   </span>
                 </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium theme-table-text-primary truncate">
                     {user.firstName} {user.lastName}
                   </div>
-                  <div className="text-sm text-gray-500">{user.email}</div>
+                  <div className="text-sm theme-table-text-secondary truncate">{user.email}</div>
                 </div>
               </div>
-              <div className="flex items-center">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              <div className="flex items-center ml-3">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium theme-badge-neutral border theme-border-medium">
                   {formatRoleForDisplay(user.role)}
                 </span>
               </div>

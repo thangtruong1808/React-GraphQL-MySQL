@@ -78,6 +78,26 @@ export const UPDATE_TAG_MUTATION = gql`
   }
 `;
 
+// Query to get distinct tag types from database
+export const GET_TAG_TYPES_QUERY = gql`
+  query GetTagTypes {
+    tagTypes {
+      value
+      label
+    }
+  }
+`;
+
+// Query to get distinct tag categories from database
+export const GET_TAG_CATEGORIES_QUERY = gql`
+  query GetTagCategories {
+    tagCategories {
+      value
+      label
+    }
+  }
+`;
+
 // Mutation to delete a tag
 export const DELETE_TAG_MUTATION = gql`
   mutation DeleteTag($id: ID!) {
@@ -114,6 +134,20 @@ export interface GetDashboardTagsQueryResponse {
       totalPages: number;
     };
   };
+}
+
+export interface GetTagTypesQueryResponse {
+  tagTypes: Array<{
+    value: string;
+    label: string;
+  }>;
+}
+
+export interface GetTagCategoriesQueryResponse {
+  tagCategories: Array<{
+    value: string;
+    label: string;
+  }>;
 }
 
 export interface CreateTagMutationVariables {

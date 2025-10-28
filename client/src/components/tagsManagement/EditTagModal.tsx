@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaTag, FaCheck, FaEdit } from 'react-icons/fa';
-import { TAGS_FORM_VALIDATION, TAG_TYPE_OPTIONS, TAG_CATEGORY_OPTIONS } from '../../constants/tagsManagement';
+import { useQuery } from '@apollo/client';
+import { TAGS_FORM_VALIDATION } from '../../constants/tagsManagement';
+import { GET_TAG_TYPES_QUERY, GET_TAG_CATEGORIES_QUERY } from '../../services/graphql/tagsQueries';
 import { EditTagModalProps, TagUpdateInput } from '../../types/tagsManagement';
 
 /**
@@ -24,6 +26,17 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
   });
 
   const [errors, setErrors] = useState<Partial<TagUpdateInput>>({});
+
+  // Fetch tag types and categories from database
+  const { data: tagTypesData, loading: tagTypesLoading } = useQuery(GET_TAG_TYPES_QUERY, {
+    skip: !isOpen, // Only fetch when modal is open
+    errorPolicy: 'all',
+  });
+
+  const { data: tagCategoriesData, loading: tagCategoriesLoading } = useQuery(GET_TAG_CATEGORIES_QUERY, {
+    skip: !isOpen, // Only fetch when modal is open
+    errorPolicy: 'all',
+  });
 
   // Populate form when tag changes
   useEffect(() => {
@@ -252,15 +265,18 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
                   value={formData.type || ''}
                   onChange={(e) => handleInputChange('type', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                  disabled={loading}
+                  disabled={loading || tagTypesLoading}
                 >
                   <option value="">Select type (optional)</option>
-                  {TAG_TYPE_OPTIONS.map((option) => (
+                  {tagTypesData?.tagTypes?.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
                   ))}
                 </select>
+                {tagTypesLoading && (
+                  <p className="mt-1 text-xs text-gray-500">Loading types...</p>
+                )}
               </div>
 
               {/* Category */}
@@ -273,15 +289,18 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
                   value={formData.category || ''}
                   onChange={(e) => handleInputChange('category', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-                  disabled={loading}
+                  disabled={loading || tagCategoriesLoading}
                 >
                   <option value="">Select category (optional)</option>
-                  {TAG_CATEGORY_OPTIONS.map((option) => (
+                  {tagCategoriesData?.tagCategories?.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
                   ))}
                 </select>
+                {tagCategoriesLoading && (
+                  <p className="mt-1 text-xs text-gray-500">Loading categories...</p>
+                )}
               </div>
 
               {/* Enhanced Form Actions */}

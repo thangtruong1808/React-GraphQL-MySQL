@@ -109,7 +109,7 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div className="relative transform overflow-hidden rounded-2xl theme-role-selection-bg text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
           {/* Header with gradient background */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-6">
             <div className="flex items-center justify-between">
@@ -144,33 +144,33 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
             <form id="update-role-form" onSubmit={handleSubmit} className="space-y-6">
               {/* Member Details */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Member Details</h4>
+                <h4 className="text-sm font-semibold theme-role-selection-text mb-3">Member Details</h4>
                 <div className="flex items-center">
                   <div className="flex-shrink-0 h-10 w-10">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <span className="text-sm font-medium text-purple-600">
+                    <div className="h-10 w-10 rounded-full theme-avatar-bg flex items-center justify-center">
+                      <span className="text-sm font-medium theme-avatar-text">
                         {member.user.firstName.charAt(0)}{member.user.lastName.charAt(0)}
                       </span>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium theme-role-selection-text">
                       {member.user.firstName} {member.user.lastName}
                     </div>
-                    <div className="text-sm text-gray-500">{member.user.email}</div>
+                    <div className="text-sm theme-role-selection-text-secondary">{member.user.email}</div>
                   </div>
                 </div>
               </div>
 
               {/* Current Role Display */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                <label className="block text-sm font-semibold theme-role-selection-text mb-3">
                   Current Role
                 </label>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.role === 'OWNER' ? 'bg-purple-100 text-purple-800' :
-                    member.role === 'EDITOR' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800'
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.role === 'OWNER' ? 'theme-badge-primary' :
+                    member.role === 'EDITOR' ? 'theme-badge-secondary' :
+                      'theme-badge-neutral'
                     }`}>
                     {member.role}
                   </span>
@@ -179,24 +179,24 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
 
               {/* Role Selection */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                <label className="block text-sm font-semibold theme-role-selection-text mb-3">
                   New Role
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {PROJECT_MEMBER_ROLES.map((role) => (
                     <div
                       key={role.value}
-                      className={`relative p-3 border-2 rounded-lg cursor-pointer transition-colors ${selectedRole === role.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                      className={`relative p-3 border-2 rounded-lg cursor-pointer transition-colors theme-role-selection-bg ${selectedRole === role.value
+                        ? 'theme-role-selection-active-border theme-role-selection-active-bg'
+                        : 'theme-role-selection-border theme-role-selection-border-hover'
                         }`}
                       onClick={() => handleRoleSelect(role.value)}
                     >
                       <div className="text-center">
-                        <div className="text-sm font-medium text-gray-900 mb-1">
+                        <div className="text-sm font-medium theme-role-selection-text mb-1">
                           {role.label}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs theme-role-selection-text-secondary">
                           {role.value === 'VIEWER' && 'Can view project and tasks'}
                           {role.value === 'EDITOR' && 'Can post comments. Cannot edit tasks (Admin/PM only)'}
                           {role.value === 'OWNER' && 'Full project management access'}

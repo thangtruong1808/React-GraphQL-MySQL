@@ -281,29 +281,29 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed right-0 top-0 h-full w-96 theme-notification-drawer-bg shadow-2xl transform transition-transform duration-300 ease-in-out z-50 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 theme-notification-drawer-border border-b theme-notification-drawer-header-bg">
           <div className="flex items-center space-x-2">
             <FaBell className="h-5 w-5 text-purple-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+            <h2 className="text-lg font-semibold theme-notification-drawer-text">Notifications</h2>
           </div>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             title="Close notifications"
           >
-            <FaTimes className="h-4 w-4 text-gray-500" />
+            <FaTimes className="h-4 w-4 theme-notification-drawer-text-secondary" />
           </button>
         </div>
 
         {/* Actions */}
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
+        <div className="p-4 theme-notification-drawer-border border-b theme-notification-drawer-header-bg">
           <div className="flex items-center justify-between">
             <div className="flex flex-col space-y-1">
-              <span className="text-sm text-gray-700 font-medium">
+              <span className="text-sm theme-notification-drawer-text-secondary font-medium">
                 {unreadNotifications.length} unread, {readNotifications.length} read
               </span>
             </div>
@@ -367,9 +367,9 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
             // Empty state
             <div className="flex-1 flex items-center justify-center p-8">
               <div className="text-center">
-                <FaBell className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
-                <p className="text-gray-500">You're all caught up!</p>
+                <FaBell className="h-16 w-16 theme-notification-drawer-text-secondary mx-auto mb-4" />
+                <h3 className="text-lg font-medium theme-notification-drawer-text mb-2">No notifications</h3>
+                <p className="theme-notification-drawer-text-secondary">You're all caught up!</p>
               </div>
             </div>
           ) : (
@@ -386,7 +386,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                     {unreadNotifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className="p-4 rounded-lg border border-blue-200 bg-blue-50 shadow-sm transition-all duration-200 hover:shadow-md"
+                        className="p-4 rounded-lg theme-notification-unread-border border theme-notification-unread-bg shadow-sm transition-all duration-200 hover:shadow-md"
                       >
                         <div className="flex items-start space-x-3">
                           {/* Checkbox for mark as read */}
@@ -401,11 +401,11 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
                           {/* Notification content */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-gray-900 font-medium mb-2">
+                            <p className="text-sm theme-notification-drawer-text font-medium mb-2">
                               {notification.message}
                             </p>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                              <div className="flex items-center space-x-2 text-xs theme-notification-drawer-text-secondary">
                                 <FaEnvelope className="h-3 w-3" />
                                 <span>
                                   {notification.user.firstName} {notification.user.lastName}
@@ -433,7 +433,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {/* Read notifications section */}
               {readNotifications.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-600 mb-3 flex items-center">
+                  <h3 className="text-sm font-semibold theme-notification-drawer-text-secondary mb-3 flex items-center">
                     <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
                     Read ({readNotifications.length})
                   </h3>
@@ -441,7 +441,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                     {readNotifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className="p-4 rounded-lg border border-gray-200 bg-gray-50 transition-all duration-200 hover:bg-gray-100"
+                        className="p-4 rounded-lg theme-notification-read-border border theme-notification-read-bg transition-all duration-200 theme-notification-read-hover-bg"
                       >
                         <div className="flex items-start space-x-3">
                           {/* Checkbox for mark as unread */}
@@ -457,11 +457,11 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
                           {/* Notification content */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-gray-700 mb-2">
+                            <p className="text-sm theme-notification-drawer-text-secondary mb-2">
                               {notification.message}
                             </p>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2 text-xs text-gray-500">
+                              <div className="flex items-center space-x-2 text-xs theme-notification-drawer-text-secondary">
                                 <FaEnvelope className="h-3 w-3" />
                                 <span>
                                   {notification.user.firstName} {notification.user.lastName}

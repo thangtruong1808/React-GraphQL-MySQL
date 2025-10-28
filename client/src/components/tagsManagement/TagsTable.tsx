@@ -148,8 +148,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
     return (
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead className="bg-gray-50">
+          <table className="min-w-full theme-table-divide table-fixed">
+            <thead className="theme-table-header-bg">
               <tr>
                 {/* ID Column - Hidden on mobile */}
                 <th className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -185,7 +185,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="theme-table-row-bg theme-table-divide">
               {renderLoadingRows()}
             </tbody>
           </table>
@@ -197,8 +197,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-fixed">
-          <thead className="bg-gray-50">
+        <table className="min-w-full theme-table-divide table-fixed">
+          <thead className="theme-table-header-bg">
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
@@ -270,7 +270,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="theme-table-row-bg theme-table-divide">
             {loading ? (
               // Loading skeleton rows
               Array.from({ length: 5 }).map((_, index) => (
@@ -321,7 +321,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </tr>
             ) : (
               tags.map((tag) => (
-                <tr key={tag.id} className="hover:bg-gray-50 transition-colors duration-200">
+                <tr key={tag.id} className="theme-table-row-hover-bg transition-colors duration-200">
                   {/* ID Column - Hidden on mobile */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     {tag.id}
@@ -405,7 +405,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">

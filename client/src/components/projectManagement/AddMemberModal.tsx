@@ -183,7 +183,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
             <form id="add-member-form" onSubmit={handleSubmit} className="space-y-6">
               {/* User Selection */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                <label className="block text-sm font-semibold theme-role-selection-text mb-3">
                   Select User
                 </label>
 
@@ -217,7 +217,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
 
               {/* Role Selection */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                <label className="block text-sm font-semibold theme-role-selection-text mb-3">
                   Assign Role
                 </label>
                 <RoleSelectionGrid

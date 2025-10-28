@@ -155,8 +155,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
     return (
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead className="bg-gray-50">
+          <table className="min-w-full theme-table-divide table-fixed">
+            <thead className="theme-table-header-bg">
               <tr>
                 <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ID.width}`}>
                   ID
@@ -190,7 +190,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="theme-table-row-bg theme-table-divide">
               {renderLoadingRows()}
             </tbody>
           </table>
@@ -202,8 +202,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-fixed">
-          <thead className="bg-gray-50">
+        <table className="min-w-full theme-table-divide table-fixed">
+          <thead className="theme-table-header-bg">
             <tr>
               {/* ID Column - Hidden on mobile and tablet */}
               <th
@@ -295,7 +295,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="theme-table-row-bg theme-table-divide">
             {activities.length === 0 ? (
               <tr>
                 <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
@@ -310,7 +310,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
               </tr>
             ) : (
               activities.map((activity) => (
-                <tr key={activity.id} className="hover:bg-gray-50 transition-colors duration-200">
+                <tr key={activity.id} className="theme-table-row-hover-bg transition-colors duration-200">
                   {/* ID Column - Hidden on mobile and tablet */}
                   <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left ${ACTIVITY_TABLE_COLUMNS.ID.width}`}>
                     {activity.id}
