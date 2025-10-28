@@ -254,7 +254,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                         <div className="flex space-x-2">
                           <button
                             onClick={() => onUpdateRole(member)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-success focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
                             title="Promote to project member"
                           >
                             <FaUserPlus className="w-3 h-3 mr-1" />
@@ -266,7 +266,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                           {/* Update Role button */}
                           <button
                             onClick={() => onUpdateRole(member)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                             title="Edit member role"
                           >
                             <FaEdit className="w-3 h-3 mr-1" />
@@ -275,7 +275,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
                           {/* Remove button */}
                           <button
                             onClick={() => onRemoveMember(member)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-danger focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
                             title="Remove member"
                           >
                             <FaTrash className="w-3 h-3 mr-1" />

@@ -36,12 +36,17 @@ export const teamMembers = async () => {
       FROM users u
       LEFT JOIN (
         SELECT 
-          owner_id,
+          user_id,
           COUNT(*) as project_count
-        FROM projects 
-        WHERE is_deleted = false
-        GROUP BY owner_id
-      ) project_counts ON u.id = project_counts.owner_id
+        FROM (
+          SELECT owner_id as user_id FROM projects WHERE is_deleted = false
+          UNION ALL
+          SELECT user_id FROM project_members pm 
+          JOIN projects p ON pm.project_id = p.id 
+          WHERE pm.is_deleted = false AND p.is_deleted = false
+        ) all_project_users
+        GROUP BY user_id
+      ) project_counts ON u.id = project_counts.user_id
       LEFT JOIN (
         SELECT 
           assigned_to,
@@ -129,12 +134,17 @@ export const paginatedTeamMembers = async (_: any, { limit = 12, offset = 0, rol
       FROM users u
       LEFT JOIN (
         SELECT 
-          owner_id,
+          user_id,
           COUNT(*) as project_count
-        FROM projects 
-        WHERE is_deleted = false
-        GROUP BY owner_id
-      ) project_counts ON u.id = project_counts.owner_id
+        FROM (
+          SELECT owner_id as user_id FROM projects WHERE is_deleted = false
+          UNION ALL
+          SELECT user_id FROM project_members pm 
+          JOIN projects p ON pm.project_id = p.id 
+          WHERE pm.is_deleted = false AND p.is_deleted = false
+        ) all_project_users
+        GROUP BY user_id
+      ) project_counts ON u.id = project_counts.user_id
       LEFT JOIN (
         SELECT 
           assigned_to,
