@@ -89,18 +89,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const getSortIcon = (column: string) => {
     if (currentSortBy !== column) {
       return (
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 theme-sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
     }
 
     return currentSortOrder === 'ASC' ? (
-      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
       </svg>
     ) : (
-      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     );
@@ -160,7 +160,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           <thead className="theme-table-header-bg">
             <tr>
               <th
-                className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+                className="w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors hidden lg:table-cell"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -169,7 +169,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center space-x-1">
@@ -177,8 +177,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('name')}
                 </div>
               </th>
+              <th className="w-64 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider hidden md:table-cell">
+                Description
+              </th>
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
@@ -186,11 +189,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('status')}
                 </div>
               </th>
-              <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+              <th className="w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider hidden sm:table-cell">
                 Owner
               </th>
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden xs:table-cell"
+                className="w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors hidden xs:table-cell"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -199,7 +202,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+                className="w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors hidden lg:table-cell"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -207,7 +210,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
-              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -222,6 +225,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                     <div className="h-4 bg-gray-200 rounded w-32"></div>
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left hidden md:table-cell">
+                    <div className="h-4 bg-gray-200 rounded w-48"></div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <div className="h-6 bg-gray-200 rounded-full w-20"></div>
@@ -246,7 +252,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ) : projects.length === 0 ? (
               // Empty state
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-sm text-gray-500">
+                <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-500">
                   <div className="flex flex-col items-center">
                     <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -259,9 +265,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ) : (
               // Project rows
               projects.map((project) => (
-                <tr key={project.id} className="theme-table-row-hover-bg">
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left hidden lg:table-cell">{project.id}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                <tr key={project.id} className="table-row-hover">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left hidden lg:table-cell">{project.id}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="max-w-xs truncate" title={project.name}>
                       {onViewMembers ? (
                         <button
@@ -275,22 +281,27 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       )}
                     </div>
                   </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left hidden md:table-cell">
+                    <div className="max-w-xs truncate" title={project.description}>
+                      {project.description || 'No description'}
+                    </div>
+                  </td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(project.status)}`}>
                       {formatStatus(project.status)}
                     </span>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left hidden sm:table-cell">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left hidden sm:table-cell">
                     {project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner'}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left hidden xs:table-cell">{formatDate(project.createdAt)}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left hidden lg:table-cell">{formatDate(project.updatedAt)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left hidden xs:table-cell">{formatDate(project.createdAt)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left hidden lg:table-cell">{formatDate(project.updatedAt)}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <div className="flex justify-start space-x-2">
                       {onViewMembers && (
                         <button
                           onClick={() => onViewMembers(project)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
                           title="View project members"
                         >
                           <FaUsers className="w-3 h-3 mr-1" />
@@ -299,7 +310,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       )}
                       <button
                         onClick={() => onEdit(project)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                         title="Edit project"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />

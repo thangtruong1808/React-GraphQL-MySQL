@@ -58,18 +58,18 @@ const TagsTable: React.FC<TagsTableProps> = ({
 
     if (currentSortBy !== dbField) {
       return (
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 theme-sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
     }
 
     return currentSortOrder === 'ASC' ? (
-      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
       </svg>
     ) : (
-      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     );
@@ -152,35 +152,35 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <thead className="theme-table-header-bg">
               <tr>
                 {/* ID Column - Hidden on mobile */}
-                <th className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   ID
                 </th>
                 {/* Name Column */}
-                <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Name
                 </th>
                 {/* Description Column - Hidden on small screens */}
-                <th className="hidden sm:table-cell w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Description
                 </th>
                 {/* Type Column - Hidden on extra small screens */}
-                <th className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Type
                 </th>
                 {/* Category Column - Hidden on mobile and tablet */}
-                <th className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Category
                 </th>
                 {/* Created Column - Hidden on extra small screens */}
-                <th className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Created
                 </th>
                 {/* Updated Column - Hidden on mobile and tablet */}
-                <th className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Updated
                 </th>
                 {/* Actions Column */}
-                <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -202,7 +202,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
-                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -212,7 +212,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </th>
               {/* Name Column */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center space-x-1">
@@ -221,12 +221,12 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 </div>
               </th>
               {/* Description Column - Hidden on small screens */}
-              <th className="hidden sm:table-cell w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden sm:table-cell w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Description
               </th>
               {/* Type Column - Hidden on extra small screens */}
               <th
-                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200"
                 onClick={() => handleSort('type')}
               >
                 <div className="flex items-center space-x-1">
@@ -236,7 +236,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </th>
               {/* Category Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200"
                 onClick={() => handleSort('category')}
               >
                 <div className="flex items-center space-x-1">
@@ -246,7 +246,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </th>
               {/* Created Column - Hidden on extra small screens */}
               <th
-                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -256,7 +256,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </th>
               {/* Updated Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -265,7 +265,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 </div>
               </th>
               {/* Actions Column */}
-              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -309,36 +309,36 @@ const TagsTable: React.FC<TagsTableProps> = ({
               ))
             ) : tags.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-6 text-center text-sm text-gray-500">
+                <td colSpan={9} className="px-4 py-6 text-center text-sm theme-table-text-secondary">
                   <div className="flex flex-col items-center">
-                    <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-12 h-12 theme-table-text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
-                    <p className="text-lg font-medium text-gray-900 mb-1">No tags found</p>
-                    <p className="text-gray-500">Try adjusting your search criteria or create a new tag.</p>
+                    <p className="text-lg font-medium theme-table-text-primary mb-1">No tags found</p>
+                    <p className="theme-table-text-secondary">Try adjusting your search criteria or create a new tag.</p>
                   </div>
                 </td>
               </tr>
             ) : (
               tags.map((tag) => (
-                <tr key={tag.id} className="theme-table-row-hover-bg transition-colors duration-200">
+                <tr key={tag.id} className="table-row-hover">
                   {/* ID Column - Hidden on mobile */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {tag.id}
                   </td>
 
                   {/* Name Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="flex flex-col">
                       <p className="font-medium">{tag.name}</p>
                       {tag.title && (
-                        <p className="text-xs text-gray-500">{tag.title}</p>
+                        <p className="text-xs theme-table-text-secondary">{tag.title}</p>
                       )}
                     </div>
                   </td>
 
                   {/* Description Column - Hidden on small screens */}
-                  <td className="hidden sm:table-cell px-4 py-4 text-sm text-gray-900 text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 text-sm theme-table-text-primary text-left">
                     <p className="truncate" title={tag.description}>
                       {tag.description}
                     </p>
@@ -351,7 +351,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                         {tag.type}
                       </span>
                     ) : (
-                      <span className="text-gray-400 text-sm">-</span>
+                      <span className="theme-table-text-muted text-sm">-</span>
                     )}
                   </td>
 
@@ -362,17 +362,17 @@ const TagsTable: React.FC<TagsTableProps> = ({
                         {tag.category}
                       </span>
                     ) : (
-                      <span className="text-gray-400 text-sm">-</span>
+                      <span className="theme-table-text-muted text-sm">-</span>
                     )}
                   </td>
 
                   {/* Created Column - Hidden on extra small screens */}
-                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     {formatDate(tag.createdAt)}
                   </td>
 
                   {/* Updated Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     {formatDate(tag.updatedAt)}
                   </td>
 
@@ -381,7 +381,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                     <div className="flex justify-start space-x-2">
                       <button
                         onClick={() => onEdit(tag)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                         title="Edit tag"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -412,20 +412,20 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium theme-table-text-secondary bg-white theme-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span className="hidden xs:inline">Previous</span>
             </button>
-            <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+            <span className="px-2 py-1.5 text-xs theme-table-text-primary bg-gray-50 theme-border rounded">
               {paginationInfo.currentPage} / {paginationInfo.totalPages}
             </span>
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium theme-table-text-secondary bg-white theme-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
               <span className="hidden xs:inline">Next</span>
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -440,7 +440,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
             {/* Compact page info */}
-            <p className="text-xs lg:text-sm text-gray-600">
+            <p className="text-xs lg:text-sm theme-table-text-secondary">
               <span className="hidden md:inline">Showing </span>
               <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * pageSize + 1}</span>
               <span className="hidden md:inline"> to </span>
@@ -453,7 +453,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
 
             {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-xs lg:text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm theme-table-text-secondary">Show</span>
               <select
                 id="page-size"
                 value={pageSize}
@@ -467,7 +467,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-xs lg:text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm theme-table-text-secondary">entries</span>
             </div>
           </div>
 
@@ -477,7 +477,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(1)}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium theme-table-text-secondary bg-white theme-border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
               title="Go to first page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -490,7 +490,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium theme-table-text-secondary bg-white theme-border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Go to previous page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -512,7 +512,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                     disabled={loading}
                     className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
                       ? 'bg-purple-600 text-white shadow-md'
-                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
+                      : 'theme-table-text-primary bg-white theme-border hover:bg-gray-50 hover:border-purple-300'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     title={`Go to page ${pageNum}`}
                   >
@@ -526,7 +526,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium theme-table-text-secondary bg-white theme-border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Go to next page"
             >
               <span className="hidden lg:inline">Next</span>
@@ -539,7 +539,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.totalPages)}
               disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium theme-table-text-secondary bg-white theme-border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
               title="Go to last page"
             >
               <span className="hidden lg:inline">Last</span>

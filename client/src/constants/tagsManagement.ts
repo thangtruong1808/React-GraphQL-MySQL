@@ -45,26 +45,26 @@ export const TAG_CATEGORY_OPTIONS = [
 
 // Tag type colors for display
 export const TAG_TYPE_COLORS = {
-  category: 'bg-blue-100 text-blue-800',
-  priority: 'bg-red-100 text-red-800',
-  status: 'bg-green-100 text-green-800',
-  feature: 'bg-purple-100 text-purple-800',
-  bug: 'bg-orange-100 text-orange-800',
-  enhancement: 'bg-yellow-100 text-yellow-800',
-  documentation: 'bg-indigo-100 text-indigo-800',
-  other: 'bg-gray-100 text-gray-800',
+  category: 'theme-badge-primary',
+  priority: 'theme-badge-danger',
+  status: 'theme-badge-success',
+  feature: 'theme-badge-primary',
+  bug: 'theme-badge-warning',
+  enhancement: 'theme-badge-warning',
+  documentation: 'theme-badge-secondary',
+  other: 'theme-badge-neutral',
 };
 
 // Tag category colors for display
 export const TAG_CATEGORY_COLORS = {
-  general: 'bg-gray-100 text-gray-800',
-  technical: 'bg-blue-100 text-blue-800',
-  business: 'bg-green-100 text-green-800',
-  design: 'bg-pink-100 text-pink-800',
-  testing: 'bg-yellow-100 text-yellow-800',
-  deployment: 'bg-purple-100 text-purple-800',
-  maintenance: 'bg-orange-100 text-orange-800',
-  other: 'bg-gray-100 text-gray-800',
+  general: 'theme-badge-neutral',
+  technical: 'theme-badge-primary',
+  business: 'theme-badge-success',
+  design: 'theme-badge-primary',
+  testing: 'theme-badge-warning',
+  deployment: 'theme-badge-primary',
+  maintenance: 'theme-badge-warning',
+  other: 'theme-badge-neutral',
 };
 
 // Tags table column configuration

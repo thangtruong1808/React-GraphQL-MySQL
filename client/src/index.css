@@ -760,6 +760,64 @@ table th[onclick*="createdAt"] .theme-sort-icon-active {
   stroke-linejoin: round !important;
 }
 
+/* Notification status badges hover contrast - ensure proper contrast on table row hover */
+.table-row-hover:hover .theme-badge-primary,
+.table-row-hover:hover .theme-badge-neutral {
+  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Dark theme specific notification status badge hover colors */
+[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
+  background-color: #d1d5db !important; /* gray-300 - slightly darker gray for dark theme */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Tag badges hover contrast - ensure proper contrast on table row hover */
+.table-row-hover:hover .theme-badge-primary,
+.table-row-hover:hover .theme-badge-secondary,
+.table-row-hover:hover .theme-badge-success,
+.table-row-hover:hover .theme-badge-warning,
+.table-row-hover:hover .theme-badge-danger,
+.table-row-hover:hover .theme-badge-neutral {
+  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Dark theme specific tag badge hover colors */
+[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-secondary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-success,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-warning,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-danger,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
+  background-color: #d1d5db !important; /* gray-300 - slightly darker gray for dark theme */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Task status and priority badges hover contrast - ensure proper contrast on table row hover */
+.table-row-hover:hover .theme-badge-primary,
+.table-row-hover:hover .theme-badge-secondary,
+.table-row-hover:hover .theme-badge-success,
+.table-row-hover:hover .theme-badge-warning,
+.table-row-hover:hover .theme-badge-danger,
+.table-row-hover:hover .theme-badge-neutral {
+  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
+/* Dark theme specific task status and priority badge hover colors */
+[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-secondary,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-success,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-warning,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-danger,
+[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
+  background-color: #d1d5db !important; /* gray-300 - slightly darker gray for dark theme */
+  color: #1f2937 !important; /* gray-800 - dark text for contrast */
+}
+
 /* Theme-aware role selection styling */
 .theme-role-selection-bg {
   background-color: var(--role-selection-bg) !important;

@@ -38,11 +38,23 @@ const TasksTable: React.FC<TasksTableProps> = ({
    */
   const getSortIcon = (sortBy: string) => {
     if (currentSortBy !== sortBy) {
-      return <FaChevronUp className="w-3 h-3 text-gray-400" />;
+      return (
+        <svg className="w-4 h-4 theme-sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
     }
     return currentSortOrder === 'ASC'
-      ? <FaChevronUp className="w-3 h-3 text-purple-600" />
-      : <FaChevronDown className="w-3 h-3 text-purple-600" />;
+      ? (
+        <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+      )
+      : (
+        <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      );
   };
 
   /**
@@ -203,7 +215,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
             <tr>
               {/* ID Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -213,7 +225,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Title Column - Always visible */}
               <th
-                className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('title')}
               >
                 <div className="flex items-center space-x-1">
@@ -222,12 +234,12 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 </div>
               </th>
               {/* Description Column - Hidden on mobile */}
-              <th className="hidden sm:table-cell w-64 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden sm:table-cell w-64 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Description
               </th>
               {/* Status Column - Always visible */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
@@ -237,7 +249,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Priority Column - Hidden on mobile */}
               <th
-                className="hidden sm:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden sm:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('priority')}
               >
                 <div className="flex items-center space-x-1">
@@ -246,20 +258,20 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 </div>
               </th>
               {/* Project Column - Hidden on mobile and tablet */}
-              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Project
               </th>
               {/* Assigned To Column - Hidden on mobile and tablet */}
-              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Assigned To
               </th>
               {/* Tags Column - Hidden on mobile and tablet */}
-              <th className="hidden lg:table-cell w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden lg:table-cell w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Tags
               </th>
               {/* Due Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('dueDate')}
               >
                 <div className="flex items-center space-x-1">
@@ -269,7 +281,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Created Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -279,7 +291,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -288,7 +300,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 </div>
               </th>
               {/* Actions Column - Always visible */}
-              <th className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -355,88 +367,88 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : tasks.length === 0 ? (
               // No data row
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500 sm:hidden">
+                <td colSpan={4} className="px-4 py-8 text-center theme-table-text-secondary sm:hidden">
                   No tasks found
                 </td>
-                <td colSpan={6} className="hidden sm:table-cell lg:hidden px-4 py-8 text-center text-gray-500">
+                <td colSpan={6} className="hidden sm:table-cell lg:hidden px-4 py-8 text-center theme-table-text-secondary">
                   No tasks found
                 </td>
-                <td colSpan={12} className="hidden lg:table-cell px-4 py-8 text-center text-gray-500">
+                <td colSpan={12} className="hidden lg:table-cell px-4 py-8 text-center theme-table-text-secondary">
                   No tasks found
                 </td>
               </tr>
             ) : (
               // Data rows
               tasks.map((task) => (
-                <tr key={task.id} className="theme-table-row-hover-bg">
+                <tr key={task.id} className="table-row-hover">
                   {/* ID Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {task.id}
                   </td>
                   {/* Title Column - Always visible */}
-                  <td className="px-4 py-4 text-sm text-gray-900 text-left">
+                  <td className="px-4 py-4 text-sm theme-table-text-primary text-left">
                     {formatTextWithToggle(task.title, task.id, 'title')}
                   </td>
                   {/* Description Column - Hidden on mobile */}
-                  <td className="hidden sm:table-cell px-4 py-4 text-sm text-gray-900 text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 text-sm theme-table-text-primary text-left">
                     {formatTextWithToggle(task.description, task.id, 'description')}
                   </td>
                   {/* Status Column - Always visible */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_STATUS_COLORS[task.status]}`}>
                       {formatTaskStatusForDisplay(task.status)}
                     </span>
                   </td>
                   {/* Priority Column - Hidden on mobile */}
-                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_PRIORITY_COLORS[task.priority]}`}>
                       {formatTaskPriorityForDisplay(task.priority)}
                     </span>
                   </td>
                   {/* Project Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="truncate" title={task.project.name}>
                       {task.project.name}
                     </div>
                   </td>
                   {/* Assigned To Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="truncate" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
                       {task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}
                     </div>
                   </td>
                   {/* Tags Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 text-sm text-gray-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 text-sm theme-table-text-primary text-left">
                     <div className="flex flex-wrap gap-1">
                       {task.tags && task.tags.length > 0 ? (
                         task.tags.map((tag) => (
                           <span
                             key={tag.id}
-                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium theme-badge-secondary"
                             title={tag.description}
                           >
                             {tag.name}
                           </span>
                         ))
                       ) : (
-                        <span className="text-gray-400 text-xs">No tags</span>
+                        <span className="theme-table-text-muted text-xs">No tags</span>
                       )}
                     </div>
                   </td>
                   {/* Due Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     {formatDate(task.dueDate)}
                   </td>
                   {/* Created Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     {formatDate(task.createdAt)}
                   </td>
                   {/* Updated Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     {formatDate(task.updatedAt)}
                   </td>
                   {/* Actions Column - Always visible */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => onEdit(task)}

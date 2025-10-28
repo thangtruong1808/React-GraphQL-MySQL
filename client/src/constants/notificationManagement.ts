@@ -34,8 +34,8 @@ export const NOTIFICATION_STATUS_COLORS = {
 
 // Notification status badges
 export const NOTIFICATION_STATUS_BADGES = {
-  unread: 'bg-red-100 text-red-800',
-  read: 'bg-gray-100 text-gray-800',
+  unread: 'theme-badge-primary',
+  read: 'theme-badge-neutral',
 };
 
 // Notification table column configuration
