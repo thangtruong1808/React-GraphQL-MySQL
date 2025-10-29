@@ -292,14 +292,14 @@ const UsersPage: React.FC = () => {
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
-        <div className="bg-white border-b border-gray-200 w-full">
+        <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border-b border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200 w-full">
           <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">
                   Users Management
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700 mt-1">
                   Manage and track your users
                 </p>
               </div>
@@ -307,7 +307,7 @@ const UsersPage: React.FC = () => {
                 /* Create Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 [data-theme='light']:hover:bg-purple-800 dark:hover:bg-purple-800 [data-theme='brand']:hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-purple-600 [data-theme='brand']:focus:ring-purple-600 w-full sm:w-auto sm:flex-shrink-0"
                   onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 >
                   <FaPlus className="h-5 w-5" aria-hidden="true" />

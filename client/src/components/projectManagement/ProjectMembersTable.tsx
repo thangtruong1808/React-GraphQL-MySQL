@@ -183,7 +183,7 @@ const ProjectMembersTable: React.FC<ProjectMembersTableProps> = memo(({
               </tr>
             ) : (
               members.map((member) => (
-                <tr key={`${member.projectId}-${member.userId}`} className="table-row-hover transition-colors duration-200">
+                <tr key={`${member.projectId}-${member.userId}`} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors duration-200">
                   {/* ID Column - Hidden on large screens */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {member.userId}

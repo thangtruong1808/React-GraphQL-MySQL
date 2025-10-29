@@ -148,9 +148,9 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
           {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
@@ -179,7 +179,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
           </div>
 
           {/* Modal Body */}
-          <div className="px-6 py-6">
+          <div className="px-8 py-8">
             <form id="add-member-form" onSubmit={handleSubmit} className="space-y-6">
               {/* User Selection */}
               <div>

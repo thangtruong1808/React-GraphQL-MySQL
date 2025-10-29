@@ -59,18 +59,18 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const getSortIcon = (column: string) => {
     if (currentSortBy !== column) {
       return (
-        <svg className="w-4 h-4 theme-sort-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
     }
 
     return currentSortOrder === 'ASC' ? (
-      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
       </svg>
     ) : (
-      <svg className="w-4 h-4 theme-sort-icon-active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     );
@@ -128,15 +128,15 @@ const UsersTable: React.FC<UsersTableProps> = ({
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg theme-border">
+    <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full theme-table-divide table-fixed">
-          <thead className="theme-table-header-bg">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 [data-theme='brand']:divide-purple-200 table-fixed">
+          <thead className="bg-gray-50 dark:bg-gray-700 [data-theme='brand']:bg-purple-100" style={{ backgroundColor: 'var(--bg-color_gray-300)' }}>
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
-                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -145,7 +145,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('firstName')}
               >
                 <div className="flex items-center space-x-1">
@@ -155,7 +155,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
               {/* Last Name Column - Hidden on small screens */}
               <th
-                className="hidden sm:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden sm:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('lastName')}
               >
                 <div className="flex items-center space-x-1">
@@ -164,7 +164,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('email')}
               >
                 <div className="flex items-center space-x-1">
@@ -173,7 +173,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('role')}
               >
                 <div className="flex items-center space-x-1">
@@ -183,7 +183,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
               {/* Created Date Column - Hidden on extra small screens */}
               <th
-                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -193,7 +193,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
               {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -201,63 +201,63 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
-              <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-400 [data-theme='brand']:text-purple-600 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="theme-table-row-bg theme-table-divide">
+          <tbody className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 divide-y divide-gray-200 dark:divide-gray-700 [data-theme='brand']:divide-purple-200">
             {users.length === 0 ? (
               // Empty state
               <tr>
                 <td colSpan={8} className="px-6 py-12 text-center">
-                  <div className="text-gray-500">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600">
+                    <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No users found</h3>
-                    <p className="mt-1 text-sm text-gray-500">Try adjusting your search criteria.</p>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">No users found</h3>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600">Try adjusting your search criteria.</p>
                   </div>
                 </td>
               </tr>
             ) : (
               // User rows
               users.map((user) => (
-                <tr key={user.id} className="table-row-hover transition-colors duration-150">
+                <tr key={user.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors duration-150">
                   {/* ID Column - Hidden on mobile */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
                     {user.id}
                   </td>
 
                   {/* First Name Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
                     {user.firstName}
                   </td>
 
                   {/* Last Name Column - Hidden on small screens */}
-                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
                     {user.lastName}
                   </td>
 
                   {/* Email Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
                     {user.email}
                   </td>
 
                   {/* Role Column */}
                   <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium theme-badge-neutral">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 [data-theme='brand']:bg-purple-100 text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-800" style={{ backgroundColor: 'var(--bg-color_gray-300)' }}>
                       {formatRoleForDisplay(user.role)}
                     </span>
                   </td>
 
                   {/* Created Date Column - Hidden on extra small screens */}
-                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
+                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 text-left">
                     {formatDate(user.createdAt)}
                   </td>
 
                   {/* Updated Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 text-left">
                     {formatDate(user.updatedAt)}
                   </td>
 
@@ -267,7 +267,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       {/* Edit button */}
                       <button
                         onClick={() => onEdit(user)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 dark:bg-blue-700 [data-theme='brand']:bg-purple-600 hover:bg-blue-700 [data-theme='light']:hover:bg-blue-800 dark:hover:bg-blue-800 [data-theme='brand']:hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-blue-600 [data-theme='brand']:focus:ring-purple-500 transition-colors duration-150"
                         title="Edit user"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -277,7 +277,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       {/* Delete button */}
                       <button
                         onClick={() => onDelete(user)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 dark:bg-red-700 [data-theme='brand']:bg-red-600 hover:bg-red-700 [data-theme='light']:hover:bg-red-800 dark:hover:bg-red-800 [data-theme='brand']:hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-600 [data-theme='brand']:focus:ring-red-500 transition-colors duration-150"
                         title="Delete user"
                       >
                         <FaTrash className="w-3 h-3 mr-1" />
@@ -293,27 +293,27 @@ const UsersTable: React.FC<UsersTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
+      <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">
             <button
               onClick={handlePreviousPage}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span className="hidden xs:inline">Previous</span>
             </button>
-            <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+            <span className="px-2 py-1.5 text-xs text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-900 bg-gray-50 dark:bg-gray-700 [data-theme='brand']:bg-purple-100 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded">
               {paginationInfo.currentPage} / {paginationInfo.totalPages}
             </span>
             <button
               onClick={handleNextPage}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
             >
               <span className="hidden xs:inline">Next</span>
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +328,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
             {/* Compact page info */}
-            <p className="text-xs lg:text-sm text-gray-600">
+            <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">
               <span className="hidden md:inline">Showing </span>
               <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span>
               <span className="hidden md:inline"> to </span>
@@ -341,13 +341,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
             {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-xs lg:text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">Show</span>
               <select
                 id="page-size"
                 value={currentPageSize}
                 onChange={handlePageSizeChange}
                 disabled={loading}
-                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-700 [data-theme='brand']:bg-white text-gray-900 dark:text-white [data-theme='brand']:text-gray-900"
               >
                 {USERS_PAGINATION_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -355,7 +355,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-xs lg:text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">entries</span>
             </div>
           </div>
 
@@ -365,7 +365,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             <button
               onClick={handleFirstPage}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
               title="Go to first page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,7 +378,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             <button
               onClick={handlePreviousPage}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Go to previous page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,8 +399,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
                     className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
+                      ? 'bg-purple-600 dark:bg-purple-700 [data-theme="brand"]:bg-purple-700 text-white shadow-md'
+                      : 'text-gray-700 dark:text-gray-300 [data-theme=\'brand\']:text-purple-900 bg-white dark:bg-gray-800 [data-theme=\'brand\']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme=\'brand\']:border-purple-300 hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme=\'brand\']:hover:bg-purple-100 hover:border-purple-300 dark:hover:border-purple-400 [data-theme=\'brand\']:hover:border-purple-400'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     title={`Go to page ${pageNum}`}
                   >
@@ -414,7 +414,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             <button
               onClick={handleNextPage}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
               title="Go to next page"
             >
               <span className="hidden lg:inline">Next</span>
@@ -427,7 +427,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             <button
               onClick={handleLastPage}
               disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
               title="Go to last page"
             >
               <span className="hidden lg:inline">Last</span>
@@ -438,7 +438,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

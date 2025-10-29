@@ -157,6 +157,7 @@
   --button-danger-text: #ffffff; /* light danger button text color */
   --table-text-primary: #111827; /* light primary table text color */
   --table-text-secondary: #6b7280; /* light secondary table text color */
+  --bg-color_gray-300: #d1d5db; /* light gray-300 background color */
   --table-text-muted: #9ca3af; /* light muted table text color */
   --table-text-hover: #111827; /* light table text color on hover */
   --badge-primary-bg: #f3e8ff; /* light primary badge background */
@@ -499,9 +500,7 @@
   background-color: var(--table-row-bg) !important;
 }
 
-.theme-table-row-hover-bg:hover {
-  background-color: var(--table-row-hover-bg) !important;
-}
+/* Removed hardcoded table-row-hover CSS variable usage - now using Tailwind classes directly in components */
 
 .theme-table-border {
   border-color: var(--border-color) !important;
@@ -692,33 +691,9 @@
   color: var(--table-text-hover) !important;
 }
 
-/* Force text colors on hover with maximum specificity */
-tr:hover td .theme-table-text-primary,
-tr:hover div .theme-table-text-primary,
-tr:hover span .theme-table-text-primary,
-.hover\:bg-gray-50:hover td .theme-table-text-primary,
-.hover\:bg-gray-50:hover div .theme-table-text-primary,
-.hover\:bg-gray-50:hover span .theme-table-text-primary {
-  color: var(--table-text-primary) !important;
-}
+/* Removed hardcoded text hover colors - now using Tailwind classes directly in components */
 
-tr:hover td .theme-table-text-secondary,
-tr:hover div .theme-table-text-secondary,
-tr:hover span .theme-table-text-secondary,
-.hover\:bg-gray-50:hover td .theme-table-text-secondary,
-.hover\:bg-gray-50:hover div .theme-table-text-secondary,
-.hover\:bg-gray-50:hover span .theme-table-text-secondary {
-  color: var(--table-text-secondary) !important;
-}
-
-tr:hover td .theme-avatar-text,
-tr:hover div .theme-avatar-text,
-tr:hover span .theme-avatar-text,
-.hover\:bg-gray-50:hover td .theme-avatar-text,
-.hover\:bg-gray-50:hover div .theme-avatar-text,
-.hover\:bg-gray-50:hover span .theme-avatar-text {
-  color: var(--avatar-text) !important;
-}
+/* Removed hardcoded avatar text hover colors - now using Tailwind classes directly in components */
 
 .theme-table-row-hover-bg:hover .theme-badge-primary {
   background-color: var(--badge-primary-bg) !important;
@@ -862,63 +837,12 @@ table th[onclick*="createdAt"] .theme-sort-icon-active {
   stroke-linejoin: round !important;
 }
 
-/* Notification status badges hover contrast - ensure proper contrast on table row hover */
-.table-row-hover:hover .theme-badge-primary,
-.table-row-hover:hover .theme-badge-neutral {
-  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table-row-hover notification badge CSS - now using Tailwind classes directly in components */
 
-/* Dark theme specific notification status badge hover colors */
-[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
-  background-color: #d1d5db !important; /* gray-300 - slightly darker gray for dark theme */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
-
-/* Tag badges hover contrast - ensure proper contrast on table row hover */
-.table-row-hover:hover .theme-badge-primary,
-.table-row-hover:hover .theme-badge-secondary,
-.table-row-hover:hover .theme-badge-success,
-.table-row-hover:hover .theme-badge-warning,
-.table-row-hover:hover .theme-badge-danger,
-.table-row-hover:hover .theme-badge-neutral {
-  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
-
-/* Dark theme specific tag badge hover colors */
-[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-secondary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-success,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-warning,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-danger,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
-  background-color: #d1d5db !important; /* gray-300 - slightly darker gray for dark theme */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table-row-hover tag badge CSS - now using Tailwind classes directly in components */
 
 /* Task status and priority badges hover contrast - ensure proper contrast on table row hover */
-.table-row-hover:hover .theme-badge-primary,
-.table-row-hover:hover .theme-badge-secondary,
-.table-row-hover:hover .theme-badge-success,
-.table-row-hover:hover .theme-badge-warning,
-.table-row-hover:hover .theme-badge-danger,
-.table-row-hover:hover .theme-badge-neutral {
-  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
-
-/* Dark theme specific task status and priority badge hover colors */
-[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-secondary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-success,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-warning,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-danger,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
-  background-color: #d1d5db !important; /* gray-300 - slightly darker gray for dark theme */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table-row-hover task badge CSS - now using Tailwind classes directly in components */
 
 /* Theme-aware role selection styling */
 .theme-role-selection-bg {
@@ -1175,13 +1099,8 @@ table th[onclick*="createdAt"] .theme-sort-icon-active {
   border-color: #e9d5ff !important; /* Match parent section border */
 }
 
-/* Theme-aware input backgrounds */
-input[type="text"], input[type="email"], input[type="password"], 
-textarea, select, .bg-white input {
-  background-color: var(--input-bg) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
+/* Removed hardcoded input backgrounds - now using Tailwind classes directly in components */
+
 
 /* Theme-aware modal backgrounds */
 .modal, .modal-content, .bg-white.modal {
@@ -1201,10 +1120,6 @@ table th, table td {
   color: var(--text-primary) !important;
 }
 
-/* Theme-aware button hover states */
-button:hover, .btn:hover {
-  background-color: var(--border-light) !important;
-}
 
 /* Theme-aware sidebar */
 .sidebar, .bg-white.sidebar {
@@ -1244,89 +1159,19 @@ button:hover, .btn:hover {
   color: var(--text-primary) !important;
 }
 
-/* Ensure badge backgrounds have good contrast on hover */
-.table-row-hover:hover .theme-badge-primary,
-.table-row-hover:hover .theme-badge-secondary,
-.table-row-hover:hover .theme-badge-neutral {
-  background-color: #e5e7eb !important; /* gray-200 - light gray background for contrast */
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table-row-hover badge and text CSS - now using Tailwind classes directly in components */
 
-/* Ensure other text elements have good contrast on hover */
-.table-row-hover:hover .theme-table-text-primary,
-.table-row-hover:hover .theme-table-text-secondary,
-.table-row-hover:hover .theme-avatar-text {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded dark theme text hover colors - now using Tailwind classes directly in components */
 
-/* Dark theme specific text hover colors */
-[data-theme="dark"] .table-row-hover:hover .theme-table-text-primary,
-[data-theme="dark"] .table-row-hover:hover .theme-table-text-secondary,
-[data-theme="dark"] .table-row-hover:hover .theme-avatar-text {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table-row-hover dialog CSS - now using Tailwind classes directly in components */
 
-/* Add Member Dialog hover effects */
-.table-row-hover:hover .theme-role-selection-text,
-.table-row-hover:hover .theme-role-selection-text-secondary {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table-row-hover header text CSS - now using Tailwind classes directly in components */
 
-/* Dark theme specific dialog hover colors */
-[data-theme="dark"] .table-row-hover:hover .theme-role-selection-text,
-[data-theme="dark"] .table-row-hover:hover .theme-role-selection-text-secondary {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast */
-}
+/* Removed hardcoded table row hover CSS - now using Tailwind classes directly in components */
 
-/* Table header hover text contrast - use same text color as table rows */
-.table-row-hover:hover .theme-table-text-secondary {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
-}
+/* Removed hardcoded brand theme text hover colors - now using Tailwind classes directly in components */
 
-/* Table header labels hover text contrast - target header text labels */
-.table-row-hover:hover span {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
-}
-
-/* Dark theme specific table header hover text colors */
-[data-theme="dark"] .table-row-hover:hover .theme-table-text-secondary {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
-}
-
-/* Dark theme specific table header labels hover text colors */
-[data-theme="dark"] .table-row-hover:hover span {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast, same as table rows */
-}
-
-/* Custom hover background for table rows */
-.table-row-hover:hover {
-  background-color: #f9fafb !important; /* bg-gray-50 */
-}
-
-/* Dark theme specific hover background - ensure it works in dark theme */
-[data-theme="dark"] .table-row-hover:hover {
-  background-color: #f3f4f6 !important; /* gray-100 - very light gray for excellent visibility in dark theme */
-}
-
-/* Additional specificity for dark theme hover - ensure it overrides any conflicting styles */
-[data-theme="dark"] tr.table-row-hover:hover,
-[data-theme="dark"] .table-row-hover:hover td,
-[data-theme="dark"] .table-row-hover:hover div {
-  background-color: #f3f4f6 !important; /* gray-100 - very light gray for excellent visibility */
-}
-
-/* Ensure text colors have good contrast on hover in dark theme */
-[data-theme="dark"] .table-row-hover:hover .theme-table-text-primary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-primary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-secondary,
-[data-theme="dark"] .table-row-hover:hover .theme-badge-neutral {
-  color: #1f2937 !important; /* gray-800 - dark text for contrast with light hover background */
-}
-
-[data-theme="dark"] .table-row-hover:hover .theme-table-text-secondary,
-[data-theme="dark"] .table-row-hover:hover .theme-avatar-text {
-  color: #374151 !important; /* gray-700 - medium dark text for contrast */
-}
+/* Removed all hardcoded table-row-hover CSS - now using Tailwind classes directly in components */
 
 /* Theme-aware badges and labels */
 .badge, .label {
@@ -1387,12 +1232,7 @@ button:hover, .btn:hover {
     background-color: #1f2937 !important;
   }
   
-  /* Enhanced input visibility */
-  input, textarea, select {
-    background-color: #1f2937 !important;
-    color: #ffffff !important;
-    border-color: #6b7280 !important;
-  }
+  /* Removed hardcoded input visibility - now using Tailwind classes directly in components */
   
   input::placeholder, textarea::placeholder {
     color: #9ca3af !important;
@@ -1409,7 +1249,7 @@ button:hover, .btn:hover {
   }
   
   table td {
-    background-color: #1f2937 !important;
+    /* Removed background-color to allow hover states to work properly */
     color: #ffffff !important;
   }
   
@@ -1427,9 +1267,6 @@ button:hover, .btn:hover {
     border-color: #6b7280 !important;
   }
   
-  button:hover:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600) {
-    background-color: #4b5563 !important;
-  }
 }
 
 /* Apply themed backgrounds to dashboard surfaces */

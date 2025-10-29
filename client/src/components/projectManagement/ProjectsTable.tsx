@@ -261,7 +261,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ) : (
               // Project rows
               projects.map((project) => (
-                <tr key={project.id} className="table-row-hover">
+                <tr key={project.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
                   <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left hidden lg:table-cell">{project.id}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="max-w-xs truncate" title={project.name}>

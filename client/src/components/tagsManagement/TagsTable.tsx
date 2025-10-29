@@ -321,7 +321,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </tr>
             ) : (
               tags.map((tag) => (
-                <tr key={tag.id} className="table-row-hover">
+                <tr key={tag.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
                   {/* ID Column - Hidden on mobile */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {tag.id}

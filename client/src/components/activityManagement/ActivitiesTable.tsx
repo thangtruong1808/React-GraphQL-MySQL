@@ -153,7 +153,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
   if (loading && activities.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full theme-table-divide table-fixed">
             <thead className="theme-table-header-bg">
@@ -200,7 +200,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full theme-table-divide table-fixed">
           <thead className="theme-table-header-bg">
@@ -310,7 +310,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
               </tr>
             ) : (
               activities.map((activity) => (
-                <tr key={activity.id} className="table-row-hover">
+                <tr key={activity.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
                   {/* ID Column - Hidden on mobile and tablet */}
                   <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.ID.width}`}>
                     {activity.id}

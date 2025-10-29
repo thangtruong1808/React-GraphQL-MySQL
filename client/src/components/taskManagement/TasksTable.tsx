@@ -380,7 +380,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : (
               // Data rows
               tasks.map((task) => (
-                <tr key={task.id} className="table-row-hover">
+                <tr key={task.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
                   {/* ID Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {task.id}

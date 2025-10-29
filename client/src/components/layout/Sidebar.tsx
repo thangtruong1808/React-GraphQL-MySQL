@@ -167,15 +167,15 @@ const Sidebar: React.FC = () => {
   }
 
   return (
-    <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 relative ${isCollapsed ? 'w-20' : 'w-72'
+    <div className={`bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border-r border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200 flex flex-col transition-all duration-300 relative ${isCollapsed ? 'w-20' : 'w-72'
       }`}>
       {/* Toggle Button - Positioned on middle-right border */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-1/2 -right-3.5 transform -translate-y-1/2 w-8 h-8 bg-white border-2 border-gray-300 rounded-full shadow-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 z-20 flex items-center justify-center"
+        className="absolute top-1/2 -right-3.5 transform -translate-y-1/2 w-8 h-8 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border-2 border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-full shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 hover:border-gray-400 dark:hover:border-gray-500 [data-theme='brand']:hover:border-purple-400 transition-all duration-200 z-20 flex items-center justify-center"
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {isCollapsed ? (
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
           ) : (
@@ -185,7 +185,7 @@ const Sidebar: React.FC = () => {
       </button>
 
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
         {/* Logo - Centered when collapsed, left-aligned when expanded */}
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'}`}>
           <Logo collapsed={isCollapsed} />
@@ -199,8 +199,8 @@ const Sidebar: React.FC = () => {
             key={item.id}
             to={item.path}
             className={`group flex items-center ${isCollapsed ? 'justify-center px-2' : 'px-3'} py-6 rounded-lg text-base font-medium transition-all duration-200 ${isActiveItem(item)
-              ? 'bg-purple-50 text-purple-700 border-r-3 border-purple-600 shadow-sm'
-              : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-blue-50 dark:bg-blue-900/30 [data-theme="brand"]:bg-purple-200 text-blue-800 dark:text-blue-100 [data-theme="brand"]:text-purple-900 border-r-3 border-blue-600 dark:border-blue-400 [data-theme="brand"]:border-purple-600 shadow-sm'
+              : 'text-gray-700 dark:text-gray-300 [data-theme="brand"]:text-purple-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme="brand"]:hover:bg-purple-100 hover:text-blue-700 dark:hover:text-blue-300 [data-theme="brand"]:hover:text-purple-800'
               }`}
             title={isCollapsed ? item.description : undefined}
           >
@@ -213,7 +213,7 @@ const Sidebar: React.FC = () => {
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-3 border-t border-gray-200">
+      <div className="p-3 border-t border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
           <div className="flex-shrink-0">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
@@ -224,13 +224,13 @@ const Sidebar: React.FC = () => {
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-base font-medium text-gray-900 truncate">
+              <p className="text-base font-medium text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 truncate">
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className="text-sm text-gray-500 truncate">
+              <p className="text-sm text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 truncate">
                 {user?.email}
               </p>
-              <p className="text-sm text-purple-600 font-medium truncate">
+              <p className="text-sm text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700 font-medium truncate">
                 {user?.role ? formatRoleForDisplay(user.role) : ''}
               </p>
             </div>
@@ -241,7 +241,7 @@ const Sidebar: React.FC = () => {
           <>
             {/* Theme Switcher - compact pills */}
             <div className="mt-3">
-              <div className="text-xs text-gray-500 mb-1">Theme</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 mb-1">Theme</div>
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
@@ -249,15 +249,15 @@ const Sidebar: React.FC = () => {
                   aria-label="Light theme"
                   onClick={() => handleThemeChange('light')}
                   className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'light'
-                    ? 'border-gray-400 bg-gray-50 shadow-sm'
-                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                    ? 'border-gray-400 dark:border-gray-500 [data-theme="brand"]:border-purple-400 bg-gray-50 dark:bg-gray-700 [data-theme="brand"]:bg-purple-100 shadow-sm'
+                    : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme="brand"]:hover:bg-purple-100'
                     }`}
                 >
                   <span
                     className={`w-3 h-3 rounded-full border ${theme === 'light' ? 'ring-2 ring-offset-1 ring-gray-400' : 'border-gray-300'}`}
                     style={{ background: '#ffffff' }}
                   />
-                  <span className={`text-xs font-medium ${theme === 'light' ? 'text-gray-800' : 'text-gray-600'}`}>
+                  <span className={`text-xs font-medium ${theme === 'light' ? 'text-gray-800 dark:text-white [data-theme="brand"]:text-purple-800' : 'text-gray-600 dark:text-gray-300 [data-theme="brand"]:text-purple-600'}`}>
                     Light
                   </span>
                 </button>
@@ -267,15 +267,15 @@ const Sidebar: React.FC = () => {
                   aria-label="Dark theme"
                   onClick={() => handleThemeChange('dark')}
                   className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'dark'
-                    ? 'border-indigo-400 bg-indigo-50 shadow-sm'
-                    : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'
+                    ? 'border-indigo-400 dark:border-indigo-500 [data-theme="brand"]:border-purple-400 bg-indigo-50 dark:bg-indigo-900/20 [data-theme="brand"]:bg-purple-100 shadow-sm'
+                    : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-indigo-400 dark:hover:border-indigo-500 [data-theme="brand"]:hover:border-purple-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 [data-theme="brand"]:hover:bg-purple-100'
                     }`}
                 >
                   <span
                     className={`w-3 h-3 rounded-full ${theme === 'dark' ? 'ring-2 ring-offset-1 ring-indigo-400' : 'border border-gray-300'}`}
                     style={{ background: 'linear-gradient(135deg, #0f172a, #111827)' }}
                   />
-                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-indigo-800' : 'text-gray-600'}`}>
+                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-indigo-800 dark:text-white [data-theme="brand"]:text-purple-800' : 'text-gray-600 dark:text-gray-300 [data-theme="brand"]:text-purple-600'}`}>
                     Dark
                   </span>
                 </button>
@@ -285,15 +285,15 @@ const Sidebar: React.FC = () => {
                   aria-label="Brand theme"
                   onClick={() => handleThemeChange('brand')}
                   className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'brand'
-                    ? 'border-purple-400 bg-purple-50 shadow-sm'
-                    : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                    ? 'border-purple-400 dark:border-purple-500 [data-theme="brand"]:border-purple-500 bg-purple-50 dark:bg-purple-900/20 [data-theme="brand"]:bg-purple-200 shadow-sm'
+                    : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-purple-400 dark:hover:border-purple-500 [data-theme="brand"]:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 [data-theme="brand"]:hover:bg-purple-200'
                     }`}
                 >
                   <span
                     className={`w-3 h-3 rounded-full ${theme === 'brand' ? 'ring-2 ring-offset-1 ring-purple-400' : 'border border-gray-300'}`}
                     style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)' }}
                   />
-                  <span className={`text-xs font-medium ${theme === 'brand' ? 'text-purple-800' : 'text-gray-600'}`}>
+                  <span className={`text-xs font-medium ${theme === 'brand' ? 'text-purple-800 dark:text-white [data-theme="brand"]:text-purple-800' : 'text-gray-600 dark:text-gray-300 [data-theme="brand"]:text-purple-600'}`}>
                     Brand
                   </span>
                 </button>
@@ -303,11 +303,11 @@ const Sidebar: React.FC = () => {
             <button
               onClick={handleLogout}
               disabled={logoutLoading}
-              className="w-full mt-3 px-3 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full mt-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-800 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 rounded-lg transition-colors border border-gray-200 dark:border-gray-600 [data-theme='brand']:border-purple-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {logoutLoading ? (
                 <>
-                  <span className="inline-block mr-2 h-4 w-4 border-2 border-transparent border-t-current rounded-full animate-spin text-gray-600"></span>
+                  <span className="inline-block mr-2 h-4 w-4 border-2 border-transparent border-t-current rounded-full animate-spin text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-800"></span>
                   Signing out...
                 </>
               ) : (

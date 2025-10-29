@@ -31,7 +31,7 @@ const UserSelectionList: React.FC<UserSelectionListProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="theme-border rounded-md max-h-48 overflow-y-auto">
+      <div className="theme-border rounded-md max-h-64 overflow-y-auto">
         <div className="p-4 text-center theme-table-text-secondary">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 theme-button-primary mx-auto mb-2"></div>
           Loading users...
@@ -42,7 +42,7 @@ const UserSelectionList: React.FC<UserSelectionListProps> = ({
 
   if (users.length === 0) {
     return (
-      <div className="theme-border rounded-md max-h-48 overflow-y-auto">
+      <div className="theme-border rounded-md max-h-64 overflow-y-auto">
         <div className="p-4 text-center theme-table-text-secondary">
           {searchTerm ? 'No users found matching your search.' : 'No available users to add.'}
         </div>
@@ -51,12 +51,12 @@ const UserSelectionList: React.FC<UserSelectionListProps> = ({
   }
 
   return (
-    <div className="theme-border rounded-md max-h-48 overflow-y-auto">
+    <div className="theme-border rounded-md max-h-64 overflow-y-auto">
       <div className="theme-table-divide">
         {users.map((user) => (
           <div
             key={user.id}
-            className={`p-3 cursor-pointer table-row-hover transition-colors border-b theme-border-medium ${selectedUserId === user.id ? 'theme-tab-active-bg border-l-4 theme-tab-active-border' : ''
+            className={`p-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors border-b theme-border-medium ${selectedUserId === user.id ? 'theme-tab-active-bg border-l-4 theme-tab-active-border' : ''
               }`}
             onClick={() => onUserSelect(user.id)}
           >

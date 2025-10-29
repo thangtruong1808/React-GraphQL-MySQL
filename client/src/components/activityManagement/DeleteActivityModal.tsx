@@ -29,14 +29,14 @@ const DeleteActivityModal: React.FC<DeleteActivityModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div className="relative top-20 mx-auto p-5 border border-gray-200 dark:border-gray-600 [data-theme='brand']:border-purple-200 w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50">
         <div className="mt-3">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Delete Activity</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">Delete Activity</h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500 hover:text-gray-600 dark:hover:text-gray-400 [data-theme='brand']:hover:text-purple-600 transition-colors"
               disabled={loading}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,39 +54,39 @@ const DeleteActivityModal: React.FC<DeleteActivityModalProps> = ({
 
           {/* Content */}
           <div className="text-center">
-            <h4 className="text-lg font-medium text-gray-900 mb-2">
+            <h4 className="text-lg font-medium text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mb-2">
               Are you sure you want to delete this activity?
             </h4>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 mb-4">
               This action cannot be undone. The activity will be permanently removed from the system.
             </p>
 
             {/* Activity Details */}
-            <div className="bg-gray-50 rounded-md p-4 mb-6 text-left">
+            <div className="bg-gray-50 dark:bg-gray-700 [data-theme='brand']:bg-purple-100 rounded-md p-4 mb-6 text-left">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-600">ID:</span>
-                  <span className="text-sm text-gray-900">{activity.id}</span>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">ID:</span>
+                  <span className="text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">{activity.id}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-600">User:</span>
-                  <span className="text-sm text-gray-900">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">User:</span>
+                  <span className="text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">
                     {activity.user.firstName} {activity.user.lastName}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-600">Type:</span>
-                  <span className="text-sm text-gray-900">{activity.type.replace('_', ' ')}</span>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">Type:</span>
+                  <span className="text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">{activity.type.replace('_', ' ')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-600">Action:</span>
-                  <span className="text-sm text-gray-900 truncate ml-2" title={activity.action}>
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">Action:</span>
+                  <span className="text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 truncate ml-2" title={activity.action}>
                     {activity.action}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-600">Created:</span>
-                  <span className="text-sm text-gray-900">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-600">Created:</span>
+                  <span className="text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">
                     {new Date(activity.createdAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -99,7 +99,7 @@ const DeleteActivityModal: React.FC<DeleteActivityModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-800 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
               disabled={loading}
             >
               Cancel
