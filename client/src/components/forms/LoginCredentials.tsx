@@ -74,7 +74,7 @@ const LoginCredentials: React.FC = () => {
   };
 
   return (
-    <div className="mt-6 w-full max-w-7xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto">
       {/* Compact Header with Toggle */}
       <div className="text-center mb-4">
         <button

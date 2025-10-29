@@ -158,7 +158,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Footer - show for non-authenticated users and authenticated users on homepage */}
-      <div className={location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname === ROUTE_PATHS.HOME ? '' : 'mt-4'}>
+      <div className={location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.LOGIN ? '' : 'mt-4'}>
         {shouldShowNavBar && <Footer />}
       </div>
 

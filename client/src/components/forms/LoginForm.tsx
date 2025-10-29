@@ -152,7 +152,7 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-4 mb-0 pb-0" onSubmit={handleSubmit}>
       {/* Email Input */}
       <EnhancedInput
         id="email"
@@ -167,7 +167,7 @@ const LoginForm: React.FC = () => {
         disabled={loginLoading}
         error={fieldErrors.email}
         leftIcon={
-          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
           </svg>
         }
@@ -176,7 +176,7 @@ const LoginForm: React.FC = () => {
             <button
               type="button"
               onClick={() => clearInput('email')}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-400 hover:text-gray-600 dark:hover:text-gray-400 [data-theme='brand']:hover:text-purple-600"
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -200,7 +200,7 @@ const LoginForm: React.FC = () => {
         disabled={loginLoading}
         error={fieldErrors.password}
         leftIcon={
-          <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         }
@@ -210,7 +210,7 @@ const LoginForm: React.FC = () => {
               <button
                 type="button"
                 onClick={() => clearInput('password')}
-                className="text-gray-400 hover:text-gray-600 mr-2"
+                className="text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-400 hover:text-gray-600 dark:hover:text-gray-400 [data-theme='brand']:hover:text-purple-600 mr-2"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -220,7 +220,7 @@ const LoginForm: React.FC = () => {
             <button
               type="button"
               onClick={togglePasswordVisibility}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-400 hover:text-gray-600 dark:hover:text-gray-400 [data-theme='brand']:hover:text-purple-600"
             >
               {showPassword ? (
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +246,7 @@ const LoginForm: React.FC = () => {
         onDismiss={() => setError('')}
       />
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+        <div className="bg-green-50 dark:bg-green-900/20 [data-theme='brand']:bg-purple-50 border border-green-200 dark:border-green-800 [data-theme='brand']:border-purple-200 text-green-800 dark:text-green-200 [data-theme='brand']:text-purple-800 px-4 py-3 rounded-lg">
           {success}
         </div>
       )}
@@ -255,7 +255,7 @@ const LoginForm: React.FC = () => {
       <button
         type="submit"
         disabled={loginLoading}
-        className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
+        className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white theme-button-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
       >
         {loginLoading ? (
           <div className="flex items-center">
