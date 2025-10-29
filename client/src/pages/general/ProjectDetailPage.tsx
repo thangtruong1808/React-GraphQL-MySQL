@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
+import { getProjectStatusColor } from '../../constants/projectManagement';
 import { InlineError } from '../../components/ui';
 import { SkeletonBox } from '../../components/ui/SkeletonLoader';
 import { GET_PROJECT_DETAILS, CREATE_COMMENT, TOGGLE_COMMENT_LIKE } from '../../services/graphql/queries';
@@ -298,14 +299,14 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  // Get status color for projects
+  // Get status color for projects with theme-aware styling
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'COMPLETED': return 'bg-purple-100 text-purple-800';
-      case 'IN_PROGRESS': return 'bg-orange-100 text-orange-800';
-      case 'PLANNING': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+    // Check if we're in brand theme by looking for data-theme attribute
+    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
+    const isDarkTheme = document.documentElement.classList.contains('dark');
+
+    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
+    return getProjectStatusColor(status, theme);
   };
 
   // Get task status color with better UX - DONE should be clearly successful

@@ -87,3 +87,28 @@ export const PROJECT_MODAL_TITLES = {
 export const PROJECT_CONFIRMATION_MESSAGES = {
   DELETE: 'Are you sure you want to delete this project? This action cannot be undone.'
 };
+
+// Project status color mapping for UI with better contrast
+export const PROJECT_STATUS_COLORS = {
+  PLANNING: {
+    light: 'bg-blue-100 text-blue-800',
+    dark: 'bg-blue-900 text-blue-200',
+    brand: 'bg-blue-100 text-blue-800' // High contrast against purple gradient
+  },
+  IN_PROGRESS: {
+    light: 'bg-orange-100 text-orange-800',
+    dark: 'bg-orange-900 text-orange-200',
+    brand: 'bg-orange-100 text-orange-800' // High contrast against purple gradient
+  },
+  COMPLETED: {
+    light: 'bg-green-100 text-green-800',
+    dark: 'bg-green-900 text-green-200',
+    brand: 'bg-emerald-100 text-emerald-800' // Changed to emerald for better contrast against purple
+  }
+} as const;
+
+// Get status color classes based on theme
+export const getProjectStatusColor = (status: string, theme: 'light' | 'dark' | 'brand' = 'light') => {
+  const statusKey = status as keyof typeof PROJECT_STATUS_COLORS;
+  return PROJECT_STATUS_COLORS[statusKey]?.[theme] || PROJECT_STATUS_COLORS.PLANNING[theme];
+};

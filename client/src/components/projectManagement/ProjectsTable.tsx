@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaEdit, FaTrash, FaUsers } from 'react-icons/fa';
 import { ProjectsTableProps } from '../../types/projectManagement';
-import { PROJECTS_PAGINATION_OPTIONS } from '../../constants/projectManagement';
+import { PROJECTS_PAGINATION_OPTIONS, getProjectStatusColor } from '../../constants/projectManagement';
 
 /**
  * Projects Table Component
@@ -51,20 +51,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   /**
-   * Get status badge color based on project status
+   * Get status badge color based on project status with theme-aware styling
    * Returns appropriate Tailwind classes for styling
    */
   const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'PLANNING':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800';
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+    // Check if we're in brand theme by looking for data-theme attribute
+    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
+    const isDarkTheme = document.documentElement.classList.contains('dark');
+
+    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
+    return getProjectStatusColor(status, theme);
   };
 
   /**

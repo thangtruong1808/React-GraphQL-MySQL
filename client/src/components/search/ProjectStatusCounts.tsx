@@ -1,4 +1,5 @@
 import React from 'react';
+import { getProjectStatusColor } from '../../constants/projectManagement';
 
 /**
  * Project Status Counts Component
@@ -44,34 +45,29 @@ const ProjectStatusCounts: React.FC<ProjectStatusCountsProps> = ({ projects, tot
           const count = statusCounts[status];
           const percentage = totalProjects > 0 ? Math.round((count / totalProjects) * 100) : 0;
 
-          // Get status-specific styling
+          // Get status-specific styling with theme-aware colors
           const getStatusStyle = (status: string) => {
-            switch (status) {
-              case 'PLANNING':
-                return {
-                  bg: 'bg-blue-100',
-                  text: 'text-blue-800',
-                  border: 'border-blue-200'
-                };
-              case 'IN_PROGRESS':
-                return {
-                  bg: 'bg-yellow-100',
-                  text: 'text-yellow-800',
-                  border: 'border-yellow-200'
-                };
-              case 'COMPLETED':
-                return {
-                  bg: 'bg-green-100',
-                  text: 'text-green-800',
-                  border: 'border-green-200'
-                };
-              default:
-                return {
-                  bg: 'bg-gray-100',
-                  text: 'text-gray-800',
-                  border: 'border-gray-200'
-                };
-            }
+            // Check if we're in brand theme by looking for data-theme attribute
+            const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
+            const isDarkTheme = document.documentElement.classList.contains('dark');
+
+            const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
+            const colorClasses = getProjectStatusColor(status, theme);
+
+            // Extract background and text colors from the returned classes
+            const [bgClass, textClass] = colorClasses.split(' ');
+
+            // Map to border colors based on the background
+            let borderClass = 'border-gray-200';
+            if (bgClass.includes('blue')) borderClass = 'border-blue-200';
+            else if (bgClass.includes('orange')) borderClass = 'border-orange-200';
+            else if (bgClass.includes('emerald') || bgClass.includes('green')) borderClass = 'border-emerald-200';
+
+            return {
+              bg: bgClass,
+              text: textClass,
+              border: borderClass
+            };
           };
 
           const style = getStatusStyle(status);

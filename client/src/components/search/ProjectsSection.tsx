@@ -1,4 +1,5 @@
 import React from 'react';
+import { getProjectStatusColor } from '../../constants/projectManagement';
 import SearchSection from './SearchSection';
 import ProjectStatusCounts from './ProjectStatusCounts';
 
@@ -51,18 +52,14 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   itemsPerPage,
   onProjectClick
 }) => {
-  // Get status color classes - matching ProjectStatusCounts breakdown colors
+  // Get status color classes with theme-aware styling
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PLANNING':
-        return 'bg-blue-100 text-blue-800';
-      case 'IN_PROGRESS':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+    // Check if we're in brand theme by looking for data-theme attribute
+    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
+    const isDarkTheme = document.documentElement.classList.contains('dark');
+
+    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
+    return getProjectStatusColor(status, theme);
   };
 
   // Handle project card click

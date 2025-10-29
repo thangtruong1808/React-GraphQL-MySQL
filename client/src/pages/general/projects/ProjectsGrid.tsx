@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '../../../constants/routingConstants';
+import { getProjectStatusColor } from '../../../constants/projectManagement';
 import { ProjectsGridSkeleton } from '../../../components/ui';
 import { Project } from './types';
 
@@ -64,14 +65,14 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({
     }
   };
 
-  // Get status color for projects
+  // Get status color for projects with theme-aware styling
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'COMPLETED': return 'bg-purple-100 text-purple-800';
-      case 'IN_PROGRESS': return 'bg-orange-100 text-orange-800';
-      case 'PLANNING': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+    // Check if we're in brand theme by looking for data-theme attribute
+    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
+    const isDarkTheme = document.documentElement.classList.contains('dark');
+
+    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
+    return getProjectStatusColor(status, theme);
   };
 
   // Client-side sorting of projects
