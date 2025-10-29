@@ -185,7 +185,7 @@ export const GET_PUBLIC_RECENT_TASKS = gql`
 // Search queries for members, projects, and tasks
 // All parameters are optional - search works independently
 export const SEARCH_MEMBERS = gql`
-  query SearchMembers($query: String, $roleFilter: [UserRole!]) {
+  query SearchMembers($query: String, $roleFilter: [String!]) {
     searchMembers(query: $query, roleFilter: $roleFilter) {
       id
       uuid

@@ -93,9 +93,8 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
     <div className="space-y-10">
       {/* Members Section - Show ONLY when searching by user name (q parameter) */}
       {shouldShowMembersSection && (
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl opacity-50"></div>
-          <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-200 p-6">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="search-section max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
             <MembersSection
               members={getPaginatedResults(searchResults.members, currentPage.members, ITEMS_PER_PAGE)}
               allMembers={searchResults.members}
@@ -114,9 +113,8 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
 
       {/* Projects Section - Show ONLY when explicitly searching by project status */}
       {shouldShowProjectsSection && (
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl opacity-50"></div>
-          <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-green-200 p-6">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="search-section max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
             <ProjectsSection
               projects={getPaginatedResults(searchResults.projects, currentPage.projects, ITEMS_PER_PAGE)}
               allProjects={searchResults.projects}
@@ -135,9 +133,8 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
 
       {/* Tasks Section - Show ONLY when explicitly searching by task status */}
       {shouldShowTasksSection && (
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl opacity-50"></div>
-          <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-orange-200 p-6">
+        <div className="py-4 px-4 sm:px-6 lg:px-8">
+          <div className="search-section max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
             <TasksSection
               tasks={getPaginatedResults(searchResults.tasks, currentPage.tasks, ITEMS_PER_PAGE)}
               allTasks={searchResults.tasks}

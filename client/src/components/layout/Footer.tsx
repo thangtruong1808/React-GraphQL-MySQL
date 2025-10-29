@@ -109,7 +109,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className={`theme-footer-bg ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} border-t ${FOOTER_STYLES.COLORS.BORDER}`}>
+    <footer className={`theme-footer-bg [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} border-t ${FOOTER_STYLES.COLORS.BORDER} [data-theme='brand']:border-purple-200`}>
       {/* Main Footer Content */}
       <div className={`${FOOTER_STYLES.LAYOUT.CONTAINER} py-12`}>
         <div className={FOOTER_STYLES.LAYOUT.GRID}>
@@ -284,7 +284,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Footer Bar */}
-      <div className={`border-t ${FOOTER_STYLES.COLORS.BORDER} theme-footer-bg`}>
+      <div className={`border-t ${FOOTER_STYLES.COLORS.BORDER} [data-theme='brand']:border-purple-200 theme-footer-bg [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50`}>
         <div className={`${FOOTER_STYLES.LAYOUT.CONTAINER} py-6`}>
           <div className="flex justify-center items-center">
             <div className="flex items-center space-x-4">

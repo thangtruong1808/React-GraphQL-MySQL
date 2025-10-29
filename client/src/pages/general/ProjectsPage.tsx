@@ -65,7 +65,7 @@ const ProjectsPage: React.FC = () => {
 
       {/* Projects Sort Controls - Client-side sorting */}
       <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
           <ProjectsSortControls
             sortOption={sortOption}
             onSortChange={handleSortChange}
@@ -83,8 +83,17 @@ const ProjectsPage: React.FC = () => {
 
   // All users see traditional layout with top navbar (NavBar handled by App.tsx)
   return (
-    <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="w-full public-dashboard">
+      <div
+        className="min-h-screen pt-24"
+        style={{
+          minHeight: '100vh',
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      >
         <PublicProjectsContent />
       </div>
     </div>

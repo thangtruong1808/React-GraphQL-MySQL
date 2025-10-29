@@ -24,7 +24,7 @@ interface TaskCompletionProgressProps {
  */
 const TaskCompletionProgress: React.FC<TaskCompletionProgressProps> = ({ stats }) => {
   return (
-    <div className="shadow-lg border border-pink-100 bg-white rounded-xl p-4">
+    <div className="bg-white shadow-lg border border-gray-200 rounded-2xl p-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-2">Task Completion Progress</h3>
 
       {/* Description */}

@@ -200,7 +200,7 @@ const NavBar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full theme-navbar-bg border-b border-gray-200 z-50">
+    <nav className="fixed top-0 left-0 right-0 w-full theme-navbar-bg border-b border-gray-200 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 [data-theme='brand']:border-purple-200 z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Brand */}

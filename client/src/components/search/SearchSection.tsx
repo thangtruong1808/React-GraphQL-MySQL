@@ -50,15 +50,15 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       {/* Enhanced Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shadow-sm">
+          <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600 [data-theme='brand']:from-purple-600 [data-theme='brand']:to-pink-600 rounded-lg shadow-sm">
             <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">{title}</h3>
             {totalPages > 1 && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700">
                 Page {currentPage} of {totalPages}
               </p>
             )}
@@ -90,8 +90,8 @@ const SearchSection: React.FC<SearchSectionProps> = ({
 
               {/* Pagination controls */}
               {totalPages > 1 && onPageChange && (
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="flex items-center justify-between pt-6 theme-border">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700">
                     <span>Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} {totalItems === 1 ? 'result' : 'results'}</span>
                   </div>
 
@@ -100,7 +100,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700 bg-white dark:bg-gray-700 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-200 hover:bg-gray-50 dark:hover:bg-gray-600 [data-theme='brand']:hover:bg-purple-50"
                       title="Go to first page"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +113,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700 bg-white dark:bg-gray-700 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-200 hover:bg-gray-50 dark:hover:bg-gray-600 [data-theme='brand']:hover:bg-purple-50"
                       title="Go to previous page"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,8 +133,8 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                             key={pageNum}
                             onClick={() => onPageChange(pageNum)}
                             className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors min-w-[2.5rem] ${pageNum === currentPage
-                              ? 'bg-purple-600 text-white shadow-md'
-                              : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
+                              ? 'bg-purple-600 text-white dark:bg-purple-600 [data-theme=\'brand\']:bg-purple-600'
+                              : 'text-gray-600 dark:text-gray-300 [data-theme=\'brand\']:text-purple-700 bg-white dark:bg-gray-700 [data-theme=\'brand\']:bg-white border border-gray-300 dark:border-gray-600 [data-theme=\'brand\']:border-purple-200 hover:bg-gray-50 dark:hover:bg-gray-600 [data-theme=\'brand\']:hover:bg-purple-50'
                               }`}
                             title={`Go to page ${pageNum}`}
                           >
@@ -148,7 +148,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-700 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 [data-theme='brand']:hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
                       title="Go to next page"
                     >
                       <span className="hidden sm:inline">Next</span>
@@ -161,7 +161,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(totalPages)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 bg-white dark:bg-gray-700 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 [data-theme='brand']:hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
                       title="Go to last page"
                     >
                       <span className="hidden sm:inline">Last</span>
@@ -175,13 +175,13 @@ const SearchSection: React.FC<SearchSectionProps> = ({
             </>
           ) : (
             <div className="text-center py-12">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-700 [data-theme='brand']:bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="h-8 w-8 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No {title.toLowerCase()} found</h3>
-              <p className="text-sm text-gray-500">{emptyMessage}</p>
+              <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">No {title.toLowerCase()} found</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700">{emptyMessage}</p>
             </div>
           )}
         </div>
@@ -190,13 +190,13 @@ const SearchSection: React.FC<SearchSectionProps> = ({
       {/* No query state with enhanced design */}
       {!hasQuery && (
         <div className="text-center py-12">
-          <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="mx-auto w-16 h-16 bg-purple-100 dark:bg-purple-900/20 [data-theme='brand']:bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="h-8 w-8 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Search {title.toLowerCase()}</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="text-lg font-medium mb-2 text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">Search {title.toLowerCase()}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700">
             Type at least 2 characters to search {title.toLowerCase()}
           </p>
         </div>

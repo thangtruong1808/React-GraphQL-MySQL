@@ -33,8 +33,8 @@ const ProjectStatusCounts: React.FC<ProjectStatusCountsProps> = ({ projects, tot
   }
 
   return (
-    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-      <h3 className="text-sm font-semibold text-green-800 mb-3 flex items-center">
+    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 [data-theme='brand']:from-green-50 [data-theme='brand']:to-emerald-50 rounded-lg border border-green-200 dark:border-green-700 [data-theme='brand']:border-green-200">
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-green-300 [data-theme='brand']:text-gray-900 mb-3 flex items-center">
         <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
@@ -90,7 +90,7 @@ const ProjectStatusCounts: React.FC<ProjectStatusCountsProps> = ({ projects, tot
           );
         })}
       </div>
-      <div className="mt-3 text-xs text-green-700">
+      <div className="mt-3 text-xs text-gray-900 dark:text-green-400 [data-theme='brand']:text-gray-900">
         Total: {totalProjects} project{totalProjects !== 1 ? 's' : ''}
       </div>
     </div>

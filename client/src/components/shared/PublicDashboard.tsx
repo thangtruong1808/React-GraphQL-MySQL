@@ -136,7 +136,16 @@ const PublicDashboard: React.FC = () => {
   // Show error state if GraphQL query fails (for non-database errors)
   if (error) {
     return (
-      <div className="w-full min-h-screen bg-gray-50 public-dashboard flex items-center justify-center">
+      <div
+        className="w-full min-h-screen public-dashboard flex items-center justify-center"
+        style={{
+          minHeight: '100vh',
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      >
         <div className="max-w-md mx-auto text-center">
           <InlineError
             message="Unable to load dashboard statistics. Please try again later."
@@ -149,8 +158,17 @@ const PublicDashboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="w-full public-dashboard">
+      <div
+        className="min-h-screen pt-24"
+        style={{
+          minHeight: '100vh',
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      >
         {/* Hero Section - Main title and public statistics overview */}
         <HeroSection stats={stats} />
 

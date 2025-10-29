@@ -35,7 +35,13 @@ const SearchResultsPage: React.FC = () => {
   });
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 pt-20">
+    <div className="w-full min-h-screen pt-20" style={{
+      minHeight: '100vh',
+      backgroundColor: 'var(--bg-base)',
+      backgroundImage: 'var(--bg-gradient)',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover'
+    }}>
       <SearchResultsContainer
         searchResults={searchResults}
         loading={loading}

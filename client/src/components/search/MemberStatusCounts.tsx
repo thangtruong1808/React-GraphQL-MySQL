@@ -34,8 +34,8 @@ const MemberStatusCounts: React.FC<MemberStatusCountsProps> = ({ members, totalM
   }
 
   return (
-    <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-      <h3 className="text-sm font-semibold text-blue-800 mb-3 flex items-center">
+    <div className="mb-6 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 [data-theme='brand']:bg-gradient-to-r [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-xl border border-blue-200 dark:border-blue-700 [data-theme='brand']:border-purple-200">
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-blue-300 [data-theme='brand']:text-gray-900 mb-3 flex items-center">
         <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
         </svg>
@@ -68,7 +68,7 @@ const MemberStatusCounts: React.FC<MemberStatusCountsProps> = ({ members, totalM
           );
         })}
       </div>
-      <div className="mt-3 text-xs text-blue-700">
+      <div className="mt-3 text-xs text-gray-900 dark:text-blue-400 [data-theme='brand']:text-gray-900">
         Total: {totalMembers} member{totalMembers !== 1 ? 's' : ''}
       </div>
     </div>

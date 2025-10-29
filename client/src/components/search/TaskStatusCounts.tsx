@@ -1,4 +1,5 @@
 import React from 'react';
+import { getProjectStatusColor } from '../../constants/projectManagement';
 
 /**
  * Task Status Counts Component
@@ -32,8 +33,8 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
   }
 
   return (
-    <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
-      <h3 className="text-sm font-semibold text-orange-800 mb-3 flex items-center">
+    <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 [data-theme='brand']:from-orange-50 [data-theme='brand']:to-amber-50 rounded-lg border border-orange-200 dark:border-orange-700 [data-theme='brand']:border-orange-200">
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-orange-300 [data-theme='brand']:text-gray-900 mb-3 flex items-center">
         <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
         </svg>
@@ -44,34 +45,36 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
           const count = statusCounts[status];
           const percentage = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
 
-          // Get status-specific styling - matching database TaskStatus enum values
+          // Get status-specific styling with theme awareness
           const getStatusStyle = (status: string) => {
-            switch (status) {
-              case 'TODO':
-                return {
-                  bg: 'bg-gray-100',
-                  text: 'text-gray-800',
-                  border: 'border-gray-200'
-                };
-              case 'IN_PROGRESS':
-                return {
-                  bg: 'bg-yellow-100',
-                  text: 'text-yellow-800',
-                  border: 'border-yellow-200'
-                };
-              case 'DONE':
-                return {
-                  bg: 'bg-green-100',
-                  text: 'text-green-800',
-                  border: 'border-green-200'
-                };
-              default:
-                return {
-                  bg: 'bg-gray-100',
-                  text: 'text-gray-800',
-                  border: 'border-gray-200'
-                };
-            }
+            const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
+            const isDarkTheme = document.documentElement.classList.contains('dark');
+            const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
+
+            // Map task statuses to project statuses for consistency
+            const statusMap: { [key: string]: string } = {
+              'IN_PROGRESS': 'IN_PROGRESS',
+              'DONE': 'COMPLETED',
+              'TODO': 'PLANNING'
+            };
+
+            const mappedStatus = statusMap[status] || 'PLANNING';
+            const colorClasses = getProjectStatusColor(mappedStatus, theme);
+
+            // Extract background and text colors from the returned classes
+            const [bgClass, textClass] = colorClasses.split(' ');
+
+            // Map to border colors based on the background
+            let borderClass = 'border-gray-200';
+            if (bgClass.includes('blue')) borderClass = 'border-blue-200 dark:border-blue-600 [data-theme="brand"]:border-blue-200';
+            else if (bgClass.includes('orange')) borderClass = 'border-orange-200 dark:border-orange-600 [data-theme="brand"]:border-orange-200';
+            else if (bgClass.includes('emerald') || bgClass.includes('green')) borderClass = 'border-emerald-200 dark:border-emerald-600 [data-theme="brand"]:border-emerald-200';
+
+            return {
+              bg: bgClass,
+              text: textClass,
+              border: borderClass
+            };
           };
 
           const style = getStatusStyle(status);
@@ -94,7 +97,7 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
           );
         })}
       </div>
-      <div className="mt-3 text-xs text-orange-700">
+      <div className="mt-3 text-xs text-gray-900 dark:text-orange-400 [data-theme='brand']:text-gray-900">
         Total: {totalTasks} task{totalTasks !== 1 ? 's' : ''}
       </div>
     </div>

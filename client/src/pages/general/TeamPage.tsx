@@ -145,7 +145,7 @@ const TeamPage: React.FC = () => {
 
       {/* Team Sort Controls - Client-side sorting */}
       <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
           <TeamSortControls
             sortOption={sortOption}
             onSortChange={(field) => {
@@ -160,7 +160,7 @@ const TeamPage: React.FC = () => {
 
       {/* Team Filters - Server-side filtering */}
       <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
           <TeamFilters
             filter={filter}
             setFilter={setFilter}
@@ -171,7 +171,7 @@ const TeamPage: React.FC = () => {
 
       {/* Team Members Grid - Server-filtered results with client-side sorting */}
       <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
           <TeamMembersGrid
             filteredMembers={teamMembers}
             filter={filter}
@@ -186,7 +186,7 @@ const TeamPage: React.FC = () => {
       {/* Loading More Indicator */}
       {loadingMore && (
         <div className="py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             </div>
@@ -197,7 +197,7 @@ const TeamPage: React.FC = () => {
       {/* End of Results Indicator */}
       {!hasMore && teamMembers.length > 0 && (
         <div className="py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+          <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
             <div className="text-center text-gray-500">
               <p>You've reached the end of the team members list.</p>
             </div>
@@ -209,8 +209,17 @@ const TeamPage: React.FC = () => {
 
   // All users see traditional layout with top navbar (NavBar handled by App.tsx)
   return (
-    <div className="w-full public-dashboard bg-gray-50">
-      <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="w-full public-dashboard">
+      <div
+        className="min-h-screen pt-24"
+        style={{
+          minHeight: '100vh',
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      >
         <PublicTeamContent />
       </div>
     </div>

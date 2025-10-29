@@ -87,6 +87,8 @@
   --text-badge-secondary-bg: #f1f5f9; /* text badge secondary background */
   --text-badge-secondary-text: #475569; /* text badge secondary text */
   --shadow-color: rgba(0, 0, 0, 0.1); /* shadow color */
+  --navbar-gradient: none;       /* navbar gradient background */
+  --footer-gradient: none;       /* footer gradient background */
   --navbar-bg: #f9fafb;          /* navbar background */
   --footer-bg: #f9fafb;          /* footer background */
   --navbar-text: #374151;        /* navbar text color */
@@ -183,6 +185,8 @@
   --text-badge-secondary-bg: #f1f5f9; /* light text badge secondary background */
   --text-badge-secondary-text: #475569; /* light text badge secondary text */
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --navbar-gradient: none;       /* light navbar gradient */
+  --footer-gradient: none;       /* light footer gradient */
   --navbar-bg: #f9fafb;          /* light navbar background */
   --footer-bg: #f9fafb;          /* light footer background */
   --navbar-text: #374151;        /* light navbar text color */
@@ -194,6 +198,7 @@
   --user-profile-text-secondary: #4b5563; /* light user profile secondary text */
   --user-profile-role-bg: #d1fae5; /* light user profile role badge background */
   --user-profile-role-text: #065f46; /* light user profile role badge text */
+  /* Search components now use standard theme variables - no special search variables needed */
 }
 
 [data-theme="dark"] {
@@ -279,6 +284,8 @@
   --text-badge-secondary-bg: #4b5563; /* dark text badge secondary background */
   --text-badge-secondary-text: #e5e7eb; /* dark text badge secondary text */
   --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
+  --navbar-gradient: none;       /* dark navbar gradient */
+  --footer-gradient: none;       /* dark footer gradient */
   --navbar-bg: #1f2937;    /* dark navbar background */
   --footer-bg: #1f2937;    /* dark footer background */
   --navbar-text: #f9fafb;  /* dark navbar text color */
@@ -290,6 +297,7 @@
   --user-profile-text-secondary: #d1d5db; /* dark user profile secondary text */
   --user-profile-role-bg: #065f46; /* dark user profile role badge background */
   --user-profile-role-text: #ffffff; /* dark user profile role badge text */
+  /* Search components now use standard theme variables - no special search variables needed */
 }
 
 [data-theme="brand"] {
@@ -375,6 +383,8 @@
   --text-badge-secondary-bg: #ede9fe; /* brand text badge secondary background */
   --text-badge-secondary-text: #7c3aed; /* brand text badge secondary text */
   --shadow-color: rgba(124, 58, 237, 0.2);
+  --navbar-gradient: linear-gradient(to bottom right, #f3e8ff, #fce7f3); /* brand navbar gradient */
+  --footer-gradient: linear-gradient(to bottom right, #f3e8ff, #fce7f3); /* brand footer gradient */
   --navbar-bg: #faf5ff;   /* brand navbar background */
   --footer-bg: #faf5ff;   /* brand footer background */
   --navbar-text: #581c87; /* brand navbar text color */
@@ -386,6 +396,7 @@
   --user-profile-text-secondary: #7c3aed; /* brand user profile secondary text */
   --user-profile-role-bg: #e9d5ff; /* brand user profile role badge background */
   --user-profile-role-text: #581c87; /* brand user profile role badge text */
+  /* Search components now use standard theme variables - no special search variables needed */
 }
 
 /* Helper class to apply theme accent gradient */
@@ -399,12 +410,19 @@
 }
 
 /* Theme-aware navbar and footer backgrounds */
+
 .theme-navbar-bg {
   background-color: var(--navbar-bg) !important;
+  background-image: var(--navbar-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .theme-footer-bg {
   background-color: var(--footer-bg) !important;
+  background-image: var(--footer-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 /* Theme-aware navbar text colors */
@@ -948,6 +966,204 @@ table th[onclick*="createdAt"] .theme-sort-icon-active {
 .bg-white.shadow, .bg-white.rounded, .card {
   background-color: var(--card-bg) !important;
   box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px 0 var(--shadow-color) !important;
+}
+
+/* Search components text color overrides to ensure proper brand theme display */
+[data-theme="brand"] .search-section h1,
+[data-theme="brand"] .search-section h2,
+[data-theme="brand"] .search-section h3,
+[data-theme="brand"] .search-section h4,
+[data-theme="brand"] .search-section h5,
+[data-theme="brand"] .search-section h6 {
+  color: #581c87 !important; /* Dark purple for headings */
+}
+
+[data-theme="brand"] .search-section .text-gray-900,
+[data-theme="brand"] .search-section .text-gray-800,
+[data-theme="brand"] .search-section .text-gray-700 {
+  color: #581c87 !important; /* Dark purple for main text */
+}
+
+[data-theme="brand"] .search-section .text-gray-600,
+[data-theme="brand"] .search-section .text-gray-500 {
+  color: #7c3aed !important; /* Purple for secondary text */
+}
+
+[data-theme="brand"] .search-section .text-gray-400,
+[data-theme="brand"] .search-section .text-gray-300 {
+  color: #a855f7 !important; /* Light purple for muted text */
+}
+
+/* Override for search header specifically */
+[data-theme="brand"] .search-header h1,
+[data-theme="brand"] .search-header h2,
+[data-theme="brand"] .search-header h3,
+[data-theme="brand"] .search-header h4,
+[data-theme="brand"] .search-header h5,
+[data-theme="brand"] .search-header h6 {
+  color: #581c87 !important;
+}
+
+[data-theme="brand"] .search-header .text-gray-900,
+[data-theme="brand"] .search-header .text-gray-800,
+[data-theme="brand"] .search-header .text-gray-700 {
+  color: #581c87 !important;
+}
+
+[data-theme="brand"] .search-header .text-gray-600,
+[data-theme="brand"] .search-header .text-gray-500 {
+  color: #7c3aed !important;
+}
+
+/* Override for search filter specifically */
+[data-theme="brand"] .search-filter h1,
+[data-theme="brand"] .search-filter h2,
+[data-theme="brand"] .search-filter h3,
+[data-theme="brand"] .search-filter h4,
+[data-theme="brand"] .search-filter h5,
+[data-theme="brand"] .search-filter h6 {
+  color: #581c87 !important;
+}
+
+[data-theme="brand"] .search-filter .text-gray-900,
+[data-theme="brand"] .search-filter .text-gray-800,
+[data-theme="brand"] .search-filter .text-gray-700 {
+  color: #581c87 !important;
+}
+
+[data-theme="brand"] .search-filter .text-gray-600,
+[data-theme="brand"] .search-filter .text-gray-500 {
+  color: #7c3aed !important;
+}
+
+/* Override for sub-section components (status counts, breakdowns) */
+[data-theme="brand"] .search-section .text-blue-800,
+[data-theme="brand"] .search-section .text-blue-700,
+[data-theme="brand"] .search-section .text-blue-600,
+[data-theme="brand"] .search-section .text-green-800,
+[data-theme="brand"] .search-section .text-green-700,
+[data-theme="brand"] .search-section .text-green-600,
+[data-theme="brand"] .search-section .text-orange-800,
+[data-theme="brand"] .search-section .text-orange-700,
+[data-theme="brand"] .search-section .text-orange-600 {
+  color: #581c87 !important; /* Dark purple for all sub-section text */
+}
+
+[data-theme="brand"] .search-section .text-blue-400,
+[data-theme="brand"] .search-section .text-blue-300,
+[data-theme="brand"] .search-section .text-green-400,
+[data-theme="brand"] .search-section .text-green-300,
+[data-theme="brand"] .search-section .text-orange-400,
+[data-theme="brand"] .search-section .text-orange-300 {
+  color: #7c3aed !important; /* Purple for secondary sub-section text */
+}
+
+/* Specific overrides for status count components */
+[data-theme="brand"] .search-section h3,
+[data-theme="brand"] .search-section .text-sm,
+[data-theme="brand"] .search-section .text-xs {
+  color: #581c87 !important;
+}
+
+[data-theme="brand"] .search-section .font-semibold,
+[data-theme="brand"] .search-section .font-medium,
+[data-theme="brand"] .search-section .font-bold {
+  color: #581c87 !important;
+}
+
+/* Override for Search Header specific text colors - More specific selectors */
+[data-theme="brand"] .search-header .text-blue-700,
+[data-theme="brand"] .search-header .text-blue-600,
+[data-theme="brand"] .search-header .text-green-700,
+[data-theme="brand"] .search-header .text-green-600,
+[data-theme="brand"] .search-header .text-orange-700,
+[data-theme="brand"] .search-header .text-orange-600,
+[data-theme="brand"] .search-header .text-purple-700,
+[data-theme="brand"] .search-header .text-purple-600,
+[data-theme="brand"] .search-header .text-blue-400,
+[data-theme="brand"] .search-header .text-blue-300,
+[data-theme="brand"] .search-header .text-green-400,
+[data-theme="brand"] .search-header .text-green-300,
+[data-theme="brand"] .search-header .text-orange-400,
+[data-theme="brand"] .search-header .text-orange-300,
+[data-theme="brand"] .search-header .text-purple-400,
+[data-theme="brand"] .search-header .text-purple-300 {
+  color: #581c87 !important; /* Dark purple for all header text */
+}
+
+[data-theme="brand"] .search-header .text-blue-400,
+[data-theme="brand"] .search-header .text-blue-300,
+[data-theme="brand"] .search-header .text-green-400,
+[data-theme="brand"] .search-header .text-green-300,
+[data-theme="brand"] .search-header .text-orange-400,
+[data-theme="brand"] .search-header .text-orange-300,
+[data-theme="brand"] .search-header .text-purple-400,
+[data-theme="brand"] .search-header .text-purple-300 {
+  color: #7c3aed !important; /* Purple for secondary header text */
+}
+
+/* Override for Active Filters specific text colors - More specific selectors */
+[data-theme="brand"] .search-filter .text-blue-700,
+[data-theme="brand"] .search-filter .text-blue-600,
+[data-theme="brand"] .search-filter .text-green-700,
+[data-theme="brand"] .search-filter .text-green-600,
+[data-theme="brand"] .search-filter .text-orange-700,
+[data-theme="brand"] .search-filter .text-orange-600,
+[data-theme="brand"] .search-filter .text-purple-700,
+[data-theme="brand"] .search-filter .text-purple-600,
+[data-theme="brand"] .search-filter .text-blue-400,
+[data-theme="brand"] .search-filter .text-blue-300,
+[data-theme="brand"] .search-filter .text-green-400,
+[data-theme="brand"] .search-filter .text-green-300,
+[data-theme="brand"] .search-filter .text-orange-400,
+[data-theme="brand"] .search-filter .text-orange-300,
+[data-theme="brand"] .search-filter .text-purple-400,
+[data-theme="brand"] .search-filter .text-purple-300 {
+  color: #581c87 !important; /* Dark purple for all filter text */
+}
+
+[data-theme="brand"] .search-filter .text-blue-400,
+[data-theme="brand"] .search-filter .text-blue-300,
+[data-theme="brand"] .search-filter .text-green-400,
+[data-theme="brand"] .search-filter .text-green-300,
+[data-theme="brand"] .search-filter .text-orange-400,
+[data-theme="brand"] .search-filter .text-orange-300,
+[data-theme="brand"] .search-filter .text-purple-400,
+[data-theme="brand"] .search-filter .text-purple-300 {
+  color: #7c3aed !important; /* Purple for secondary filter text */
+}
+
+/* Fix sub-section background colors to match parent sections - More specific selectors */
+[data-theme="brand"] .search-section .bg-gradient-to-r,
+[data-theme="brand"] .search-section [class*="from-blue-50"],
+[data-theme="brand"] .search-section [class*="to-indigo-50"],
+[data-theme="brand"] .search-section [class*="from-green-50"],
+[data-theme="brand"] .search-section [class*="to-emerald-50"],
+[data-theme="brand"] .search-section [class*="from-orange-50"],
+[data-theme="brand"] .search-section [class*="to-amber-50"] {
+  background: linear-gradient(to right, #faf5ff, #f3e8ff) !important; /* Match parent section gradient */
+}
+
+[data-theme="brand"] .search-section [class*="border-blue-200"],
+[data-theme="brand"] .search-section [class*="border-green-200"],
+[data-theme="brand"] .search-section [class*="border-orange-200"] {
+  border-color: #e9d5ff !important; /* Match parent section border */
+}
+
+/* Override specific sub-section components */
+[data-theme="brand"] .search-section .from-blue-50,
+[data-theme="brand"] .search-section .to-indigo-50,
+[data-theme="brand"] .search-section .from-green-50,
+[data-theme="brand"] .search-section .to-emerald-50,
+[data-theme="brand"] .search-section .from-orange-50,
+[data-theme="brand"] .search-section .to-amber-50 {
+  background: linear-gradient(to right, #faf5ff, #f3e8ff) !important; /* Match parent section gradient */
+}
+
+[data-theme="brand"] .search-section .border-blue-200,
+[data-theme="brand"] .search-section .border-green-200,
+[data-theme="brand"] .search-section .border-orange-200 {
+  border-color: #e9d5ff !important; /* Match parent section border */
 }
 
 /* Theme-aware input backgrounds */
