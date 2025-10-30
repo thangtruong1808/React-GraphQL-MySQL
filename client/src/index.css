@@ -71,10 +71,24 @@
   --badge-warning-text: #c2410c; /* warning badge text */
   --badge-neutral-bg: #f3f4f6; /* neutral badge background */
   --badge-neutral-text: #374151; /* neutral badge text */
+  /* Audit badges (higher-contrast across themes) */
+  --badge-audit-bg: #f3f4f6; /* default fallback */
+  --badge-audit-text: #111827; /* default fallback */
   --avatar-bg: #f3e8ff; /* avatar background */
   --avatar-text: #7c3aed; /* avatar text */
   --sort-icon: #9ca3af; /* sort icon color */
   --sort-icon-active: #7c3aed; /* active sort icon color */
+  /* Section icon defaults (readable across themes; overridden per theme) */
+  --icon-activity-bg: #e0e7ff; /* indigo-100 */
+  --icon-activity-fg: #4338ca; /* indigo-700 */
+  --icon-users-bg: #d1fae5;    /* emerald-100 */
+  --icon-users-fg: #047857;    /* emerald-700 */
+  --icon-projects-bg: #dbeafe; /* blue-100 */
+  --icon-projects-fg: #1d4ed8; /* blue-700 */
+  --icon-tasks-bg: #ede9fe;    /* violet-100 */
+  --icon-tasks-fg: #6d28d9;    /* violet-700 */
+  --icon-comments-bg: #ffedd5; /* orange-100 */
+  --icon-comments-fg: #c2410c; /* orange-700 */
   --role-selection-bg: #ffffff; /* role selection background */
   --role-selection-border: #e5e7eb; /* role selection border */
   --role-selection-border-hover: #d1d5db; /* role selection border hover */
@@ -168,6 +182,20 @@
   --text-badge-primary-text: #1e293b; /* light text badge primary text */
   --text-badge-secondary-bg: #f1f5f9; /* light text badge secondary background */
   --text-badge-secondary-text: #475569; /* light text badge secondary text */
+  /* Section icons - light */
+  --icon-activity-bg: #e0e7ff; /* indigo-100 */
+  --icon-activity-fg: #4338ca; /* indigo-700 */
+  --icon-users-bg: #d1fae5;    /* emerald-100 */
+  --icon-users-fg: #047857;    /* emerald-700 */
+  --icon-projects-bg: #dbeafe; /* blue-100 */
+  --icon-projects-fg: #1d4ed8; /* blue-700 */
+  --icon-tasks-bg: #ede9fe;    /* violet-100 */
+  --icon-tasks-fg: #6d28d9;    /* violet-700 */
+  --icon-comments-bg: #ffedd5; /* orange-100 */
+  --icon-comments-fg: #c2410c; /* orange-700 */
+  /* Audit badges */
+  --badge-audit-bg: #e5e7eb; /* gray-200 */
+  --badge-audit-text: #111827; /* gray-900 */
   --shadow-color: rgba(0, 0, 0, 0.1);
   --navbar-gradient: none;       /* light navbar gradient */
   --footer-gradient: none;       /* light footer gradient */
@@ -283,6 +311,20 @@
   --text-badge-primary-text: #ffffff; /* dark text badge primary text */
   --text-badge-secondary-bg: #4b5563; /* dark text badge secondary background */
   --text-badge-secondary-text: #e5e7eb; /* dark text badge secondary text */
+  /* Section icons - dark (higher contrast) */
+  --icon-activity-bg: #312e81; /* indigo-900 */
+  --icon-activity-fg: #c7d2fe; /* indigo-200 */
+  --icon-users-bg: #064e3b;    /* emerald-900 */
+  --icon-users-fg: #a7f3d0;    /* emerald-200 */
+  --icon-projects-bg: #1e3a8a; /* blue-900 */
+  --icon-projects-fg: #bfdbfe; /* blue-200 */
+  --icon-tasks-bg: #4c1d95;    /* violet-900 */
+  --icon-tasks-fg: #ddd6fe;    /* violet-200 */
+  --icon-comments-bg: #7c2d12; /* orange-900 */
+  --icon-comments-fg: #fed7aa; /* orange-200 */
+  /* Audit badges */
+  --badge-audit-bg: #374151; /* gray-700 */
+  --badge-audit-text: #f9fafb; /* gray-50 */
   --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
   --navbar-gradient: none;       /* dark navbar gradient */
   --footer-gradient: none;       /* dark footer gradient */
@@ -385,6 +427,20 @@
   --text-badge-primary-text: #581c87; /* brand text badge primary text */
   --text-badge-secondary-bg: #ede9fe; /* brand text badge secondary background */
   --text-badge-secondary-text: #7c3aed; /* brand text badge secondary text */
+  /* Section icons - brand (ensure readability on light brand surfaces) */
+  --icon-activity-bg: #ede9fe; /* violet-100 */
+  --icon-activity-fg: #4c1d95; /* violet-900 */
+  --icon-users-bg: #e9d5ff;    /* purple-200 */
+  --icon-users-fg: #581c87;    /* purple-900 */
+  --icon-projects-bg: #e0e7ff; /* indigo-100 */
+  --icon-projects-fg: #3730a3; /* indigo-800 */
+  --icon-tasks-bg: #f5d0fe;    /* fuchsia-200 */
+  --icon-tasks-fg: #86198f;    /* fuchsia-900 */
+  --icon-comments-bg: #ffedd5; /* orange-100 */
+  --icon-comments-fg: #7c2d12; /* orange-900 */
+  /* Audit badges - tuned for brand readability */
+  --badge-audit-bg: #ede9fe; /* violet-100 */
+  --badge-audit-text: #4c1d95; /* violet-900 */
   --shadow-color: rgba(124, 58, 237, 0.2);
   --navbar-gradient: linear-gradient(to bottom right, #f3e8ff, #fce7f3); /* brand navbar gradient */
   --footer-gradient: linear-gradient(to bottom right, #f3e8ff, #fce7f3); /* brand footer gradient */

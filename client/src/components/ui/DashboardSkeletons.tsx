@@ -254,6 +254,36 @@ export const AuthenticatedDashboardSkeleton: React.FC = () => {
           </div>
         </div>
 
+        {/* Audit Widgets Skeleton - mirrors audit rows */}
+        <div className="px-4 sm:px-6 lg:px-8 py-3">
+          <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+              {[0,1].map((i) => (
+                <div key={i} className="bg-gray-100 rounded-xl p-4 border border-gray-300">
+                  <div className="h-5 w-24 bg-gray-200 rounded mb-3" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div key={j} className="h-3 w-full bg-gray-200 rounded" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              {[0,1,2].map((i) => (
+                <div key={i} className="bg-gray-100 rounded-xl p-4 border border-gray-300">
+                  <div className="h-5 w-28 bg-gray-200 rounded mb-3" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <div key={j} className="h-3 w-full bg-gray-200 rounded" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
