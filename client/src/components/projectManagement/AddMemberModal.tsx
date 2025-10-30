@@ -148,21 +148,21 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-8">
+        <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-4xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-8 py-8" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaUserPlus className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaUserPlus className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold leading-6 text-white">
                     Add Member to {projectName}
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-white text-sm mt-1">
                     Select a user and assign their role in the project
                   </p>
                 </div>
@@ -179,7 +179,7 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
           </div>
 
           {/* Modal Body */}
-          <div className="px-8 py-8">
+          <div className="px-8 py-8" style={{ backgroundColor: 'var(--card-bg)' }}>
             <form id="add-member-form" onSubmit={handleSubmit} className="space-y-6">
               {/* User Selection */}
               <div>
@@ -190,14 +190,17 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
                 {/* Search Input */}
                 <div className="relative mb-4">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaSearch className="h-4 w-4 text-gray-400" />
+                    <FaSearch className="h-4 w-4" style={{ color: 'var(--text-muted)' }} />
                   </div>
                   <input
                     type="text"
                     placeholder="Search users by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                    className="block w-full pl-10 pr-3 py-3 border rounded-lg leading-5 focus:outline-none transition-all"
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
                 </div>
 
@@ -234,11 +237,12 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
           </div>
 
           {/* Footer with gradient background */}
-          <div className="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3">
+          <div className="px-6 py-4 flex items-center justify-end space-x-3" style={{ backgroundColor: 'var(--table-header-bg)', borderTopColor: 'var(--border-color)', borderTopWidth: 1 }}>
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium rounded-lg focus:outline-none transition-colors"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               disabled={loading}
             >
               Cancel
@@ -246,7 +250,8 @@ const AddMemberModal: React.FC<AddMemberModalProps> = ({
             <button
               type="submit"
               form="add-member-form"
-              className="px-6 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-6 py-2 text-sm font-medium rounded-lg focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-primary-bg)' }}
               disabled={loading || !selectedUserId || !selectedRole}
               onClick={handleSubmit}
             >

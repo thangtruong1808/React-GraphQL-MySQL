@@ -109,21 +109,21 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl theme-role-selection-bg text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-6">
+        <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaEdit className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaEdit className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold leading-6 text-white">
                     Update Member Role
                   </h3>
-                  <p className="text-blue-100 text-sm mt-1">
+                  <p className="text-white text-sm mt-1">
                     Change the role for this project member
                   </p>
                 </div>
@@ -140,10 +140,10 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
           </div>
 
           {/* Modal Body */}
-          <div className="px-6 py-6">
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <form id="update-role-form" onSubmit={handleSubmit} className="space-y-6">
               {/* Member Details */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--table-row-hover-bg)' }}>
                 <h4 className="text-sm font-semibold theme-role-selection-text mb-3">Member Details</h4>
                 <div className="flex items-center">
                   <div className="flex-shrink-0 h-10 w-10">
@@ -167,7 +167,7 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
                 <label className="block text-sm font-semibold theme-role-selection-text mb-3">
                   Current Role
                 </label>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="rounded-lg p-3" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: 1 }}>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.role === 'OWNER' ? 'theme-badge-primary' :
                     member.role === 'EDITOR' ? 'theme-badge-secondary' :
                       'theme-badge-neutral'
@@ -204,7 +204,7 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
                       </div>
                       {selectedRole === role.value && (
                         <div className="absolute top-2 right-2">
-                          <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
+                          <div className="h-4 w-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--accent-from)' }}>
                             <svg className="h-2 w-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
@@ -222,18 +222,18 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
 
               {/* Role Change Warning */}
               {selectedRole && selectedRole !== member.role && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div className="rounded-md p-4" style={{ backgroundColor: 'var(--table-row-hover-bg)', borderColor: 'var(--border-color)', borderWidth: 1 }}>
                   <div className="flex">
                     <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'var(--accent-from)' }}>
                         <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-yellow-800">
+                      <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                         Role Change Notice
                       </h3>
-                      <div className="mt-2 text-sm text-yellow-700">
+                      <div className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                         <p>
                           Changing from <strong>{member.role}</strong> to <strong>{selectedRole}</strong> will
                           {selectedRole === 'OWNER' && ' grant full project management access.'}
@@ -250,11 +250,12 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
           </div>
 
           {/* Footer with gradient background */}
-          <div className="bg-gray-50 px-6 py-4 flex items-center justify-end space-x-3">
+          <div className="px-6 py-4 flex items-center justify-end space-x-3" style={{ backgroundColor: 'var(--table-header-bg)', borderTopColor: 'var(--border-color)', borderTopWidth: 1 }}>
             <button
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium rounded-lg focus:outline-none transition-colors"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               disabled={loading}
             >
               Cancel
@@ -262,7 +263,8 @@ const UpdateMemberRoleModal: React.FC<UpdateMemberRoleModalProps> = ({
             <button
               type="submit"
               form="update-role-form"
-              className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-6 py-2 text-sm font-medium rounded-lg focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-primary-bg)' }}
               disabled={loading || !selectedRole || selectedRole === member.role}
               onClick={handleSubmit}
             >

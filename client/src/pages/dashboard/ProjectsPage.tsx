@@ -597,23 +597,29 @@ const ProjectsPage: React.FC = () => {
   return (
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
-        {/* Header Section */}
-        <div className="bg-white theme-border-medium w-full">
+        {/* Header Section (match Users: theme variables) */}
+        <div className="w-full" style={{ backgroundColor: 'var(--bg-base)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}>
           <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   Projects Management
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">
+                <p className="text-sm sm:text-base mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Manage and track your projects
                 </p>
               </div>
               {canCreate && activeTab === 'projects' && (
-                /* Create Project Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md w-full sm:w-auto sm:flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  style={{
+                    color: 'var(--button-primary-text)',
+                    backgroundColor: 'var(--button-primary-bg)',
+                    borderColor: 'var(--button-primary-bg)'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-primary-bg)'; }}
                   onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 >
                   <FaPlus className="h-5 w-5" aria-hidden="true" />
@@ -622,10 +628,16 @@ const ProjectsPage: React.FC = () => {
                 </button>
               )}
               {canCreate && activeTab === 'members' && state.selectedProject && (
-                /* Add Member Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md theme-button-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  className="inline-flex items-center justify-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md w-full sm:w-auto sm:flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  style={{
+                    color: 'var(--button-primary-text)',
+                    backgroundColor: 'var(--button-primary-bg)',
+                    borderColor: 'var(--button-primary-bg)'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-primary-bg)'; }}
                   onClick={() => setMemberState(prev => ({ ...prev, addModalOpen: true }))}
                 >
                   <FaUsers className="h-5 w-5" aria-hidden="true" />

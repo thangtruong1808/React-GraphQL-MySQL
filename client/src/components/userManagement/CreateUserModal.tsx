@@ -241,7 +241,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    onBlur={handleInputBlur}
                     disabled={loading}
                     className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.email ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
                     style={{
@@ -257,6 +256,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       }
                     }}
                     onBlur={(e) => {
+                      handleInputBlur(e);
                       e.currentTarget.style.borderColor = errors.email ? '#ef4444' : 'var(--border-color)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
@@ -291,7 +291,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    onBlur={handleInputBlur}
                     disabled={loading}
                     className={`block w-full pl-10 pr-12 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.password ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
                     style={{
@@ -307,6 +306,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       }
                     }}
                     onBlur={(e) => {
+                      handleInputBlur(e);
                       e.currentTarget.style.borderColor = errors.password ? '#ef4444' : 'var(--border-color)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
@@ -370,7 +370,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      onBlur={handleInputBlur}
                       disabled={loading}
                       className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.firstName ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
                       style={{
@@ -386,6 +385,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         }
                       }}
                       onBlur={(e) => {
+                        handleInputBlur(e);
                         e.currentTarget.style.borderColor = errors.firstName ? '#ef4444' : 'var(--border-color)';
                         e.currentTarget.style.boxShadow = 'none';
                       }}
@@ -420,7 +420,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      onBlur={handleInputBlur}
                       disabled={loading}
                       className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.lastName ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
                       style={{
@@ -436,6 +435,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         }
                       }}
                       onBlur={(e) => {
+                        handleInputBlur(e);
                         e.currentTarget.style.borderColor = errors.lastName ? '#ef4444' : 'var(--border-color)';
                         e.currentTarget.style.boxShadow = 'none';
                       }}
@@ -470,7 +470,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    onBlur={handleInputBlur}
                     disabled={loading}
                     className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 appearance-none ${errors.role ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
                     style={{
@@ -485,6 +484,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       }
                     }}
                     onBlur={(e) => {
+                      handleInputBlur(e);
                       e.currentTarget.style.borderColor = errors.role ? '#ef4444' : 'var(--border-color)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}

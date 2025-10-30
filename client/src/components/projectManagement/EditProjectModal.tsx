@@ -199,21 +199,21 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
         </div>
 
         {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+        <div className="inline-block align-bottom rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full" style={{ backgroundColor: 'var(--modal-bg)' }}>
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                    <FaFolder className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaFolder className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white">
                     Edit Project
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-white text-sm mt-1">
                     Update project information
                   </p>
                 </div>
@@ -222,7 +222,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="text-white hover:text-purple-200 focus:outline-none focus:text-purple-200 transition ease-in-out duration-150 p-2 rounded-lg hover:bg-white hover:bg-opacity-10"
+                className="text-white hover:text-purple-200 focus:outline-none transition ease-in-out duration-150 p-2 rounded-lg hover:bg-white hover:bg-opacity-10"
               >
                 <FaTimes className="h-5 w-5" />
               </button>
@@ -230,7 +230,7 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
               {/* Project Name */}
               <div>

@@ -53,13 +53,26 @@ const ProjectSearchInput: React.FC<ProjectSearchInputProps> = ({
   return (
     <div className="relative">
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <FaSearch className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        <FaSearch className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--text-muted)' }} />
       </div>
       <input
         type="text"
         value={localValue}
         onChange={handleInputChange}
-        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+        style={{
+          backgroundColor: 'var(--input-bg)',
+          color: 'var(--text-primary)',
+          borderColor: 'var(--border-color)'
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = 'var(--accent-from)';
+          e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border-color)';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
         placeholder={placeholder}
         disabled={loading}
       />
@@ -69,7 +82,10 @@ const ProjectSearchInput: React.FC<ProjectSearchInputProps> = ({
             type="button"
             onClick={handleClear}
             disabled={loading}
-            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 disabled:cursor-not-allowed transition-colors duration-200"
+            className="focus:outline-none disabled:cursor-not-allowed transition-colors duration-200"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
             aria-label="Clear search"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

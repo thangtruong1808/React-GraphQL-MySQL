@@ -149,14 +149,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   return (
-    <div className="bg-white shadow-sm rounded-lg theme-border">
+    <div className="shadow-sm rounded-lg" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: 1, borderStyle: 'solid', overflow: 'hidden' }}>
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full theme-table-divide table-fixed">
-          <thead className="theme-table-header-bg">
+        <table className="min-w-full table-fixed">
+          <thead style={{ backgroundColor: 'var(--table-header-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}>
             <tr>
               <th
-                className="w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors hidden lg:table-cell"
+                className="w-16 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors hidden lg:table-cell"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -165,7 +166,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-48 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center space-x-1">
@@ -173,11 +175,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('name')}
                 </div>
               </th>
-              <th className="w-64 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider hidden md:table-cell">
+              <th className="w-64 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider hidden md:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
                 Description
               </th>
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
@@ -185,11 +188,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('status')}
                 </div>
               </th>
-              <th className="w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider hidden sm:table-cell">
+              <th className="w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider hidden sm:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
                 Owner
               </th>
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors hidden xs:table-cell"
+                className="w-24 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors hidden xs:table-cell"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -198,7 +202,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors hidden lg:table-cell"
+                className="w-24 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors hidden lg:table-cell"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -206,12 +211,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
-              <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="theme-table-row-bg theme-table-divide">
+          <tbody style={{ backgroundColor: 'var(--table-row-bg)' }}>
             {loading ? (
               // Loading skeleton
               Array.from({ length: currentPageSize }).map((_, index) => (
@@ -248,27 +253,34 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             ) : projects.length === 0 ? (
               // Empty state
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-500">
+                <td colSpan={8} className="px-4 py-12 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
                   <div className="flex flex-col items-center">
-                    <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    <p className="text-lg font-medium text-gray-900 mb-2">No projects found</p>
-                    <p className="text-gray-500">Get started by creating a new project.</p>
+                    <p className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>No projects found</p>
+                    <p style={{ color: 'var(--text-secondary)' }}>Get started by creating a new project.</p>
                   </div>
                 </td>
               </tr>
             ) : (
               // Project rows
               projects.map((project) => (
-                <tr key={project.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left hidden lg:table-cell">{project.id}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                <tr
+                  key={project.id}
+                  className="transition-colors"
+                  style={{ backgroundColor: 'var(--table-row-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = 'var(--table-row-bg)'; }}
+                >
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden lg:table-cell" style={{ color: 'var(--table-text-primary)' }}>{project.id}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     <div className="max-w-xs truncate" title={project.name}>
                       {onViewMembers ? (
                         <button
                           onClick={() => onViewMembers(project)}
-                          className="text-left text-blue-600 hover:text-blue-800 hover:underline focus:outline-none focus:underline transition-colors"
+                          className="text-left focus:outline-none focus:underline transition-colors"
+                          style={{ color: 'var(--accent-from)' }}
                         >
                           {project.name}
                         </button>
@@ -277,7 +289,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left hidden md:table-cell">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden md:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
                     <div className="max-w-xs truncate" title={project.description}>
                       {project.description || 'No description'}
                     </div>
@@ -287,17 +299,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       {formatStatus(project.status)}
                     </span>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left hidden sm:table-cell">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden sm:table-cell" style={{ color: 'var(--table-text-primary)' }}>
                     {project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner'}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left hidden xs:table-cell">{formatDate(project.createdAt)}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left hidden lg:table-cell">{formatDate(project.updatedAt)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden xs:table-cell" style={{ color: 'var(--table-text-secondary)' }}>{formatDate(project.createdAt)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden lg:table-cell" style={{ color: 'var(--table-text-secondary)' }}>{formatDate(project.updatedAt)}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <div className="flex justify-start space-x-2">
                       {onViewMembers && (
                         <button
                           onClick={() => onViewMembers(project)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
+                          className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+                          style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
                           title="View project members"
                         >
                           <FaUsers className="w-3 h-3 mr-1" />
@@ -306,7 +319,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       )}
                       <button
                         onClick={() => onEdit(project)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+                        style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
                         title="Edit project"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -314,7 +328,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </button>
                       <button
                         onClick={() => onDelete(project)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+                        style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-danger-bg)' }}
                         title="Delete project"
                       >
                         <FaTrash className="w-3 h-3 mr-1" />
@@ -330,7 +345,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
+      <div className="px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'var(--card-bg)', borderTopColor: 'var(--border-color)', borderTopWidth: 1 }}>
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">
@@ -365,7 +380,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
             {/* Compact page info */}
-            <p className="text-xs lg:text-sm text-gray-600">
+            <p className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>
               <span className="hidden md:inline">Showing </span>
               <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span>
               <span className="hidden md:inline"> to </span>
@@ -378,13 +393,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
             {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-xs lg:text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>Show</span>
               <select
                 id="page-size"
                 value={currentPageSize}
                 onChange={handlePageSizeChange}
                 disabled={loading}
-                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                className="px-2 py-1 text-xs lg:text-sm rounded focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               >
                 {PROJECTS_PAGINATION_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -392,7 +408,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-xs lg:text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>entries</span>
             </div>
           </div>
 
@@ -402,7 +418,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <button
               onClick={handleFirstPage}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               title="Go to first page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -415,7 +432,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <button
               onClick={handlePreviousPage}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               title="Go to previous page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,10 +453,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
-                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={pageNum === paginationInfo.currentPage ? {
+                      backgroundColor: 'var(--button-primary-bg)',
+                      color: 'var(--button-primary-text)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)'
+                    } : {
+                      backgroundColor: 'var(--card-bg)',
+                      color: 'var(--text-primary)',
+                      borderColor: 'var(--border-color)',
+                      borderWidth: 1
+                    }}
                     title={`Go to page ${pageNum}`}
                   >
                     {pageNum}

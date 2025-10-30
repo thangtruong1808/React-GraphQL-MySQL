@@ -59,18 +59,18 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const getSortIcon = (column: string) => {
     if (currentSortBy !== column) {
       return (
-        <svg className="w-4 h-4 text-gray-400 dark:text-gray-300 [data-theme='brand']:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
     }
 
     return currentSortOrder === 'ASC' ? (
-      <svg className="w-4 h-4 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--accent-from)' }}>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
       </svg>
     ) : (
-      <svg className="w-4 h-4 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--accent-from)' }}>
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
     );
@@ -128,15 +128,16 @@ const UsersTable: React.FC<UsersTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+    <div className="shadow-sm rounded-lg" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: 1, borderStyle: 'solid', overflow: 'hidden' }}>
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 [data-theme='brand']:divide-purple-200 table-fixed">
-          <thead className="bg-gray-50 dark:bg-gray-700 [data-theme='brand']:bg-purple-100" style={{ backgroundColor: 'var(--bg-color_gray-300)' }}>
+        <table className="min-w-full table-fixed">
+          <thead style={{ backgroundColor: 'var(--table-header-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}>
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
-                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -145,7 +146,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('firstName')}
               >
                 <div className="flex items-center space-x-1">
@@ -155,7 +157,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
               {/* Last Name Column - Hidden on small screens */}
               <th
-                className="hidden sm:table-cell w-32 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="hidden sm:table-cell w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('lastName')}
               >
                 <div className="flex items-center space-x-1">
@@ -164,7 +167,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="w-48 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('email')}
               >
                 <div className="flex items-center space-x-1">
@@ -173,7 +177,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </div>
               </th>
               <th
-                className="w-40 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('role')}
               >
                 <div className="flex items-center space-x-1">
@@ -183,7 +188,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
               {/* Created Date Column - Hidden on extra small screens */}
               <th
-                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="hidden xs:table-cell w-24 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -193,7 +199,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
               </th>
               {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors"
+                className="hidden lg:table-cell w-24 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -201,63 +208,69 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
-              <th className="w-32 px-4 py-3 text-left text-xs font-medium text-gray-700 [data-theme='light']:text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-600 uppercase tracking-wider">
+              <th className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 divide-y divide-gray-200 dark:divide-gray-700 [data-theme='brand']:divide-purple-200">
+          <tbody style={{ backgroundColor: 'var(--table-row-bg)', color: 'var(--table-text-primary)' }}>
             {users.length === 0 ? (
               // Empty state
               <tr>
                 <td colSpan={8} className="px-6 py-12 text-center">
-                  <div className="text-gray-500 dark:text-gray-300 [data-theme='brand']:text-purple-600">
-                    <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div>
+                    <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--text-muted)' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white [data-theme='brand']:text-purple-900">No users found</h3>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-300 [data-theme='brand']:text-purple-600">Try adjusting your search criteria.</p>
+                    <h3 className="mt-2 text-sm font-medium" style={{ color: 'var(--text-primary)' }}>No users found</h3>
+                    <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Try adjusting your search criteria.</p>
                   </div>
                 </td>
               </tr>
             ) : (
               // User rows
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100 transition-colors duration-150">
+                <tr
+                  key={user.id}
+                  className="transition-colors duration-150"
+                  style={{ backgroundColor: 'var(--table-row-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = 'var(--table-row-bg)'; }}
+                >
                   {/* ID Column - Hidden on mobile */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {user.id}
                   </td>
 
                   {/* First Name Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {user.firstName}
                   </td>
 
                   {/* Last Name Column - Hidden on small screens */}
-                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {user.lastName}
                   </td>
 
                   {/* Email Column */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {user.email}
                   </td>
 
                   {/* Role Column */}
                   <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 [data-theme='brand']:bg-purple-100 text-gray-900 dark:text-gray-200 [data-theme='brand']:text-purple-800" style={{ backgroundColor: 'var(--bg-color_gray-300)' }}>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-neutral-bg)', color: 'var(--badge-neutral-text)' }}>
                       {formatRoleForDisplay(user.role)}
                     </span>
                   </td>
 
                   {/* Created Date Column - Hidden on extra small screens */}
-                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 [data-theme='brand']:text-purple-600 text-left">
+                  <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     {formatDate(user.createdAt)}
                   </td>
 
                   {/* Updated Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 [data-theme='brand']:text-purple-600 text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     {formatDate(user.updatedAt)}
                   </td>
 
@@ -293,7 +306,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div className="px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'var(--card-bg)', borderTopColor: 'var(--border-color)', borderTopWidth: 1 }}>
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">
