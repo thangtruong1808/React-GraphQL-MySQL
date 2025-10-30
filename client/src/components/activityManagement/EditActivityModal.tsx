@@ -101,26 +101,27 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 backdrop-blur-sm transition-opacity"
+          style={{ backgroundColor: 'var(--modal-overlay, rgba(17,24,39,0.5))' }}
           onClick={handleClose}
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+        <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaEdit className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaEdit className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold leading-6 text-white">
+                  <h3 className="text-xl font-semibold leading-6" style={{ color: 'var(--button-primary-text)' }}>
                     Edit Activity
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-sm mt-1" style={{ color: 'var(--button-primary-text)' }}>
                     Update activity information. Changes will be logged for audit purposes.
                   </p>
                 </div>
@@ -129,7 +130,8 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                style={{ color: 'var(--button-primary-text)' }}
               >
                 <FaTimes className="h-5 w-5" />
               </button>
@@ -137,33 +139,33 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
               {/* Activity Info */}
-              <div className="bg-gradient-to-r from-purple-50 to-gray-50 dark:from-gray-700 dark:to-gray-800 [data-theme='brand']:from-purple-100 [data-theme='brand']:to-purple-50 p-6 rounded-xl border border-purple-100 dark:border-gray-600 [data-theme='brand']:border-purple-200">
+              <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--table-row-hover-bg)', border: '1px solid var(--border-color)' }}>
                 <div className="grid grid-cols-2 gap-6 text-sm">
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">ID:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">{activity.id}</p>
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>ID:</span>
+                    <p className="mt-1" style={{ color: 'var(--text-primary)' }}>{activity.id}</p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">User:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>User:</span>
+                    <p className="mt-1" style={{ color: 'var(--text-primary)' }}>
                       {activity.user.firstName} {activity.user.lastName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 mt-0.5">
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                       {formatRoleForDisplay(activity.user.role)}
                     </p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Type:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Type:</span>
+                    <p className="mt-1" style={{ color: 'var(--text-primary)' }}>
                       {activity.type.replace('_', ' ')}
                     </p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Created:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Created:</span>
+                    <p className="mt-1" style={{ color: 'var(--text-primary)' }}>
                       {new Date(activity.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
@@ -175,11 +177,11 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                   </div>
                   {activity.targetUser && (
                     <div className="col-span-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Target User:</span>
-                      <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">
+                      <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Target User:</span>
+                      <p className="mt-1" style={{ color: 'var(--text-primary)' }}>
                         {activity.targetUser.firstName} {activity.targetUser.lastName}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 mt-0.5">
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                         {formatRoleForDisplay(activity.targetUser.role)}
                       </p>
                     </div>
@@ -188,16 +190,16 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     <div className="col-span-2 grid grid-cols-2 gap-6">
                       {activity.project && (
                         <div>
-                          <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Project:</span>
-                          <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1 truncate" title={activity.project.name}>
+                          <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Project:</span>
+                          <p className="mt-1 truncate" style={{ color: 'var(--text-primary)' }} title={activity.project.name}>
                             {activity.project.name}
                           </p>
                         </div>
                       )}
                       {activity.task && (
                         <div>
-                          <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Task:</span>
-                          <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1 truncate" title={activity.task.title}>
+                          <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Task:</span>
+                          <p className="mt-1 truncate" style={{ color: 'var(--text-primary)' }} title={activity.task.title}>
                             {activity.task.title}
                           </p>
                         </div>
@@ -209,7 +211,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
 
               {/* Action */}
               <div>
-                <label htmlFor="action" className="block text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
+                <label htmlFor="action" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Action *
                 </label>
                 <div className="relative">
@@ -219,12 +221,14 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     value={formData.action || ''}
                     onChange={(e) => handleInputChange('action', e.target.value)}
                     placeholder="Update the activity description..."
-                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors resize-none text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.action ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300' : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                      }`}
+                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors resize-none`}
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.action ? '#ef4444' : 'var(--border-color)'}` }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.action ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                     disabled={loading}
                   />
                   <div className="mt-2 flex justify-between text-sm">
-                    <span className={errors.action ? 'text-red-600 dark:text-red-400 [data-theme="brand"]:text-red-600' : 'text-gray-500 dark:text-gray-400 [data-theme="brand"]:text-purple-600'}>
+                    <span style={{ color: errors.action ? '#ef4444' : 'var(--text-secondary)' }}>
                       {errors.action ? (
                         <div className="flex items-center">
                           <FaExclamationTriangle className="h-4 w-4 mr-1" />
@@ -234,7 +238,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                         'Update the activity description'
                       )}
                     </span>
-                    <span className={formData.action && formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? 'text-red-500 dark:text-red-400 [data-theme="brand"]:text-red-500' : 'text-gray-500 dark:text-gray-400 [data-theme="brand"]:text-purple-600'}>
+                    <span style={{ color: formData.action && formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? '#ef4444' : 'var(--text-secondary)' }}>
                       {formData.action?.length || 0}/{ACTIVITY_FORM_VALIDATION.action.maxLength}
                     </span>
                   </div>
@@ -243,7 +247,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
 
               {/* Type */}
               <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
+                <label htmlFor="type" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Activity Type *
                 </label>
                 <div className="relative">
@@ -251,8 +255,10 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     id="type"
                     value={formData.type || 'USER_CREATED'}
                     onChange={(e) => handleInputChange('type', e.target.value)}
-                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.type ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300' : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                      }`}
+                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors`}
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.type ? '#ef4444' : 'var(--border-color)'}` }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.type ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                     disabled={loading}
                   >
                     {ACTIVITY_TYPE_OPTIONS.map((option) => (
@@ -262,7 +268,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     ))}
                   </select>
                   {errors.type && (
-                    <div className="mt-2 flex items-center text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-600">
+                    <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                       <FaExclamationTriangle className="h-4 w-4 mr-1" />
                       {errors.type}
                     </div>
@@ -272,23 +278,25 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600 [data-theme='brand']:border-purple-200 flex justify-end space-x-4">
+            <div className="mt-8 pt-6 flex justify-end space-x-4" style={{ borderTop: '1px solid var(--border-color)' }}>
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="px-6 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-800 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 hover:border-gray-400 dark:hover:border-gray-500 [data-theme='brand']:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="px-6 py-3 text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-xl shadow-sm hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
+                className="px-6 py-3 text-sm font-semibold border rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
+                style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-primary-border, transparent)' }}
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 mr-2" style={{ borderColor: 'var(--button-primary-text)', borderTopColor: 'transparent' }}></div>
                     Updating Activity...
                   </>
                 ) : (

@@ -153,7 +153,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
   if (loading && activities.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 rounded-lg shadow overflow-hidden">
+      <div className="rounded-lg shadow overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
         <div className="overflow-x-auto">
           <table className="min-w-full theme-table-divide table-fixed">
             <thead className="theme-table-header-bg">
@@ -200,7 +200,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 rounded-lg shadow overflow-hidden">
+    <div className="rounded-lg shadow overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
       <div className="overflow-x-auto">
         <table className="min-w-full theme-table-divide table-fixed">
           <thead className="theme-table-header-bg">
@@ -310,7 +310,12 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
               </tr>
             ) : (
               activities.map((activity) => (
-                <tr key={activity.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
+                <tr
+                  key={activity.id}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--table-row-bg)')}
+                  style={{ backgroundColor: 'var(--table-row-bg)' }}
+                >
                   {/* ID Column - Hidden on mobile and tablet */}
                   <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.ID.width}`}>
                     {activity.id}
@@ -328,7 +333,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
                   {/* Type Column - Always visible */}
                   <td className={`px-4 py-4 whitespace-nowrap text-left ${ACTIVITY_TABLE_COLUMNS.TYPE.width}`}>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ACTIVITY_TYPE_BADGES[activity.type as keyof typeof ACTIVITY_TYPE_BADGES]}`}>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>
                       {activity.type.replace('_', ' ')}
                     </span>
                   </td>
@@ -391,7 +396,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                     <div className="flex justify-start space-x-2">
                       <button
                         onClick={() => onEdit(activity)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                        style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)' }}
                         title="Edit activity"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -399,7 +405,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                       </button>
                       <button
                         onClick={() => onDelete(activity)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                        style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)' }}
                         title="Delete activity"
                       >
                         <FaTrash className="w-3 h-3 mr-1" />
@@ -415,27 +422,29 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
+      <div className="px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium" style={{ backgroundColor: 'var(--card-bg)', borderTop: '1px solid var(--border-color)' }}>
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">
             <button
               onClick={() => onPageChange(safeCurrentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading || safeCurrentPage <= 1}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span className="hidden xs:inline">Previous</span>
             </button>
-            <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+            <span className="px-2 py-1.5 text-xs rounded" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--table-header-bg)', border: '1px solid var(--border-color)' }}>
               {safeCurrentPage} / {safeTotalPages}
             </span>
             <button
               onClick={() => onPageChange(safeCurrentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading || safeCurrentPage >= safeTotalPages}
-              className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               <span className="hidden xs:inline">Next</span>
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -450,7 +459,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
             {/* Compact page info */}
-            <p className="text-xs lg:text-sm text-gray-600">
+            <p className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>
               <span className="hidden md:inline">Showing </span>
               <span className="font-medium">{safeTotalCount === 0 ? 0 : (safeCurrentPage - 1) * safePageSize + 1}</span>
               <span className="hidden md:inline"> to </span>
@@ -463,13 +472,14 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
             {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-xs lg:text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>Show</span>
               <select
                 id="page-size"
                 value={safePageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 disabled={loading}
-                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                className="px-2 py-1 text-xs lg:text-sm rounded focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 {PAGE_SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -477,7 +487,7 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-xs lg:text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>entries</span>
             </div>
           </div>
 
@@ -487,7 +497,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             <button
               onClick={() => onPageChange(1)}
               disabled={safeCurrentPage === 1 || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to first page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -500,7 +511,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             <button
               onClick={() => onPageChange(safeCurrentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to previous page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -520,10 +532,10 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
-                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === safeCurrentPage
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'theme-table-text-primary bg-white theme-border hover:bg-gray-50 hover:border-purple-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={pageNum === safeCurrentPage
+                      ? { backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }
+                      : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                   >
                     {pageNum}
                   </button>
@@ -535,7 +547,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             <button
               onClick={() => onPageChange(safeCurrentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to next page"
             >
               <span className="hidden lg:inline">Next</span>
@@ -548,7 +561,8 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             <button
               onClick={() => onPageChange(safeTotalPages)}
               disabled={safeCurrentPage === safeTotalPages || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to last page"
             >
               <span className="hidden lg:inline">Last</span>

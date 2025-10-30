@@ -136,26 +136,27 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 backdrop-blur-sm transition-opacity"
+          style={{ backgroundColor: 'var(--modal-overlay, rgba(17,24,39,0.5))' }}
           onClick={handleClose}
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+        <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaPlus className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaPlus className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold leading-6 text-white">
+                  <h3 className="text-xl font-semibold leading-6" style={{ color: 'var(--button-primary-text)' }}>
                     Create New Activity
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-sm mt-1" style={{ color: 'var(--button-primary-text)' }}>
                     Log a new activity entry for tracking project progress
                   </p>
                 </div>
@@ -164,7 +165,8 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                style={{ color: 'var(--button-primary-text)' }}
               >
                 <FaTimes className="h-5 w-5" />
               </button>
@@ -172,11 +174,11 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
               {/* Action */}
               <div>
-                <label htmlFor="action" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="action" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Action *
                 </label>
                 <div className="relative">
@@ -186,12 +188,14 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                     value={formData.action}
                     onChange={(e) => handleInputChange('action', e.target.value)}
                     placeholder="Describe the activity action..."
-                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors resize-none ${errors.action ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
+                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors resize-none`}
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.action ? '#ef4444' : 'var(--border-color)'}` }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.action ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                     disabled={loading}
                   />
                   <div className="mt-2 flex justify-between text-sm">
-                    <span className={errors.action ? 'text-red-600' : 'text-gray-500'}>
+                    <span style={{ color: errors.action ? '#ef4444' : 'var(--text-secondary)' }}>
                       {errors.action ? (
                         <div className="flex items-center">
                           <FaExclamationTriangle className="h-4 w-4 mr-1" />
@@ -201,7 +205,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                         'Provide a clear description of the activity'
                       )}
                     </span>
-                    <span className={formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? 'text-red-500' : 'text-gray-500'}>
+                    <span style={{ color: formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? '#ef4444' : 'var(--text-secondary)' }}>
                       {formData.action.length}/{ACTIVITY_FORM_VALIDATION.action.maxLength}
                     </span>
                   </div>
@@ -210,7 +214,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
 
               {/* Type */}
               <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="type" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Activity Type *
                 </label>
                 <div className="relative">
@@ -218,8 +222,10 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                     id="type"
                     value={formData.type}
                     onChange={(e) => handleInputChange('type', e.target.value)}
-                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors ${errors.type ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
+                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.type ? '#ef4444' : 'var(--border-color)'}` }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.type ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                     disabled={loading}
                   >
                     {ACTIVITY_TYPE_OPTIONS.map((option) => (
@@ -229,7 +235,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                     ))}
                   </select>
                   {errors.type && (
-                    <div className="mt-2 flex items-center text-sm text-red-600">
+                    <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                       <FaExclamationTriangle className="h-4 w-4 mr-1" />
                       {errors.type}
                     </div>
@@ -241,14 +247,15 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 {/* Target User */}
                 <div>
-                  <label htmlFor="targetUserId" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="targetUserId" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                     Target User
                   </label>
                   <select
                     id="targetUserId"
                     value={formData.targetUserId}
                     onChange={(e) => handleInputChange('targetUserId', e.target.value)}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors"
+                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                     disabled={loading || usersLoading}
                   >
                     <option value="">Select user...</option>
@@ -258,21 +265,22 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {usersLoading ? 'Loading users...' : 'Optional'}
                   </p>
                 </div>
 
                 {/* Project */}
                 <div>
-                  <label htmlFor="projectId" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="projectId" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                     Project
                   </label>
                   <select
                     id="projectId"
                     value={formData.projectId}
                     onChange={(e) => handleInputChange('projectId', e.target.value)}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors"
+                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                     disabled={loading || projectsLoading}
                   >
                     <option value="">Select project...</option>
@@ -282,21 +290,22 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {projectsLoading ? 'Loading projects...' : 'Optional'}
                   </p>
                 </div>
 
                 {/* Task */}
                 <div>
-                  <label htmlFor="taskId" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="taskId" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                     Task
                   </label>
                   <select
                     id="taskId"
                     value={formData.taskId}
                     onChange={(e) => handleInputChange('taskId', e.target.value)}
-                    className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition-colors"
+                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                     disabled={loading || tasksLoading}
                   >
                     <option value="">Select task...</option>
@@ -306,7 +315,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {tasksLoading ? 'Loading tasks...' : 'Optional'}
                   </p>
                 </div>
@@ -314,23 +323,25 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end space-x-4">
+            <div className="mt-8 pt-6 flex justify-end space-x-4" style={{ borderTop: '1px solid var(--border-color)' }}>
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="px-6 py-3 text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-xl shadow-sm hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
+                className="px-6 py-3 text-sm font-semibold border rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
+                style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-primary-border, transparent)' }}
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 mr-2" style={{ borderColor: 'var(--button-primary-text)', borderTopColor: 'transparent' }}></div>
                     Creating Activity...
                   </>
                 ) : (

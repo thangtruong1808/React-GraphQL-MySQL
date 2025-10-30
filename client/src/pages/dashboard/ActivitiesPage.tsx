@@ -275,22 +275,26 @@ const ActivitiesPage: React.FC = () => {
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
-        <div className="bg-white border-b border-gray-200 w-full">
+        <div className="w-full" style={{ backgroundColor: 'var(--bg-base)', borderBottom: '1px solid var(--border-color)' }}>
           <div className="px-8 py-8 w-full">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   Activity Management
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Manage and monitor system activities and user actions
                 </p>
               </div>
               {canCreate && (
-                /* Create Button - Centered icon and text for better mobile UX when sidebar is collapsed */
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                  style={{
+                    backgroundColor: 'var(--button-primary-bg)',
+                    color: 'var(--button-primary-text)',
+                    border: '1px solid var(--button-primary-border, transparent)'
+                  }}
+                  className="inline-flex items-center justify-center px-4 py-2 shadow-sm text-sm font-medium rounded-md w-full sm:w-auto sm:flex-shrink-0"
                   onClick={handleCreateClick}
                 >
                   <FaPlus className="h-5 w-5" aria-hidden="true" />
@@ -324,7 +328,7 @@ const ActivitiesPage: React.FC = () => {
               </div>
 
               {/* Activities Table */}
-              <div className="bg-white shadow rounded-lg">
+              <div className="shadow rounded-lg" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                 <ActivitiesTable
                   activities={state.activities}
                   loading={state.loading}

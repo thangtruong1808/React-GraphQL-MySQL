@@ -206,16 +206,17 @@ const TasksTable: React.FC<TasksTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm theme-border">
+    <div className="rounded-lg shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: 1, borderStyle: 'solid', overflow: 'hidden' }}>
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full theme-table-divide table-fixed">
+        <table className="min-w-full table-fixed">
           {/* Table Header */}
-          <thead className="theme-table-header-bg">
+          <thead style={{ backgroundColor: 'var(--table-header-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}>
             <tr>
               {/* ID Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
@@ -225,7 +226,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Title Column - Always visible */}
               <th
-                className="w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-48 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('title')}
               >
                 <div className="flex items-center space-x-1">
@@ -234,12 +236,13 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 </div>
               </th>
               {/* Description Column - Hidden on mobile */}
-              <th className="hidden sm:table-cell w-64 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="hidden sm:table-cell w-64 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Description
               </th>
               {/* Status Column - Always visible */}
               <th
-                className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
@@ -249,7 +252,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Priority Column - Hidden on mobile */}
               <th
-                className="hidden sm:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden sm:table-cell w-24 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('priority')}
               >
                 <div className="flex items-center space-x-1">
@@ -258,20 +262,21 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 </div>
               </th>
               {/* Project Column - Hidden on mobile and tablet */}
-              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="hidden lg:table-cell w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Project
               </th>
               {/* Assigned To Column - Hidden on mobile and tablet */}
-              <th className="hidden lg:table-cell w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="hidden lg:table-cell w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Assigned To
               </th>
               {/* Tags Column - Hidden on mobile and tablet */}
-              <th className="hidden lg:table-cell w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="hidden lg:table-cell w-48 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Tags
               </th>
               {/* Due Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('dueDate')}
               >
                 <div className="flex items-center space-x-1">
@@ -281,7 +286,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Created Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -291,7 +297,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
               </th>
               {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
+                style={{ color: 'var(--table-text-secondary)' }}
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
@@ -300,14 +307,14 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 </div>
               </th>
               {/* Actions Column - Always visible */}
-              <th className="w-40 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+              <th className="w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 Actions
               </th>
             </tr>
           </thead>
 
           {/* Table Body */}
-          <tbody className="theme-table-row-bg theme-table-divide">
+          <tbody style={{ backgroundColor: 'var(--table-row-bg)' }}>
             {loading ? (
               // Loading skeleton rows
               Array.from({ length: 5 }).map((_, index) => (
@@ -380,45 +387,51 @@ const TasksTable: React.FC<TasksTableProps> = ({
             ) : (
               // Data rows
               tasks.map((task) => (
-                <tr key={task.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
+                <tr
+                  key={task.id}
+                  className="transition-colors"
+                  style={{ backgroundColor: 'var(--table-row-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = 'var(--table-row-bg)'; }}
+                >
                   {/* ID Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {task.id}
                   </td>
                   {/* Title Column - Always visible */}
-                  <td className="px-4 py-4 text-sm theme-table-text-primary text-left">
+                  <td className="px-4 py-4 text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {formatTextWithToggle(task.title, task.id, 'title')}
                   </td>
                   {/* Description Column - Hidden on mobile */}
-                  <td className="hidden sm:table-cell px-4 py-4 text-sm theme-table-text-primary text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     {formatTextWithToggle(task.description, task.id, 'description')}
                   </td>
                   {/* Status Column - Always visible */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_STATUS_COLORS[task.status]}`}>
                       {formatTaskStatusForDisplay(task.status)}
                     </span>
                   </td>
                   {/* Priority Column - Hidden on mobile */}
-                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_PRIORITY_COLORS[task.priority]}`}>
                       {formatTaskPriorityForDisplay(task.priority)}
                     </span>
                   </td>
                   {/* Project Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     <div className="truncate" title={task.project.name}>
                       {task.project.name}
                     </div>
                   </td>
                   {/* Assigned To Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     <div className="truncate" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
                       {task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}
                     </div>
                   </td>
                   {/* Tags Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 text-sm theme-table-text-primary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
                     <div className="flex flex-wrap gap-1">
                       {task.tags && task.tags.length > 0 ? (
                         task.tags.map((tag) => (
@@ -436,19 +449,19 @@ const TasksTable: React.FC<TasksTableProps> = ({
                     </div>
                   </td>
                   {/* Due Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     {formatDate(task.dueDate)}
                   </td>
                   {/* Created Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     {formatDate(task.createdAt)}
                   </td>
                   {/* Updated Date Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
+                  <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     {formatDate(task.updatedAt)}
                   </td>
                   {/* Actions Column - Always visible */}
-                  <td className="px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => onEdit(task)}
@@ -474,7 +487,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
+      <div className="px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'var(--card-bg)', borderTopColor: 'var(--border-color)', borderTopWidth: 1 }}>
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">
@@ -509,7 +522,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
             {/* Compact page info */}
-            <p className="text-xs lg:text-sm text-gray-600">
+            <p className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>
               <span className="hidden md:inline">Showing </span>
               <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * currentPageSize + 1}</span>
               <span className="hidden md:inline"> to </span>
@@ -522,13 +535,14 @@ const TasksTable: React.FC<TasksTableProps> = ({
 
             {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-xs lg:text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>Show</span>
               <select
                 id="page-size"
                 value={currentPageSize}
                 onChange={handlePageSizeChange}
                 disabled={loading}
-                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                className="px-2 py-1 text-xs lg:text-sm rounded focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               >
                 {TASKS_PAGINATION_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -536,7 +550,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-xs lg:text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>entries</span>
             </div>
           </div>
 
@@ -546,7 +560,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
             <button
               onClick={handleFirstPage}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               title="Go to first page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -559,7 +574,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
             <button
               onClick={handlePreviousPage}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', borderWidth: 1 }}
               title="Go to previous page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -579,10 +595,17 @@ const TasksTable: React.FC<TasksTableProps> = ({
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
-                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-purple-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={pageNum === paginationInfo.currentPage ? {
+                      backgroundColor: 'var(--button-primary-bg)',
+                      color: 'var(--button-primary-text)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)'
+                    } : {
+                      backgroundColor: 'var(--card-bg)',
+                      color: 'var(--text-primary)',
+                      borderColor: 'var(--border-color)',
+                      borderWidth: 1
+                    }}
                     title={`Go to page ${pageNum}`}
                   >
                     {pageNum}

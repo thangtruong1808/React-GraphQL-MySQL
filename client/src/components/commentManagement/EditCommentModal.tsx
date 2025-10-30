@@ -93,21 +93,21 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+        <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaEdit className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaEdit className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold leading-6 text-white">
                     Edit Comment
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-white text-sm mt-1">
                     Update the comment content. Changes will be visible to all users.
                   </p>
                 </div>
@@ -116,7 +116,7 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-white hover:text-purple-200 focus:outline-none rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <FaTimes className="h-5 w-5" />
               </button>
@@ -124,37 +124,37 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
               {/* Comment Info */}
-              <div className="bg-gradient-to-r from-purple-50 to-gray-50 dark:from-gray-700 dark:to-gray-800 [data-theme='brand']:from-purple-100 [data-theme='brand']:to-purple-50 p-6 rounded-xl border border-purple-100 dark:border-gray-600 [data-theme='brand']:border-purple-200">
+              <div className="p-6 rounded-xl" style={{ backgroundColor: 'var(--table-row-hover-bg)', borderColor: 'var(--border-color)', borderWidth: 1 }}>
                 <div className="grid grid-cols-2 gap-6 text-sm">
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Author:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">{comment.author.firstName} {comment.author.lastName}</p>
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Author:</span>
+                    <p className="mt-1" style={{ color: 'var(--text-primary)' }}>{comment.author.firstName} {comment.author.lastName}</p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Task:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 truncate mt-1" title={comment.task.title}>
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Task:</span>
+                    <p className="truncate mt-1" style={{ color: 'var(--text-primary)' }} title={comment.task.title}>
                       {comment.task.title}
                     </p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Project:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 truncate mt-1" title={comment.task.project.name}>
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Project:</span>
+                    <p className="truncate mt-1" style={{ color: 'var(--text-primary)' }} title={comment.task.project.name}>
                       {comment.task.project.name}
                     </p>
                   </div>
                   <div>
-                    <span className="font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700">Likes:</span>
-                    <p className="text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mt-1">{comment.likesCount}</p>
+                    <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>Likes:</span>
+                    <p className="mt-1" style={{ color: 'var(--text-primary)' }}>{comment.likesCount}</p>
                   </div>
                 </div>
               </div>
 
               {/* Content Input */}
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
+                <label htmlFor="content" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                   Comment Content *
                 </label>
                 <div className="relative">
@@ -169,10 +169,10 @@ const EditCommentModal: React.FC<EditCommentModalProps> = ({
                     disabled={loading}
                   />
                   <div className="mt-2 flex justify-between text-sm">
-                    <span className={errors.content ? 'text-red-600 dark:text-red-400 [data-theme="brand"]:text-red-600' : 'text-gray-500 dark:text-gray-400 [data-theme="brand"]:text-purple-600'}>
+                    <span style={{ color: errors.content ? '#ef4444' : 'var(--text-secondary)' }}>
                       {errors.content || 'Update the comment content'}
                     </span>
-                    <span className={formData.content.length > COMMENT_LIMITS.MAX_CONTENT_LENGTH ? 'text-red-500 dark:text-red-400 [data-theme="brand"]:text-red-600' : 'text-gray-500 dark:text-gray-400 [data-theme="brand"]:text-purple-600'}>
+                    <span style={{ color: formData.content.length > COMMENT_LIMITS.MAX_CONTENT_LENGTH ? '#ef4444' : 'var(--text-secondary)' }}>
                       {formData.content.length}/{COMMENT_LIMITS.MAX_CONTENT_LENGTH}
                     </span>
                   </div>

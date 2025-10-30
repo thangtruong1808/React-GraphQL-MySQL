@@ -68,10 +68,11 @@ const CommentSearchInput: React.FC<CommentSearchInputProps> = ({
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg
-            className={`h-5 w-5 ${loading ? 'text-blue-500 animate-spin' : 'text-gray-400'}`}
+            className="h-5 w-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            style={{ color: loading ? 'var(--accent-from)' : 'var(--text-muted)' }}
           >
             {loading ? (
               <path
@@ -97,7 +98,10 @@ const CommentSearchInput: React.FC<CommentSearchInputProps> = ({
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500"
+          className="block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none transition-all duration-200"
+          style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-color)' }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
           disabled={loading}
         />
 
@@ -106,7 +110,10 @@ const CommentSearchInput: React.FC<CommentSearchInputProps> = ({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors duration-200"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
             disabled={loading}
           >
             <svg
@@ -128,7 +135,7 @@ const CommentSearchInput: React.FC<CommentSearchInputProps> = ({
 
       {/* Search Hint */}
       {localValue.length > 0 && localValue.length < COMMENT_SEARCH_SETTINGS.MIN_SEARCH_LENGTH && (
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
           Type at least {COMMENT_SEARCH_SETTINGS.MIN_SEARCH_LENGTH} characters to search
         </p>
       )}
