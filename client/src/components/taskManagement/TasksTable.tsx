@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaEdit, FaTrash, FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaChevronUp, FaChevronDown, FaHashtag, FaHeading, FaAlignLeft, FaTag, FaExclamationTriangle, FaProjectDiagram, FaUser, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import { TasksTableProps } from '../../types/taskManagement';
 import { TASKS_PAGINATION_OPTIONS, TASK_STATUS_COLORS, TASK_PRIORITY_COLORS } from '../../constants/taskManagement';
 
@@ -220,6 +220,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>ID</span>
                   {getSortIcon('id')}
                 </div>
@@ -231,13 +232,17 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('title')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaHeading className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Title</span>
                   {getSortIcon('title')}
                 </div>
               </th>
               {/* Description Column - Hidden on mobile */}
               <th className="hidden sm:table-cell w-64 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Description
+                <div className="flex items-center space-x-1">
+                  <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Description</span>
+                </div>
               </th>
               {/* Status Column - Always visible */}
               <th
@@ -246,6 +251,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaTag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Status</span>
                   {getSortIcon('status')}
                 </div>
@@ -257,21 +263,31 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('priority')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaExclamationTriangle className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Priority</span>
                   {getSortIcon('priority')}
                 </div>
               </th>
               {/* Project Column - Hidden on mobile and tablet */}
               <th className="hidden lg:table-cell w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Project
+                <div className="flex items-center space-x-1">
+                  <FaProjectDiagram className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Project</span>
+                </div>
               </th>
               {/* Assigned To Column - Hidden on mobile and tablet */}
               <th className="hidden lg:table-cell w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Assigned To
+                <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Assigned To</span>
+                </div>
               </th>
               {/* Tags Column - Hidden on mobile and tablet */}
               <th className="hidden lg:table-cell w-48 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Tags
+                <div className="flex items-center space-x-1">
+                  <FaTag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Tags</span>
+                </div>
               </th>
               {/* Due Date Column - Hidden on mobile and tablet */}
               <th
@@ -280,6 +296,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('dueDate')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Due Date</span>
                   {getSortIcon('dueDate')}
                 </div>
@@ -291,6 +308,7 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Created</span>
                   {getSortIcon('createdAt')}
                 </div>
@@ -302,13 +320,17 @@ const TasksTable: React.FC<TasksTableProps> = ({
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Updated</span>
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
               {/* Actions Column - Always visible */}
               <th className="w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Actions
+                <div className="flex items-center space-x-1">
+                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Actions</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -400,11 +422,17 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </td>
                   {/* Title Column - Always visible */}
                   <td className="px-4 py-4 text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    {formatTextWithToggle(task.title, task.id, 'title')}
+                    <div className="flex items-center space-x-2">
+                      <FaHeading className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatTextWithToggle(task.title, task.id, 'title')}</span>
+                    </div>
                   </td>
                   {/* Description Column - Hidden on mobile */}
                   <td className="hidden sm:table-cell px-4 py-4 text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    {formatTextWithToggle(task.description, task.id, 'description')}
+                    <div className="flex items-center space-x-2">
+                      <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatTextWithToggle(task.description, task.id, 'description')}</span>
+                    </div>
                   </td>
                   {/* Status Column - Always visible */}
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
@@ -420,14 +448,16 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </td>
                   {/* Project Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    <div className="truncate" title={task.project.name}>
-                      {task.project.name}
+                    <div className="truncate flex items-center space-x-2" title={task.project.name}>
+                      <FaProjectDiagram className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{task.project.name}</span>
                     </div>
                   </td>
                   {/* Assigned To Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    <div className="truncate" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
-                      {task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}
+                    <div className="truncate flex items-center space-x-2" title={task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}>
+                      <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{task.assignedUser ? `${task.assignedUser.firstName} ${task.assignedUser.lastName}` : 'Unassigned'}</span>
                     </div>
                   </td>
                   {/* Tags Column - Hidden on mobile and tablet */}
@@ -440,7 +470,8 @@ const TasksTable: React.FC<TasksTableProps> = ({
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium theme-badge-secondary"
                             title={tag.description}
                           >
-                            {tag.name}
+                            <FaTag className="w-3 h-3 mr-1" />
+                            <span>{tag.name}</span>
                           </span>
                         ))
                       ) : (
@@ -450,15 +481,24 @@ const TasksTable: React.FC<TasksTableProps> = ({
                   </td>
                   {/* Due Date Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
-                    {formatDate(task.dueDate)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(task.dueDate)}</span>
+                    </div>
                   </td>
                   {/* Created Date Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
-                    {formatDate(task.createdAt)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(task.createdAt)}</span>
+                    </div>
                   </td>
                   {/* Updated Date Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
-                    {formatDate(task.updatedAt)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(task.updatedAt)}</span>
+                    </div>
                   </td>
                   {/* Actions Column - Always visible */}
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>

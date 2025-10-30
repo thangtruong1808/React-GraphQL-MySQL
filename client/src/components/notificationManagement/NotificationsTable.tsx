@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEdit, FaTrash, FaCheck, FaEnvelope } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaCheck, FaEnvelope, FaHashtag, FaUser, FaAlignLeft, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import {
   NOTIFICATION_TABLE_COLUMNS,
   NOTIFICATION_STATUS_BADGES,
@@ -131,7 +131,16 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
 
   if (loading && notifications.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div
+        className="rounded-lg shadow overflow-hidden"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          borderColor: 'var(--border-color)',
+          borderStyle: 'solid',
+          borderWidth: 1,
+          overflow: 'hidden'
+        }}
+      >
         <div className="overflow-x-auto">
           <table className="min-w-full theme-table-divide table-fixed">
             <thead className="theme-table-header-bg">
@@ -169,68 +178,88 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
   }
 
   return (
-    <div className="bg-white shadow-sm rounded-lg theme-border">
+    <div
+      className="shadow-sm rounded-lg theme-border"
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        borderColor: 'var(--border-color)',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        overflow: 'hidden'
+      }}
+    >
       <div className="overflow-x-auto">
         <table className="min-w-full theme-table-divide table-fixed">
           <thead className="theme-table-header-bg">
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
-                className="hidden lg:table-cell w-16 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-16 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>ID</span>
                   {getSortIcon('id')}
                 </div>
               </th>
               {/* User Column - Hidden on small screens */}
               <th
-                className="hidden sm:table-cell w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden sm:table-cell w-32 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('user')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>User</span>
                   {getSortIcon('user')}
                 </div>
               </th>
               {/* Message Column - Always visible */}
-              <th className="w-48 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
-                Message
+              <th className="w-48 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+                <div className="flex items-center space-x-1">
+                  <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Message</span>
+                </div>
               </th>
               {/* Status Column - Always visible */}
               <th
-                className="w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="w-24 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaEnvelope className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Status</span>
                   {getSortIcon('status')}
                 </div>
               </th>
               {/* Created Date Column - Hidden on extra small screens */}
               <th
-                className="hidden xs:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden xs:table-cell w-24 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Created</span>
                   {getSortIcon('createdAt')}
                 </div>
               </th>
               {/* Updated Date Column - Hidden on mobile and tablet */}
               <th
-                className="hidden lg:table-cell w-24 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
+                className="hidden lg:table-cell w-24 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors"
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Updated</span>
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
               {/* Actions Column - Always visible */}
-              <th className="w-32 px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
-                Actions
+              <th className="w-32 px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider">
+                <div className="flex items-center space-x-1">
+                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Actions</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -282,7 +311,12 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
               </tr>
             ) : (
               notifications.map((notification) => (
-                <tr key={notification.id} className="hover:bg-blue-50 dark:hover:bg-blue-900/20 [data-theme='brand']:hover:bg-purple-100">
+                <tr
+                  key={notification.id}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--table-row-bg)')}
+                  style={{ backgroundColor: 'var(--table-row-bg)' }}
+                >
                   {/* ID Column - Hidden on mobile */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     {notification.id}
@@ -291,33 +325,40 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   {/* User Column - Hidden on small screens */}
                   <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left">
                     <div className="flex items-center space-x-2">
-                      <FaEnvelope className="theme-table-text-muted" />
+                      <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                       <span>{notification.user.firstName} {notification.user.lastName}</span>
                     </div>
                   </td>
 
                   {/* Message Column - Always visible */}
                   <td className="px-4 py-4 text-sm theme-table-text-primary text-left">
-                    <p className="truncate" title={notification.message}>
-                      {notification.message}
+                    <p className="truncate flex items-center space-x-2" title={notification.message}>
+                      <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{notification.message}</span>
                     </p>
                   </td>
 
                   {/* Status Column - Always visible */}
                   <td className="px-4 py-4 whitespace-nowrap text-left">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${NOTIFICATION_STATUS_BADGES[notification.isRead ? 'read' : 'unread']}`}>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>
                       {notification.isRead ? 'Read' : 'Unread'}
                     </span>
                   </td>
 
                   {/* Created Date Column - Hidden on extra small screens */}
                   <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
-                    {formatDate(notification.createdAt)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(notification.createdAt)}</span>
+                    </div>
                   </td>
 
                   {/* Updated Date Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left">
-                    {formatDate(notification.updatedAt)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(notification.updatedAt)}</span>
+                    </div>
                   </td>
 
                   {/* Actions Column - Always visible */}
@@ -325,7 +366,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                     <div className="flex justify-start space-x-2">
                       <button
                         onClick={() => onEdit(notification)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                        style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)' }}
                         title="Edit notification"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -334,7 +376,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                       {notification.isRead ? (
                         <button
                           onClick={() => onMarkUnread(notification)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-150"
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                          style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)' }}
                           title="Mark as unread"
                         >
                           <FaEnvelope className="w-3 h-3 mr-1" />
@@ -343,7 +386,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                       ) : (
                         <button
                           onClick={() => onMarkRead(notification)}
-                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150"
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                          style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)' }}
                           title="Mark as read"
                         >
                           <FaCheck className="w-3 h-3 mr-1" />
@@ -352,7 +396,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                       )}
                       <button
                         onClick={() => onDelete(notification)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150"
+                        style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)' }}
                         title="Delete notification"
                       >
                         <FaTrash className="w-3 h-3 mr-1" />
@@ -368,27 +413,29 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium">
+      <div className="px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between theme-border-medium" style={{ backgroundColor: 'var(--card-bg)', borderTop: '1px solid var(--border-color)' }}>
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-1">
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span className="hidden xs:inline">Previous</span>
             </button>
-            <span className="px-2 py-1.5 text-xs text-gray-700 bg-gray-50 border border-gray-300 rounded">
+            <span className="px-2 py-1.5 text-xs rounded" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--table-header-bg)', border: '1px solid var(--border-color)' }}>
               {paginationInfo.currentPage} / {paginationInfo.totalPages}
             </span>
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 py-1.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 py-1.5 text-xs font-medium rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
             >
               <span className="hidden xs:inline">Next</span>
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -403,7 +450,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4">
             {/* Compact page info */}
-            <p className="text-xs lg:text-sm text-gray-600">
+            <p className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>
               <span className="hidden md:inline">Showing </span>
               <span className="font-medium">{paginationInfo.totalCount === 0 ? 0 : (paginationInfo.currentPage - 1) * pageSize + 1}</span>
               <span className="hidden md:inline"> to </span>
@@ -416,13 +463,14 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
 
             {/* Page size selector */}
             <div className="flex items-center space-x-1">
-              <span className="text-xs lg:text-sm text-gray-600">Show</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>Show</span>
               <select
                 id="page-size"
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 disabled={loading}
-                className="px-2 py-1 text-xs lg:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+                className="px-2 py-1 text-xs lg:text-sm rounded focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 {PAGE_SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -430,7 +478,7 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-xs lg:text-sm text-gray-600">entries</span>
+              <span className="text-xs lg:text-sm" style={{ color: 'var(--text-secondary)' }}>entries</span>
             </div>
           </div>
 
@@ -440,7 +488,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
             <button
               onClick={() => onPageChange(1)}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to first page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -453,7 +502,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to previous page"
             >
               <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -473,10 +523,10 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
-                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] ${pageNum === paginationInfo.currentPage
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'theme-table-text-primary bg-white theme-border hover:bg-gray-50 hover:border-purple-300'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg transition-colors min-w-[2rem] lg:min-w-[2.5rem] disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={pageNum === paginationInfo.currentPage
+                      ? { backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }
+                      : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                     title={`Go to page ${pageNum}`}
                   >
                     {pageNum}
@@ -489,7 +539,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              className="px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to next page"
             >
               <span className="hidden lg:inline">Next</span>
@@ -502,7 +553,8 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.totalPages)}
               disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              className="hidden md:flex px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors items-center space-x-1"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to last page"
             >
               <span className="hidden lg:inline">Last</span>

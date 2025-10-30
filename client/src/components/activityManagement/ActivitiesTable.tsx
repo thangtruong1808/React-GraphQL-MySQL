@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaHashtag, FaUser, FaTag, FaBolt, FaFolder, FaTasks, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import {
   ACTIVITY_TABLE_COLUMNS,
   ACTIVITY_TYPE_BADGES,
@@ -207,91 +207,105 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
             <tr>
               {/* ID Column - Hidden on mobile and tablet */}
               <th
-                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors ${ACTIVITY_TABLE_COLUMNS.ID.width}`}
+                className={`hidden lg:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors ${ACTIVITY_TABLE_COLUMNS.ID.width}`}
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>ID</span>
                   {getSortIcon('id')}
                 </div>
               </th>
               {/* User Column - Always visible */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.USER.width}`}
+                className={`px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.USER.width}`}
                 onClick={() => handleSort('user')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>User</span>
                   {getSortIcon('user')}
                 </div>
               </th>
               {/* Type Column - Always visible */}
               <th
-                className={`px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.TYPE.width}`}
+                className={`px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.TYPE.width}`}
                 onClick={() => handleSort('type')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaTag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Type</span>
                   {getSortIcon('type')}
                 </div>
               </th>
               {/* Action Column - Hidden on mobile */}
-              <th className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ACTION.width}`}>
-                Action
+              <th className={`hidden sm:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ACTION.width}`}>
+                <div className="flex items-center space-x-1">
+                  <FaBolt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Action</span>
+                </div>
               </th>
               {/* Target User Column - Hidden on mobile and tablet */}
               <th
-                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.TARGET_USER.width}`}
+                className={`hidden lg:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.TARGET_USER.width}`}
                 onClick={() => handleSort('targetUser')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Target User</span>
                   {getSortIcon('targetUser')}
                 </div>
               </th>
               {/* Project Column - Hidden on mobile */}
               <th
-                className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.PROJECT.width}`}
+                className={`hidden sm:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.PROJECT.width}`}
                 onClick={() => handleSort('project')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Project</span>
                   {getSortIcon('project')}
                 </div>
               </th>
               {/* Task Column - Hidden on mobile */}
               <th
-                className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.TASK.width}`}
+                className={`hidden sm:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.TASK.width}`}
                 onClick={() => handleSort('task')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaTasks className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Task</span>
                   {getSortIcon('task')}
                 </div>
               </th>
               {/* Created Column - Hidden on mobile */}
               <th
-                className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.CREATED.width}`}
+                className={`hidden xs:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.CREATED.width}`}
                 onClick={() => handleSort('created')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Created</span>
                   {getSortIcon('created')}
                 </div>
               </th>
               {/* Updated Column - Hidden on mobile and tablet */}
               <th
-                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}
+                className={`hidden lg:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}
                 onClick={() => handleSort('updated')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Updated</span>
                   {getSortIcon('updated')}
                 </div>
               </th>
               {/* Actions Column - Always visible */}
-              <th className={`px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ACTIONS.width}`}>
-                Actions
+              <th className={`px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider ${ACTIVITY_TABLE_COLUMNS.ACTIONS.width}`}>
+                <div className="flex items-center space-x-1">
+                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Actions</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -324,8 +338,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   {/* User Column - Always visible */}
                   <td className={`px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.USER.width}`}>
                     <div className="flex flex-col">
-                      <p className="font-medium">
-                        {activity.user.firstName} {activity.user.lastName}
+                      <p className="font-medium flex items-center space-x-2">
+                        <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{activity.user.firstName} {activity.user.lastName}</span>
                       </p>
                       <p className="text-xs theme-table-text-secondary">{formatRoleForDisplay(activity.user.role)}</p>
                     </div>
@@ -340,8 +355,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
                   {/* Action Column - Hidden on mobile */}
                   <td className={`hidden sm:table-cell px-4 py-4 text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.ACTION.width}`}>
-                    <p className="truncate" title={activity.action}>
-                      {activity.action}
+                    <p className="truncate flex items-center space-x-2" title={activity.action}>
+                      <FaBolt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{activity.action}</span>
                     </p>
                   </td>
 
@@ -349,8 +365,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.TARGET_USER.width}`}>
                     {activity.targetUser ? (
                       <div className="flex flex-col">
-                        <p className="font-medium">
-                          {activity.targetUser.firstName} {activity.targetUser.lastName}
+                        <p className="font-medium flex items-center space-x-2">
+                          <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                          <span>{activity.targetUser.firstName} {activity.targetUser.lastName}</span>
                         </p>
                         <p className="text-xs theme-table-text-secondary">{formatRoleForDisplay(activity.targetUser.role)}</p>
                       </div>
@@ -362,8 +379,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   {/* Project Column - Hidden on mobile */}
                   <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.PROJECT.width}`}>
                     {activity.project ? (
-                      <p className="truncate" title={activity.project.name}>
-                        {activity.project.name}
+                      <p className="truncate flex items-center space-x-2" title={activity.project.name}>
+                        <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{activity.project.name}</span>
                       </p>
                     ) : (
                       <span className="theme-table-text-muted">-</span>
@@ -373,8 +391,9 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
                   {/* Task Column - Hidden on mobile */}
                   <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-primary text-left ${ACTIVITY_TABLE_COLUMNS.TASK.width}`}>
                     {activity.task ? (
-                      <p className="truncate" title={activity.task.title}>
-                        {activity.task.title}
+                      <p className="truncate flex items-center space-x-2" title={activity.task.title}>
+                        <FaTasks className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{activity.task.title}</span>
                       </p>
                     ) : (
                       <span className="theme-table-text-muted">-</span>
@@ -383,12 +402,18 @@ const ActivitiesTable: React.FC<ActivitiesTableProps> = ({
 
                   {/* Created Column - Hidden on mobile */}
                   <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left ${ACTIVITY_TABLE_COLUMNS.CREATED.width}`}>
-                    {formatDate(activity.createdAt)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(activity.createdAt)}</span>
+                    </div>
                   </td>
 
                   {/* Updated Column - Hidden on mobile and tablet */}
                   <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm theme-table-text-secondary text-left ${ACTIVITY_TABLE_COLUMNS.UPDATED.width}`}>
-                    {formatDate(activity.updatedAt)}
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(activity.updatedAt)}</span>
+                    </div>
                   </td>
 
                   {/* Actions */}

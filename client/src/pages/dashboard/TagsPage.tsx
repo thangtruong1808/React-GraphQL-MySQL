@@ -205,19 +205,14 @@ const TagsPage: React.FC = () => {
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Enhanced Header Section */}
-        <div className="w-full" style={{ background: 'var(--bg-base)' }}>
-          <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <div className="w-full" style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--border-color)' }}>
+          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--accent-from)', opacity: 0.1 }}>
-                    <FaPlus className="h-5 w-5" style={{ color: 'var(--accent-from)' }} />
-                  </div>
-                  <h1 className="text-3xl sm:text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                    Tags Management
-                  </h1>
-                </div>
-                <p className="text-lg mt-2" style={{ color: 'var(--text-secondary)' }}>
+                <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Tags Management
+                </h1>
+                <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Organize and manage tags for efficient task categorization
                 </p>
               </div>
@@ -249,17 +244,9 @@ const TagsPage: React.FC = () => {
         {/* Main Content */}
         <div className="w-full min-h-screen" style={{ background: 'var(--bg-base)' }}>
           <div className="px-4 sm:px-6 lg:px-8 py-8 w-full">
-            <div className="space-y-8">
-              {/* Search Section */}
-              <div className="rounded-xl shadow-sm p-6" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: '1px' }}>
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--accent-from)', opacity: 0.1 }}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--accent-from)' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Search Tags</h2>
-                </div>
+            <div className="space-y-6">
+              {/* Search Section (match Users page) */}
+              <div>
                 <TagSearchInput
                   onSearch={handleSearchChange}
                   placeholder="Search by name, description, type, or category..."
@@ -267,23 +254,8 @@ const TagsPage: React.FC = () => {
                 />
               </div>
 
-              {/* Table Section */}
-              <div className="rounded-xl shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: '1px' }}>
-                <div className="px-6 py-4" style={{ backgroundColor: 'var(--table-header-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: '1px' }}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--accent-from)', opacity: 0.1 }}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--accent-from)' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                      </div>
-                      <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Tags List</h2>
-                      <span className="px-2 py-1 text-xs font-medium rounded-full" style={{ backgroundColor: 'var(--badge-primary-bg)', color: 'var(--badge-primary-text)' }}>
-                        {state.paginationInfo.totalCount} total
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              {/* Table Section (match Users page - no top header row) */}
+              <div className="rounded-xl shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}>
                 <TagsTable
                   tags={state.tags}
                   loading={state.loading}

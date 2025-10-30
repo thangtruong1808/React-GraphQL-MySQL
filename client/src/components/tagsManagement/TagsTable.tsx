@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEdit, FaTrash, FaTag, FaCalendarAlt, FaCog } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaTag, FaCalendarAlt, FaCog, FaHashtag, FaFolder, FaAlignLeft } from 'react-icons/fa';
 import {
   TAGS_TABLE_COLUMNS,
   TAG_TYPE_COLORS,
@@ -146,7 +146,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
 
   if (loading && tags.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="rounded-lg shadow overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderStyle: 'solid', borderWidth: 1, overflow: 'hidden' }}>
         <div className="overflow-x-auto">
           <table className="min-w-full theme-table-divide table-fixed">
             <thead className="theme-table-header-bg">
@@ -195,7 +195,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
   }
 
   return (
-    <div className="rounded-xl shadow-lg overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: '1px' }}>
+    <div className="rounded-xl shadow-lg overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderStyle: 'solid', borderWidth: 1, overflow: 'hidden' }}>
       <div className="overflow-x-auto">
         <table className="min-w-full" style={{ borderColor: 'var(--border-color)' }}>
           <thead style={{ backgroundColor: 'var(--table-header-bg)' }}>
@@ -213,6 +213,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 }}
               >
                 <div className="flex items-center space-x-2">
+                  <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>ID</span>
                   {getSortIcon('id')}
                 </div>
@@ -238,7 +239,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               {/* Description Column - Hidden on small screens */}
               <th className="hidden sm:table-cell w-48 px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
                 <div className="flex items-center space-x-2">
-                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Description</span>
                 </div>
               </th>
@@ -255,6 +256,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 }}
               >
                 <div className="flex items-center space-x-2">
+                  <FaTag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Type</span>
                   {getSortIcon('type')}
                 </div>
@@ -272,6 +274,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 }}
               >
                 <div className="flex items-center space-x-2">
+                  <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Category</span>
                   {getSortIcon('category')}
                 </div>
@@ -371,21 +374,13 @@ const TagsTable: React.FC<TagsTableProps> = ({
                 </td>
               </tr>
             ) : (
-              tags.map((tag, index) => (
+              tags.map((tag) => (
                 <tr 
-                  key={tag.id} 
+                  key={tag.id}
                   className="transition-colors duration-200"
-                  style={{ 
-                    backgroundColor: index % 2 === 0 ? 'var(--table-row-bg)' : 'var(--table-row-hover-bg)',
-                    borderBottomColor: 'var(--border-color)',
-                    borderBottomWidth: '1px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'var(--table-row-bg)' : 'var(--table-row-hover-bg)';
-                  }}
+                  style={{ backgroundColor: 'var(--table-row-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: '1px' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--table-row-bg)'; }}
                 >
                   {/* ID Column - Hidden on mobile */}
                   <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm font-medium text-left" style={{ color: 'var(--table-text-primary)' }}>
@@ -413,15 +408,19 @@ const TagsTable: React.FC<TagsTableProps> = ({
 
                   {/* Description Column - Hidden on small screens */}
                   <td className="hidden sm:table-cell px-6 py-4 text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    <p className="text-sm line-clamp-2" style={{ color: 'var(--table-text-secondary)' }} title={tag.description}>
-                      {tag.description}
-                    </p>
+                    <div className="flex items-center space-x-2">
+                      <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <p className="text-sm line-clamp-2" style={{ color: 'var(--table-text-secondary)' }} title={tag.description}>
+                        {tag.description}
+                      </p>
+                    </div>
                   </td>
 
                   {/* Type Column - Hidden on extra small screens */}
                   <td className="hidden xs:table-cell px-6 py-4 whitespace-nowrap text-left">
                     {tag.type ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-primary-bg)', color: 'var(--badge-primary-text)' }}>
+                        <FaTag className="w-3 h-3 mr-1" />
                         {tag.type}
                       </span>
                     ) : (
@@ -433,6 +432,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                   <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-left">
                     {tag.category ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>
+                        <FaFolder className="w-3 h-3 mr-1" />
                         {tag.category}
                       </span>
                     ) : (
@@ -441,7 +441,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                   </td>
 
                   {/* Created Column - Hidden on extra small screens */}
-                  <td className="hidden xs:table-cell px-6 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-muted)' }}>
+                  <td className="hidden xs:table-cell px-6 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     <div className="flex items-center space-x-1">
                       <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                       <span>{formatDate(tag.createdAt)}</span>
@@ -449,7 +449,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                   </td>
 
                   {/* Updated Column - Hidden on mobile and tablet */}
-                  <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-muted)' }}>
+                  <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
                     <div className="flex items-center space-x-1">
                       <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                       <span>{formatDate(tag.updatedAt)}</span>
@@ -499,7 +499,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
       </div>
 
       {/* Pagination */}
-      <div className="px-6 py-4" style={{ backgroundColor: 'var(--table-header-bg)', borderTopColor: 'var(--border-color)', borderTopWidth: '1px' }}>
+      <div className="px-6 py-4" style={{ backgroundColor: 'var(--table-header-bg)', borderTop: '1px solid var(--border-color)' }}>
         {/* Mobile pagination - show on small screens */}
         <div className="flex-1 flex justify-between sm:hidden">
           <div className="flex items-center space-x-2">
@@ -507,12 +507,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
               className="px-3 py-2 text-xs font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 shadow-sm"
-              style={{ 
-                backgroundColor: 'var(--card-bg)', 
-                color: 'var(--text-primary)', 
-                borderColor: 'var(--border-color)',
-                borderWidth: '1px'
-              }}
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.disabled) {
                   e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
@@ -529,19 +524,14 @@ const TagsTable: React.FC<TagsTableProps> = ({
               </svg>
               <span className="hidden xs:inline">Previous</span>
             </button>
-            <span className="px-3 py-2 text-xs font-medium rounded-lg" style={{ backgroundColor: 'var(--badge-primary-bg)', color: 'var(--badge-primary-text)', borderColor: 'var(--border-color)', borderWidth: '1px' }}>
+            <span className="px-3 py-2 text-xs font-medium rounded-lg" style={{ backgroundColor: 'var(--badge-primary-bg)', color: 'var(--badge-primary-text)', border: '1px solid var(--border-color)' }}>
               {paginationInfo.currentPage} / {paginationInfo.totalPages}
             </span>
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
               className="px-3 py-2 text-xs font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 shadow-sm"
-              style={{ 
-                backgroundColor: 'var(--card-bg)', 
-                color: 'var(--text-primary)', 
-                borderColor: 'var(--border-color)',
-                borderWidth: '1px'
-              }}
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.disabled) {
                   e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
@@ -562,7 +552,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
         </div>
 
         {/* Desktop pagination - show on sm and larger screens */}
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           {/* Page info and size selector */}
           <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-6">
             {/* Enhanced page info */}
@@ -583,13 +573,14 @@ const TagsTable: React.FC<TagsTableProps> = ({
 
             {/* Enhanced page size selector */}
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700">Show</span>
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Show</span>
               <select
                 id="page-size"
                 value={pageSize}
                 onChange={(e) => onPageSizeChange(Number(e.target.value))}
                 disabled={loading}
-                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 [data-theme='brand']:focus:ring-purple-500 focus:border-purple-500 dark:focus:border-purple-400 [data-theme='brand']:focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed bg-white dark:bg-gray-800 [data-theme='brand']:bg-white text-gray-900 dark:text-gray-100 [data-theme='brand']:text-purple-900 shadow-sm"
+                className="px-3 py-1.5 text-sm rounded-lg focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               >
                 {PAGE_SIZE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -597,7 +588,7 @@ const TagsTable: React.FC<TagsTableProps> = ({
                   </option>
                 ))}
               </select>
-              <span className="text-sm text-gray-600 dark:text-gray-300 [data-theme='brand']:text-purple-700">entries</span>
+              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>entries</span>
             </div>
           </div>
 
@@ -607,7 +598,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(1)}
               disabled={paginationInfo.currentPage === 1 || loading}
-              className="hidden md:flex px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 bg-white dark:bg-gray-800 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 items-center space-x-1 shadow-sm"
+              className="hidden md:flex px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 items-center space-x-1 shadow-sm"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to first page"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -620,7 +612,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage - 1)}
               disabled={!paginationInfo.hasPreviousPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 bg-white dark:bg-gray-800 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-1 shadow-sm"
+              className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-1 shadow-sm"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to previous page"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -640,11 +633,10 @@ const TagsTable: React.FC<TagsTableProps> = ({
                     key={pageNum}
                     onClick={() => onPageChange(pageNum)}
                     disabled={loading}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 min-w-[2.5rem] ${
-                      pageNum === paginationInfo.currentPage
-                        ? 'bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 [data-theme="brand"]:from-purple-700 [data-theme="brand"]:to-purple-800 text-white shadow-lg transform scale-105'
-                        : 'text-gray-700 dark:text-gray-300 [data-theme="brand"]:text-purple-700 bg-white dark:bg-gray-800 [data-theme="brand"]:bg-white border border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme="brand"]:hover:bg-purple-50 hover:border-purple-300 dark:hover:border-purple-400 [data-theme="brand"]:hover:border-purple-400 hover:shadow-md'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 min-w-[2.5rem] disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={pageNum === paginationInfo.currentPage
+                      ? { backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }
+                      : { backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                     title={`Go to page ${pageNum}`}
                   >
                     {pageNum}
@@ -657,7 +649,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.currentPage + 1)}
               disabled={!paginationInfo.hasNextPage || loading}
-              className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 bg-white dark:bg-gray-800 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-1 shadow-sm"
+              className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-1 shadow-sm"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to next page"
             >
               <span className="hidden lg:inline">Next</span>
@@ -670,7 +663,8 @@ const TagsTable: React.FC<TagsTableProps> = ({
             <button
               onClick={() => onPageChange(paginationInfo.totalPages)}
               disabled={paginationInfo.currentPage === paginationInfo.totalPages || loading}
-              className="hidden md:flex px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 bg-white dark:bg-gray-800 [data-theme='brand']:bg-white border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 items-center space-x-1 shadow-sm"
+              className="hidden md:flex px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 items-center space-x-1 shadow-sm"
+              style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
               title="Go to last page"
             >
               <span className="hidden lg:inline">Last</span>

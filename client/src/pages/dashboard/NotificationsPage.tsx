@@ -241,14 +241,14 @@ const NotificationsPage: React.FC = () => {
     <DashboardLayout showSidebarSkeleton={false}>
       <div className="w-full h-full dashboard-content">
         {/* Header Section */}
-        <div className="bg-white border-b border-gray-200 w-full">
+        <div className="w-full" style={{ backgroundColor: 'var(--bg-base)', borderBottom: '1px solid var(--border-color)' }}>
           <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
                   Notifications Management
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">
+                <p className="text-sm sm:text-base mt-1" style={{ color: 'var(--text-secondary)' }}>
                   Manage and monitor all notifications in the system
                 </p>
               </div>
@@ -256,7 +256,8 @@ const NotificationsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 w-full sm:w-auto sm:flex-shrink-0"
+                className="inline-flex items-center justify-center px-4 py-2 shadow-sm text-sm font-medium rounded-md w-full sm:w-auto sm:flex-shrink-0"
+                style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', border: '1px solid var(--button-primary-border, transparent)' }}
               >
                 <FaPlus className="h-5 w-5" aria-hidden="true" />
                 <span className="hidden xs:inline ml-2">Create Notification</span>

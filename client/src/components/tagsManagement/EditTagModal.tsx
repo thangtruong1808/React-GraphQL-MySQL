@@ -122,25 +122,26 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 backdrop-blur-sm transition-opacity"
+          style={{ backgroundColor: 'var(--modal-overlay, rgba(17,24,39,0.5))' }}
           onClick={onClose}
         />
 
-        <div className="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl">
-          {/* Enhanced Header */}
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-8 py-8">
+        <div className="relative transform overflow-hidden rounded-3xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-8 py-8" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <FaEdit className="h-6 w-6 text-white" />
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaEdit className="h-6 w-6" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold leading-6 text-white">
+                  <h3 className="text-2xl font-bold leading-6" style={{ color: 'var(--button-primary-text)' }}>
                     Edit Tag
                   </h3>
-                  <p className="text-blue-100 text-base mt-2">
+                  <p className="text-base mt-2" style={{ color: 'var(--button-primary-text)' }}>
                     Update tag information and categorization details
                   </p>
                 </div>
@@ -149,39 +150,40 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="text-white hover:text-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded-xl p-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:bg-white hover:bg-opacity-10"
+                className="rounded-xl p-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                style={{ color: 'var(--button-primary-text)' }}
               >
                 <FaTimes className="h-6 w-6" />
               </button>
             </div>
           </div>
 
-          {/* Enhanced Tag Info */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          {/* Tag Info */}
+          <div className="px-6 py-4" style={{ backgroundColor: 'var(--table-header-bg)', borderBottom: '1px solid var(--border-color)' }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <FaTag className="h-4 w-4 text-purple-600" />
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                  <FaTag className="h-4 w-4" style={{ color: 'var(--badge-primary-text)' }} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Tag ID</p>
-                  <p className="text-sm font-semibold text-gray-900">{tag.id}</p>
+                  <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Tag ID</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{tag.id}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <FaCheck className="h-4 w-4 text-blue-600" />
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-secondary-bg)' }}>
+                  <FaCheck className="h-4 w-4" style={{ color: 'var(--badge-secondary-text)' }} />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Created</p>
-                  <p className="text-sm font-semibold text-gray-900">{new Date(tag.createdAt).toLocaleDateString()}</p>
+                  <p className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Created</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{new Date(tag.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Enhanced Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
               {/* Name */}
               <div>

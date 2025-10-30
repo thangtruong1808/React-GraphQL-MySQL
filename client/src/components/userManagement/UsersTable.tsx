@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaChevronLeft, FaChevronRight, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaEdit, FaTrash, FaUser, FaEnvelope, FaIdBadge, FaUserShield, FaCalendarAlt, FaCog, FaHashtag } from 'react-icons/fa';
 import { UsersTableProps } from '../../types/userManagement';
 import { USERS_PAGINATION_OPTIONS } from '../../constants/userManagement';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
@@ -141,6 +141,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>ID</span>
                   {getSortIcon('id')}
                 </div>
@@ -151,6 +152,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('firstName')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>First Name</span>
                   {getSortIcon('firstName')}
                 </div>
@@ -162,6 +164,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('lastName')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Last Name</span>
                   {getSortIcon('lastName')}
                 </div>
@@ -172,6 +175,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('email')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaEnvelope className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Email</span>
                   {getSortIcon('email')}
                 </div>
@@ -182,6 +186,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('role')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaUserShield className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Role</span>
                   {getSortIcon('role')}
                 </div>
@@ -193,6 +198,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Created</span>
                   {getSortIcon('createdAt')}
                 </div>
@@ -204,12 +210,16 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Updated</span>
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
               <th className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Actions
+                <div className="flex items-center space-x-1">
+                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Actions</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -244,17 +254,26 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
                   {/* First Name Column */}
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    {user.firstName}
+                    <div className="flex items-center space-x-2">
+                      <FaIdBadge className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{user.firstName}</span>
+                    </div>
                   </td>
 
                   {/* Last Name Column - Hidden on small screens */}
                   <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    {user.lastName}
+                    <div className="flex items-center space-x-2">
+                      <FaIdBadge className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{user.lastName}</span>
+                    </div>
                   </td>
 
                   {/* Email Column */}
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    {user.email}
+                    <div className="flex items-center space-x-2">
+                      <FaEnvelope className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{user.email}</span>
+                    </div>
                   </td>
 
                   {/* Role Column */}
@@ -266,12 +285,18 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
                   {/* Created Date Column - Hidden on extra small screens */}
                   <td className="hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
-                    {formatDate(user.createdAt)}
+                    <div className="flex items-center space-x-1">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(user.createdAt)}</span>
+                    </div>
                   </td>
 
                   {/* Updated Date Column - Hidden on mobile and tablet */}
                   <td className="hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-secondary)' }}>
-                    {formatDate(user.updatedAt)}
+                    <div className="flex items-center space-x-1">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(user.updatedAt)}</span>
+                    </div>
                   </td>
 
                   {/* Actions Column */}
@@ -280,7 +305,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       {/* Edit button */}
                       <button
                         onClick={() => onEdit(user)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 dark:bg-blue-700 [data-theme='brand']:bg-purple-600 hover:bg-blue-700 [data-theme='light']:hover:bg-blue-800 dark:hover:bg-blue-800 [data-theme='brand']:hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-blue-600 [data-theme='brand']:focus:ring-purple-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors duration-150 shadow-sm"
+                        style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--border-color)', borderWidth: 1 }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-secondary-hover-bg)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-secondary-bg)'; }}
                         title="Edit user"
                       >
                         <FaEdit className="w-3 h-3 mr-1" />
@@ -290,7 +318,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       {/* Delete button */}
                       <button
                         onClick={() => onDelete(user)}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 dark:bg-red-700 [data-theme='brand']:bg-red-600 hover:bg-red-700 [data-theme='light']:hover:bg-red-800 dark:hover:bg-red-800 [data-theme='brand']:hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-red-600 [data-theme='brand']:focus:ring-red-500 transition-colors duration-150"
+                        className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors duration-150 shadow-sm"
+                        style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--border-color)', borderWidth: 1 }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-danger-hover-bg)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-danger-bg)'; }}
                         title="Delete user"
                       >
                         <FaTrash className="w-3 h-3 mr-1" />

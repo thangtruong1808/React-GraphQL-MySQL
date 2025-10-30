@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaHashtag, FaCommentDots, FaUser, FaTasks, FaFolder, FaHeart, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import { CommentsTableProps } from '../../types/commentManagement';
 import { COMMENT_TABLE_COLUMNS, COMMENT_PRIORITY_THRESHOLDS, COMMENT_PRIORITY_COLORS, PAGE_SIZE_OPTIONS } from '../../constants/commentManagement';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
@@ -234,83 +234,96 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
     <div className="rounded-lg shadow overflow-hidden" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: 1, borderStyle: 'solid' }}>
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed">
-          <thead style={{ backgroundColor: 'var(--table-header-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}>
+            <thead style={{ backgroundColor: 'var(--table-header-bg)', borderBottomColor: 'var(--border-color)', borderBottomWidth: 1 }}>
             <tr>
               {/* ID Column - Hidden on mobile */}
               <th
-                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
+                  className={`hidden lg:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors ${COMMENT_TABLE_COLUMNS.ID.width}`}
                 onClick={() => handleSort('id')}
               >
-                <div className="flex items-center space-x-1">
-                  <span>ID</span>
+                  <div className="flex items-center space-x-1">
+                    <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>ID</span>
                   {getSortIcon('id')}
                 </div>
               </th>
-              <th className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`} style={{ color: 'var(--table-text-secondary)' }}>
-                Content
+                <th className={`px-4 py-4 text-left text-xs font-medium uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.CONTENT.width}`} style={{ color: 'var(--table-text-secondary)' }}>
+                  <div className="flex items-center space-x-1">
+                    <FaCommentDots className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Content</span>
+                  </div>
               </th>
               {/* Author Column - Hidden on small screens */}
               <th
-                className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}
+                  className={`hidden sm:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Author</span>
+                    <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Author</span>
                   {getSortIcon('createdAt')}
                 </div>
               </th>
               {/* Task Column - Hidden on extra small screens */}
               <th
-                className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.TASK.width}`}
+                  className={`hidden xs:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.TASK.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Task</span>
+                    <FaTasks className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Task</span>
                   {getSortIcon('createdAt')}
                 </div>
               </th>
               {/* Project Column - Hidden on mobile and tablet */}
               <th
-                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}
+                  className={`hidden lg:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.PROJECT.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Project</span>
+                    <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Project</span>
                   {getSortIcon('createdAt')}
                 </div>
               </th>
               {/* Likes Column - Hidden on small screens */}
               <th
-                className={`hidden sm:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}
+                  className={`hidden sm:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.LIKES.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Likes</span>
+                    <FaHeart className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Likes</span>
                   {getSortIcon('createdAt')}
                 </div>
               </th>
               {/* Created Column - Hidden on extra small screens */}
               <th
-                className={`hidden xs:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}
+                  className={`hidden xs:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.CREATED.width}`}
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Created</span>
+                    <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Created</span>
                   {getSortIcon('createdAt')}
                 </div>
               </th>
               {/* Updated Column - Hidden on mobile and tablet */}
               <th
-                className={`hidden lg:table-cell px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}
+                  className={`hidden lg:table-cell px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider cursor-pointer table-row-hover transition-colors duration-200 ${COMMENT_TABLE_COLUMNS.UPDATED.width}`}
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>Updated</span>
+                    <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                    <span>Updated</span>
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
-              <th className={`px-4 py-3 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
-                Actions
+              <th className={`px-4 py-4 text-left text-xs font-medium theme-table-text-secondary uppercase tracking-wider ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
+                <div className="flex items-center space-x-1">
+                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Actions</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -349,8 +362,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                     <td className={`px-4 py-4 text-sm text-left ${COMMENT_TABLE_COLUMNS.CONTENT.width}`} style={{ color: 'var(--table-text-primary)' }}>
                       <div className="space-y-1">
                         {contentLines.map((line, index) => (
-                          <p key={index} className="leading-relaxed">
-                            {line}
+                          <p key={index} className="leading-relaxed flex items-start space-x-2">
+                            <FaCommentDots className="w-3 h-3 mt-1" style={{ color: 'var(--text-muted)' }} />
+                            <span>{line}</span>
                           </p>
                         ))}
                       </div>
@@ -359,8 +373,9 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
                     {/* Author Column - Hidden on small screens */}
                     <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-left ${COMMENT_TABLE_COLUMNS.AUTHOR.width}`} style={{ color: 'var(--table-text-primary)' }}>
                       <div className="flex flex-col">
-                        <p className="font-medium">
-                          {comment.author.firstName} {comment.author.lastName}
+                        <p className="font-medium flex items-center space-x-2">
+                          <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                          <span>{comment.author.firstName} {comment.author.lastName}</span>
                         </p>
                         <p className="text-xs" style={{ color: 'var(--table-text-secondary)' }}>{formatRoleForDisplay(comment.author.role)}</p>
                       </div>
@@ -368,24 +383,24 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
 
                     {/* Task Column - Hidden on extra small screens */}
                     <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-left ${COMMENT_TABLE_COLUMNS.TASK.width}`} style={{ color: 'var(--table-text-primary)' }}>
-                      <p className="truncate" title={comment.task.title}>
-                        {comment.task.title}
+                      <p className="truncate flex items-center space-x-2" title={comment.task.title}>
+                        <FaTasks className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{comment.task.title}</span>
                       </p>
                     </td>
 
                     {/* Project Column - Hidden on mobile and tablet */}
                     <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left ${COMMENT_TABLE_COLUMNS.PROJECT.width}`} style={{ color: 'var(--table-text-primary)' }}>
-                      <p className="truncate" title={comment.task.project.name}>
-                        {comment.task.project.name}
+                      <p className="truncate flex items-center space-x-2" title={comment.task.project.name}>
+                        <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{comment.task.project.name}</span>
                       </p>
                     </td>
 
                     {/* Likes Column - Hidden on small screens */}
                     <td className={`hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-left ${COMMENT_TABLE_COLUMNS.LIKES.width}`} style={{ color: 'var(--table-text-primary)' }}>
                       <div className="flex items-center space-x-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
+                        <FaHeart className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                         <span className={`font-medium ${COMMENT_PRIORITY_COLORS[priority]}`}>
                           {comment.likesCount}
                         </span>
@@ -394,12 +409,18 @@ const CommentsTable: React.FC<CommentsTableProps> = memo(({
 
                     {/* Created Column - Hidden on extra small screens */}
                     <td className={`hidden xs:table-cell px-4 py-4 whitespace-nowrap text-sm text-left ${COMMENT_TABLE_COLUMNS.CREATED.width}`} style={{ color: 'var(--table-text-secondary)' }}>
-                      {formatDate(comment.createdAt)}
+                      <div className="flex items-center space-x-2">
+                        <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{formatDate(comment.createdAt)}</span>
+                      </div>
                     </td>
 
                     {/* Updated Column - Hidden on mobile and tablet */}
                     <td className={`hidden lg:table-cell px-4 py-4 whitespace-nowrap text-sm text-left ${COMMENT_TABLE_COLUMNS.UPDATED.width}`} style={{ color: 'var(--table-text-secondary)' }}>
-                      {formatDate(comment.updatedAt)}
+                      <div className="flex items-center space-x-2">
+                        <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                        <span>{formatDate(comment.updatedAt)}</span>
+                      </div>
                     </td>
 
                     {/* Actions */}

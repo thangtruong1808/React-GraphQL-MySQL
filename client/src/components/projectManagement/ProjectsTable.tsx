@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaEdit, FaTrash, FaUsers } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaUsers, FaFolder, FaAlignLeft, FaTag, FaUser, FaCalendarAlt, FaCog, FaHashtag } from 'react-icons/fa';
 import { ProjectsTableProps } from '../../types/projectManagement';
 import { PROJECTS_PAGINATION_OPTIONS, getProjectStatusColor } from '../../constants/projectManagement';
 
@@ -161,6 +161,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaHashtag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>ID</span>
                   {getSortIcon('id')}
                 </div>
@@ -171,12 +172,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Name</span>
                   {getSortIcon('name')}
                 </div>
               </th>
               <th className="w-64 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider hidden md:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
-                Description
+                <div className="flex items-center space-x-1">
+                  <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Description</span>
+                </div>
               </th>
               <th
                 className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors"
@@ -184,12 +189,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaTag className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Status</span>
                   {getSortIcon('status')}
                 </div>
               </th>
               <th className="w-40 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider hidden sm:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
-                Owner
+                <div className="flex items-center space-x-1">
+                  <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Owner</span>
+                </div>
               </th>
               <th
                 className="w-24 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors hidden xs:table-cell"
@@ -197,6 +206,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onClick={() => handleSort('createdAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Created</span>
                   {getSortIcon('createdAt')}
                 </div>
@@ -207,12 +217,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onClick={() => handleSort('updatedAt')}
               >
                 <div className="flex items-center space-x-1">
+                  <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                   <span>Updated</span>
                   {getSortIcon('updatedAt')}
                 </div>
               </th>
               <th className="w-32 px-4 py-4 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--table-text-secondary)' }}>
-                Actions
+                <div className="flex items-center space-x-1">
+                  <FaCog className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                  <span>Actions</span>
+                </div>
               </th>
             </tr>
           </thead>
@@ -275,7 +289,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 >
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden lg:table-cell" style={{ color: 'var(--table-text-primary)' }}>{project.id}</td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-                    <div className="max-w-xs truncate" title={project.name}>
+                    <div className="max-w-xs truncate flex items-center space-x-2" title={project.name}>
+                      <FaFolder className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
                       {onViewMembers ? (
                         <button
                           onClick={() => onViewMembers(project)}
@@ -285,13 +300,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           {project.name}
                         </button>
                       ) : (
-                        project.name
+                        <span>{project.name}</span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden md:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
-                    <div className="max-w-xs truncate" title={project.description}>
-                      {project.description || 'No description'}
+                    <div className="max-w-xs truncate flex items-center space-x-2" title={project.description}>
+                      <FaAlignLeft className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{project.description || 'No description'}</span>
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
@@ -300,10 +316,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     </span>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden sm:table-cell" style={{ color: 'var(--table-text-primary)' }}>
-                    {project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner'}
+                    <div className="flex items-center space-x-2">
+                      <FaUser className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{project.owner ? `${project.owner.firstName} ${project.owner.lastName}` : 'No owner'}</span>
+                    </div>
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden xs:table-cell" style={{ color: 'var(--table-text-secondary)' }}>{formatDate(project.createdAt)}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden lg:table-cell" style={{ color: 'var(--table-text-secondary)' }}>{formatDate(project.updatedAt)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden xs:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(project.createdAt)}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-left hidden lg:table-cell" style={{ color: 'var(--table-text-secondary)' }}>
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
+                      <span>{formatDate(project.updatedAt)}</span>
+                    </div>
+                  </td>
                   <td className="px-4 py-4 whitespace-nowrap text-left">
                     <div className="flex justify-start space-x-2">
                       {onViewMembers && (

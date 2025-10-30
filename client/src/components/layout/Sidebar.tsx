@@ -241,23 +241,28 @@ const Sidebar: React.FC = () => {
           <>
             {/* Theme Switcher - compact pills */}
             <div className="mt-3">
-              <div className="text-xs text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 mb-1">Theme</div>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Theme</div>
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   title="Light theme"
                   aria-label="Light theme"
                   onClick={() => handleThemeChange('light')}
-                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'light'
-                    ? 'border-gray-400 dark:border-gray-500 [data-theme="brand"]:border-purple-400 bg-gray-50 dark:bg-gray-700 [data-theme="brand"]:bg-purple-100 shadow-sm'
-                    : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme="brand"]:hover:bg-purple-100'
-                    }`}
+                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md text-xs transition-all duration-200`}
+                  style={theme === 'light'
+                    ? { backgroundColor: 'var(--table-header-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                    : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
+                  onMouseEnter={(e) => { if (theme !== 'light') e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { if (theme !== 'light') e.currentTarget.style.backgroundColor = 'var(--card-bg)'; }}
                 >
                   <span
-                    className={`w-3 h-3 rounded-full border ${theme === 'light' ? 'ring-2 ring-offset-1 ring-gray-400' : 'border-gray-300'}`}
-                    style={{ background: '#ffffff' }}
+                    className={`w-3 h-3 rounded-full`}
+                    style={theme === 'light'
+                      ? { backgroundColor: 'var(--bg-base)', boxShadow: '0 0 0 2px var(--accent-ring)' }
+                      : { backgroundColor: 'var(--bg-base)', border: '1px solid var(--border-color)' }}
                   />
-                  <span className={`text-xs font-medium ${theme === 'light' ? 'text-gray-800 dark:text-white [data-theme="brand"]:text-purple-800' : 'text-gray-600 dark:text-gray-300 [data-theme="brand"]:text-purple-600'}`}>
+                  <span className={`text-xs font-medium`}
+                    style={{ color: theme === 'light' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     Light
                   </span>
                 </button>
@@ -266,16 +271,21 @@ const Sidebar: React.FC = () => {
                   title="Dark theme"
                   aria-label="Dark theme"
                   onClick={() => handleThemeChange('dark')}
-                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'dark'
-                    ? 'border-indigo-400 dark:border-indigo-500 [data-theme="brand"]:border-purple-400 bg-indigo-50 dark:bg-indigo-900/20 [data-theme="brand"]:bg-purple-100 shadow-sm'
-                    : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-indigo-400 dark:hover:border-indigo-500 [data-theme="brand"]:hover:border-purple-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 [data-theme="brand"]:hover:bg-purple-100'
-                    }`}
+                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md text-xs transition-all duration-200`}
+                  style={theme === 'dark'
+                    ? { backgroundColor: 'var(--table-header-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                    : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
+                  onMouseEnter={(e) => { if (theme !== 'dark') e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { if (theme !== 'dark') e.currentTarget.style.backgroundColor = 'var(--card-bg)'; }}
                 >
                   <span
-                    className={`w-3 h-3 rounded-full ${theme === 'dark' ? 'ring-2 ring-offset-1 ring-indigo-400' : 'border border-gray-300'}`}
-                    style={{ background: 'linear-gradient(135deg, #0f172a, #111827)' }}
+                    className={`w-3 h-3 rounded-full`}
+                    style={theme === 'dark'
+                      ? { backgroundColor: 'var(--bg-base)', boxShadow: '0 0 0 2px var(--accent-ring)' }
+                      : { backgroundColor: 'var(--bg-base)', border: '1px solid var(--border-color)' }}
                   />
-                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-indigo-800 dark:text-white [data-theme="brand"]:text-purple-800' : 'text-gray-600 dark:text-gray-300 [data-theme="brand"]:text-purple-600'}`}>
+                  <span className={`text-xs font-medium`}
+                    style={{ color: theme === 'dark' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     Dark
                   </span>
                 </button>
@@ -284,16 +294,21 @@ const Sidebar: React.FC = () => {
                   title="Brand theme"
                   aria-label="Brand theme"
                   onClick={() => handleThemeChange('brand')}
-                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md border text-xs transition-all duration-200 ${theme === 'brand'
-                    ? 'border-purple-400 dark:border-purple-500 [data-theme="brand"]:border-purple-500 bg-purple-50 dark:bg-purple-900/20 [data-theme="brand"]:bg-purple-200 shadow-sm'
-                    : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-purple-400 dark:hover:border-purple-500 [data-theme="brand"]:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 [data-theme="brand"]:hover:bg-purple-200'
-                    }`}
+                  className={`flex items-center space-x-1.5 px-2 py-1.5 rounded-md text-xs transition-all duration-200`}
+                  style={theme === 'brand'
+                    ? { backgroundColor: 'var(--table-header-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                    : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}
+                  onMouseEnter={(e) => { if (theme !== 'brand') e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)'; }}
+                  onMouseLeave={(e) => { if (theme !== 'brand') e.currentTarget.style.backgroundColor = 'var(--card-bg)'; }}
                 >
                   <span
-                    className={`w-3 h-3 rounded-full ${theme === 'brand' ? 'ring-2 ring-offset-1 ring-purple-400' : 'border border-gray-300'}`}
-                    style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)' }}
+                    className={`w-3 h-3 rounded-full`}
+                    style={theme === 'brand'
+                      ? { backgroundColor: 'var(--accent-from)', boxShadow: '0 0 0 2px var(--accent-ring)' }
+                      : { backgroundColor: 'var(--accent-from)', border: '1px solid var(--border-color)' }}
                   />
-                  <span className={`text-xs font-medium ${theme === 'brand' ? 'text-purple-800 dark:text-white [data-theme="brand"]:text-purple-800' : 'text-gray-600 dark:text-gray-300 [data-theme="brand"]:text-purple-600'}`}>
+                  <span className={`text-xs font-medium`}
+                    style={{ color: theme === 'brand' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     Brand
                   </span>
                 </button>
