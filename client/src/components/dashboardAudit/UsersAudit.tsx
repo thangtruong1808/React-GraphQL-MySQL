@@ -1,5 +1,7 @@
+/* eslint-disable */
+export { };
 import React, { useMemo } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '../../services/graphql/hooks';
 import { GET_USERS_QUERY, type GetUsersQueryResponse, type GetUsersQueryVariables } from '../../services/graphql/userQueries';
 import { InlineError } from '../ui';
 
@@ -64,7 +66,7 @@ const UsersAudit: React.FC = () => {
     <div
       className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-md dark:hover:shadow-lg transition-colors border theme-border-light overflow-hidden"
       style={{ backgroundColor: 'var(--card-bg)' }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-bg)'; }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-hover-bg)'; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-bg)'; }}
     >
       <div className="p-4 border-b theme-border-light">
@@ -78,14 +80,14 @@ const UsersAudit: React.FC = () => {
         </div>
         <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Latest registered users</p>
       </div>
-      <div className="divide-y theme-table-divide" style={{ backgroundColor: 'var(--card-bg)' }}>
+      <div className="divide-y theme-table-divide">
         {users.map((u) => (
           <div
             key={u.id}
             className="p-4 flex items-center justify-between transition-colors"
-            style={{ backgroundColor: 'var(--table-row-bg)', color: 'var(--text-primary)' }}
+            style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--table-row-hover-bg)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--table-row-bg)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-bg)'; }}
           >
             <div className="flex items-center gap-3">
               <div

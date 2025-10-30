@@ -24,11 +24,11 @@ interface TaskCompletionProgressProps {
  */
 const TaskCompletionProgress: React.FC<TaskCompletionProgressProps> = ({ stats }) => {
   return (
-    <div className="bg-white shadow-lg border border-gray-200 rounded-2xl p-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Task Completion Progress</h3>
+    <div className="shadow-lg border theme-border rounded-2xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
+      <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Task Completion Progress</h3>
 
       {/* Description */}
-      <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+      <p className="text-sm mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
         Monitor your task completion rates and workflow efficiency. Keep track of pending, ongoing, and finished tasks to maintain optimal productivity across all projects.
       </p>
 

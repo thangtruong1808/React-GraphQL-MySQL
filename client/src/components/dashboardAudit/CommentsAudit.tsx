@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_DASHBOARD_COMMENTS_QUERY, type GetDashboardCommentsQueryData, type GetDashboardCommentsQueryVariables } from '../../services/graphql/commentQueries';
 import { InlineError } from '../ui';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
 
 /**
  * CommentsAudit
@@ -16,9 +18,19 @@ const CommentsAudit: React.FC = () => {
     sortOrder: 'DESC'
   }), []);
 
+  const { isInitializing, user } = useAuth();
+  const { hasDashboardAccess } = useRolePermissions();
+  const shouldSkip = isInitializing || !hasDashboardAccess || !user;
+
   const { data, loading, error } = useQuery<GetDashboardCommentsQueryData, GetDashboardCommentsQueryVariables>(
     GET_DASHBOARD_COMMENTS_QUERY,
-    { variables, fetchPolicy: 'cache-and-network', errorPolicy: 'all' }
+    {
+      variables,
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all',
+      notifyOnNetworkStatusChange: true,
+      skip: shouldSkip,
+    }
   );
 
   if (loading && !data) {
@@ -47,7 +59,7 @@ const CommentsAudit: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && !shouldSkip) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <InlineError message={error.message || 'Failed to load comments'} />

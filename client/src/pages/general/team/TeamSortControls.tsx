@@ -26,15 +26,16 @@ const TeamSortControls: React.FC<TeamSortControlsProps> = ({ sortOption, onSortC
 
   return (
     <div className="flex flex-wrap gap-3 justify-center items-center">
-      <span className="text-sm font-medium text-gray-700">Sort by:</span>
+      <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Sort by:</span>
       {sortOptions.map((sortButton) => (
         <button
           key={sortButton.field}
           onClick={() => onSortChange(sortButton.field)}
           className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${sortButton.field === sortOption.field
             ? 'bg-indigo-600 text-white shadow-md'
-            : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200 hover:border-indigo-500'
+            : 'border theme-border hover:shadow-md'
             }`}
+          style={sortButton.field === sortOption.field ? undefined : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)' }}
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortButton.icon} />

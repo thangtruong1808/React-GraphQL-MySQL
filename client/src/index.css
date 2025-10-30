@@ -18,6 +18,7 @@
   --border-medium: #d1d5db;       /* medium border color */
   --border-dark: #9ca3af;         /* dark border color */
   --card-bg: #ffffff;             /* card background */
+  --card-hover-bg: #f9fafb;       /* card hover background */
   --input-bg: #ffffff;            /* input background */
   --modal-bg: #ffffff;            /* modal background */
   --table-header-bg: #f8fafc;      /* table header background - lighter than rows */
@@ -130,6 +131,7 @@
   --border-medium: #d1d5db;
   --border-dark: #9ca3af;
   --card-bg: #ffffff;
+  --card-hover-bg: #f9fafb;   /* light card hover background */
   --input-bg: #ffffff;
   --modal-bg: #ffffff;
   --table-header-bg: #f8fafc;      /* light table header background - distinct from rows */
@@ -243,6 +245,7 @@
   --border-medium: #4b5563; /* gray-600 - medium borders */
   --border-dark: #374151;  /* gray-700 - dark borders */
   --card-bg: #1f2937;      /* gray-800 - lighter than base */
+  --card-hover-bg: #4b5563; /* gray-600 - matches row hover */
   --input-bg: #1f2937;     /* gray-800 - consistent with cards */
   --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
   --table-header-bg: #374151; /* dark table header background - darker than rows */
@@ -359,6 +362,7 @@
   --border-medium: #c084fc;
   --border-dark: #a855f7;
   --card-bg: #faf5ff;
+  --card-hover-bg: #f3e8ff; /* match table-row-hover for seamless edge */
   --input-bg: #faf5ff;
   --modal-bg: #faf5ff;
   --table-header-bg: #f3e8ff;   /* brand table header background - lighter than rows */

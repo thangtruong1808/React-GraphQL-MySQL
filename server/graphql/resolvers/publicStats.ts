@@ -143,7 +143,7 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
           GROUP BY t.status
         `, { transaction, type: sequelize.QueryTypes.SELECT }),
         
-        // All likes data in single comprehensive query
+        // All likes data in single comprehensive query (do not depend on task_likes existing rows)
         sequelize.query(`
           SELECT 
             -- Task likes by status
@@ -175,8 +175,8 @@ export const calculatePublicStats = async (): Promise<PublicStats> => {
              INNER JOIN comments c ON cl.comment_id = c.id 
              INNER JOIN tasks t ON c.task_id = t.id 
              WHERE c.is_deleted = false AND t.status = 'TODO' AND t.is_deleted = false) as likesOnCommentsOnTodoTasks
-          FROM task_likes tl
-          INNER JOIN tasks t ON tl.task_id = t.id
+          FROM tasks t
+          LEFT JOIN task_likes tl ON tl.task_id = t.id
         `, { transaction, type: sequelize.QueryTypes.SELECT })
       ]);
 

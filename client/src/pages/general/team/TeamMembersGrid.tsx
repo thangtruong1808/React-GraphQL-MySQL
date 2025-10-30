@@ -117,52 +117,66 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {sortedMembers.length > 0 ? (
           sortedMembers.map((member: TeamMember) => (
-            <div key={member.id} className="bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 [data-theme='brand']:border-purple-200 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 hover:shadow-indigo-500/20 group">
+            <div
+              key={member.id}
+              className="rounded-xl shadow-lg border theme-border hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 group"
+              style={{ backgroundColor: 'var(--card-bg)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-hover-bg)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-bg)'; }}
+            >
               <div className="p-6 text-center">
                 {/* Avatar */}
-                <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <span className="text-white font-bold text-xl">
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg"
+                  style={{ backgroundColor: 'var(--avatar-bg)' }}
+                >
+                  <span className="font-bold text-xl" style={{ color: 'var(--avatar-text)' }}>
                     {member.firstName[0]}{member.lastName[0]}
                   </span>
                 </div>
 
                 {/* Name and Role */}
-                <h3 className="font-semibold text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 text-lg mb-2">
+                <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>
                   {member.firstName} {member.lastName}
                 </h3>
 
-                <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${getRoleColor(member.role)} mb-4`}>
+                <span
+                  className="inline-block px-3 py-1 text-xs font-medium rounded-full mb-4"
+                  style={{ backgroundColor: 'var(--badge-primary-bg)', color: 'var(--badge-primary-text)' }}
+                >
                   {formatRoleForDisplay(member.role)}
                 </span>
 
                 {/* Stats */}
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-800">
+                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
                       <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                       {member.projectCount === 1 ? 'Project' : 'Projects'}
                     </div>
-                    <span className="font-semibold text-white bg-indigo-600 dark:bg-indigo-600 [data-theme='brand']:bg-purple-600 px-2 py-1 rounded-full text-xs">{member.projectCount}</span>
+                    <span className="font-semibold px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>{member.projectCount}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-800">
+                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
                       <svg className="w-4 h-4 mr-2 text-green-500 dark:text-green-400 [data-theme='brand']:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
                       {member.taskCount === 1 ? 'Task' : 'Tasks'}
                     </div>
-                    <span className="font-semibold text-white bg-green-600 dark:bg-green-600 [data-theme='brand']:bg-pink-600 px-2 py-1 rounded-full text-xs">{member.taskCount}</span>
+                    <span className="font-semibold px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'var(--badge-success-bg)', color: 'var(--badge-success-text)' }}>{member.taskCount}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-800">
+                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
                       <svg className="w-4 h-4 mr-2 text-purple-500 dark:text-purple-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Joined
                     </div>
-                    <span className="font-medium text-gray-900 dark:text-white [data-theme='brand']:text-purple-800 text-xs">{formatJoinDate(member.joinDate)}</span>
+                    <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>
+                      {formatJoinDate(member.joinDate)}
+                    </span>
                   </div>
                 </div>
 

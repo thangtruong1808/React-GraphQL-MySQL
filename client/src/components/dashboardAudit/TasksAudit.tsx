@@ -70,12 +70,12 @@ const TasksAudit: React.FC = () => {
 
   return (
     <div
-      className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-md dark:hover:shadow-lg transition-colors border border-gray-100 dark:border-gray-800"
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-md dark:hover:shadow-lg transition-colors border theme-border-light overflow-hidden"
       style={{ backgroundColor: 'var(--card-bg)' }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-hover-bg)'; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-bg)'; }}
     >
-      <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+      <div className="p-4 border-b theme-border-light">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded shadow-sm" style={{ backgroundColor: 'var(--icon-tasks-bg)' }}>
             <svg className="w-5 h-5" style={{ color: 'var(--icon-tasks-fg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +86,7 @@ const TasksAudit: React.FC = () => {
         </div>
         <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Latest operation tasks</p>
       </div>
-      <div className="divide-y divide-gray-100 dark:divide-gray-800">
+      <div className="divide-y theme-table-divide">
         {tasks.map((t) => (
           <div
             key={t.id}

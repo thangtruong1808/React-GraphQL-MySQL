@@ -52,7 +52,7 @@ const ProjectsFilters: React.FC<ProjectsFiltersProps> = ({ filter, setFilter, pr
 
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
         <div className="flex flex-wrap gap-4 justify-center">
           {filterOptions.map((filterOption) => (
             <button
@@ -60,8 +60,9 @@ const ProjectsFilters: React.FC<ProjectsFiltersProps> = ({ filter, setFilter, pr
               onClick={() => setFilter(filterOption.key)}
               className={`flex items-center px-6 py-3 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
                 ? 'bg-purple-600 text-white shadow-lg transform scale-105'
-                : 'bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 hover:border-purple-500 transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
+                : 'border theme-border transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
                 }`}
+              style={filter === filterOption.key ? undefined : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)' }}
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={filterOption.icon} />

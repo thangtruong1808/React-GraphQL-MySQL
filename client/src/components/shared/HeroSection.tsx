@@ -55,17 +55,17 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ stats }) => {
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
         <div className="text-center">
           {/* Main title with gradient text */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
             Discover{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
               TaskFlow
             </span>
           </h1>
           {/* Description text */}
-          <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
+          <p className="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed mb-8" style={{ color: 'var(--text-secondary)' }}>
             Explore our comprehensive project management platform with real-time insights and team collaboration
           </p>
 

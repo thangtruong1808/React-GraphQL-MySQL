@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_DASHBOARD_ACTIVITIES_QUERY, type GetDashboardActivitiesQueryResponse, type GetDashboardActivitiesQueryVariables } from '../../services/graphql/activityQueries';
 import { InlineError } from '../ui';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
 
 /**
  * ActivityLogsAudit
@@ -16,13 +18,23 @@ const ActivityLogsAudit: React.FC = () => {
     sortOrder: 'DESC'
   }), []);
 
+  const { isInitializing, user } = useAuth();
+  const { hasDashboardAccess } = useRolePermissions();
+  const shouldSkip = isInitializing || !hasDashboardAccess || !user;
+
   const { data, loading, error } = useQuery<GetDashboardActivitiesQueryResponse, GetDashboardActivitiesQueryVariables>(
     GET_DASHBOARD_ACTIVITIES_QUERY,
-    { variables, fetchPolicy: 'cache-and-network', errorPolicy: 'all' }
+    {
+      variables,
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all',
+      notifyOnNetworkStatusChange: true,
+      skip: shouldSkip,
+    }
   );
 
   // Render loading skeleton rows
-  if (loading && !data) {
+  if ((loading && !data) || shouldSkip) {
     return (
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-md dark:hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-100 dark:border-gray-800">
         <div className="p-4 border-b border-gray-100 dark:border-gray-800">
@@ -51,7 +63,7 @@ const ActivityLogsAudit: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && !shouldSkip) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <InlineError message={error.message || 'Failed to load activity logs'} />

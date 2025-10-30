@@ -24,11 +24,11 @@ interface ProjectStatusOverviewProps {
  */
 const ProjectStatusOverview: React.FC<ProjectStatusOverviewProps> = ({ stats }) => {
   return (
-    <div className="bg-white shadow-lg border border-gray-200 rounded-2xl p-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Status Overview</h3>
+    <div className="shadow-lg border theme-border rounded-2xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
+      <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Project Status Overview</h3>
 
       {/* Description */}
-      <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+      <p className="text-sm mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
         Track the distribution of projects across different stages. Monitor your project portfolio to ensure balanced progress and identify areas that need attention.
       </p>
 

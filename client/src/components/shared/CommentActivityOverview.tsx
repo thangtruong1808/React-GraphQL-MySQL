@@ -30,40 +30,43 @@ interface CommentActivityOverviewProps {
  */
 const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 max-w-7xl mx-auto">
-      <h3 className="text-xl font-semibold text-gray-900 mb-2 text-center">Comment Activity Overview</h3>
+    <div
+      className="rounded-2xl shadow-lg border theme-border p-6 max-w-7xl mx-auto"
+      style={{ backgroundColor: 'var(--card-bg)' }}
+    >
+      <h3 className="text-xl font-semibold mb-2 text-center" style={{ color: 'var(--text-primary)' }}>Comment Activity Overview</h3>
 
       {/* Description */}
-      <p className="text-sm text-gray-600 mb-6 text-center leading-relaxed">
+      <p className="text-sm mb-6 text-center leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
         Monitor comment engagement across your project tasks. Track discussion activity to understand team collaboration patterns and identify where more communication might be needed.
       </p>
 
       <div className="space-y-6">
         {/* Total Comments Display */}
-        <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-          <span className="text-gray-700 font-medium text-lg rounded-xl">Total Comments</span>
-          <span className="text-3xl font-bold text-green-600">{stats.totalComments}</span>
+        <div className="flex justify-between items-center p-4 rounded-xl" style={{ backgroundColor: 'var(--badge-success-bg)' }}>
+          <span className="font-medium text-lg rounded-xl" style={{ color: 'var(--text-primary)' }}>Total Comments</span>
+          <span className="text-3xl font-bold" style={{ color: 'var(--badge-success-text)' }}>{stats.totalComments}</span>
         </div>
 
         {/* Comments by Task Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 bg-gray-100 rounded-xl border border-gray-300">
-            <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnCompletedTasks}</div>
-            <div className="text-sm text-gray-600">Comments on Completed Tasks</div>
+          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+            <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{stats.commentsOnCompletedTasks}</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Comments on Completed Tasks</div>
           </div>
-          <div className="text-center p-4 bg-gray-100 rounded-xl border border-gray-300">
-            <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnInProgressTasks}</div>
-            <div className="text-sm text-gray-600">Comments on In Progress Tasks</div>
+          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+            <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{stats.commentsOnInProgressTasks}</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Comments on In Progress Tasks</div>
           </div>
-          <div className="text-center p-4 bg-gray-100 rounded-xl border border-gray-300">
-            <div className="text-2xl font-bold text-gray-900 mb-2">{stats.commentsOnTodoTasks}</div>
-            <div className="text-sm text-gray-600">Comments on Todo Tasks</div>
+          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+            <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{stats.commentsOnTodoTasks}</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Comments on Todo Tasks</div>
           </div>
         </div>
 
         {/* Comment Likes Information */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-gray-800 text-center">Comment Likes by Task Status</h4>
+          <h4 className="text-lg font-semibold text-center" style={{ color: 'var(--text-primary)' }}>Comment Likes by Task Status</h4>
 
           {/* Comments on Completed Tasks Likes */}
           <CommentLikesDisplay
