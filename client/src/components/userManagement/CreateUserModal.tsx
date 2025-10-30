@@ -196,21 +196,21 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         />
 
         {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
-          {/* Header with gradient background */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+        <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaUser className="h-5 w-5 text-white" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                    <FaUser className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold leading-6 text-white">
                     {USER_MODAL_CONFIG.create.title}
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-white text-sm mt-1">
                     Add a new team member to your organization
                   </p>
                 </div>
@@ -227,12 +227,11 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
+          <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
               {/* Email field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
-                  <FaEnvelope className="inline h-4 w-4 mr-2 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" />
+                <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Email Address *
                 </label>
                 <div className="relative">
@@ -244,23 +243,36 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     disabled={loading}
-                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.email
-                      ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300'
-                      : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.email ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={{
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--text-primary)',
+                      borderColor: errors.email ? '#ef4444' : 'var(--border-color)',
+                      '--placeholder-color': 'var(--text-muted)'
+                    }}
+                    onFocus={(e) => {
+                      if (!errors.email) {
+                        e.currentTarget.style.borderColor = 'var(--accent-from)';
+                        e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = errors.email ? '#ef4444' : 'var(--border-color)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                     placeholder="user@example.com"
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className={`h-4 w-4 ${errors.email ? 'text-red-400 dark:text-red-500 [data-theme="brand"]:text-red-400' : 'text-gray-400 dark:text-gray-500 [data-theme="brand"]:text-purple-500'}`} />
+                    <FaEnvelope className={`h-4 w-4 ${errors.email ? 'text-red-400' : ''}`} style={!errors.email ? { color: 'var(--text-primary)' } : {}} />
                   </div>
                   {formData.email && !errors.email && (
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                      <FaCheck className="h-4 w-4 text-green-600 dark:text-green-400 [data-theme='brand']:text-green-600" />
+                      <FaCheck className="h-4 w-4 text-green-600" />
                     </div>
                   )}
                 </div>
                 {errors.email && (
-                  <div className="mt-2 flex items-center text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-600">
+                  <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                     <FaExclamationTriangle className="h-4 w-4 mr-1" />
                     {errors.email}
                   </div>
@@ -269,8 +281,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
               {/* Password field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
-                  <FaLock className="inline h-4 w-4 mr-2 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" />
+                <label htmlFor="password" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Password *
                 </label>
                 <div className="relative">
@@ -282,21 +293,41 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     disabled={loading}
-                    className={`block w-full pl-10 pr-12 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.password
-                      ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300'
-                      : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`block w-full pl-10 pr-12 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.password ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={{
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--text-primary)',
+                      borderColor: errors.password ? '#ef4444' : 'var(--border-color)',
+                      '--placeholder-color': 'var(--text-muted)'
+                    }}
+                    onFocus={(e) => {
+                      if (!errors.password) {
+                        e.currentTarget.style.borderColor = 'var(--accent-from)';
+                        e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = errors.password ? '#ef4444' : 'var(--border-color)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                     placeholder="Minimum 8 characters"
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaLock className={`h-4 w-4 ${errors.password ? 'text-red-400 dark:text-red-500 [data-theme="brand"]:text-red-400' : 'text-gray-400 dark:text-gray-500 [data-theme="brand"]:text-purple-500'}`} />
+                    <FaLock className={`h-4 w-4 ${errors.password ? 'text-red-400' : ''}`} style={!errors.password ? { color: 'var(--text-primary)' } : {}} />
                   </div>
                   {/* Password toggle button */}
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
                     disabled={loading}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500 hover:text-gray-600 dark:hover:text-gray-400 [data-theme='brand']:hover:text-purple-600 focus:outline-none focus:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'var(--text-secondary)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'var(--text-muted)';
+                    }}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -307,18 +338,18 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   </button>
                   {formData.password && !errors.password && !showPassword && (
                     <div className="absolute inset-y-0 right-8 pr-3 flex items-center">
-                      <FaCheck className="h-4 w-4 text-green-600 dark:text-green-400 [data-theme='brand']:text-green-600" />
+                      <FaCheck className="h-4 w-4 text-green-600" />
                     </div>
                   )}
                 </div>
                 {errors.password && (
-                  <div className="mt-2 flex items-center text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-600">
+                  <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                     <FaExclamationTriangle className="h-4 w-4 mr-1" />
                     {errors.password}
                   </div>
                 )}
                 {formData.password && formData.password.length >= 8 && (
-                  <div className="mt-2 flex items-center text-sm text-green-600 dark:text-green-400 [data-theme='brand']:text-green-600">
+                  <div className="mt-2 flex items-center text-sm text-green-600">
                     <FaCheck className="h-3 w-3 mr-1" />
                     Password meets requirements
                   </div>
@@ -329,8 +360,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* First Name field */}
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
-                    <FaUser className="inline h-4 w-4 mr-2 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" />
+                  <label htmlFor="firstName" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                     First Name *
                   </label>
                   <div className="relative">
@@ -342,23 +372,36 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
                       disabled={loading}
-                      className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.firstName
-                        ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300'
-                        : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.firstName ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
+                      style={{
+                        backgroundColor: 'var(--input-bg)',
+                        color: 'var(--text-primary)',
+                        borderColor: errors.firstName ? '#ef4444' : 'var(--border-color)',
+                        '--placeholder-color': 'var(--text-muted)'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.firstName) {
+                          e.currentTarget.style.borderColor = 'var(--accent-from)';
+                          e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = errors.firstName ? '#ef4444' : 'var(--border-color)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="John"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaUser className={`h-4 w-4 ${errors.firstName ? 'text-red-400 dark:text-red-500 [data-theme="brand"]:text-red-400' : 'text-gray-400 dark:text-gray-500 [data-theme="brand"]:text-purple-500'}`} />
+                      <FaUser className={`h-4 w-4 ${errors.firstName ? 'text-red-400' : ''}`} style={!errors.firstName ? { color: 'var(--text-primary)' } : {}} />
                     </div>
                     {formData.firstName && !errors.firstName && (
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <FaCheck className="h-4 w-4 text-green-600 dark:text-green-400 [data-theme='brand']:text-green-600" />
+                        <FaCheck className="h-4 w-4 text-green-600" />
                       </div>
                     )}
                   </div>
                   {errors.firstName && (
-                    <div className="mt-2 flex items-center text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-600">
+                    <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                       <FaExclamationTriangle className="h-4 w-4 mr-1" />
                       {errors.firstName}
                     </div>
@@ -367,8 +410,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
                 {/* Last Name field */}
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
-                    <FaUser className="inline h-4 w-4 mr-2 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" />
+                  <label htmlFor="lastName" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                     Last Name *
                   </label>
                   <div className="relative">
@@ -380,23 +422,36 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                       onChange={handleInputChange}
                       onBlur={handleInputBlur}
                       disabled={loading}
-                      className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.lastName
-                        ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300'
-                        : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 ${errors.lastName ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
+                      style={{
+                        backgroundColor: 'var(--input-bg)',
+                        color: 'var(--text-primary)',
+                        borderColor: errors.lastName ? '#ef4444' : 'var(--border-color)',
+                        '--placeholder-color': 'var(--text-muted)'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.lastName) {
+                          e.currentTarget.style.borderColor = 'var(--accent-from)';
+                          e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = errors.lastName ? '#ef4444' : 'var(--border-color)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Doe"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaUser className={`h-4 w-4 ${errors.lastName ? 'text-red-400 dark:text-red-500 [data-theme="brand"]:text-red-400' : 'text-gray-400 dark:text-gray-500 [data-theme="brand"]:text-purple-500'}`} />
+                      <FaUser className={`h-4 w-4 ${errors.lastName ? 'text-red-400' : ''}`} style={!errors.lastName ? { color: 'var(--text-primary)' } : {}} />
                     </div>
                     {formData.lastName && !errors.lastName && (
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                        <FaCheck className="h-4 w-4 text-green-600 dark:text-green-400 [data-theme='brand']:text-green-600" />
+                        <FaCheck className="h-4 w-4 text-green-600" />
                       </div>
                     )}
                   </div>
                   {errors.lastName && (
-                    <div className="mt-2 flex items-center text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-600">
+                    <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                       <FaExclamationTriangle className="h-4 w-4 mr-1" />
                       {errors.lastName}
                     </div>
@@ -406,8 +461,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
               {/* Role field */}
               <div>
-                <label htmlFor="role" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
-                  <FaUserTag className="inline h-4 w-4 mr-2 text-purple-600 dark:text-purple-400 [data-theme='brand']:text-purple-700" />
+                <label htmlFor="role" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
                   Role *
                 </label>
                 <div className="relative">
@@ -418,10 +472,22 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     disabled={loading}
-                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors appearance-none text-gray-900 dark:text-white [data-theme='brand']:text-gray-900 ${errors.role
-                      ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 [data-theme="brand"]:bg-red-50 [data-theme="brand"]:border-red-300'
-                      : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400 bg-white dark:bg-gray-700 [data-theme="brand"]:bg-white'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`block w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:outline-none transition-all duration-200 appearance-none ${errors.role ? 'border-red-500' : ''} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    style={{
+                      backgroundColor: 'var(--input-bg)',
+                      color: 'var(--text-primary)',
+                      borderColor: errors.role ? '#ef4444' : 'var(--border-color)'
+                    }}
+                    onFocus={(e) => {
+                      if (!errors.role) {
+                        e.currentTarget.style.borderColor = 'var(--accent-from)';
+                        e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = errors.role ? '#ef4444' : 'var(--border-color)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                   >
                     {USER_ROLE_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -430,16 +496,16 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     ))}
                   </select>
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUserTag className={`h-4 w-4 ${errors.role ? 'text-red-400 dark:text-red-500 [data-theme="brand"]:text-red-400' : 'text-gray-400 dark:text-gray-500 [data-theme="brand"]:text-purple-500'}`} />
+                    <FaUserTag className={`h-4 w-4 ${errors.role ? 'text-red-400' : ''}`} style={!errors.role ? { color: 'var(--text-primary)' } : {}} />
                   </div>
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <svg className="h-4 w-4 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
                 </div>
                 {errors.role && (
-                  <div className="mt-2 flex items-center text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-600">
+                  <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
                     <FaExclamationTriangle className="h-4 w-4 mr-1" />
                     {errors.role}
                   </div>
@@ -448,19 +514,42 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600 [data-theme='brand']:border-purple-200 flex justify-end space-x-4">
+            <div className="mt-8 pt-6 flex justify-end space-x-4" style={{ borderTopColor: 'var(--border-color)', borderTopWidth: '1px' }}>
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="px-6 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-800 bg-white dark:bg-gray-800 [data-theme='brand']:bg-purple-50 border border-gray-300 dark:border-gray-600 [data-theme='brand']:border-purple-300 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 [data-theme='brand']:hover:bg-purple-100 hover:border-gray-400 dark:hover:border-gray-500 [data-theme='brand']:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-600 [data-theme='brand']:focus:ring-purple-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="px-6 py-3 text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  color: 'var(--text-primary)',
+                  borderColor: 'var(--border-color)',
+                  borderWidth: '1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 [data-theme='brand']:from-purple-700 [data-theme='brand']:to-purple-800 border border-transparent rounded-xl shadow-sm hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-800 dark:hover:to-purple-900 [data-theme='brand']:hover:from-purple-800 [data-theme='brand']:hover:to-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-600 [data-theme='brand']:focus:ring-purple-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
+                className="px-6 py-3 text-sm font-semibold text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transform hover:scale-105"
+                style={{ backgroundColor: 'var(--button-primary-bg)' }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--button-primary-bg)';
+                  }
+                }}
               >
                 {loading ? (
                   <>

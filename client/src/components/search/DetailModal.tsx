@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatRoleForDisplay } from '../../utils/roleFormatter';
 
 /**
  * Detail Modal Component
@@ -113,8 +114,8 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, data, type }
             {member.firstName} {member.lastName}
           </h2>
           <p className="text-lg text-gray-600">{member.email}</p>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 capitalize mt-2">
-            {member.role.toLowerCase()}
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
+            {formatRoleForDisplay(member.role)}
           </span>
         </div>
       </div>
@@ -140,7 +141,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, data, type }
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-500 mb-1">Role</label>
-              <p className="text-gray-900 font-medium capitalize">{member.role.toLowerCase()}</p>
+              <p className="text-gray-900 font-medium">{formatRoleForDisplay(member.role)}</p>
             </div>
           </div>
         </div>

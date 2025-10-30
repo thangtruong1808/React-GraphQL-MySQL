@@ -61,7 +61,7 @@ const UserSearchInput: React.FC<UserSearchInputProps> = ({
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <FaSearch
-            className={`h-5 w-5 ${loading ? 'text-blue-500 animate-spin' : 'text-gray-400 dark:text-gray-500 [data-theme="brand"]:text-purple-500'}`}
+            className={`h-5 w-5 ${loading ? 'text-blue-500 animate-spin' : 'text-gray-400 dark:text-gray-300 [data-theme="brand"]:text-purple-500'}`}
             aria-hidden="true"
           />
         </div>
@@ -82,7 +82,7 @@ const UserSearchInput: React.FC<UserSearchInputProps> = ({
               type="button"
               onClick={handleClearSearch}
               disabled={loading}
-              className="text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500 hover:text-gray-600 dark:hover:text-gray-400 [data-theme='brand']:hover:text-purple-600 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400 [data-theme='brand']:focus:text-purple-600
+              className="text-gray-400 dark:text-gray-300 [data-theme='brand']:text-purple-500 hover:text-gray-600 dark:hover:text-gray-200 [data-theme='brand']:hover:text-purple-600 focus:outline-none focus:text-gray-600 dark:focus:text-gray-200 [data-theme='brand']:focus:text-purple-600
                          disabled:cursor-not-allowed transition-colors duration-200"
               aria-label="Clear search"
             >

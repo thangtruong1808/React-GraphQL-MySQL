@@ -117,26 +117,27 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
       <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         {/* Backdrop */}
         <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 backdrop-blur-sm transition-opacity"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           onClick={onClose}
         />
 
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
-          {/* Enhanced Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+        <div className="relative transform overflow-hidden rounded-3xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
+          {/* Header */}
+          <div className="px-8 py-8" style={{ backgroundColor: 'var(--accent-from)' }}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaTag className="h-5 w-5 text-white" />
+                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                    <FaTag className="h-6 w-6 text-white" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold leading-6 text-white">
+                  <h3 className="text-2xl font-bold leading-6 text-white">
                     Create New Tag
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
-                    Add a new tag with detailed information
+                  <p className="text-purple-100 text-base mt-2">
+                    Add a new tag with detailed information and categorization
                   </p>
                 </div>
               </div>
@@ -144,60 +145,87 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-xl p-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:bg-white hover:bg-opacity-10"
               >
-                <FaTimes className="h-5 w-5" />
+                <FaTimes className="h-6 w-6" />
               </button>
             </div>
           </div>
 
-          {/* Enhanced Form */}
-          <form onSubmit={handleSubmit} className="px-6 py-6">
-            <div className="space-y-6">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="px-8 py-8" style={{ backgroundColor: 'var(--card-bg)' }}>
+            <div className="space-y-8">
               {/* Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
+                <label htmlFor="name" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Tag Name *
                 </label>
                 <input
                   type="text"
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter tag name"
+                  placeholder="Enter a descriptive tag name"
                   maxLength={TAGS_FORM_VALIDATION.name.maxLength}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 ${errors.name ? 'border-red-300' : 'border-gray-300'
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none transition-all duration-200 ${errors.name ? 'border-red-500' : ''}`}
+                  style={{
+                    backgroundColor: 'var(--input-bg)',
+                    color: 'var(--text-primary)',
+                    borderColor: errors.name ? '#ef4444' : 'var(--border-color)',
+                    '--placeholder-color': 'var(--text-muted)'
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.name) {
+                      e.currentTarget.style.borderColor = 'var(--accent-from)';
+                      e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                    }
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = errors.name ? '#ef4444' : 'var(--border-color)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   disabled={loading}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  <p className="mt-2 text-sm flex items-center" style={{ color: '#ef4444' }}>
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.name}
+                  </p>
                 )}
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-2 text-xs flex items-center" style={{ color: 'var(--text-muted)' }}>
+                  <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: 'var(--accent-from)' }}></span>
                   {formData.name.length}/{TAGS_FORM_VALIDATION.name.maxLength} characters
                 </p>
               </div>
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 [data-theme='brand']:text-purple-700 mb-2">
                   Description *
                 </label>
                 <textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Enter tag description..."
-                  rows={3}
+                  placeholder="Provide a detailed description of what this tag represents..."
+                  rows={4}
                   maxLength={TAGS_FORM_VALIDATION.description.maxLength}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 ${errors.description ? 'border-red-300' : 'border-gray-300'
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 [data-theme='brand']:focus:ring-purple-500 focus:border-purple-500 dark:focus:border-purple-400 [data-theme='brand']:focus:border-purple-500 transition-all duration-200 resize-none bg-white dark:bg-gray-800 [data-theme='brand']:bg-white text-gray-900 dark:text-gray-100 [data-theme='brand']:text-purple-900 placeholder-gray-500 dark:placeholder-gray-400 [data-theme='brand']:placeholder-purple-500 ${errors.description ? 'border-red-300 dark:border-red-500 [data-theme="brand"]:border-red-400 bg-red-50 dark:bg-red-900/20 [data-theme="brand"]:bg-red-50' : 'border-gray-300 dark:border-gray-600 [data-theme="brand"]:border-purple-300 hover:border-gray-400 dark:hover:border-gray-500 [data-theme="brand"]:hover:border-purple-400'
                     }`}
                   disabled={loading}
                 />
                 {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 [data-theme='brand']:text-red-500 flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.description}
+                  </p>
                 )}
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600 flex items-center">
+                  <span className="w-2 h-2 bg-purple-500 dark:bg-purple-400 [data-theme='brand']:bg-purple-600 rounded-full mr-2"></span>
                   {formData.description.length}/{TAGS_FORM_VALIDATION.description.maxLength} characters
                 </p>
               </div>
@@ -274,34 +302,57 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 )}
               </div>
 
-              {/* Enhanced Form Actions */}
-              <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors shadow-sm"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 border border-transparent rounded-xl hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Creating...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <FaCheck className="h-4 w-4" />
-                      <span>Create Tag</span>
-                    </div>
-                  )}
-                </button>
-              </div>
+            {/* Form Actions */}
+            <div className="flex justify-end space-x-4 pt-8" style={{ borderTopColor: 'var(--border-color)', borderTopWidth: '1px' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-8 py-3 text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                style={{ 
+                  backgroundColor: 'var(--card-bg)', 
+                  color: 'var(--text-primary)', 
+                  borderColor: 'var(--border-color)',
+                  borderWidth: '1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                }}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-8 py-3 text-sm font-semibold text-white rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
+                style={{ backgroundColor: 'var(--button-primary-bg)' }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--button-primary-bg)';
+                  }
+                }}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    <span>Creating Tag...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <FaCheck className="h-5 w-5" />
+                    <span>Create Tag</span>
+                  </div>
+                )}
+              </button>
+            </div>
             </div>
           </form>
         </div>

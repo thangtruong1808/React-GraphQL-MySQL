@@ -158,23 +158,6 @@
   --table-text-primary: #111827; /* light primary table text color */
   --table-text-secondary: #6b7280; /* light secondary table text color */
   --bg-color_gray-300: #d1d5db; /* light gray-300 background color */
-  --table-text-muted: #9ca3af; /* light muted table text color */
-  --table-text-hover: #111827; /* light table text color on hover */
-  --badge-primary-bg: #f3e8ff; /* light primary badge background */
-  --badge-primary-text: #7c3aed; /* light primary badge text */
-  --badge-secondary-bg: #dbeafe; /* light secondary badge background */
-  --badge-secondary-text: #1d4ed8; /* light secondary badge text */
-  --badge-success-bg: #dcfce7; /* light success badge background */
-  --badge-success-text: #166534; /* light success badge text */
-  --badge-warning-bg: #fed7aa; /* light warning badge background */
-  --badge-warning-text: #c2410c; /* light warning badge text */
-  --badge-neutral-bg: #f3f4f6; /* light neutral badge background */
-  --badge-neutral-text: #374151; /* light neutral badge text */
-  --avatar-bg: #f3e8ff; /* light avatar background */
-  --avatar-text: #7c3aed; /* light avatar text */
-  --sort-icon: #9ca3af; /* light sort icon color */
-  --sort-icon-active: #7c3aed; /* light active sort icon color */
-  --role-selection-bg: #ffffff; /* light role selection background */
   --role-selection-border: #e5e7eb; /* light role selection border */
   --role-selection-border-hover: #d1d5db; /* light role selection border hover */
   --role-selection-active-bg: #eff6ff; /* light role selection active background */
@@ -203,6 +186,19 @@
   --success-border: #bbf7d0; /* light success message border */
   --success-text: #166534; /* light success message text */
   /* Search components now use standard theme variables - no special search variables needed */
+}
+
+
+/* Light theme specific modal header background - override any conflicting styles */
+[data-theme="light"] .modal-header-bg {
+  background-color: #d1d5db !important;
+  background-image: none !important;
+}
+
+/* Light theme pagination active page - ensure gray-300 background is not overridden */
+[data-theme="light"] button.bg-gray-300 {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
 }
 
 [data-theme="dark"] {
@@ -1261,7 +1257,7 @@ table th, table td {
   }
   
   /* Better button contrast */
-  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600) {
+  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-gray-300):not([class*="bg-gray-"]) {
     background-color: #374151 !important;
     color: #ffffff !important;
     border-color: #6b7280 !important;
@@ -1857,4 +1853,12 @@ html {
   box-shadow: 0 25px 50px -12px var(--shadow-color);
   border: 1px solid var(--border-color);
   padding: 2rem;
+}
+
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

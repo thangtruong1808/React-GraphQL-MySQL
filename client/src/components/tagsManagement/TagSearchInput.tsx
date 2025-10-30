@@ -38,7 +38,7 @@ const TagSearchInput: React.FC<TagSearchInputProps> = ({
 
   return (
     <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <svg
           className="h-5 w-5 text-gray-400"
           fill="none"
@@ -59,16 +59,40 @@ const TagSearchInput: React.FC<TagSearchInputProps> = ({
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder={placeholder}
         maxLength={TAGS_LIMITS.MAX_NAME_LENGTH}
-        className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-white text-gray-900 placeholder-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="block w-full pl-12 pr-12 py-4 border rounded-xl focus:outline-none transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+        style={{
+          backgroundColor: 'var(--input-bg)',
+          color: 'var(--text-primary)',
+          borderColor: 'var(--border-color)',
+          '--placeholder-color': 'var(--text-muted)'
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = 'var(--accent-from)';
+          e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border-color)';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
         disabled={loading}
       />
-      {searchTerm && (
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+      {searchTerm && !loading && (
+        <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
           <button
             type="button"
             onClick={handleClear}
-            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+            className="p-1 rounded-full transition-colors duration-200"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             disabled={loading}
+            title="Clear search"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -82,8 +106,8 @@ const TagSearchInput: React.FC<TagSearchInputProps> = ({
         </div>
       )}
       {loading && (
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+        <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-transparent" style={{ borderColor: 'var(--accent-from)', borderTopColor: 'transparent' }}></div>
         </div>
       )}
     </div>

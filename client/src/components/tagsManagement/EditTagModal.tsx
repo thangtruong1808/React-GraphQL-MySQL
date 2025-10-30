@@ -111,7 +111,7 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
       });
       onClose();
     } catch (error) {
-      console.error('Error updating tag:', error);
+      // Error handling is done by the parent component
     }
   };
 
@@ -126,22 +126,22 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
           onClick={onClose}
         />
 
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
+        <div className="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl">
           {/* Enhanced Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-6">
+          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-8 py-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <FaEdit className="h-5 w-5 text-white" />
+                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                    <FaEdit className="h-6 w-6 text-white" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold leading-6 text-white">
+                  <h3 className="text-2xl font-bold leading-6 text-white">
                     Edit Tag
                   </h3>
-                  <p className="text-purple-100 text-sm mt-1">
-                    Update tag information and details
+                  <p className="text-blue-100 text-base mt-2">
+                    Update tag information and categorization details
                   </p>
                 </div>
               </div>
@@ -149,9 +149,9 @@ const EditTagModal: React.FC<EditTagModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="text-white hover:text-purple-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-600 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-white hover:text-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded-xl p-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:bg-white hover:bg-opacity-10"
               >
-                <FaTimes className="h-5 w-5" />
+                <FaTimes className="h-6 w-6" />
               </button>
             </div>
           </div>
