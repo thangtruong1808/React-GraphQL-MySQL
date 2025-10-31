@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@apollo/client';
-import { FaTimes, FaPlus, FaExclamationTriangle } from 'react-icons/fa';
-import { ACTIVITY_TYPE_OPTIONS, ACTIVITY_FORM_VALIDATION } from '../../constants/activityManagement';
-import { CreateActivityModalProps, ActivityFormData } from '../../types/activityManagement';
+import { CreateActivityModalProps } from '../../types/activityManagement';
 import {
   GET_USERS_FOR_DROPDOWN_QUERY,
   GET_PROJECTS_FOR_DROPDOWN_QUERY,
@@ -11,6 +9,12 @@ import {
   GetProjectsForDropdownResponse,
   GetTasksForDropdownResponse
 } from '../../services/graphql/activityQueries';
+import CreateActivityModalHeader from './modal/CreateActivityModalHeader';
+import ActionField from './modal/ActionField';
+import TypeField from './modal/TypeField';
+import OptionalFieldsSection from './modal/OptionalFieldsSection';
+import CreateActivityFormActions from './modal/CreateActivityFormActions';
+import { useActivityForm } from './modal/useActivityForm';
 
 /**
  * Create Activity Modal Component
@@ -23,16 +27,7 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
   onCreate,
   loading = false,
 }) => {
-  const [formData, setFormData] = useState<ActivityFormData>({
-    action: '',
-    type: 'USER_CREATED',
-    targetUserId: '',
-    projectId: '',
-    taskId: '',
-    metadata: null,
-  });
-
-  const [errors, setErrors] = useState<Partial<ActivityFormData>>({});
+  const { formData, errors, handleInputChange, validateForm } = useActivityForm(isOpen);
 
   // Fetch dropdown data when modal is open
   const { data: usersData, loading: usersLoading } = useQuery<GetUsersForDropdownResponse>(
@@ -54,50 +49,6 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
   const users = usersData?.users?.users || [];
   const projects = projectsData?.dashboardProjects?.projects || [];
   const tasks = tasksData?.dashboardTasks?.tasks || [];
-
-  // Reset form when modal opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        action: '',
-        type: 'USER_CREATED',
-        targetUserId: '',
-        projectId: '',
-        taskId: '',
-        metadata: null,
-      });
-      setErrors({});
-    }
-  }, [isOpen]);
-
-  // Handle form input changes
-  const handleInputChange = (field: keyof ActivityFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  // Validate form data
-  const validateForm = (): boolean => {
-    const newErrors: Partial<ActivityFormData> = {};
-
-    if (!formData.action.trim()) {
-      newErrors.action = 'Action is required';
-    } else if (formData.action.length < ACTIVITY_FORM_VALIDATION.action.minLength) {
-      newErrors.action = `Action must be at least ${ACTIVITY_FORM_VALIDATION.action.minLength} characters`;
-    } else if (formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength) {
-      newErrors.action = `Action must be no more than ${ACTIVITY_FORM_VALIDATION.action.maxLength} characters`;
-    }
-
-    if (!formData.type) {
-      newErrors.type = 'Type is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,214 +95,47 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
         {/* Modal */}
         <div className="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl" style={{ backgroundColor: 'var(--modal-bg)' }}>
           {/* Header */}
-          <div className="px-6 py-6" style={{ backgroundColor: 'var(--accent-from)' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
-                    <FaPlus className="h-5 w-5" style={{ color: 'var(--badge-primary-text)' }} />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold leading-6" style={{ color: 'var(--button-primary-text)' }}>
-                    Create New Activity
-                  </h3>
-                  <p className="text-sm mt-1" style={{ color: 'var(--button-primary-text)' }}>
-                    Log a new activity entry for tracking project progress
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={loading}
-                className="rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                style={{ color: 'var(--button-primary-text)' }}
-              >
-                <FaTimes className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
+          <CreateActivityModalHeader onClose={handleClose} loading={loading} />
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="px-6 py-6" style={{ backgroundColor: 'var(--card-bg)' }}>
             <div className="space-y-6">
-              {/* Action */}
-              <div>
-                <label htmlFor="action" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                  Action *
-                </label>
-                <div className="relative">
-                  <textarea
-                    id="action"
-                    rows={4}
-                    value={formData.action}
-                    onChange={(e) => handleInputChange('action', e.target.value)}
-                    placeholder="Describe the activity action..."
-                    className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors resize-none`}
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.action ? '#ef4444' : 'var(--border-color)'}` }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.action ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
-                    disabled={loading}
-                  />
-                  <div className="mt-2 flex justify-between text-sm">
-                    <span style={{ color: errors.action ? '#ef4444' : 'var(--text-secondary)' }}>
-                      {errors.action ? (
-                        <div className="flex items-center">
-                          <FaExclamationTriangle className="h-4 w-4 mr-1" />
-                          {errors.action}
-                        </div>
-                      ) : (
-                        'Provide a clear description of the activity'
-                      )}
-                    </span>
-                    <span style={{ color: formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? '#ef4444' : 'var(--text-secondary)' }}>
-                      {formData.action.length}/{ACTIVITY_FORM_VALIDATION.action.maxLength}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              {/* Action Field */}
+              <ActionField
+                value={formData.action}
+                error={errors.action}
+                loading={loading}
+                onChange={(value) => handleInputChange('action', value)}
+              />
 
-              {/* Type */}
-              <div>
-                <label htmlFor="type" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                  Activity Type *
-                </label>
-                <div className="relative">
-                  <select
-                    id="type"
-                    value={formData.type}
-                    onChange={(e) => handleInputChange('type', e.target.value)}
-                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.type ? '#ef4444' : 'var(--border-color)'}` }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.type ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
-                    disabled={loading}
-                  >
-                    {ACTIVITY_TYPE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.type && (
-                    <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
-                      <FaExclamationTriangle className="h-4 w-4 mr-1" />
-                      {errors.type}
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Type Field */}
+              <TypeField
+                value={formData.type}
+                error={errors.type}
+                loading={loading}
+                onChange={(value) => handleInputChange('type', value)}
+              />
 
               {/* Optional Fields */}
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                {/* Target User */}
-                <div>
-                  <label htmlFor="targetUserId" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Target User
-                  </label>
-                  <select
-                    id="targetUserId"
-                    value={formData.targetUserId}
-                    onChange={(e) => handleInputChange('targetUserId', e.target.value)}
-                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-                    disabled={loading || usersLoading}
-                  >
-                    <option value="">Select user...</option>
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.firstName} {user.lastName} ({user.role})
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    {usersLoading ? 'Loading users...' : 'Optional'}
-                  </p>
-                </div>
-
-                {/* Project */}
-                <div>
-                  <label htmlFor="projectId" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Project
-                  </label>
-                  <select
-                    id="projectId"
-                    value={formData.projectId}
-                    onChange={(e) => handleInputChange('projectId', e.target.value)}
-                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-                    disabled={loading || projectsLoading}
-                  >
-                    <option value="">Select project...</option>
-                    {projects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name} ({project.status})
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    {projectsLoading ? 'Loading projects...' : 'Optional'}
-                  </p>
-                </div>
-
-                {/* Task */}
-                <div>
-                  <label htmlFor="taskId" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Task
-                  </label>
-                  <select
-                    id="taskId"
-                    value={formData.taskId}
-                    onChange={(e) => handleInputChange('taskId', e.target.value)}
-                    className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-                    disabled={loading || tasksLoading}
-                  >
-                    <option value="">Select task...</option>
-                    {tasks.map((task) => (
-                      <option key={task.id} value={task.id}>
-                        {task.title} ({task.project.name})
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    {tasksLoading ? 'Loading tasks...' : 'Optional'}
-                  </p>
-                </div>
-              </div>
+              <OptionalFieldsSection
+                targetUserId={formData.targetUserId || ''}
+                projectId={formData.projectId || ''}
+                taskId={formData.taskId || ''}
+                loading={loading}
+                usersLoading={usersLoading}
+                projectsLoading={projectsLoading}
+                tasksLoading={tasksLoading}
+                users={users}
+                projects={projects}
+                tasks={tasks}
+                onTargetUserIdChange={(value) => handleInputChange('targetUserId', value)}
+                onProjectIdChange={(value) => handleInputChange('projectId', value)}
+                onTaskIdChange={(value) => handleInputChange('taskId', value)}
+              />
             </div>
 
             {/* Actions */}
-            <div className="mt-8 pt-6 flex justify-end space-x-4" style={{ borderTop: '1px solid var(--border-color)' }}>
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={loading}
-                className="px-6 py-3 text-sm font-semibold rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 text-sm font-semibold border rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 transform hover:scale-105"
-                style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-primary-border, transparent)' }}
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 mr-2" style={{ borderColor: 'var(--button-primary-text)', borderTopColor: 'transparent' }}></div>
-                    Creating Activity...
-                  </>
-                ) : (
-                  <>
-                    <FaPlus className="h-4 w-4 mr-2" />
-                    Create Activity
-                  </>
-                )}
-              </button>
-            </div>
+            <CreateActivityFormActions loading={loading} onCancel={handleClose} />
           </form>
         </div>
       </div>

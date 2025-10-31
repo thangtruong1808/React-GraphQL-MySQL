@@ -71,7 +71,7 @@ export class TimerCalculator {
       const refreshTokenExpiry = refreshTokenStatus.expiry;
 
       // Debug logging (only in development)
-      if (import.meta.env.DEV) {
+      if (process.env.NODE_ENV !== 'production') {
         const debugInfo = {
           isActivityBasedTokenExpired,
           hasRefreshTokenExpiry: !!refreshTokenExpiry,

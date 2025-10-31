@@ -5,6 +5,7 @@
     "jsxImportSource": "react",
     "skipLibCheck": true,
     "noImplicitAny": false,
-    "module": "Node16"
+    "module": "ESNext",
+    "moduleResolution": "node"
   }
 }

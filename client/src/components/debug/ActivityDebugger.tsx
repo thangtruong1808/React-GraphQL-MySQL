@@ -49,7 +49,7 @@ const ActivityDebugger: React.FC = () => {
   }, []);
 
   // Only show in development mode
-  if (import.meta.env.PROD) {
+  if (process.env.NODE_ENV === 'production') {
     return null;
   }
 
