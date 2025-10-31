@@ -71,18 +71,18 @@ const NavbarNavItem: React.FC<NavbarNavItemProps> = ({
       >
         {/* Navigation icon and text */}
         <div className="flex flex-col items-center space-y-1">
-          <div className="relative flex items-center">
+          <div className="flex items-center justify-center">
             {/* Dynamic notification icon based on unread status */}
             {unreadCount > 0 ? (
               // Bell icon with subtle lean for unread notifications
               <div className="transform rotate-12 transition-transform duration-300 hover:rotate-0">
-                <NavIcon icon={item.icon || 'default'} className="w-4 h-4 text-purple-600" />
+                <NavIcon icon={item.icon || 'default'} className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
             ) : (
               // Normal bell icon for no unread notifications
-              <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
+              <NavIcon icon={item.icon || 'default'} className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
-            {/* Notification badge */}
+            {/* Notification badge - positioned next to icon */}
             <NavbarNotificationBadge unreadCount={unreadCount} />
           </div>
           <span className="text-xs lg:text-sm">{item.label}</span>

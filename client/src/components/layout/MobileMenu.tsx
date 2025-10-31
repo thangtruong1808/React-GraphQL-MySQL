@@ -4,6 +4,7 @@ import { User } from '../../types/graphql';
 import { NavItem } from '../../constants/navigation';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
 import NavIcon from '../ui/NavIcon';
+import NavbarNotificationBadge from './navbar/NavbarNotificationBadge';
 
 /**
  * Mobile Menu Component
@@ -20,6 +21,8 @@ interface MobileMenuProps {
   getUserInitials: () => string;
   navItems?: NavItem[];
   onSearchToggle?: () => void;
+  unreadCount?: number;
+  onNotificationToggle?: () => void;
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({
@@ -32,6 +35,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   getUserInitials,
   navItems = [],
   onSearchToggle,
+  unreadCount = 0,
+  onNotificationToggle,
 }) => {
   const location = useLocation();
 
@@ -149,6 +154,34 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                   icon={item.icon || 'default'}
                   className={`w-5 h-5 ${isActive ? 'text-purple-700' : 'text-gray-500'}`}
                 />
+                <span>{item.label}</span>
+              </button>
+            );
+          }
+
+          // Handle notifications as button with badge
+          if (item.id === 'notifications') {
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onClose();
+                  onNotificationToggle?.();
+                }}
+                className={`flex items-center space-x-3 px-4 py-3 text-base font-medium rounded-lg transition-colors duration-200 w-full text-left relative ${isActive
+                  ? 'text-purple-700 bg-purple-50'
+                  : 'text-gray-700 hover:text-purple-700 hover:bg-purple-50'
+                  }`}
+                title={item.description}
+              >
+                <div className="flex items-center">
+                  <NavIcon
+                    icon={item.icon || 'default'}
+                    className={`w-5 h-5 ${isActive ? 'text-purple-700' : 'text-gray-500'}`}
+                  />
+                  {/* Notification badge - positioned next to icon */}
+                  <NavbarNotificationBadge unreadCount={unreadCount} />
+                </div>
                 <span>{item.label}</span>
               </button>
             );

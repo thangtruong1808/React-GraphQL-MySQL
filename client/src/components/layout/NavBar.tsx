@@ -230,6 +230,8 @@ const NavBar: React.FC = () => {
             getUserInitials={getUserInitials}
             navItems={filteredMobileNavItems}
             onSearchToggle={handleSearchToggle}
+            unreadCount={unreadCount}
+            onNotificationToggle={handleNotificationToggle}
           />
         </div>
       )}
