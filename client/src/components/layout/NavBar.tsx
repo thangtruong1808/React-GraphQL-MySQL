@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { getNavItemsForUser, getMobileNavItems } from '../../constants/navigation';
@@ -9,12 +9,12 @@ import { NAVBAR_UI } from '../../constants/navbar';
 import Logo from './Logo';
 import MobileMenuButton from './MobileMenuButton';
 import MobileMenu from './MobileMenu';
-import UserDropdown from './UserDropdown';
-import NavIcon from '../ui/NavIcon';
 import { SearchDrawer } from '../search';
 import { NotificationDrawer } from '../notifications';
 import { useQuery } from '@apollo/client';
 import { GET_USER_UNREAD_NOTIFICATIONS_QUERY } from '../../services/graphql/notificationQueries';
+import NavbarDesktopNavigation from './navbar/NavbarDesktopNavigation';
+import NavbarUserActions from './navbar/NavbarUserActions';
 
 /**
  * Navigation Bar Component
@@ -24,7 +24,6 @@ import { GET_USER_UNREAD_NOTIFICATIONS_QUERY } from '../../services/graphql/noti
  */
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   // Consume context from AuthContext.tsx to get user, isAuthenticated, performLogout, and logoutLoading
   const { user, isAuthenticated, performLogout, logoutLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,37 +44,17 @@ const NavBar: React.FC = () => {
   const filteredMobileNavItems = hasDashboardAccess ? mobileNavItems : mobileNavItems.filter((i: any) => i.id !== 'dashboard');
 
   // Fetch unread notification count for authenticated users
-  const { data: notificationData, error: notificationError } = useQuery(GET_USER_UNREAD_NOTIFICATIONS_QUERY, {
+  const { data: notificationData } = useQuery(GET_USER_UNREAD_NOTIFICATIONS_QUERY, {
     variables: { limit: 100 },
     skip: !isAuthenticated,
     pollInterval: 30000, // Poll every 30 seconds for real-time updates
     errorPolicy: 'ignore'
   });
 
-
   // Calculate unread count from user's notifications
   const unreadCount = notificationData?.dashboardNotifications?.notifications?.filter(
     (notification: any) => !notification.isRead
   ).length || 0;
-
-  /**
-   * Check if a navigation item is currently active
-   * Compares current pathname with item path, handling special cases
-   */
-  const isNavItemActive = (item: any) => {
-    // Special handling for search item (button, not link)
-    if (item.id === 'search') {
-      return location.pathname === '/search';
-    }
-
-    // For home route, check if we're on root path
-    if (item.path === ROUTE_PATHS.HOME) {
-      return location.pathname === '/' || location.pathname === ROUTE_PATHS.HOME;
-    }
-
-    // For other routes, check exact match
-    return location.pathname === item.path;
-  };
 
   /**
    * Handle click outside to close dropdowns
@@ -209,119 +188,24 @@ const NavBar: React.FC = () => {
           </div>
 
           {/* Center Section: Primary Navigation */}
-          <div className="hidden md:flex items-center justify-center flex-1">
-            <div className="flex items-center space-x-3 lg:space-x-6 xl:space-x-8">
-              {filteredNavItems.map((item) => {
-                const isActive = isNavItemActive(item);
-                return item.id === 'search' ? (
-                  <button
-                    key={item.id}
-                    onClick={handleSearchToggle}
-                    className={`group relative px-8 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                      ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
-                      : ''
-                      } theme-navbar-text`}
-                    title={item.description}
-                  >
-                    {/* Navigation icon and text */}
-                    <div className="flex flex-col items-center space-y-1">
-                      <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                      <span className="text-xs lg:text-sm">{item.label}</span>
-                    </div>
-
-                    {/* Hover tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-                      {item.description}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                    </div>
-                  </button>
-                ) : item.id === 'notifications' ? (
-                  <button
-                    key={item.id}
-                    onClick={handleNotificationToggle}
-                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                      ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
-                      : ''
-                      } theme-navbar-text`}
-                    title={item.description}
-                  >
-                    {/* Navigation icon and text */}
-                    <div className="flex flex-col items-center space-y-1">
-                      <div className="relative flex items-center">
-                        {/* Dynamic notification icon based on unread status */}
-                        {unreadCount > 0 ? (
-                          // Bell icon with subtle lean for unread notifications
-                          <div className="transform rotate-12 transition-transform duration-300 hover:rotate-0">
-                            <NavIcon icon={item.icon || 'default'} className="w-4 h-4 text-purple-600" />
-                          </div>
-                        ) : (
-                          // Normal bell icon for no unread notifications
-                          <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                        )}
-                        {/* Always show notification count */}
-                        <div className="ml-1 flex items-center">
-                          <span
-                            className="text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center font-medium shadow-sm"
-                            style={unreadCount > 0
-                              ? { backgroundColor: 'var(--badge-warning-bg)', color: 'var(--badge-warning-text)' }
-                              : { backgroundColor: 'var(--badge-neutral-bg)', color: 'var(--badge-neutral-text)' }}
-                          >
-                            {unreadCount > 99 ? '99+' : unreadCount}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-xs lg:text-sm">{item.label}</span>
-                    </div>
-
-                    {/* Hover tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-                      {item.description}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                    </div>
-                  </button>
-                ) : (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                      ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
-                      : ''
-                      } theme-navbar-text`}
-                    title={item.description}
-                  >
-                    {/* Navigation icon and text */}
-                    <div className="flex flex-col items-center space-y-1">
-                      <NavIcon icon={item.icon || 'default'} className="w-4 h-4" />
-                      <span className="text-xs lg:text-sm">{item.label}</span>
-                    </div>
-
-                    {/* Hover tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-                      {item.description}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+          <NavbarDesktopNavigation
+            navItems={filteredNavItems}
+            unreadCount={unreadCount}
+            onSearchToggle={handleSearchToggle}
+            onNotificationToggle={handleNotificationToggle}
+          />
 
           {/* Right Section: User Actions */}
-          <div className="flex items-center space-x-4">
-            {/* User dropdown - only show for authenticated users on desktop (hidden on mobile) */}
-            {isAuthenticated && (
-              <div className="relative hidden md:block" ref={userDropdownRef}>
-                <UserDropdown
-                  user={user}
-                  isDropdownOpen={isUserDropdownOpen}
-                  onToggleDropdown={toggleUserDropdown}
-                  onLogout={handleLogout}
-                  logoutLoading={logoutLoading}
-                  getUserInitials={getUserInitials}
-                />
-              </div>
-            )}
-          </div>
+          <NavbarUserActions
+            isAuthenticated={isAuthenticated}
+            user={user}
+            isUserDropdownOpen={isUserDropdownOpen}
+            userDropdownRef={userDropdownRef}
+            onToggleUserDropdown={toggleUserDropdown}
+            onLogout={handleLogout}
+            logoutLoading={logoutLoading}
+            getUserInitials={getUserInitials}
+          />
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center" ref={mobileMenuButtonRef}>

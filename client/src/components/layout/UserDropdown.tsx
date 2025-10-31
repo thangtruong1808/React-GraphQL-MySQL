@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { User } from '../../types/graphql';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
 
@@ -30,10 +29,20 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
       {/* User Avatar and Dropdown Trigger - Horizontal Layout */}
       <button
         onClick={onToggleDropdown}
-        className="flex items-center space-x-2 p-2 rounded-xl hover:bg-emerald-50 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+        className="user-dropdown-toggle-btn flex items-center space-x-2 p-2 rounded-xl hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5"
+        style={{
+          backgroundColor: 'transparent',
+          color: 'var(--navbar-text)'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--tab-inactive-hover-bg)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
         {/* User Avatar */}
-        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md">
+        <div className="w-8 h-8 theme-accent-gradient rounded-full flex items-center justify-center shadow-md">
           <span className="text-sm font-semibold text-white">
             {getUserInitials()}
           </span>
@@ -41,8 +50,10 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
 
         {/* Dropdown Icon */}
         <svg
-          className={`w-4 h-4 theme-navbar-text-secondary transition-all duration-300 ${isDropdownOpen ? 'rotate-180 text-emerald-600' : ''
-            }`}
+          className={`w-4 h-4 transition-all duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+          style={{
+            color: isDropdownOpen ? 'var(--accent-from)' : 'var(--navbar-text-secondary)'
+          }}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -58,7 +69,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
           <div className="px-6 py-4 theme-user-profile-bg rounded-t-2xl">
             <div className="flex items-center space-x-4">
               {/* User Avatar in Dropdown */}
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 theme-accent-gradient rounded-full flex items-center justify-center shadow-lg">
                 <span className="text-lg font-bold text-white">
                   {getUserInitials()}
                 </span>
@@ -84,19 +95,42 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
             <button
               onClick={onLogout}
               disabled={logoutLoading}
-              className="w-full flex items-center px-6 py-3 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 transition-all duration-300 hover:shadow-inner"
+              className="user-dropdown-logout-btn w-full flex items-center px-6 py-3 text-sm disabled:opacity-50 transition-all duration-300"
+              style={{
+                color: 'var(--text-primary)',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (!logoutLoading) {
+                  e.currentTarget.style.backgroundColor = 'var(--card-hover-bg)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               {logoutLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-3"></div>
-                  Logging out...
+                  <div
+                    className="animate-spin rounded-full h-4 w-4 border-b-2 mr-3"
+                    style={{
+                      borderColor: 'var(--text-secondary)'
+                    }}
+                  ></div>
+                  <span style={{ color: 'var(--text-secondary)' }}>Logging out...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-4 h-4 mr-3"
+                    style={{ color: 'var(--text-secondary)' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  Sign Out
+                  <span>Sign Out</span>
                 </>
               )}
             </button>

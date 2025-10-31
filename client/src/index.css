@@ -1321,7 +1321,7 @@ table th, table td {
   }
   
   /* Better button contrast */
-  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-gray-300):not([class*="bg-gray-"]):not(.search-pagination-btn):not(.footer-resource-btn) {
+  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-gray-300):not([class*="bg-gray-"]):not(.search-pagination-btn):not(.footer-resource-btn):not(.user-dropdown-toggle-btn):not(.user-dropdown-logout-btn) {
     background-color: #374151 !important;
     color: #ffffff !important;
     border-color: #6b7280 !important;
@@ -1339,6 +1339,49 @@ table th, table td {
 /* Ensure footer resource buttons respect theme variables for hover across all themes */
 button.footer-resource-btn:hover {
   background-color: var(--footer-resource-hover-bg) !important;
+}
+
+/* User dropdown buttons - respect theme variables for background and hover */
+button.user-dropdown-toggle-btn {
+  background-color: transparent !important;
+  color: var(--navbar-text) !important;
+  border-color: transparent !important;
+}
+
+button.user-dropdown-toggle-btn:hover,
+button.user-dropdown-toggle-btn:focus {
+  background-color: var(--tab-inactive-hover-bg) !important;
+  color: var(--navbar-text) !important;
+}
+
+[data-theme="light"] button.user-dropdown-toggle-btn:hover,
+[data-theme="light"] button.user-dropdown-toggle-btn:focus,
+[data-theme="dark"] button.user-dropdown-toggle-btn:hover,
+[data-theme="dark"] button.user-dropdown-toggle-btn:focus,
+[data-theme="brand"] button.user-dropdown-toggle-btn:hover,
+[data-theme="brand"] button.user-dropdown-toggle-btn:focus {
+  background-color: var(--tab-inactive-hover-bg) !important;
+}
+
+button.user-dropdown-logout-btn {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  border-color: transparent !important;
+}
+
+button.user-dropdown-logout-btn:hover,
+button.user-dropdown-logout-btn:focus {
+  background-color: var(--card-hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] button.user-dropdown-logout-btn:hover,
+[data-theme="light"] button.user-dropdown-logout-btn:focus,
+[data-theme="dark"] button.user-dropdown-logout-btn:hover,
+[data-theme="dark"] button.user-dropdown-logout-btn:focus,
+[data-theme="brand"] button.user-dropdown-logout-btn:hover,
+[data-theme="brand"] button.user-dropdown-logout-btn:focus {
+  background-color: var(--card-hover-bg) !important;
 }
 
 /* Apply themed backgrounds to dashboard surfaces */

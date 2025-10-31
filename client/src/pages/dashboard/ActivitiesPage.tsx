@@ -1,38 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
-import { DashboardLayout } from '../../components/layout';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { ROUTE_PATHS } from '../../constants/routingConstants';
-import { DashboardSkeleton } from '../../components/ui';
-import { useRolePermissions } from '../../hooks/useRolePermissions';
-import AccessDenied from '../../components/auth/AccessDenied';
 import {
-  ActivitySearchInput,
   ActivitiesTable,
+  ActivitySearchInput,
   CreateActivityModal,
-  EditActivityModal,
-  DeleteActivityModal
+  DeleteActivityModal,
+  EditActivityModal
 } from '../../components/activityManagement';
+import AccessDenied from '../../components/auth/AccessDenied';
+import { DashboardLayout } from '../../components/layout';
+import { DashboardSkeleton, InlineError } from '../../components/ui';
 import {
-  GET_DASHBOARD_ACTIVITIES_QUERY,
+  ACTIVITY_ERROR_MESSAGES,
+  ACTIVITY_SUCCESS_MESSAGES,
+  DEFAULT_ACTIVITY_PAGINATION
+} from '../../constants/activityManagement';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import {
   CREATE_ACTIVITY_MUTATION,
-  UPDATE_ACTIVITY_MUTATION,
-  DELETE_ACTIVITY_MUTATION
+  DELETE_ACTIVITY_MUTATION,
+  GET_DASHBOARD_ACTIVITIES_QUERY,
+  UPDATE_ACTIVITY_MUTATION
 } from '../../services/graphql/activityQueries';
 import {
   Activity,
   ActivityInput,
-  ActivityUpdateInput,
-  ActivityManagementState
+  ActivityManagementState,
+  ActivityUpdateInput
 } from '../../types/activityManagement';
-import {
-  DEFAULT_ACTIVITY_PAGINATION,
-  ACTIVITY_SUCCESS_MESSAGES,
-  ACTIVITY_ERROR_MESSAGES
-} from '../../constants/activityManagement';
-import { InlineError } from '../../components/ui';
 
 /**
  * Activities Dashboard Page
