@@ -22,7 +22,10 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
     metadata: null,
   });
 
-  const [errors, setErrors] = useState<Partial<ActivityUpdateInput>>({});
+  // Error type for validation messages (maps field names to error strings)
+  type FormErrors = Partial<Record<keyof ActivityUpdateInput, string>>;
+
+  const [errors, setErrors] = useState<FormErrors>({});
 
   // Populate form when activity changes
   useEffect(() => {
@@ -47,7 +50,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
 
   // Validate form data
   const validateForm = (): boolean => {
-    const newErrors: Partial<ActivityUpdateInput> = {};
+    const newErrors: FormErrors = {};
 
     if (formData.action !== undefined) {
       if (!formData.action.trim()) {

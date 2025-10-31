@@ -16,7 +16,10 @@ export const useActivityForm = (isOpen: boolean) => {
     metadata: null,
   });
 
-  const [errors, setErrors] = useState<Partial<ActivityFormData>>({});
+  // Error type for validation messages (maps field names to error strings)
+  type FormErrors = Partial<Record<keyof ActivityFormData, string>>;
+  
+  const [errors, setErrors] = useState<FormErrors>({});
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -44,7 +47,7 @@ export const useActivityForm = (isOpen: boolean) => {
 
   // Validate form data
   const validateForm = (): boolean => {
-    const newErrors: Partial<ActivityFormData> = {};
+    const newErrors: FormErrors = {};
 
     if (!formData.action.trim()) {
       newErrors.action = 'Action is required';

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { FaTimes, FaEdit, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
-import { EditCommentModalProps, CommentFormData } from '../../types/commentManagement';
+import React, { useEffect, useState } from 'react';
+import { FaEdit, FaTimes } from 'react-icons/fa';
 import { COMMENT_LIMITS } from '../../constants/commentManagement';
+import { CommentFormData, EditCommentModalProps } from '../../types/commentManagement';
 
 /**
  * EditCommentModal Component

@@ -74,12 +74,25 @@ const LoginCredentials: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto p-6">
       {/* Compact Header with Toggle */}
       <div className="text-center mb-4">
         <button
           onClick={toggleExpanded}
-          className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium text-gray-700 hover:text-purple-600 hover:border-purple-300"
+          className="inline-flex items-center px-4 py-2 backdrop-blur-sm border rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            borderColor: 'var(--border-color)',
+            color: 'var(--text-primary)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--accent-from)';
+            e.currentTarget.style.borderColor = 'var(--accent-from)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-primary)';
+            e.currentTarget.style.borderColor = 'var(--border-color)';
+          }}
         >
           <span className="mr-2">Test Credentials</span>
           <svg
@@ -92,13 +105,21 @@ const LoginCredentials: React.FC = () => {
           </svg>
         </button>
         {!isExpanded && (
-          <p className="text-xs text-gray-500 mt-2">Click to view 5 essential test accounts with different roles</p>
+          <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>
+            Click to view 5 essential test accounts with different roles
+          </p>
         )}
       </div>
 
       {/* Collapsible Credentials */}
       {isExpanded && (
-        <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-sm p-4 transition-all duration-300">
+        <div
+          className="backdrop-blur-sm border rounded-xl shadow-sm p-4 transition-all duration-300"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            borderColor: 'var(--border-color)'
+          }}
+        >
           {/* Compact Grid - 5 cards per row for optimal space efficiency */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {TEST_CREDENTIALS.map((credential, index) => {
@@ -107,7 +128,19 @@ const LoginCredentials: React.FC = () => {
               return (
                 <div
                   key={index}
-                  className="bg-gray-50/80 border border-gray-200 rounded-lg p-3 hover:bg-gray-100/80 transition-all duration-200 cursor-pointer group hover:border-purple-300"
+                  className="border rounded-lg p-3 transition-all duration-200 cursor-pointer group"
+                  style={{
+                    backgroundColor: 'var(--card-bg)',
+                    borderColor: 'var(--border-color)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--card-hover-bg)';
+                    e.currentTarget.style.borderColor = 'var(--accent-from)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                    e.currentTarget.style.borderColor = 'var(--border-color)';
+                  }}
                   onClick={() => copyToClipboard(credential.email, credential.password, index)}
                 >
                   {/* Role Badge */}
@@ -117,14 +150,26 @@ const LoginCredentials: React.FC = () => {
                       {credential.role}
                     </span>
                     {copiedIndex === index ? (
-                      <div className="flex items-center text-green-600 text-xs">
+                      <div className="flex items-center text-xs" style={{ color: 'var(--success-text)' }}>
                         <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         Copied!
                       </div>
                     ) : (
-                      <svg className="w-3 h-3 text-gray-400 group-hover:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-3 h-3 transition-colors"
+                        style={{ color: 'var(--text-muted)' }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = 'var(--accent-from)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = 'var(--text-muted)';
+                        }}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     )}
@@ -135,11 +180,24 @@ const LoginCredentials: React.FC = () => {
                     {/* Email Row */}
                     <div className="flex items-start">
                       <div className="flex items-center justify-center w-5 h-5 mt-0.5">
-                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-4 h-4"
+                          style={{ color: 'var(--text-secondary)' }}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                         </svg>
                       </div>
-                      <span className="text-xs text-gray-800 font-mono bg-white px-2 py-1 rounded border flex-1 ml-2 break-all">
+                      <span
+                        className="text-xs font-mono px-2 py-1 rounded border flex-1 ml-2 break-all"
+                        style={{
+                          color: 'var(--text-primary)',
+                          backgroundColor: 'var(--input-bg)',
+                          borderColor: 'var(--border-color)'
+                        }}
+                      >
                         {credential.email}
                       </span>
                     </div>
@@ -147,11 +205,24 @@ const LoginCredentials: React.FC = () => {
                     {/* Password Row */}
                     <div className="flex items-center">
                       <div className="flex items-center justify-center w-5 h-5">
-                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-4 h-4"
+                          style={{ color: 'var(--text-secondary)' }}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </div>
-                      <span className="text-xs text-gray-800 font-mono bg-white px-2 py-1 rounded border flex-1 ml-2">
+                      <span
+                        className="text-xs font-mono px-2 py-1 rounded border flex-1 ml-2"
+                        style={{
+                          color: 'var(--text-primary)',
+                          backgroundColor: 'var(--input-bg)',
+                          borderColor: 'var(--border-color)'
+                        }}
+                      >
                         {credential.password}
                       </span>
                     </div>
@@ -162,8 +233,11 @@ const LoginCredentials: React.FC = () => {
           </div>
 
           {/* Footer Note */}
-          <div className="text-center mt-4 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
+          <div
+            className="text-center mt-4 pt-3 border-t"
+            style={{ borderColor: 'var(--border-color)' }}
+          >
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               Click any credential to copy • 5 essential user roles available • Development purposes only
             </p>
           </div>
