@@ -200,7 +200,7 @@ const NavBar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full theme-navbar-bg border-b border-gray-200 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 [data-theme='brand']:border-purple-200 z-50">
+    <nav className="fixed top-0 left-0 right-0 w-full theme-navbar-bg border-b theme-border z-50">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Brand */}
@@ -217,10 +217,10 @@ const NavBar: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={handleSearchToggle}
-                    className={`group relative px-8 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                      ? 'text-purple-600 bg-purple-50 shadow-md'
-                      : 'text-gray-700 hover:text-purple-600'
-                      }`}
+                    className={`group relative px-8 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                      ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
+                      : ''
+                      } theme-navbar-text`}
                     title={item.description}
                   >
                     {/* Navigation icon and text */}
@@ -239,10 +239,10 @@ const NavBar: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={handleNotificationToggle}
-                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                      ? 'text-purple-600 bg-purple-50 shadow-md'
-                      : 'text-gray-700 hover:text-purple-600'
-                      }`}
+                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                      ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
+                      : ''
+                      } theme-navbar-text`}
                     title={item.description}
                   >
                     {/* Navigation icon and text */}
@@ -260,10 +260,12 @@ const NavBar: React.FC = () => {
                         )}
                         {/* Always show notification count */}
                         <div className="ml-1 flex items-center">
-                          <span className={`text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center font-medium shadow-sm ${unreadCount > 0
-                            ? 'bg-red-500 text-white'
-                            : 'bg-gray-200 text-gray-600'
-                            }`}>
+                          <span
+                            className="text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-[18px] flex items-center justify-center font-medium shadow-sm"
+                            style={unreadCount > 0
+                              ? { backgroundColor: 'var(--badge-warning-bg)', color: 'var(--badge-warning-text)' }
+                              : { backgroundColor: 'var(--badge-neutral-bg)', color: 'var(--badge-neutral-text)' }}
+                          >
                             {unreadCount > 99 ? '99+' : unreadCount}
                           </span>
                         </div>
@@ -281,10 +283,10 @@ const NavBar: React.FC = () => {
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 hover:bg-purple-50 hover:shadow-md transform hover:-translate-y-0.5 ${isActive
-                      ? 'text-purple-600 bg-purple-50 shadow-md'
-                      : 'text-gray-700 hover:text-purple-600'
-                      }`}
+                    className={`group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
+                      ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
+                      : ''
+                      } theme-navbar-text`}
                     title={item.description}
                   >
                     {/* Navigation icon and text */}

@@ -287,15 +287,16 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 theme-notification-drawer-border border-b theme-notification-drawer-header-bg">
           <div className="flex items-center space-x-2">
-            <FaBell className="h-5 w-5 text-purple-600" />
-            <h2 className="text-lg font-semibold theme-notification-drawer-text">Notifications</h2>
+            <FaBell className="h-5 w-5" style={{ color: 'var(--text-primary)' }} />
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 rounded-full transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
             title="Close notifications"
           >
-            <FaTimes className="h-4 w-4 theme-notification-drawer-text-secondary" />
+            <FaTimes className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
           </button>
         </div>
 
@@ -303,7 +304,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         <div className="p-4 theme-notification-drawer-border border-b theme-notification-drawer-header-bg">
           <div className="flex items-center justify-between">
             <div className="flex flex-col space-y-1">
-              <span className="text-sm theme-notification-drawer-text-secondary font-medium">
+              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {unreadNotifications.length} unread, {readNotifications.length} read
               </span>
             </div>
@@ -311,7 +312,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {unreadNotifications.length > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                  className="text-sm font-medium transition-colors"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   Mark all as read
                 </button>
@@ -319,7 +321,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {readNotifications.length > 0 && (
                 <button
                   onClick={handleMarkAllAsUnread}
-                  className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                  className="text-sm font-medium transition-colors"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   Mark all as unread
                 </button>
@@ -327,7 +330,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {unreadNotifications.length > 0 && (
                 <button
                   onClick={handleDeleteAllUnread}
-                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                  className="text-sm font-medium transition-colors"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   Delete all unread
                 </button>
@@ -335,7 +339,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {readNotifications.length > 0 && (
                 <button
                   onClick={handleDeleteAllRead}
-                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+                  className="text-sm font-medium transition-colors"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   Delete all read
                 </button>
@@ -378,8 +383,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {/* Unread notifications section */}
               {unreadNotifications.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-blue-700 mb-3 flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                  <h3 className="text-sm font-semibold mb-3 flex items-center" style={{ color: 'var(--text-primary)' }}>
+                    <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: 'var(--accent-from)' }}></div>
                     Unread ({unreadNotifications.length})
                   </h3>
                   <div className="space-y-3">
@@ -393,7 +398,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                           <div className="flex-shrink-0 pt-1">
                             <button
                               onClick={() => handleMarkAsRead(notification)}
-                              className="w-5 h-5 rounded border-2 border-gray-300 bg-white hover:border-green-400 hover:bg-green-50 flex items-center justify-center transition-all duration-200"
+                              className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
+                              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
                               title="Mark as read"
                             >
                             </button>
@@ -401,11 +407,11 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
                           {/* Notification content */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm theme-notification-drawer-text font-medium mb-2">
+                            <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                               {notification.message}
                             </p>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2 text-xs theme-notification-drawer-text-secondary">
+                              <div className="flex items-center space-x-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
                                 <FaEnvelope className="h-3 w-3" />
                                 <span>
                                   {notification.user.firstName} {notification.user.lastName}
@@ -416,7 +422,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                               {/* Delete button */}
                               <button
                                 onClick={() => handleDeleteNotification(notification)}
-                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                className="p-1 rounded transition-colors"
+                                style={{ color: 'var(--text-secondary)' }}
                                 title="Delete notification"
                               >
                                 <FaTrash className="h-3 w-3" />
@@ -433,8 +440,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {/* Read notifications section */}
               {readNotifications.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold theme-notification-drawer-text-secondary mb-3 flex items-center">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                  <h3 className="text-sm font-semibold mb-3 flex items-center" style={{ color: 'var(--text-secondary)' }}>
+                    <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
                     Read ({readNotifications.length})
                   </h3>
                   <div className="space-y-3">
@@ -448,7 +455,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                           <div className="flex-shrink-0 pt-1">
                             <button
                               onClick={() => handleMarkAsUnread(notification)}
-                              className="w-5 h-5 rounded border-2 border-green-300 bg-green-100 text-green-600 flex items-center justify-center transition-all duration-200 hover:border-orange-400 hover:bg-orange-50"
+                              className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
+                              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--badge-success-bg)', color: 'var(--badge-success-text)' }}
                               title="Mark as unread"
                             >
                               <FaCheck className="h-3 w-3" />
@@ -457,11 +465,11 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
                           {/* Notification content */}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm theme-notification-drawer-text-secondary mb-2">
+                            <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
                               {notification.message}
                             </p>
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2 text-xs theme-notification-drawer-text-secondary">
+                              <div className="flex items-center space-x-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
                                 <FaEnvelope className="h-3 w-3" />
                                 <span>
                                   {notification.user.firstName} {notification.user.lastName}
@@ -472,7 +480,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                               {/* Delete button */}
                               <button
                                 onClick={() => handleDeleteNotification(notification)}
-                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                                className="p-1 rounded transition-colors"
+                                style={{ color: 'var(--text-secondary)' }}
                                 title="Delete notification"
                               >
                                 <FaTrash className="h-3 w-3" />

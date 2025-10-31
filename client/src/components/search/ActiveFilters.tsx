@@ -39,17 +39,23 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
 
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="search-filter max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div className="search-filter max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border" style={{
+        backgroundColor: 'var(--card-bg)',
+        borderColor: 'var(--border-color)',
+        boxShadow: '0 10px 15px -3px var(--shadow-color)'
+      }}>
         {/* Header section with icon and title */}
         <div className="flex items-center mb-6">
-          <div className="mr-3 p-2 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 [data-theme='brand']:from-blue-500 [data-theme='brand']:to-indigo-600 rounded-xl shadow-md">
+          <div className="mr-3 p-2 rounded-xl shadow-md" style={{
+            backgroundColor: 'var(--button-secondary-bg)'
+          }}>
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white [data-theme='brand']:text-purple-900">Active Filters</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 [data-theme='brand']:text-purple-600">Current search and filter criteria</p>
+            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Active Filters</h3>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Current search and filter criteria</p>
           </div>
         </div>
 
@@ -57,15 +63,24 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
         <div className="flex flex-wrap gap-4">
           {/* Member search filter */}
           {searchType.isUserSearch && searchQuery && (
-            <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 [data-theme='brand']:bg-gradient-to-r [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-xl border border-blue-200 dark:border-blue-700 [data-theme='brand']:border-purple-200 p-3">
-              <div className="mr-2 p-1.5 bg-blue-500 dark:bg-blue-600 [data-theme='brand']:bg-blue-500 rounded-lg">
+            <div className="flex items-center rounded-xl border p-3" style={{
+              backgroundColor: 'var(--badge-secondary-bg)',
+              borderColor: 'var(--border-color)'
+            }}>
+              <div className="mr-2 p-1.5 rounded-lg" style={{
+                backgroundColor: 'var(--button-secondary-bg)'
+              }}>
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-blue-300 [data-theme='brand']:text-gray-900">Member:</span>
-                <span className="inline-flex items-center px-3 py-1 text-sm font-medium bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-800/50 dark:to-indigo-800/50 [data-theme='brand']:from-blue-100 [data-theme='brand']:to-indigo-100 text-blue-800 dark:text-blue-200 [data-theme='brand']:text-blue-800 rounded-full border border-blue-200 dark:border-blue-600 [data-theme='brand']:border-blue-200 shadow-sm">
+                <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Member:</span>
+                <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full border shadow-sm" style={{
+                  backgroundColor: 'var(--badge-secondary-bg)',
+                  borderColor: 'var(--border-color)',
+                  color: 'var(--badge-secondary-text)'
+                }}>
                   <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
@@ -77,14 +92,19 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
 
           {/* Role filters */}
           {searchType.isRoleSearch && roleFilter.length > 0 && (
-            <div className="flex items-center bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/30 dark:to-violet-900/30 [data-theme='brand']:bg-gradient-to-r [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-xl border border-purple-200 dark:border-purple-700 [data-theme='brand']:border-purple-200 p-3">
-              <div className="mr-2 p-1.5 bg-purple-500 dark:bg-purple-600 [data-theme='brand']:bg-purple-500 rounded-lg">
+            <div className="flex items-center rounded-xl border p-3" style={{
+              backgroundColor: 'var(--badge-primary-bg)',
+              borderColor: 'var(--border-color)'
+            }}>
+              <div className="mr-2 p-1.5 rounded-lg" style={{
+                backgroundColor: 'var(--button-primary-bg)'
+              }}>
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-purple-300 [data-theme='brand']:text-gray-900">Roles:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Roles:</span>
                 <div className="flex flex-wrap gap-1">
                   {roleFilter.map((role) => {
                     const roleStyle = getRoleColorScheme(role);
@@ -105,14 +125,19 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
 
           {/* Project status filters */}
           {projectStatusFilter.length > 0 && (
-            <div className="flex items-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 [data-theme='brand']:bg-gradient-to-r [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-xl border border-green-200 dark:border-green-700 [data-theme='brand']:border-purple-200 p-3">
-              <div className="mr-2 p-1.5 bg-green-500 dark:bg-green-600 [data-theme='brand']:bg-green-500 rounded-lg">
+            <div className="flex items-center rounded-xl border p-3" style={{
+              backgroundColor: 'var(--badge-success-bg)',
+              borderColor: 'var(--border-color)'
+            }}>
+              <div className="mr-2 p-1.5 rounded-lg" style={{
+                backgroundColor: 'var(--button-success-bg)'
+              }}>
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-green-300 [data-theme='brand']:text-gray-900">Projects:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Projects:</span>
                 <div className="flex flex-wrap gap-1">
                   {projectStatusFilter.map((status) => (
                     <span
@@ -138,14 +163,19 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
 
           {/* Task status filters */}
           {taskStatusFilter.length > 0 && (
-            <div className="flex items-center bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30 [data-theme='brand']:bg-gradient-to-r [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-xl border border-orange-200 dark:border-orange-700 [data-theme='brand']:border-purple-200 p-3">
-              <div className="mr-2 p-1.5 bg-orange-500 dark:bg-orange-600 [data-theme='brand']:bg-orange-500 rounded-lg">
+            <div className="flex items-center rounded-xl border p-3" style={{
+              backgroundColor: 'var(--badge-warning-bg)',
+              borderColor: 'var(--border-color)'
+            }}>
+              <div className="mr-2 p-1.5 rounded-lg" style={{
+                backgroundColor: '#f97316'
+              }}>
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900 dark:text-orange-300 [data-theme='brand']:text-gray-900">Tasks:</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Tasks:</span>
                 <div className="flex flex-wrap gap-1">
                   {taskStatusFilter.map((status) => (
                     <span

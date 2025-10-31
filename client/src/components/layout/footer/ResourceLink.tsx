@@ -67,34 +67,41 @@ const ResourceLink: React.FC<ResourceLinkProps> = ({
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`
-        group relative w-full p-4 rounded-lg border border-gray-200 
-        bg-white hover:bg-purple-50 hover:border-purple-200 
-        transition-all duration-300 text-left
-        ${isHovered ? 'shadow-md transform -translate-y-1' : 'shadow-sm'}
-      `}
+      className={`group relative w-full p-4 rounded-lg border transition-all duration-300 text-left ${isHovered ? 'shadow-md transform -translate-y-1' : 'shadow-sm'}`}
+      style={{
+        borderColor: 'var(--border-color)',
+        backgroundColor: 'var(--card-bg)'
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+        e.currentTarget.style.borderColor = 'var(--button-primary-bg)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--card-bg)';
+        e.currentTarget.style.borderColor = 'var(--border-color)';
+      }}
       aria-label={`Learn more about ${title}`}
     >
       {/* Icon and Title */}
       <div className="flex items-center space-x-3 mb-2">
-        <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center theme-accent-gradient">
           <div className="text-white text-sm">
             {icon}
           </div>
         </div>
-        <h3 className="text-sm font-semibold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
+        <h3 className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-primary)'}>
           {title}
         </h3>
       </div>
 
       {/* Description */}
-      <p className="text-xs text-gray-600 group-hover:text-gray-700 transition-colors duration-300 leading-relaxed">
+      <p className="text-xs transition-colors duration-300 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
         {description}
       </p>
 
       {/* Hover Arrow */}
       <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--button-primary-bg)' }}>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </div>

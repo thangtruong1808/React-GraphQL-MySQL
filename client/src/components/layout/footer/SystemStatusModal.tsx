@@ -46,20 +46,29 @@ const SystemStatusModal: React.FC<SystemStatusModalProps> = ({ isOpen, onClose }
       onKeyDown={handleKeyPress}
       tabIndex={-1}
     >
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" style={{
+        backgroundColor: 'var(--modal-bg)'
+      }}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b" style={{
+          borderColor: 'var(--border-color)'
+        }}>
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{
+              background: 'linear-gradient(135deg, var(--button-success-bg), #15803d)'
+            }}>
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900">System Status</h2>
+            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>System Status</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors duration-300"
+            className="transition-colors duration-300"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
             aria-label="Close system status"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,108 +83,108 @@ const SystemStatusModal: React.FC<SystemStatusModalProps> = ({ isOpen, onClose }
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <h3 className="text-lg font-semibold text-gray-900">All Systems Operational</h3>
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>All Systems Operational</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               All TaskFlow services are running normally. Last updated: {new Date().toLocaleString()}
             </p>
           </div>
 
           {/* Service Status */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Service Status</h3>
+            <h3 className="text-lg font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Service Status</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--badge-success-bg)' }}>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Web Application</h4>
-                    <p className="text-sm text-gray-600">Main application interface</p>
+                    <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>Web Application</h4>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Main application interface</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-green-600">Operational</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--button-success-bg)' }}>Operational</span>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--badge-success-bg)' }}>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Monitoring</h4>
-                    <p className="text-sm text-gray-600">System monitoring and alerts</p>
+                    <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>Monitoring</h4>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>System monitoring and alerts</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-green-600">Operational</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--button-success-bg)' }}>Operational</span>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--badge-success-bg)' }}>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div>
-                    <h4 className="font-medium text-gray-900">API Services</h4>
-                    <p className="text-sm text-gray-600">GraphQL API endpoints</p>
+                    <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>API Services</h4>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>GraphQL API endpoints</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-green-600">Operational</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--button-success-bg)' }}>Operational</span>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--badge-success-bg)' }}>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div>
-                    <h4 className="font-medium text-gray-900">Database</h4>
-                    <p className="text-sm text-gray-600">MySQL database services</p>
+                    <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>Database</h4>
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>MySQL database services</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-green-600">Operational</span>
+                <span className="text-sm font-medium" style={{ color: 'var(--button-success-bg)' }}>Operational</span>
               </div>
             </div>
           </div>
 
           {/* Performance Metrics */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance Metrics</h3>
+            <h3 className="text-lg font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Performance Metrics</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-gray-50 rounded-lg text-center">
-                <div className="text-2xl font-bold text-green-600">99.9%</div>
-                <div className="text-sm text-gray-600">Uptime (30 days)</div>
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: 'var(--card-hover-bg)' }}>
+                <div className="text-2xl font-bold" style={{ color: 'var(--button-success-bg)' }}>99.9%</div>
+                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Uptime (30 days)</div>
               </div>
-              <div className="p-4 bg-gray-50 rounded-lg text-center">
-                <div className="text-2xl font-bold text-blue-600">45ms</div>
-                <div className="text-sm text-gray-600">Average Response Time</div>
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: 'var(--card-hover-bg)' }}>
+                <div className="text-2xl font-bold" style={{ color: 'var(--button-secondary-bg)' }}>45ms</div>
+                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Average Response Time</div>
               </div>
-              <div className="p-4 bg-gray-50 rounded-lg text-center">
-                <div className="text-2xl font-bold text-purple-600">0</div>
-                <div className="text-sm text-gray-600">Active Incidents</div>
+              <div className="p-4 rounded-lg text-center" style={{ backgroundColor: 'var(--card-hover-bg)' }}>
+                <div className="text-2xl font-bold" style={{ color: 'var(--button-primary-bg)' }}>0</div>
+                <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Active Incidents</div>
               </div>
             </div>
           </div>
 
           {/* Status History */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Status Updates</h3>
+            <h3 className="text-lg font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recent Status Updates</h3>
             <div className="space-y-3">
-              <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--card-hover-bg)' }}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-900">System Maintenance Completed</span>
-                  <span className="text-xs text-gray-500">2 hours ago</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>System Maintenance Completed</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>2 hours ago</span>
                 </div>
-                <p className="text-xs text-gray-600">Scheduled maintenance completed successfully. All services restored.</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Scheduled maintenance completed successfully. All services restored.</p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--card-hover-bg)' }}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-900">Performance Optimization</span>
-                  <span className="text-xs text-gray-500">1 day ago</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Performance Optimization</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>1 day ago</span>
                 </div>
-                <p className="text-xs text-gray-600">Database performance improvements deployed. Response times improved by 15%.</p>
+                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Database performance improvements deployed. Response times improved by 15%.</p>
               </div>
             </div>
           </div>
 
           {/* Subscribe to Updates */}
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">Stay Updated</h4>
-            <p className="text-sm text-gray-600 mb-3">Get notified about system status changes and maintenance windows.</p>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300">
+          <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--badge-secondary-bg)' }}>
+            <h4 className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Stay Updated</h4>
+            <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>Get notified about system status changes and maintenance windows.</p>
+            <button className="text-white px-4 py-2 rounded-lg transition-colors duration-300" style={{ backgroundColor: 'var(--button-secondary-bg)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--button-secondary-hover-bg)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--button-secondary-bg)'}>
               Subscribe to Status Updates
             </button>
           </div>

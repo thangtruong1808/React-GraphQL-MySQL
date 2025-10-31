@@ -115,6 +115,7 @@
   --user-profile-text-secondary: #4b5563; /* user profile secondary text */
   --user-profile-role-bg: #d1fae5; /* user profile role badge background */
   --user-profile-role-text: #065f46; /* user profile role badge text */
+  --footer-resource-hover-bg: #f3f4f6; /* footer resource link hover background */
 }
 
 [data-theme="light"] {
@@ -215,6 +216,7 @@
   --success-bg: #f0fdf4; /* light success message background */
   --success-border: #bbf7d0; /* light success message border */
   --success-text: #166534; /* light success message text */
+  --footer-resource-hover-bg: #f3f4f6; /* light footer resource link hover background */
   /* Search components now use standard theme variables - no special search variables needed */
 }
 
@@ -345,6 +347,7 @@
   --success-bg: #064e3b; /* dark success message background */
   --success-border: #065f46; /* dark success message border */
   --success-text: #10b981; /* dark success message text */
+  --footer-resource-hover-bg: #4b5563; /* dark footer resource link hover background */
   /* Search components now use standard theme variables - no special search variables needed */
 }
 
@@ -462,6 +465,7 @@
   --success-bg: #f0fdf4; /* brand success message background */
   --success-border: #bbf7d0; /* brand success message border */
   --success-text: #166534; /* brand success message text */
+  --footer-resource-hover-bg: #e9d5ff; /* brand footer resource link hover background - purple-200 */
   /* Search components now use standard theme variables - no special search variables needed */
 }
 
@@ -1317,12 +1321,24 @@ table th, table td {
   }
   
   /* Better button contrast */
-  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-gray-300):not([class*="bg-gray-"]) {
+  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-gray-300):not([class*="bg-gray-"]):not(.search-pagination-btn):not(.footer-resource-btn) {
     background-color: #374151 !important;
     color: #ffffff !important;
     border-color: #6b7280 !important;
   }
   
+  /* Ensure search pagination buttons respect theme variables */
+  button.search-pagination-btn {
+    background-color: var(--button-primary-bg) !important;
+    color: var(--button-primary-text) !important;
+    border-color: var(--button-primary-bg) !important;
+  }
+  
+}
+
+/* Ensure footer resource buttons respect theme variables for hover across all themes */
+button.footer-resource-btn:hover {
+  background-color: var(--footer-resource-hover-bg) !important;
 }
 
 /* Apply themed backgrounds to dashboard surfaces */

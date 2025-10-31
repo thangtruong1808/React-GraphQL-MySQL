@@ -109,7 +109,10 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className={`theme-footer-bg [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} border-t ${FOOTER_STYLES.COLORS.BORDER} [data-theme='brand']:border-purple-200`}>
+    <footer className="theme-footer-bg border-t" style={{
+      borderColor: 'var(--border-color)',
+      color: 'var(--text-primary)'
+    }}>
       {/* Main Footer Content */}
       <div className={`${FOOTER_STYLES.LAYOUT.CONTAINER} py-12`}>
         <div className={FOOTER_STYLES.LAYOUT.GRID}>
@@ -119,13 +122,16 @@ const Footer: React.FC = () => {
             <div className="flex items-center space-x-3 mb-4">
               <Logo collapsed={false} />
             </div>
-            <p className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} text-sm leading-relaxed mb-4`}>
+            <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-secondary)' }}>
               {FOOTER_CONTENT.COMPANY.DESCRIPTION}
             </p>
             <div className="flex space-x-4">
               <button
                 onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.GITHUB)}
-                className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION}`}
+                className="transition-colors duration-300"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                 aria-label="GitHub"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -134,7 +140,10 @@ const Footer: React.FC = () => {
               </button>
               <button
                 onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.LINKEDIN)}
-                className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION}`}
+                className="transition-colors duration-300"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                 aria-label="LinkedIn"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -143,7 +152,10 @@ const Footer: React.FC = () => {
               </button>
               <button
                 onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.FACEBOOK)}
-                className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION}`}
+                className="transition-colors duration-300"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                 aria-label="Facebook"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -155,12 +167,24 @@ const Footer: React.FC = () => {
 
           {/* Quick Links Section */}
           <div>
-            <h4 className={`text-lg font-semibold ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} mb-4`}>Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Links</h4>
             <ul className="space-y-3">
               <li>
                 <Link
                   to={ROUTE_PATHS.HOME}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Home
                 </Link>
@@ -168,7 +192,19 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to={ROUTE_PATHS.PROJECTS}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Projects
                 </Link>
@@ -176,7 +212,19 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to={ROUTE_PATHS.TEAM}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Team
                 </Link>
@@ -184,7 +232,19 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to={ROUTE_PATHS.ABOUT}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   About
                 </Link>
@@ -192,7 +252,19 @@ const Footer: React.FC = () => {
               <li>
                 <Link
                   to={ROUTE_PATHS.SEARCH}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Search
                 </Link>
@@ -202,12 +274,24 @@ const Footer: React.FC = () => {
 
           {/* Resources Section */}
           <div>
-            <h4 className={`text-lg font-semibold ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} mb-4`}>Resources</h4>
+            <h4 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Resources</h4>
             <ul className="space-y-3">
               <li>
                 <button
                   onClick={handleDocumentationClick}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
+                  className="footer-resource-btn text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Documentation
                 </button>
@@ -215,7 +299,19 @@ const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={handleHelpCenterClick}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
+                  className="footer-resource-btn text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Help Center
                 </button>
@@ -223,7 +319,19 @@ const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={handleApiReferenceClick}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
+                  className="footer-resource-btn text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   API Reference
                 </button>
@@ -231,7 +339,19 @@ const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={handleSystemStatusClick}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm text-left`}
+                  className="footer-resource-btn text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   System Status
                 </button>
@@ -241,27 +361,39 @@ const Footer: React.FC = () => {
 
           {/* User Context Section */}
           <div>
-            <h4 className={`text-lg font-semibold ${FOOTER_STYLES.COLORS.TEXT_PRIMARY} mb-4 text-center`}>Account</h4>
+            <h4 className="text-lg font-semibold mb-4 text-center" style={{ color: 'var(--text-primary)' }}>Account</h4>
             {isAuthenticated && user ? (
               <div className="space-y-3 text-center">
                 <div className="flex flex-col items-center space-y-2">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center theme-accent-gradient">
                     <span className="text-white text-sm font-medium">
                       {getUserInitials()}
                     </span>
                   </div>
                   <div className="text-center">
-                    <p className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} text-sm font-medium`}>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                       {user.firstName} {user.lastName}
                     </p>
-                    <p className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} text-xs`}>
+                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                       {getUserRoleDisplay()}
                     </p>
                   </div>
                 </div>
                 <Link
                   to="/dashboard"
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm block text-center`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   {FOOTER_CONTENT.USER_CONTEXT.DASHBOARD_LINK}
                 </Link>
@@ -270,11 +402,23 @@ const Footer: React.FC = () => {
               <div className="space-y-3 text-center">
                 <Link
                   to={ROUTE_PATHS.LOGIN}
-                  className={`${FOOTER_STYLES.COLORS.TEXT_SECONDARY} ${FOOTER_STYLES.COLORS.ACCENT_HOVER} ${FOOTER_STYLES.INTERACTIVE.TRANSITION} text-sm block`}
+                  className="text-sm text-left transition-colors duration-300"
+                  style={{ 
+                    color: 'var(--text-secondary)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   {FOOTER_CONTENT.USER_CONTEXT.SIGN_IN_LINK}
                 </Link>
-                <p className={`${FOOTER_STYLES.COLORS.TEXT_MUTED} text-xs`}>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {FOOTER_CONTENT.USER_CONTEXT.GUEST_MESSAGE}
                 </p>
               </div>
@@ -284,16 +428,16 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Footer Bar */}
-      <div className={`border-t ${FOOTER_STYLES.COLORS.BORDER} [data-theme='brand']:border-purple-200 theme-footer-bg [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50`}>
+      <div className="border-t theme-footer-bg" style={{ borderColor: 'var(--border-color)' }}>
         <div className={`${FOOTER_STYLES.LAYOUT.CONTAINER} py-6`}>
           <div className="flex justify-center items-center">
             <div className="flex items-center space-x-4">
-              <span className={`${FOOTER_STYLES.COLORS.TEXT_DISABLED} text-xs`}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 {FOOTER_CONTENT.SYSTEM_STATUS.TECHNOLOGIES}
               </span>
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className={`${FOOTER_STYLES.COLORS.TEXT_DISABLED} text-xs`}>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {FOOTER_CONTENT.SYSTEM_STATUS.OPERATIONAL}
                 </span>
               </div>
