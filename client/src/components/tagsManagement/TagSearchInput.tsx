@@ -64,7 +64,6 @@ const TagSearchInput: React.FC<TagSearchInputProps> = ({
           backgroundColor: 'var(--input-bg)',
           color: 'var(--text-primary)',
           borderColor: 'var(--border-color)',
-          '--placeholder-color': 'var(--text-muted)'
         }}
         onFocus={(e) => {
           e.currentTarget.style.borderColor = 'var(--accent-from)';

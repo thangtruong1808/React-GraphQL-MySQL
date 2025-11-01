@@ -762,11 +762,11 @@ const ProjectDetailPage: React.FC = () => {
         </div>
 
         {/* Team Members Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Team Members</h2>
+        <div className="rounded-lg shadow-lg p-6 mt-6" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: '1px', borderStyle: 'solid' }}>
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Team Members</h2>
           {project.members.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>
+              <svg className="w-12 h-12 mx-auto mb-4" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               No team members found for this project.
@@ -777,44 +777,66 @@ const ProjectDetailPage: React.FC = () => {
                 const isOwner = member.memberRole === 'OWNER';
                 const isAssignee = member.memberRole === 'ASSIGNEE';
 
-                // Determine styling based on member role
-                let avatarColor, borderColor, bgColor, badgeColor, badgeText;
+                // Determine styling based on member role using theme variables
+                let avatarBgColor, borderColor, cardBgColor, badgeBgColor, badgeTextColor, badgeText;
                 if (isOwner) {
-                  avatarColor = 'bg-purple-600';
-                  borderColor = 'border-purple-200';
-                  bgColor = 'bg-purple-50';
-                  badgeColor = 'bg-purple-100 text-purple-800';
+                  avatarBgColor = 'var(--accent-from)';
+                  borderColor = 'var(--border-color)';
+                  cardBgColor = 'var(--table-row-bg)';
+                  badgeBgColor = 'var(--badge-primary-bg)';
+                  badgeTextColor = 'var(--badge-primary-text)';
                   badgeText = 'Owner';
                 } else if (isAssignee) {
-                  avatarColor = 'bg-blue-600';
-                  borderColor = 'border-blue-200';
-                  bgColor = 'bg-blue-50';
-                  badgeColor = 'bg-blue-100 text-blue-800';
+                  avatarBgColor = 'var(--button-secondary-bg)';
+                  borderColor = 'var(--border-color)';
+                  cardBgColor = 'var(--table-row-bg)';
+                  badgeBgColor = 'var(--badge-secondary-bg)';
+                  badgeTextColor = 'var(--badge-secondary-text)';
                   badgeText = 'Task Assignee';
                 } else {
-                  avatarColor = 'bg-green-600';
-                  borderColor = 'border-gray-200';
-                  bgColor = 'bg-white';
-                  badgeColor = 'bg-green-100 text-green-800';
+                  avatarBgColor = 'var(--button-primary-bg)';
+                  borderColor = 'var(--border-color)';
+                  cardBgColor = 'var(--table-row-bg)';
+                  badgeBgColor = 'var(--badge-neutral-bg)';
+                  badgeTextColor = 'var(--badge-neutral-text)';
                   badgeText = formatMemberRoleForDisplay(member.memberRole);
                 }
 
                 return (
-                  <div key={member.id} className={`flex items-center space-x-3 p-3 border ${borderColor} rounded-lg ${bgColor}`}>
-                    <div className={`w-10 h-10 ${avatarColor} rounded-full flex items-center justify-center`}>
+                  <div
+                    key={member.id}
+                    className="flex items-center space-x-3 p-3 border rounded-lg transition-colors duration-200"
+                    style={{
+                      backgroundColor: cardBgColor,
+                      borderColor: borderColor,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--table-row-hover-bg)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = cardBgColor;
+                    }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: avatarBgColor }}
+                    >
                       <span className="text-white font-semibold text-sm">
                         {member.firstName.charAt(0)}{member.lastName.charAt(0)}
                       </span>
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 text-sm">
+                      <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
                         {member.firstName} {member.lastName}
-                        <span className={`ml-2 text-xs ${badgeColor} px-2 py-1 rounded-full`}>
+                        <span
+                          className="ml-2 text-xs px-2 py-1 rounded-full inline-block"
+                          style={{ backgroundColor: badgeBgColor, color: badgeTextColor }}
+                        >
                           {badgeText}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-600">{member.email}</div>
-                      <div className="text-xs text-green-600 font-medium">
+                      <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{member.email}</div>
+                      <div className="text-xs font-medium mt-1" style={{ color: 'var(--text-secondary)' }}>
                         {formatRoleForDisplay(member.role)}
                       </div>
                     </div>
@@ -826,12 +848,12 @@ const ProjectDetailPage: React.FC = () => {
         </div>
 
         {/* Comments Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
+        <div className="rounded-lg shadow-lg p-6 mt-6" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', borderWidth: '1px', borderStyle: 'solid' }}>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-semibold text-gray-900">Project Comments</h2>
+            <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Project Comments</h2>
             {realTimeComments.length > 0 && (
-              <div className="flex items-center space-x-2 text-sm text-green-600">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="flex items-center space-x-2 text-sm" style={{ color: 'var(--button-primary-bg)' }}>
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--button-primary-bg)' }}></div>
                 <span>Live updates</span>
               </div>
             )}
@@ -840,16 +862,16 @@ const ProjectDetailPage: React.FC = () => {
           {/* Permission Messages - Show only one relevant section based on user state and project status */}
           {project.status === 'COMPLETED' ? (
             // For completed projects - show only project completed message
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--table-row-bg)', borderColor: 'var(--border-color)' }}>
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mt-0.5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-gray-900 mb-1">Project Completed</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <h3 className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Project Completed</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     This project has been completed. Comments are no longer available as the project is finished.
                   </p>
                 </div>
@@ -859,16 +881,16 @@ const ProjectDetailPage: React.FC = () => {
             // For authenticated users on non-completed projects
             canPostComments() ? (
               // Team members and admins - show permission info
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--badge-secondary-bg)', borderColor: 'var(--border-color)' }}>
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
-                    <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mt-0.5" style={{ color: 'var(--badge-secondary-text)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-blue-900 mb-1">Comment and View Permission</h3>
-                    <p className="text-sm text-blue-700 leading-relaxed">
+                    <h3 className="text-sm font-medium mb-1" style={{ color: 'var(--badge-secondary-text)' }}>Comment and View Permission</h3>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--badge-secondary-text)' }}>
                       Only <span className="font-semibold">team members</span> are authorized to view or post comments.
                     </p>
                   </div>
@@ -876,16 +898,16 @@ const ProjectDetailPage: React.FC = () => {
               </div>
             ) : (
               // Non-team members - show access restricted message
-              <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--badge-warning-bg)', borderColor: 'var(--border-color)' }}>
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
-                    <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mt-0.5" style={{ color: 'var(--badge-warning-text)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-medium text-yellow-900 mb-1">Comment Access Restricted</h3>
-                    <p className="text-sm text-yellow-700 leading-relaxed">
+                    <h3 className="text-sm font-medium mb-1" style={{ color: 'var(--badge-warning-text)' }}>Comment Access Restricted</h3>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--badge-warning-text)' }}>
                       Sorry, only <span className="font-semibold">team members</span> can view or post comments.
                     </p>
                   </div>
@@ -894,17 +916,17 @@ const ProjectDetailPage: React.FC = () => {
             )
           ) : (
             // For unauthenticated users on non-completed projects - show login required
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: 'var(--table-row-bg)', borderColor: 'var(--border-color)' }}>
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-gray-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mt-0.5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-gray-900 mb-1">Login Required</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Please <Link to={ROUTE_PATHS.LOGIN} className="text-purple-600 hover:text-purple-700 font-medium">log in</Link> to view and add comments.
+                  <h3 className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Login Required</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    Please <Link to={ROUTE_PATHS.LOGIN} className="font-medium" style={{ color: 'var(--button-primary-bg)' }} onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--button-primary-hover-bg)'; }} onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--button-primary-bg)'; }}>log in</Link> to view and add comments.
                   </p>
                 </div>
               </div>
@@ -915,10 +937,10 @@ const ProjectDetailPage: React.FC = () => {
           {isAuthenticated && canPostComments() && (
             <div className="mb-8">
               <form onSubmit={handleSubmitComment}>
-                <div className="rounded-xl p-6 border border-gray-200">
+                <div className="rounded-xl p-6 border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
                   <div className="flex items-start space-x-4">
                     {/* User Avatar */}
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md" style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}>
                       <span className="text-white font-bold text-sm">
                         {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                       </span>
@@ -931,14 +953,27 @@ const ProjectDetailPage: React.FC = () => {
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           placeholder="Share your thoughts about this project..."
-                          className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-300 resize-none transition-all duration-200 placeholder-gray-400 text-gray-700 bg-white shadow-sm"
+                          className="w-full px-4 py-4 border-2 rounded-xl resize-none transition-all duration-200 shadow-sm"
+                          style={{
+                            backgroundColor: 'var(--input-bg)',
+                            color: 'var(--text-primary)',
+                            borderColor: 'var(--border-color)',
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--accent-from)';
+                            e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)';
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--border-color)';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
                           rows={4}
                           maxLength={500}
                           disabled={isSubmittingComment}
                         />
 
                         {/* Character Counter */}
-                        <div className="absolute bottom-3 right-3 text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">
+                        <div className="absolute bottom-3 right-3 text-xs px-2 py-1 rounded-full shadow-sm" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-muted)' }}>
                           {newComment.length}/500
                         </div>
                       </div>
@@ -948,7 +983,20 @@ const ProjectDetailPage: React.FC = () => {
                         <button
                           type="submit"
                           disabled={isSubmittingComment || !newComment.trim() || !canPostComments()}
-                          className="group relative px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                          className="group relative px-8 py-3 text-white rounded-xl focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                          style={{
+                            background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!e.currentTarget.disabled) {
+                              e.currentTarget.style.opacity = '0.9';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!e.currentTarget.disabled) {
+                              e.currentTarget.style.opacity = '1';
+                            }
+                          }}
                         >
                           <div className="flex items-center space-x-2">
                             {isSubmittingComment ? (
@@ -982,31 +1030,45 @@ const ProjectDetailPage: React.FC = () => {
             <>
               {realTimeComments.length === 0 && project.status !== 'COMPLETED' ? (
                 <div className="text-center py-12">
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-100">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="rounded-2xl p-8 border" style={{ backgroundColor: 'var(--table-row-bg)', borderColor: 'var(--border-color)' }}>
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--badge-primary-bg)' }}>
+                      <svg className="w-8 h-8" style={{ color: 'var(--badge-primary-text)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No comments yet</h3>
-                    <p className="text-gray-600 mb-4">Be the first to share your thoughts about this project!</p>
+                    <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No comments yet</h3>
+                    <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>Be the first to share your thoughts about this project!</p>
                   </div>
                 </div>
               ) : realTimeComments.length > 0 ? (
                 <div className="space-y-6">
                   {realTimeComments.map((comment, index) => (
                     <div key={comment.id} className="group relative">
-                      <div className="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                      <div
+                        className="border-2 rounded-2xl p-6 transition-all duration-300 transform hover:-translate-y-1"
+                        style={{
+                          backgroundColor: 'var(--card-bg)',
+                          borderColor: 'var(--border-color)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--accent-from)';
+                          e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-color)';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }}
+                      >
                         <div className="flex items-start space-x-4">
                           {/* Author Avatar */}
                           <div className="relative">
-                            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg" style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}>
                               <span className="text-white font-bold text-sm">
                                 {comment.author.firstName.charAt(0)}{comment.author.lastName.charAt(0)}
                               </span>
                             </div>
                             {/* Online indicator */}
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 border-2 rounded-full" style={{ backgroundColor: 'var(--button-primary-bg)', borderColor: 'var(--card-bg)' }}></div>
                           </div>
 
                           {/* Comment Content */}
@@ -1014,15 +1076,15 @@ const ProjectDetailPage: React.FC = () => {
                             {/* Author Info */}
                             <div className="flex items-center space-x-3 mb-3">
                               <div className="flex items-center space-x-2">
-                                <span className="font-bold text-gray-900 text-base">
+                                <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>
                                   {comment.author.firstName} {comment.author.lastName}
                                 </span>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border" style={{ backgroundColor: 'var(--badge-primary-bg)', color: 'var(--badge-primary-text)', borderColor: 'var(--border-color)' }}>
                                   {formatRoleForDisplay(comment.author.role)}
                                 </span>
                               </div>
 
-                              <div className="flex items-center space-x-1 text-gray-500">
+                              <div className="flex items-center space-x-1" style={{ color: 'var(--text-secondary)' }}>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -1031,8 +1093,8 @@ const ProjectDetailPage: React.FC = () => {
                             </div>
 
                             {/* Comment Text */}
-                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                              <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap text-left">
+                            <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--table-row-bg)', borderColor: 'var(--border-color)' }}>
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap text-left" style={{ color: 'var(--text-primary)' }}>
                                 {comment.content}
                               </p>
                             </div>
@@ -1043,10 +1105,18 @@ const ProjectDetailPage: React.FC = () => {
                                 <button
                                   onClick={() => handleToggleLike(comment.id)}
                                   disabled={!isAuthenticated || !canLikeComments()}
-                                  className={`flex items-center space-x-1 transition-colors duration-200 ${comment.isLikedByUser
-                                    ? 'text-purple-600 hover:text-purple-700'
-                                    : 'text-gray-500 hover:text-purple-600'
-                                    } ${!isAuthenticated || !canLikeComments() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                                  className={`flex items-center space-x-1 transition-colors duration-200 ${!isAuthenticated || !canLikeComments() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                                  style={{ color: comment.isLikedByUser ? 'var(--accent-from)' : 'var(--text-secondary)' }}
+                                  onMouseEnter={(e) => {
+                                    if (!e.currentTarget.disabled) {
+                                      e.currentTarget.style.color = 'var(--accent-from)';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!e.currentTarget.disabled) {
+                                      e.currentTarget.style.color = comment.isLikedByUser ? 'var(--accent-from)' : 'var(--text-secondary)';
+                                    }
+                                  }}
                                 >
                                   <svg
                                     className={`w-4 h-4 ${comment.isLikedByUser ? 'fill-current' : ''}`}
@@ -1074,8 +1144,18 @@ const ProjectDetailPage: React.FC = () => {
                                 <button
                                   onClick={() => handleReply(comment.id, `${comment.author.firstName} ${comment.author.lastName}`)}
                                   disabled={!isAuthenticated}
-                                  className={`flex items-center space-x-1 text-gray-500 hover:text-purple-600 transition-colors duration-200 ${!isAuthenticated ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-                                    }`}
+                                  className={`flex items-center space-x-1 transition-colors duration-200 ${!isAuthenticated ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                                  style={{ color: 'var(--text-secondary)' }}
+                                  onMouseEnter={(e) => {
+                                    if (!e.currentTarget.disabled) {
+                                      e.currentTarget.style.color = 'var(--accent-from)';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!e.currentTarget.disabled) {
+                                      e.currentTarget.style.color = 'var(--text-secondary)';
+                                    }
+                                  }}
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -1084,7 +1164,16 @@ const ProjectDetailPage: React.FC = () => {
                                 </button>
                               </div>
 
-                              <button className="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                              <button
+                                className="transition-colors duration-200"
+                                style={{ color: 'var(--text-muted)' }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = 'var(--text-secondary)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = 'var(--text-muted)';
+                                }}
+                              >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                                 </svg>
@@ -1095,7 +1184,7 @@ const ProjectDetailPage: React.FC = () => {
                       </div>
 
                       {/* Comment Number Badge */}
-                      <div className="absolute -left-3 -top-3 w-6 h-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                      <div className="absolute -left-3 -top-3 w-6 h-6 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg" style={{ background: 'linear-gradient(to right, var(--accent-from), var(--accent-to))' }}>
                         {index + 1}
                       </div>
                     </div>
