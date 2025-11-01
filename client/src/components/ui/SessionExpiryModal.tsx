@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { AUTH_CONFIG } from '../../constants/auth';
 
 interface SessionExpiryModalProps {

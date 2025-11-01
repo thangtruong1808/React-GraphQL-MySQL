@@ -21,7 +21,7 @@ const DeleteNotificationModal: React.FC<DeleteNotificationModalProps> = ({
       await onDelete(notification.id);
       onClose();
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      // Error is handled by parent component
     }
   };
 

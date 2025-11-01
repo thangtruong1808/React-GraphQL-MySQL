@@ -210,12 +210,26 @@ const NotificationsPage: React.FC = () => {
 
   // Edit/Delete modal open helpers
   const handleEditNotification = useCallback((notification: Notification) => {
+    // Use the notification passed from the row which reflects the current UI state
+    // This ensures we have the most up-to-date information displayed in the table
     setState(prev => ({ ...prev, selectedNotification: notification, editModalOpen: true }));
   }, []);
 
   const handleDeleteNotificationClick = useCallback((notification: Notification) => {
-    setState(prev => ({ ...prev, selectedNotification: notification, deleteModalOpen: true }));
-  }, []);
+    // Find the latest notification from Apollo data or state, preferring Apollo data which is more up-to-date
+    // This ensures we have the most recent information, especially after mutations that update the cache
+    setState(prev => {
+      // First check Apollo data (cache might be updated even if refetch hasn't completed)
+      let latestNotification = data?.dashboardNotifications?.notifications?.find(n => n.id === notification.id);
+      // Fallback to state notifications
+      if (!latestNotification) {
+        latestNotification = prev.notifications.find(n => n.id === notification.id);
+      }
+      // Final fallback to notification passed from row
+      latestNotification = latestNotification || notification;
+      return { ...prev, selectedNotification: latestNotification, deleteModalOpen: true };
+    });
+  }, [data]);
 
   // Clear error
   const clearError = useCallback(() => {

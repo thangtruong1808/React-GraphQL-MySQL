@@ -152,7 +152,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={loading || (deletionCheck && !deletionCheck.canDelete)}
+              disabled={loading || (deletionCheck !== null && !deletionCheck.canDelete)}
               className="w-full inline-flex justify-center rounded-xl shadow-lg hover:shadow-xl px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 transform hover:scale-105"
               style={{ backgroundColor: '#dc2626' }}
               onMouseEnter={(e) => {
