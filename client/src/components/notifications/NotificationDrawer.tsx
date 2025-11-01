@@ -1,39 +1,24 @@
 import React from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { FaTimes, FaBell, FaCheck, FaEnvelope, FaTrash } from 'react-icons/fa';
-import { formatDate } from '../../utils/helpers/dateFormatter';
-import {
-  GET_USER_UNREAD_NOTIFICATIONS_QUERY,
-  MARK_NOTIFICATION_READ_MUTATION,
-  MARK_NOTIFICATION_UNREAD_MUTATION,
-  MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION,
-  MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION,
-  DELETE_NOTIFICATION_MUTATION,
-  DELETE_ALL_READ_NOTIFICATIONS_MUTATION,
-  DELETE_ALL_UNREAD_NOTIFICATIONS_MUTATION,
-  GetUserUnreadNotificationsQueryResponse,
-  MarkNotificationReadMutationVariables,
-  MarkNotificationUnreadMutationVariables,
-  DeleteNotificationMutationVariables
-} from '../../services/graphql/notificationQueries';
-import { Notification } from '../../types/notificationManagement';
+import { useQuery } from '@apollo/client';
+import { GET_USER_UNREAD_NOTIFICATIONS_QUERY, GetUserUnreadNotificationsQueryResponse } from '../../services/graphql/notificationQueries';
+import NotificationDrawerHeader from './NotificationDrawerHeader';
+import NotificationDrawerActions from './NotificationDrawerActions';
+import NotificationDrawerContent from './NotificationDrawerContent';
+import { useNotificationMutations } from './useNotificationMutations';
 
 /**
  * Notification Drawer Component
- * Displays user's unread notifications in a right-side drawer
- * Allows users to mark notifications as read
+ * Displays user's notifications in a right-side drawer
+ * Allows users to manage notifications (mark as read/unread, delete)
  */
 interface NotificationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
-  isOpen,
-  onClose
-}) => {
+const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose }) => {
   // Fetch user's notifications when drawer is opened
-  const { data, loading, error, refetch } = useQuery<GetUserUnreadNotificationsQueryResponse>(
+  const { data, loading, refetch } = useQuery<GetUserUnreadNotificationsQueryResponse>(
     GET_USER_UNREAD_NOTIFICATIONS_QUERY,
     {
       variables: { limit: 100 },
@@ -42,27 +27,16 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   );
 
-
-  // Mutation to mark notification as read
-  const [markAsRead] = useMutation(MARK_NOTIFICATION_READ_MUTATION);
-
-  // Mutation to mark notification as unread
-  const [markAsUnread] = useMutation(MARK_NOTIFICATION_UNREAD_MUTATION);
-
-  // Mutation to mark all notifications as read
-  const [markAllAsRead] = useMutation(MARK_ALL_NOTIFICATIONS_AS_READ_MUTATION);
-
-  // Mutation to mark all notifications as unread
-  const [markAllAsUnread] = useMutation(MARK_ALL_NOTIFICATIONS_AS_UNREAD_MUTATION);
-
-  // Mutation to delete individual notification
-  const [deleteNotification] = useMutation(DELETE_NOTIFICATION_MUTATION);
-
-  // Mutation to delete all read notifications
-  const [deleteAllRead] = useMutation(DELETE_ALL_READ_NOTIFICATIONS_MUTATION);
-
-  // Mutation to delete all unread notifications
-  const [deleteAllUnread] = useMutation(DELETE_ALL_UNREAD_NOTIFICATIONS_MUTATION);
+  // Get all mutation handlers from custom hook
+  const {
+    markAsRead,
+    markAsUnread,
+    markAllAsRead,
+    markAllAsUnread,
+    deleteNotification,
+    deleteAllRead,
+    deleteAllUnread
+  } = useNotificationMutations(refetch);
 
   // Refetch notifications when drawer opens for immediate updates
   React.useEffect(() => {
@@ -71,194 +45,6 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   }, [isOpen, refetch]);
 
-  /**
-   * Handle marking a notification as read
-   * Updates the notification status and refetches the list
-   */
-  const handleMarkAsRead = async (notification: Notification) => {
-    try {
-      await markAsRead({
-        variables: { id: notification.id } as MarkNotificationReadMutationVariables
-      });
-      // Refetch to update the list
-      refetch();
-    } catch (error) {
-      // Error handling without console.log for production
-    }
-  };
-
-  /**
-   * Handle marking a notification as unread
-   * Updates the notification status and refetches the list
-   */
-  const handleMarkAsUnread = async (notification: Notification) => {
-    try {
-      await markAsUnread({
-        variables: { id: notification.id } as MarkNotificationUnreadMutationVariables
-      });
-      // Refetch to update the list
-      refetch();
-    } catch (error) {
-      // Error handling without console.log for production
-    }
-  };
-
-  /**
-   * Handle marking all notifications as read
-   * Uses efficient bulk update mutation
-   */
-  const handleMarkAllAsRead = async () => {
-    const unreadNotifications = data?.dashboardNotifications?.notifications?.filter(notification => !notification.isRead) || [];
-
-    if (unreadNotifications.length === 0) return;
-
-    try {
-      const result = await markAllAsRead();
-
-      // Check if the mutation was successful
-      if (result.data?.markAllNotificationsAsRead?.success) {
-        // Refetch to update the list
-        refetch();
-      }
-    } catch (error) {
-      // Error handling without console.log for production
-      // If bulk update fails, fallback to individual updates
-      try {
-        await Promise.all(
-          unreadNotifications.map(notification =>
-            markAsRead({
-              variables: { id: notification.id } as MarkNotificationReadMutationVariables
-            })
-          )
-        );
-        refetch();
-      } catch (fallbackError) {
-        // Error handling without console.log for production
-      }
-    }
-  };
-
-  /**
-   * Handle marking all notifications as unread
-   * Uses efficient bulk update mutation
-   */
-  const handleMarkAllAsUnread = async () => {
-    const readNotifications = data?.dashboardNotifications?.notifications?.filter(notification => notification.isRead) || [];
-
-    if (readNotifications.length === 0) return;
-
-    try {
-      const result = await markAllAsUnread();
-
-      // Check if the mutation was successful
-      if (result.data?.markAllNotificationsAsUnread?.success) {
-        // Refetch to update the list
-        refetch();
-      }
-    } catch (error) {
-      // Error handling without console.log for production
-      // If bulk update fails, fallback to individual updates
-      try {
-        await Promise.all(
-          readNotifications.map(notification =>
-            markAsUnread({
-              variables: { id: notification.id } as MarkNotificationUnreadMutationVariables
-            })
-          )
-        );
-        refetch();
-      } catch (fallbackError) {
-        // Error handling without console.log for production
-      }
-    }
-  };
-
-  /**
-   * Handle deleting a single notification
-   * Removes the notification and refetches the list
-   */
-  const handleDeleteNotification = async (notification: Notification) => {
-    try {
-      await deleteNotification({
-        variables: { id: notification.id } as DeleteNotificationMutationVariables
-      });
-      // Refetch to update the list
-      refetch();
-    } catch (error) {
-      // Error handling without console.log for production
-    }
-  };
-
-  /**
-   * Handle deleting all read notifications
-   * Uses efficient bulk delete mutation
-   */
-  const handleDeleteAllRead = async () => {
-    const readNotifications = data?.dashboardNotifications?.notifications?.filter(notification => notification.isRead) || [];
-
-    if (readNotifications.length === 0) return;
-
-    try {
-      const result = await deleteAllRead();
-
-      // Check if the mutation was successful
-      if (result.data?.deleteAllReadNotifications?.success) {
-        // Refetch to update the list
-        refetch();
-      }
-    } catch (error) {
-      // Error handling without console.log for production
-      // If bulk delete fails, fallback to individual deletes
-      try {
-        await Promise.all(
-          readNotifications.map(notification =>
-            deleteNotification({
-              variables: { id: notification.id } as DeleteNotificationMutationVariables
-            })
-          )
-        );
-        refetch();
-      } catch (fallbackError) {
-        // Error handling without console.log for production
-      }
-    }
-  };
-
-  /**
-   * Handle deleting all unread notifications
-   * Uses efficient bulk delete mutation
-   */
-  const handleDeleteAllUnread = async () => {
-    const unreadNotifications = data?.dashboardNotifications?.notifications?.filter(notification => !notification.isRead) || [];
-
-    if (unreadNotifications.length === 0) return;
-
-    try {
-      const result = await deleteAllUnread();
-
-      // Check if the mutation was successful
-      if (result.data?.deleteAllUnreadNotifications?.success) {
-        // Refetch to update the list
-        refetch();
-      }
-    } catch (error) {
-      // Error handling without console.log for production
-      // If bulk delete fails, fallback to individual deletes
-      try {
-        await Promise.all(
-          unreadNotifications.map(notification =>
-            deleteNotification({
-              variables: { id: notification.id } as DeleteNotificationMutationVariables
-            })
-          )
-        );
-        refetch();
-      } catch (fallbackError) {
-        // Error handling without console.log for production
-      }
-    }
-  };
-
   // Get all notifications (both read and unread) for better UX
   const allNotifications = data?.dashboardNotifications?.notifications || [];
 
@@ -266,8 +52,25 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   const unreadNotifications = allNotifications.filter(notification => !notification.isRead);
   const readNotifications = allNotifications.filter(notification => notification.isRead);
 
-  // Show unread first, then read notifications
-  const notifications = [...unreadNotifications, ...readNotifications];
+  // Handle mark all as read
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead(unreadNotifications);
+  };
+
+  // Handle mark all as unread
+  const handleMarkAllAsUnread = async () => {
+    await markAllAsUnread(readNotifications);
+  };
+
+  // Handle delete all unread
+  const handleDeleteAllUnread = async () => {
+    await deleteAllUnread(unreadNotifications);
+  };
+
+  // Handle delete all read
+  const handleDeleteAllRead = async () => {
+    await deleteAllRead(readNotifications);
+  };
 
   return (
     <>
@@ -284,219 +87,25 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         className={`fixed right-0 top-0 h-full w-96 theme-notification-drawer-bg shadow-2xl transform transition-transform duration-300 ease-in-out z-50 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 theme-notification-drawer-border border-b theme-notification-drawer-header-bg">
-          <div className="flex items-center space-x-2">
-            <FaBell className="h-5 w-5" style={{ color: 'var(--text-primary)' }} />
-            <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full transition-colors"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Close notifications"
-          >
-            <FaTimes className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
-          </button>
-        </div>
+        <NotificationDrawerHeader onClose={onClose} />
 
-        {/* Actions */}
-        <div className="p-4 theme-notification-drawer-border border-b theme-notification-drawer-header-bg">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col space-y-1">
-              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                {unreadNotifications.length} unread, {readNotifications.length} read
-              </span>
-            </div>
-            <div className="flex space-x-2">
-              {unreadNotifications.length > 0 && (
-                <button
-                  onClick={handleMarkAllAsRead}
-                  className="text-sm font-medium transition-colors"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  Mark all as read
-                </button>
-              )}
-              {readNotifications.length > 0 && (
-                <button
-                  onClick={handleMarkAllAsUnread}
-                  className="text-sm font-medium transition-colors"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  Mark all as unread
-                </button>
-              )}
-              {unreadNotifications.length > 0 && (
-                <button
-                  onClick={handleDeleteAllUnread}
-                  className="text-sm font-medium transition-colors"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  Delete all unread
-                </button>
-              )}
-              {readNotifications.length > 0 && (
-                <button
-                  onClick={handleDeleteAllRead}
-                  className="text-sm font-medium transition-colors"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  Delete all read
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+        <NotificationDrawerActions
+          unreadCount={unreadNotifications.length}
+          readCount={readNotifications.length}
+          onMarkAllAsRead={handleMarkAllAsRead}
+          onMarkAllAsUnread={handleMarkAllAsUnread}
+          onDeleteAllUnread={handleDeleteAllUnread}
+          onDeleteAllRead={handleDeleteAllRead}
+        />
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          {loading ? (
-            // Loading state
-            <div className="p-4">
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="animate-pulse">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-5 h-5 bg-gray-200 rounded"></div>
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : notifications.length === 0 ? (
-            // Empty state
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="text-center">
-                <FaBell className="h-16 w-16 theme-notification-drawer-text-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-medium theme-notification-drawer-text mb-2">No notifications</h3>
-                <p className="theme-notification-drawer-text-secondary">You're all caught up!</p>
-              </div>
-            </div>
-          ) : (
-            // Notifications list
-            <div className="p-4">
-              {/* Unread notifications section */}
-              {unreadNotifications.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold mb-3 flex items-center" style={{ color: 'var(--text-primary)' }}>
-                    <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: 'var(--accent-from)' }}></div>
-                    Unread ({unreadNotifications.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {unreadNotifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className="p-4 rounded-lg theme-notification-unread-border border theme-notification-unread-bg shadow-sm transition-all duration-200 hover:shadow-md"
-                      >
-                        <div className="flex items-start space-x-3">
-                          {/* Checkbox for mark as read */}
-                          <div className="flex-shrink-0 pt-1">
-                            <button
-                              onClick={() => handleMarkAsRead(notification)}
-                              className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
-                              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}
-                              title="Mark as read"
-                            >
-                            </button>
-                          </div>
-
-                          {/* Notification content */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                              {notification.message}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                <FaEnvelope className="h-3 w-3" />
-                                <span>
-                                  {notification.user.firstName} {notification.user.lastName}
-                                </span>
-                                <span>•</span>
-                                <span>{formatDate(notification.createdAt)}</span>
-                              </div>
-                              {/* Delete button */}
-                              <button
-                                onClick={() => handleDeleteNotification(notification)}
-                                className="p-1 rounded transition-colors"
-                                style={{ color: 'var(--text-secondary)' }}
-                                title="Delete notification"
-                              >
-                                <FaTrash className="h-3 w-3" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Read notifications section */}
-              {readNotifications.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                    <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
-                    Read ({readNotifications.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {readNotifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className="p-4 rounded-lg theme-notification-read-border border theme-notification-read-bg transition-all duration-200 theme-notification-read-hover-bg"
-                      >
-                        <div className="flex items-start space-x-3">
-                          {/* Checkbox for mark as unread */}
-                          <div className="flex-shrink-0 pt-1">
-                            <button
-                              onClick={() => handleMarkAsUnread(notification)}
-                              className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
-                              style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--badge-success-bg)', color: 'var(--badge-success-text)' }}
-                              title="Mark as unread"
-                            >
-                              <FaCheck className="h-3 w-3" />
-                            </button>
-                          </div>
-
-                          {/* Notification content */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
-                              {notification.message}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                                <FaEnvelope className="h-3 w-3" />
-                                <span>
-                                  {notification.user.firstName} {notification.user.lastName}
-                                </span>
-                                <span>•</span>
-                                <span>{formatDate(notification.createdAt)}</span>
-                              </div>
-                              {/* Delete button */}
-                              <button
-                                onClick={() => handleDeleteNotification(notification)}
-                                className="p-1 rounded transition-colors"
-                                style={{ color: 'var(--text-secondary)' }}
-                                title="Delete notification"
-                              >
-                                <FaTrash className="h-3 w-3" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <NotificationDrawerContent
+          loading={loading}
+          unreadNotifications={unreadNotifications}
+          readNotifications={readNotifications}
+          onMarkAsRead={markAsRead}
+          onMarkAsUnread={markAsUnread}
+          onDelete={deleteNotification}
+        />
       </div>
     </>
   );
