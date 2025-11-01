@@ -47,40 +47,69 @@ export const InlineError: React.FC<InlineErrorProps> = ({
     return null;
   }
 
-  // Get error styling based on type
-  const getErrorStyles = () => {
+  // Get error styling based on type using theme variables
+  const getErrorStyles = (): React.CSSProperties => {
     switch (type) {
       case 'error':
-        return 'bg-red-50 border-red-200 text-red-800';
+        return {
+          backgroundColor: 'var(--error-display-bg)',
+          borderColor: 'var(--error-display-border)',
+          color: 'var(--error-display-text)',
+        };
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+        return {
+          backgroundColor: 'var(--warning-display-bg)',
+          borderColor: 'var(--warning-display-border)',
+          color: 'var(--warning-display-text)',
+        };
       case 'info':
-        return 'bg-blue-50 border-blue-200 text-blue-800';
+        return {
+          backgroundColor: 'var(--info-display-bg)',
+          borderColor: 'var(--info-display-border)',
+          color: 'var(--info-display-text)',
+        };
       default:
-        return 'bg-red-50 border-red-200 text-red-800';
+        return {
+          backgroundColor: 'var(--error-display-bg)',
+          borderColor: 'var(--error-display-border)',
+          color: 'var(--error-display-text)',
+        };
     }
   };
 
-  // Get icon based on type
+  // Get icon based on type using theme variables
   const getIcon = () => {
     if (!showIcon) return null;
+
+    const getIconColor = (): string => {
+      switch (type) {
+        case 'error':
+          return 'var(--error-display-icon)';
+        case 'warning':
+          return 'var(--warning-display-icon)';
+        case 'info':
+          return 'var(--info-display-icon)';
+        default:
+          return 'var(--error-display-icon)';
+      }
+    };
 
     switch (type) {
       case 'error':
         return (
-          <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-4 h-4" style={{ color: getIconColor() }} fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
         );
       case 'warning':
         return (
-          <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-4 h-4" style={{ color: getIconColor() }} fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
           </svg>
         );
       case 'info':
         return (
-          <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-4 h-4" style={{ color: getIconColor() }} fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
           </svg>
         );
@@ -119,7 +148,7 @@ export const InlineError: React.FC<InlineErrorProps> = ({
 
   return (
     <div className={`${getPositionClasses()} ${className}`}>
-      <div className={`border rounded-md ${getErrorStyles()} ${getSizeClasses()}`}>
+      <div className={`border rounded-md ${getSizeClasses()}`} style={getErrorStyles()}>
         <div className="flex items-start">
           {getIcon() && (
             <div className="flex-shrink-0 mr-2 mt-0.5">
@@ -133,7 +162,10 @@ export const InlineError: React.FC<InlineErrorProps> = ({
             <div className="flex-shrink-0 ml-2">
               <button
                 onClick={onDismiss}
-                className="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                className="inline-flex transition-colors duration-200"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
                 type="button"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

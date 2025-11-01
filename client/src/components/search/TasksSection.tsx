@@ -72,12 +72,8 @@ const TasksSection: React.FC<TasksSectionProps> = ({
   itemsPerPage,
   onTaskClick
 }) => {
-  // Get status color classes with theme awareness
+  // Get status color using theme variables
   const getStatusColor = (status: string) => {
-    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-    const isDarkTheme = document.documentElement.classList.contains('dark');
-    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-
     // Map task statuses to project statuses for consistency
     const statusMap: { [key: string]: string } = {
       'IN_PROGRESS': 'IN_PROGRESS',
@@ -86,7 +82,7 @@ const TasksSection: React.FC<TasksSectionProps> = ({
     };
 
     const mappedStatus = statusMap[status] || 'PLANNING';
-    return getProjectStatusColor(mappedStatus, theme);
+    return getProjectStatusColor(mappedStatus);
   };
 
   // Get priority color classes with theme awareness
@@ -160,7 +156,7 @@ const TasksSection: React.FC<TasksSectionProps> = ({
                 <svg className="h-4 w-4 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(task.status)} group-hover:shadow-md transition-shadow duration-200`}>
+                <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full group-hover:shadow-md transition-shadow duration-200" style={getStatusColor(task.status)}>
                   {task.status.replace('_', ' ')}
                 </span>
               </div>

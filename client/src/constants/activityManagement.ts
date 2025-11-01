@@ -32,30 +32,30 @@ export const ACTIVITY_TYPE_OPTIONS = [
   { value: 'TASK_DELETED', label: 'Task Deleted' },
 ];
 
-// Activity type colors for display
+// Activity type colors for display (using activity-specific theme variables for better dark theme readability)
 export const ACTIVITY_TYPE_COLORS = {
-  USER_CREATED: 'text-green-600',
-  USER_UPDATED: 'text-blue-600',
-  USER_DELETED: 'text-red-600',
-  PROJECT_CREATED: 'text-indigo-600',
-  PROJECT_UPDATED: 'text-purple-600',
-  PROJECT_DELETED: 'text-red-600',
-  TASK_CREATED: 'text-green-600',
-  TASK_UPDATED: 'text-blue-600',
-  TASK_DELETED: 'text-red-600',
+  USER_CREATED: { color: 'var(--activity-created-text)' },
+  USER_UPDATED: { color: 'var(--activity-updated-text)' },
+  USER_DELETED: { color: 'var(--activity-deleted-text)' },
+  PROJECT_CREATED: { color: 'var(--activity-primary-text)' },
+  PROJECT_UPDATED: { color: 'var(--activity-updated-text)' },
+  PROJECT_DELETED: { color: 'var(--activity-deleted-text)' },
+  TASK_CREATED: { color: 'var(--activity-created-text)' },
+  TASK_UPDATED: { color: 'var(--activity-updated-text)' },
+  TASK_DELETED: { color: 'var(--activity-deleted-text)' },
 };
 
-// Activity type badges
+// Activity type badges (using activity-specific theme variables for better dark theme readability)
 export const ACTIVITY_TYPE_BADGES = {
-  USER_CREATED: 'bg-green-100 text-green-800',
-  USER_UPDATED: 'bg-blue-100 text-blue-800',
-  USER_DELETED: 'bg-red-100 text-red-800',
-  PROJECT_CREATED: 'bg-indigo-100 text-indigo-800',
-  PROJECT_UPDATED: 'bg-purple-100 text-purple-800',
-  PROJECT_DELETED: 'bg-red-100 text-red-800',
-  TASK_CREATED: 'bg-green-100 text-green-800',
-  TASK_UPDATED: 'bg-blue-100 text-blue-800',
-  TASK_DELETED: 'bg-red-100 text-red-800',
+  USER_CREATED: { backgroundColor: 'var(--activity-created-bg)', color: 'var(--activity-created-text)' },
+  USER_UPDATED: { backgroundColor: 'var(--activity-updated-bg)', color: 'var(--activity-updated-text)' },
+  USER_DELETED: { backgroundColor: 'var(--activity-deleted-bg)', color: 'var(--activity-deleted-text)' },
+  PROJECT_CREATED: { backgroundColor: 'var(--activity-primary-bg)', color: 'var(--activity-primary-text)' },
+  PROJECT_UPDATED: { backgroundColor: 'var(--activity-updated-bg)', color: 'var(--activity-updated-text)' },
+  PROJECT_DELETED: { backgroundColor: 'var(--activity-deleted-bg)', color: 'var(--activity-deleted-text)' },
+  TASK_CREATED: { backgroundColor: 'var(--activity-created-bg)', color: 'var(--activity-created-text)' },
+  TASK_UPDATED: { backgroundColor: 'var(--activity-updated-bg)', color: 'var(--activity-updated-text)' },
+  TASK_DELETED: { backgroundColor: 'var(--activity-deleted-bg)', color: 'var(--activity-deleted-text)' },
 };
 
 // Activity table column configuration

@@ -299,14 +299,9 @@ const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  // Get status color for projects with theme-aware styling
+  // Get status color for projects using theme variables
   const getStatusColor = (status: string) => {
-    // Check if we're in brand theme by looking for data-theme attribute
-    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-    const isDarkTheme = document.documentElement.classList.contains('dark');
-
-    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-    return getProjectStatusColor(status, theme);
+    return getProjectStatusColor(status);
   };
 
   // Get task status color with better UX - DONE should be clearly successful

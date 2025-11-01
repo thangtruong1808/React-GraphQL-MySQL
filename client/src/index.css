@@ -72,6 +72,42 @@
   --badge-warning-text: #c2410c; /* warning badge text */
   --badge-neutral-bg: #f3f4f6; /* neutral badge background */
   --badge-neutral-text: #374151; /* neutral badge text */
+  /* Project status colors - light theme */
+  --project-status-planning-bg: #dbeafe; /* blue-100 - planning status background */
+  --project-status-planning-text: #1e40af; /* blue-800 - planning status text */
+  --project-status-in-progress-bg: #fed7aa; /* orange-100 - in progress status background */
+  --project-status-in-progress-text: #9a3412; /* orange-800 - in progress status text */
+  --project-status-completed-bg: #dcfce7; /* green-100 - completed status background */
+  --project-status-completed-text: #166534; /* green-800 - completed status text */
+  /* Activity badges - light theme */
+  --activity-created-bg: #dcfce7; /* success badge background */
+  --activity-created-text: #166534; /* success badge text */
+  --activity-updated-bg: #dbeafe; /* secondary badge background */
+  --activity-updated-text: #1d4ed8; /* secondary badge text */
+  --activity-deleted-bg: #fee2e2; /* danger badge background (red-100) */
+  --activity-deleted-text: #991b1b; /* danger badge text (red-800) */
+  --activity-primary-bg: #f3e8ff; /* primary badge background */
+  --activity-primary-text: #7c3aed; /* primary badge text */
+  /* Error/Danger colors for form validation - light theme */
+  --error-color: #dc2626; /* red-600 - high contrast error color */
+  --error-bg: #fee2e2; /* red-100 - error background */
+  --error-text: #991b1b; /* red-800 - error text */
+  --error-border: #f87171; /* red-400 - error border */
+  /* Error Display colors - light theme */
+  --error-display-bg: #fee2e2; /* red-50 - error display background */
+  --error-display-border: #fecaca; /* red-200 - error display border */
+  --error-display-text: #991b1b; /* red-800 - error display text */
+  --error-display-icon: #f87171; /* red-400 - error display icon */
+  /* Warning Display colors - light theme */
+  --warning-display-bg: #fef3c7; /* yellow-50 - warning display background */
+  --warning-display-border: #fde68a; /* yellow-200 - warning display border */
+  --warning-display-text: #92400e; /* yellow-800 - warning display text */
+  --warning-display-icon: #fbbf24; /* yellow-400 - warning display icon */
+  /* Info Display colors - light theme */
+  --info-display-bg: #dbeafe; /* blue-50 - info display background */
+  --info-display-border: #bfdbfe; /* blue-200 - info display border */
+  --info-display-text: #1e40af; /* blue-800 - info display text */
+  --info-display-icon: #60a5fa; /* blue-400 - info display icon */
   /* Audit badges (higher-contrast across themes) */
   --badge-audit-bg: #f3f4f6; /* default fallback */
   --badge-audit-text: #111827; /* default fallback */
@@ -158,6 +194,9 @@
   --notification-read-bg: #f9fafb; /* light read notification background */
   --notification-read-border: #e5e7eb; /* light read notification border */
   --notification-read-hover-bg: #f3f4f6; /* light read notification hover background */
+  /* Notification status text colors - light theme */
+  --notification-status-unread-text: #dc2626; /* red-600 - unread notification status text */
+  --notification-status-read-text: #16a34a; /* green-600 - read notification status text */
   --button-primary-bg: #7c3aed; /* light primary button background */
   --button-primary-hover-bg: #6d28d9; /* light primary button hover background */
   --button-primary-text: #ffffff; /* light primary button text color */
@@ -216,7 +255,26 @@
   --success-bg: #f0fdf4; /* light success message background */
   --success-border: #bbf7d0; /* light success message border */
   --success-text: #166534; /* light success message text */
+  /* System Status Indicator - light theme */
+  --status-indicator-online: #10b981; /* green-500 - online/operational status indicator */
   --footer-resource-hover-bg: #f3f4f6; /* light footer resource link hover background */
+  /* Technology gradient colors - light theme */
+  --tech-react-from: #3b82f6; /* blue-500 */
+  --tech-react-to: #06b6d4; /* cyan-500 */
+  --tech-graphql-from: #ec4899; /* pink-500 */
+  --tech-graphql-to: #a855f7; /* purple-500 */
+  --tech-mysql-from: #2563eb; /* blue-600 */
+  --tech-mysql-to: #1e40af; /* blue-800 */
+  --tech-nodejs-from: #16a34a; /* green-600 */
+  --tech-nodejs-to: #166534; /* green-800 */
+  --tech-typescript-from: #3b82f6; /* blue-500 */
+  --tech-typescript-to: #1d4ed8; /* blue-700 */
+  --tech-tailwind-from: #06b6d4; /* cyan-500 */
+  --tech-tailwind-to: #3b82f6; /* blue-500 */
+  --tech-apollo-from: #a855f7; /* purple-500 */
+  --tech-apollo-to: #6366f1; /* indigo-500 */
+  --tech-jwt-from: #f97316; /* orange-500 */
+  --tech-jwt-to: #ef4444; /* red-500 */
   /* Search components now use standard theme variables - no special search variables needed */
 }
 
@@ -273,6 +331,9 @@
   --notification-read-bg: #374151; /* dark read notification background */
   --notification-read-border: #4b5563; /* dark read notification border */
   --notification-read-hover-bg: #4b5563; /* dark read notification hover background */
+  /* Notification status text colors - dark theme (high contrast) */
+  --notification-status-unread-text: #f87171; /* red-400 - bright unread notification status text for dark theme */
+  --notification-status-read-text: #10b981; /* green-500 - bright read notification status text for dark theme */
   --button-primary-bg: #7c3aed; /* dark primary button background */
   --button-primary-hover-bg: #8b5cf6; /* dark primary button hover background */
   --button-primary-text: #ffffff; /* dark primary button text color */
@@ -301,6 +362,13 @@
   --badge-warning-text: #fed7aa; /* dark warning badge text */
   --badge-neutral-bg: #374151; /* dark neutral badge background */
   --badge-neutral-text: #d1d5db; /* dark neutral badge text */
+  /* Project status colors - dark theme (high contrast) */
+  --project-status-planning-bg: #1e3a8a; /* blue-800 - planning status background for dark theme */
+  --project-status-planning-text: #93c5fd; /* blue-300 - high contrast planning status text */
+  --project-status-in-progress-bg: #9a3412; /* orange-800 - in progress status background for dark theme */
+  --project-status-in-progress-text: #fdba74; /* orange-300 - high contrast in progress status text */
+  --project-status-completed-bg: #14532d; /* green-800 - completed status background for dark theme */
+  --project-status-completed-text: #86efac; /* green-300 - high contrast completed status text */
   --avatar-bg: #4c1d95; /* dark avatar background */
   --avatar-text: #c4b5fd; /* dark avatar text */
   --sort-icon: #6b7280; /* dark sort icon color */
@@ -330,6 +398,35 @@
   /* Audit badges */
   --badge-audit-bg: #374151; /* gray-700 */
   --badge-audit-text: #f9fafb; /* gray-50 */
+  /* Activity badges - high contrast for dark theme readability */
+  --activity-created-bg: #065f46; /* emerald-800 - brighter than badge-success for readability */
+  --activity-created-text: #d1fae5; /* emerald-100 - high contrast text */
+  --activity-updated-bg: #1e40af; /* blue-800 - brighter than badge-secondary for readability */
+  --activity-updated-text: #dbeafe; /* blue-100 - high contrast text */
+  --activity-deleted-bg: #991b1b; /* red-800 - brighter than badge-warning for readability */
+  --activity-deleted-text: #fee2e2; /* red-100 - high contrast text */
+  --activity-primary-bg: #6b21a8; /* purple-800 - brighter than badge-primary for readability */
+  --activity-primary-text: #e9d5ff; /* purple-200 - high contrast text */
+  /* Error/Danger colors for form validation - dark theme (high contrast) */
+  --error-color: #f87171; /* red-400 - bright error color for dark theme */
+  --error-bg: #991b1b; /* red-800 - error background for dark theme */
+  --error-text: #fee2e2; /* red-100 - high contrast error text for dark theme */
+  --error-border: #ef4444; /* red-500 - error border for dark theme */
+  /* Error Display colors - dark theme (high contrast) */
+  --error-display-bg: #991b1b; /* red-800 - error display background for dark theme */
+  --error-display-border: #b91c1c; /* red-700 - error display border for dark theme */
+  --error-display-text: #fee2e2; /* red-100 - high contrast error display text */
+  --error-display-icon: #f87171; /* red-400 - bright error display icon */
+  /* Warning Display colors - dark theme (high contrast) */
+  --warning-display-bg: #78350f; /* yellow-800 - warning display background for dark theme */
+  --warning-display-border: #92400e; /* yellow-700 - warning display border for dark theme */
+  --warning-display-text: #fef3c7; /* yellow-100 - high contrast warning display text */
+  --warning-display-icon: #fbbf24; /* yellow-400 - bright warning display icon */
+  /* Info Display colors - dark theme (high contrast) */
+  --info-display-bg: #1e40af; /* blue-800 - info display background for dark theme */
+  --info-display-border: #1e3a8a; /* blue-700 - info display border for dark theme */
+  --info-display-text: #dbeafe; /* blue-100 - high contrast info display text */
+  --info-display-icon: #60a5fa; /* blue-400 - bright info display icon */
   --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
   --navbar-gradient: none;       /* dark navbar gradient */
   --footer-gradient: none;       /* dark footer gradient */
@@ -347,7 +444,26 @@
   --success-bg: #064e3b; /* dark success message background */
   --success-border: #065f46; /* dark success message border */
   --success-text: #10b981; /* dark success message text */
+  /* System Status Indicator - dark theme */
+  --status-indicator-online: #10b981; /* green-500 - bright online/operational status indicator for dark theme */
   --footer-resource-hover-bg: #4b5563; /* dark footer resource link hover background */
+  /* Technology gradient colors - dark theme (brighter for better visibility) */
+  --tech-react-from: #60a5fa; /* blue-400 */
+  --tech-react-to: #22d3ee; /* cyan-400 */
+  --tech-graphql-from: #f472b6; /* pink-400 */
+  --tech-graphql-to: #c084fc; /* purple-400 */
+  --tech-mysql-from: #3b82f6; /* blue-500 */
+  --tech-mysql-to: #2563eb; /* blue-600 */
+  --tech-nodejs-from: #34d399; /* green-400 */
+  --tech-nodejs-to: #10b981; /* green-500 */
+  --tech-typescript-from: #60a5fa; /* blue-400 */
+  --tech-typescript-to: #3b82f6; /* blue-500 */
+  --tech-tailwind-from: #22d3ee; /* cyan-400 */
+  --tech-tailwind-to: #60a5fa; /* blue-400 */
+  --tech-apollo-from: #c084fc; /* purple-400 */
+  --tech-apollo-to: #818cf8; /* indigo-400 */
+  --tech-jwt-from: #fb923c; /* orange-400 */
+  --tech-jwt-to: #f87171; /* red-400 */
   /* Search components now use standard theme variables - no special search variables needed */
 }
 
@@ -391,6 +507,9 @@
   --notification-read-bg: #f3e8ff; /* brand read notification background */
   --notification-read-border: #c084fc; /* brand read notification border */
   --notification-read-hover-bg: #e9d5ff; /* brand read notification hover background */
+  /* Notification status text colors - brand theme */
+  --notification-status-unread-text: #dc2626; /* red-600 - unread notification status text */
+  --notification-status-read-text: #16a34a; /* green-600 - read notification status text */
   --button-primary-bg: #7c3aed; /* brand primary button background */
   --button-primary-hover-bg: #6d28d9; /* brand primary button hover background */
   --button-primary-text: #ffffff; /* brand primary button text color */
@@ -419,6 +538,42 @@
   --badge-warning-text: #c2410c; /* brand warning badge text */
   --badge-neutral-bg: #f3f4f6; /* brand neutral badge background */
   --badge-neutral-text: #374151; /* brand neutral badge text */
+  /* Project status colors - brand theme */
+  --project-status-planning-bg: #dbeafe; /* blue-100 - planning status background */
+  --project-status-planning-text: #1e40af; /* blue-800 - planning status text */
+  --project-status-in-progress-bg: #fed7aa; /* orange-100 - in progress status background */
+  --project-status-in-progress-text: #9a3412; /* orange-800 - in progress status text */
+  --project-status-completed-bg: #d1fae5; /* emerald-100 - completed status background for better contrast against purple */
+  --project-status-completed-text: #065f46; /* emerald-800 - completed status text */
+  /* Activity badges - using theme-aware colors for brand theme */
+  --activity-created-bg: #dcfce7; /* brand success badge background */
+  --activity-created-text: #166534; /* brand success badge text */
+  --activity-updated-bg: #dbeafe; /* brand secondary badge background */
+  --activity-updated-text: #1d4ed8; /* brand secondary badge text */
+  --activity-deleted-bg: #fee2e2; /* brand danger badge background (red-100) */
+  --activity-deleted-text: #991b1b; /* brand danger badge text (red-800) */
+  --activity-primary-bg: #f3e8ff; /* brand primary badge background */
+  --activity-primary-text: #7c3aed; /* brand primary badge text */
+  /* Error/Danger colors for form validation - brand theme */
+  --error-color: #dc2626; /* red-600 - error color */
+  --error-bg: #fee2e2; /* red-100 - error background */
+  --error-text: #991b1b; /* red-800 - error text */
+  --error-border: #f87171; /* red-400 - error border */
+  /* Error Display colors - brand theme */
+  --error-display-bg: #fee2e2; /* red-50 - error display background */
+  --error-display-border: #fecaca; /* red-200 - error display border */
+  --error-display-text: #991b1b; /* red-800 - error display text */
+  --error-display-icon: #f87171; /* red-400 - error display icon */
+  /* Warning Display colors - brand theme */
+  --warning-display-bg: #fef3c7; /* yellow-50 - warning display background */
+  --warning-display-border: #fde68a; /* yellow-200 - warning display border */
+  --warning-display-text: #92400e; /* yellow-800 - warning display text */
+  --warning-display-icon: #fbbf24; /* yellow-400 - warning display icon */
+  /* Info Display colors - brand theme */
+  --info-display-bg: #dbeafe; /* blue-50 - info display background */
+  --info-display-border: #bfdbfe; /* blue-200 - info display border */
+  --info-display-text: #1e40af; /* blue-800 - info display text */
+  --info-display-icon: #60a5fa; /* blue-400 - info display icon */
   --avatar-bg: #f3e8ff; /* brand avatar background */
   --avatar-text: #7c3aed; /* brand avatar text */
   --sort-icon: #a855f7; /* brand sort icon color */
@@ -465,7 +620,26 @@
   --success-bg: #f0fdf4; /* brand success message background */
   --success-border: #bbf7d0; /* brand success message border */
   --success-text: #166534; /* brand success message text */
+  /* System Status Indicator - brand theme */
+  --status-indicator-online: #10b981; /* green-500 - online/operational status indicator */
   --footer-resource-hover-bg: #e9d5ff; /* brand footer resource link hover background - purple-200 */
+  /* Technology gradient colors - brand theme */
+  --tech-react-from: #6366f1; /* indigo-500 */
+  --tech-react-to: #8b5cf6; /* violet-500 */
+  --tech-graphql-from: #ec4899; /* pink-500 */
+  --tech-graphql-to: #a855f7; /* purple-500 */
+  --tech-mysql-from: #818cf8; /* indigo-400 */
+  --tech-mysql-to: #6366f1; /* indigo-500 */
+  --tech-nodejs-from: #10b981; /* green-500 */
+  --tech-nodejs-to: #059669; /* green-600 */
+  --tech-typescript-from: #6366f1; /* indigo-500 */
+  --tech-typescript-to: #4f46e5; /* indigo-600 */
+  --tech-tailwind-from: #8b5cf6; /* violet-500 */
+  --tech-tailwind-to: #6366f1; /* indigo-500 */
+  --tech-apollo-from: #a855f7; /* purple-500 */
+  --tech-apollo-to: #7c3aed; /* purple-600 */
+  --tech-jwt-from: #f97316; /* orange-500 */
+  --tech-jwt-to: #ec4899; /* pink-500 */
   /* Search components now use standard theme variables - no special search variables needed */
 }
 

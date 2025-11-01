@@ -43,28 +43,76 @@ export const TAG_CATEGORY_OPTIONS = [
   { value: 'other', label: 'Other' },
 ];
 
-// Tag type colors for display
+// Tag type colors for display using theme variables
 export const TAG_TYPE_COLORS = {
-  category: 'theme-badge-primary',
-  priority: 'theme-badge-danger',
-  status: 'theme-badge-success',
-  feature: 'theme-badge-primary',
-  bug: 'theme-badge-warning',
-  enhancement: 'theme-badge-warning',
-  documentation: 'theme-badge-secondary',
-  other: 'theme-badge-neutral',
+  category: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  priority: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
+  status: {
+    backgroundColor: 'var(--badge-success-bg)',
+    color: 'var(--badge-success-text)',
+  },
+  feature: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  bug: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
+  enhancement: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
+  documentation: {
+    backgroundColor: 'var(--badge-secondary-bg)',
+    color: 'var(--badge-secondary-text)',
+  },
+  other: {
+    backgroundColor: 'var(--badge-neutral-bg)',
+    color: 'var(--badge-neutral-text)',
+  },
 };
 
-// Tag category colors for display
+// Tag category colors for display using theme variables
 export const TAG_CATEGORY_COLORS = {
-  general: 'theme-badge-neutral',
-  technical: 'theme-badge-primary',
-  business: 'theme-badge-success',
-  design: 'theme-badge-primary',
-  testing: 'theme-badge-warning',
-  deployment: 'theme-badge-primary',
-  maintenance: 'theme-badge-warning',
-  other: 'theme-badge-neutral',
+  general: {
+    backgroundColor: 'var(--badge-neutral-bg)',
+    color: 'var(--badge-neutral-text)',
+  },
+  technical: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  business: {
+    backgroundColor: 'var(--badge-success-bg)',
+    color: 'var(--badge-success-text)',
+  },
+  design: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  testing: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
+  deployment: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  maintenance: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
+  other: {
+    backgroundColor: 'var(--badge-neutral-bg)',
+    color: 'var(--badge-neutral-text)',
+  },
 };
 
 // Tags table column configuration

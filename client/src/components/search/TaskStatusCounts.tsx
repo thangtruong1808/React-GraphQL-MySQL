@@ -45,44 +45,25 @@ const TaskStatusCounts: React.FC<TaskStatusCountsProps> = ({ tasks, totalTasks }
           const count = statusCounts[status];
           const percentage = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
 
-          // Get status-specific styling with theme awareness
-          const getStatusStyle = (status: string) => {
-            const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-            const isDarkTheme = document.documentElement.classList.contains('dark');
-            const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-
-            // Map task statuses to project statuses for consistency
-            const statusMap: { [key: string]: string } = {
-              'IN_PROGRESS': 'IN_PROGRESS',
-              'DONE': 'COMPLETED',
-              'TODO': 'PLANNING'
-            };
-
-            const mappedStatus = statusMap[status] || 'PLANNING';
-            const colorClasses = getProjectStatusColor(mappedStatus, theme);
-
-            // Extract background and text colors from the returned classes
-            const [bgClass, textClass] = colorClasses.split(' ');
-
-            // Map to border colors based on the background
-            let borderClass = 'border-gray-200';
-            if (bgClass.includes('blue')) borderClass = 'border-blue-200 dark:border-blue-600 [data-theme="brand"]:border-blue-200';
-            else if (bgClass.includes('orange')) borderClass = 'border-orange-200 dark:border-orange-600 [data-theme="brand"]:border-orange-200';
-            else if (bgClass.includes('emerald') || bgClass.includes('green')) borderClass = 'border-emerald-200 dark:border-emerald-600 [data-theme="brand"]:border-emerald-200';
-
-            return {
-              bg: bgClass,
-              text: textClass,
-              border: borderClass
-            };
+          // Map task statuses to project statuses for consistency
+          const statusMap: { [key: string]: string } = {
+            'IN_PROGRESS': 'IN_PROGRESS',
+            'DONE': 'COMPLETED',
+            'TODO': 'PLANNING'
           };
 
-          const style = getStatusStyle(status);
+          const mappedStatus = statusMap[status] || 'PLANNING';
+          // Get status-specific styling using theme variables
+          const statusStyle = getProjectStatusColor(mappedStatus);
 
           return (
             <div
               key={status}
-              className={`px-3 py-2 rounded-full border shadow-sm ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
+              className="px-3 py-2 rounded-full border shadow-sm flex items-center space-x-2"
+              style={{
+                ...statusStyle,
+                borderColor: statusStyle.backgroundColor
+              }}
             >
               <span className="font-medium capitalize">
                 {status.replace('_', ' ')}

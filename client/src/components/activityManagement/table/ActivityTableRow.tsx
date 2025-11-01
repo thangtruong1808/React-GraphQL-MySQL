@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaUser, FaBolt, FaFolder, FaTasks, FaCalendarAlt, FaEdit, FaTrash } from 'react-icons/fa';
-import { ACTIVITY_TABLE_COLUMNS } from '../../../constants/activityManagement';
+import { ACTIVITY_TABLE_COLUMNS, ACTIVITY_TYPE_BADGES } from '../../../constants/activityManagement';
 import { Activity } from '../../../types/activityManagement';
 import { formatRoleForDisplay } from '../../../utils/roleFormatter';
 import { formatDate } from './utils';
@@ -45,7 +45,7 @@ const ActivityTableRow: React.FC<ActivityTableRowProps> = ({
 
       {/* Type Column - Always visible */}
       <td className={`px-4 py-4 whitespace-nowrap text-left ${ACTIVITY_TABLE_COLUMNS.TYPE.width}`}>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={ACTIVITY_TYPE_BADGES[activity.type as keyof typeof ACTIVITY_TYPE_BADGES] || { backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>
           {activity.type.replace('_', ' ')}
         </span>
       </td>

@@ -120,13 +120,13 @@ const TasksTableRow: React.FC<TasksTableRowProps> = ({ task, onEdit, onDelete })
       </td>
       {/* Status Column - Always visible */}
       <td className="px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_STATUS_COLORS[task.status]}`}>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={TASK_STATUS_COLORS[task.status]}>
           {formatTaskStatusForDisplay(task.status)}
         </span>
       </td>
       {/* Priority Column - Hidden on mobile */}
       <td className="hidden sm:table-cell px-4 py-4 whitespace-nowrap text-sm text-left" style={{ color: 'var(--table-text-primary)' }}>
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TASK_PRIORITY_COLORS[task.priority]}`}>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={TASK_PRIORITY_COLORS[task.priority]}>
           {formatTaskPriorityForDisplay(task.priority)}
         </span>
       </td>

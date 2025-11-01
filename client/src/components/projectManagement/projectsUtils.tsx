@@ -36,18 +36,13 @@ export const formatStatus = (status: string): string => {
 };
 
 /**
- * Get status badge color based on project status with theme-aware styling
- * Returns appropriate Tailwind classes for styling
+ * Get status badge color based on project status using theme variables
+ * Returns style object with backgroundColor and color properties
  * @param status - Project status
- * @returns Badge color class name
+ * @returns Style object with backgroundColor and color properties
  */
-export const getStatusBadgeColor = (status: string): string => {
-  // Check if we're in brand theme by looking for data-theme attribute
-  const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-  const isDarkTheme = document.documentElement.classList.contains('dark');
-
-  const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-  return getProjectStatusColor(status, theme);
+export const getStatusBadgeColor = (status: string): React.CSSProperties => {
+  return getProjectStatusColor(status);
 };
 
 /**

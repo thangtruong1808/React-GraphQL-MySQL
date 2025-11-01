@@ -36,28 +36,28 @@ export const ERROR_DISPLAY_MESSAGES = {
 
 /**
  * Error Display Styles
- * CSS classes and styling for different error types
+ * Theme variables for different error types to improve readability across themes
  */
 export const ERROR_DISPLAY_STYLES = {
-  // Color schemes for different error types
+  // Color schemes for different error types using theme variables
   COLORS: {
     ERROR: {
-      BACKGROUND: 'bg-red-50',
-      BORDER: 'border-red-200',
-      TEXT: 'text-red-800',
-      ICON: 'text-red-400',
+      backgroundColor: 'var(--error-display-bg)',
+      borderColor: 'var(--error-display-border)',
+      color: 'var(--error-display-text)',
+      iconColor: 'var(--error-display-icon)',
     },
     WARNING: {
-      BACKGROUND: 'bg-yellow-50',
-      BORDER: 'border-yellow-200',
-      TEXT: 'text-yellow-800',
-      ICON: 'text-yellow-400',
+      backgroundColor: 'var(--warning-display-bg)',
+      borderColor: 'var(--warning-display-border)',
+      color: 'var(--warning-display-text)',
+      iconColor: 'var(--warning-display-icon)',
     },
     INFO: {
-      BACKGROUND: 'bg-blue-50',
-      BORDER: 'border-blue-200',
-      TEXT: 'text-blue-800',
-      ICON: 'text-blue-400',
+      backgroundColor: 'var(--info-display-bg)',
+      borderColor: 'var(--info-display-border)',
+      color: 'var(--info-display-text)',
+      iconColor: 'var(--info-display-icon)',
     },
   },
 

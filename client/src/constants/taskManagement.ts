@@ -69,16 +69,34 @@ export const TASK_PRIORITY_DISPLAY = {
   HIGH: 'High',
 };
 
-// Task priority color mapping for UI
+// Task priority color mapping for UI using theme variables
 export const TASK_PRIORITY_COLORS = {
-  LOW: 'theme-badge-success',
-  MEDIUM: 'theme-badge-warning',
-  HIGH: 'theme-badge-danger',
+  LOW: {
+    backgroundColor: 'var(--badge-success-bg)',
+    color: 'var(--badge-success-text)',
+  },
+  MEDIUM: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
+  HIGH: {
+    backgroundColor: 'var(--badge-warning-bg)',
+    color: 'var(--badge-warning-text)',
+  },
 };
 
-// Task status color mapping for UI
+// Task status color mapping for UI using theme variables
 export const TASK_STATUS_COLORS = {
-  TODO: 'theme-badge-neutral',
-  IN_PROGRESS: 'theme-badge-primary',
-  DONE: 'theme-badge-success',
+  TODO: {
+    backgroundColor: 'var(--badge-neutral-bg)',
+    color: 'var(--badge-neutral-text)',
+  },
+  IN_PROGRESS: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  DONE: {
+    backgroundColor: 'var(--badge-success-bg)',
+    color: 'var(--badge-success-text)',
+  },
 };

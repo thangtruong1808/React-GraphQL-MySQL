@@ -225,13 +225,13 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     onChange={(e) => handleInputChange('action', e.target.value)}
                     placeholder="Update the activity description..."
                     className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors resize-none`}
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.action ? '#ef4444' : 'var(--border-color)'}` }}
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.action ? 'var(--error-border)' : 'var(--border-color)'}` }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.action ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.action ? 'var(--error-border)' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                     disabled={loading}
                   />
                   <div className="mt-2 flex justify-between text-sm">
-                    <span style={{ color: errors.action ? '#ef4444' : 'var(--text-secondary)' }}>
+                    <span style={{ color: errors.action ? 'var(--error-color)' : 'var(--text-secondary)' }}>
                       {errors.action ? (
                         <div className="flex items-center">
                           <FaExclamationTriangle className="h-4 w-4 mr-1" />
@@ -241,7 +241,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                         'Update the activity description'
                       )}
                     </span>
-                    <span style={{ color: formData.action && formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? '#ef4444' : 'var(--text-secondary)' }}>
+                    <span style={{ color: formData.action && formData.action.length > ACTIVITY_FORM_VALIDATION.action.maxLength ? 'var(--error-color)' : 'var(--text-secondary)' }}>
                       {formData.action?.length || 0}/{ACTIVITY_FORM_VALIDATION.action.maxLength}
                     </span>
                   </div>
@@ -259,9 +259,9 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     value={formData.type || 'USER_CREATED'}
                     onChange={(e) => handleInputChange('type', e.target.value)}
                     className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors`}
-                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.type ? '#ef4444' : 'var(--border-color)'}` }}
+                    style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${errors.type ? 'var(--error-border)' : 'var(--border-color)'}` }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.type ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = errors.type ? 'var(--error-border)' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
                     disabled={loading}
                   >
                     {ACTIVITY_TYPE_OPTIONS.map((option) => (
@@ -271,7 +271,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
                     ))}
                   </select>
                   {errors.type && (
-                    <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
+                    <div className="mt-2 flex items-center text-sm" style={{ color: 'var(--error-color)' }}>
                       <FaExclamationTriangle className="h-4 w-4 mr-1" />
                       {errors.type}
                     </div>

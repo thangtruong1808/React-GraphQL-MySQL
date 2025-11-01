@@ -30,9 +30,9 @@ const TypeField: React.FC<TypeFieldProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="block w-full px-4 py-3 border rounded-xl shadow-sm focus:outline-none sm:text-sm transition-colors"
-          style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${error ? '#ef4444' : 'var(--border-color)'}` }}
+          style={{ backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', border: `1px solid ${error ? 'var(--error-border)' : 'var(--border-color)'}` }}
           onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-from)'; e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-ring)'; }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = error ? '#ef4444' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = error ? 'var(--error-border)' : 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none'; }}
           disabled={loading}
         >
           {ACTIVITY_TYPE_OPTIONS.map((option) => (
@@ -42,7 +42,7 @@ const TypeField: React.FC<TypeFieldProps> = ({
           ))}
         </select>
         {error && (
-          <div className="mt-2 flex items-center text-sm" style={{ color: '#ef4444' }}>
+          <div className="mt-2 flex items-center text-sm" style={{ color: 'var(--error-color)' }}>
             <FaExclamationTriangle className="h-4 w-4 mr-1" />
             {error}
           </div>

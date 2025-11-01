@@ -45,37 +45,17 @@ const ProjectStatusCounts: React.FC<ProjectStatusCountsProps> = ({ projects, tot
           const count = statusCounts[status];
           const percentage = totalProjects > 0 ? Math.round((count / totalProjects) * 100) : 0;
 
-          // Get status-specific styling with theme-aware colors
-          const getStatusStyle = (status: string) => {
-            // Check if we're in brand theme by looking for data-theme attribute
-            const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-            const isDarkTheme = document.documentElement.classList.contains('dark');
-
-            const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-            const colorClasses = getProjectStatusColor(status, theme);
-
-            // Extract background and text colors from the returned classes
-            const [bgClass, textClass] = colorClasses.split(' ');
-
-            // Map to border colors based on the background
-            let borderClass = 'border-gray-200';
-            if (bgClass.includes('blue')) borderClass = 'border-blue-200';
-            else if (bgClass.includes('orange')) borderClass = 'border-orange-200';
-            else if (bgClass.includes('emerald') || bgClass.includes('green')) borderClass = 'border-emerald-200';
-
-            return {
-              bg: bgClass,
-              text: textClass,
-              border: borderClass
-            };
-          };
-
-          const style = getStatusStyle(status);
+          // Get status-specific styling using theme variables
+          const statusStyle = getProjectStatusColor(status);
 
           return (
             <div
               key={status}
-              className={`px-3 py-2 rounded-full border shadow-sm ${style.bg} ${style.border} ${style.text} flex items-center space-x-2`}
+              className="px-3 py-2 rounded-full border shadow-sm flex items-center space-x-2"
+              style={{
+                ...statusStyle,
+                borderColor: statusStyle.backgroundColor
+              }}
             >
               <span className="font-medium capitalize">
                 {status.replace('_', ' ')}

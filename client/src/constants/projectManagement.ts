@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * Project Management Constants
  * Configuration values and options for project management functionality
@@ -88,27 +90,25 @@ export const PROJECT_CONFIRMATION_MESSAGES = {
   DELETE: 'Are you sure you want to delete this project? This action cannot be undone.'
 };
 
-// Project status color mapping for UI with better contrast
+// Project status color mapping using theme variables for consistent theming and improved readability
 export const PROJECT_STATUS_COLORS = {
   PLANNING: {
-    light: 'bg-blue-100 text-blue-800',
-    dark: 'bg-blue-900 text-blue-200',
-    brand: 'bg-blue-100 text-blue-800' // High contrast against purple gradient
+    backgroundColor: 'var(--project-status-planning-bg)',
+    color: 'var(--project-status-planning-text)',
   },
   IN_PROGRESS: {
-    light: 'bg-orange-100 text-orange-800',
-    dark: 'bg-orange-900 text-orange-200',
-    brand: 'bg-orange-100 text-orange-800' // High contrast against purple gradient
+    backgroundColor: 'var(--project-status-in-progress-bg)',
+    color: 'var(--project-status-in-progress-text)',
   },
   COMPLETED: {
-    light: 'bg-green-100 text-green-800',
-    dark: 'bg-green-900 text-green-200',
-    brand: 'bg-emerald-100 text-emerald-800' // Changed to emerald for better contrast against purple
+    backgroundColor: 'var(--project-status-completed-bg)',
+    color: 'var(--project-status-completed-text)',
   }
 } as const;
 
-// Get status color classes based on theme
-export const getProjectStatusColor = (status: string, theme: 'light' | 'dark' | 'brand' = 'light') => {
+// Get status color styles based on theme using CSS variables
+// Returns style object with backgroundColor and color properties
+export const getProjectStatusColor = (status: string): React.CSSProperties => {
   const statusKey = status as keyof typeof PROJECT_STATUS_COLORS;
-  return PROJECT_STATUS_COLORS[statusKey]?.[theme] || PROJECT_STATUS_COLORS.PLANNING[theme];
+  return PROJECT_STATUS_COLORS[statusKey] || PROJECT_STATUS_COLORS.PLANNING;
 };

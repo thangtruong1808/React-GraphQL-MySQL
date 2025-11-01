@@ -26,16 +26,22 @@ export const NOTIFICATION_STATUS_OPTIONS = [
   { value: 'read', label: 'Read Only' },
 ];
 
-// Notification status colors for display
+// Notification status colors for display using theme variables
 export const NOTIFICATION_STATUS_COLORS = {
-  unread: 'text-red-600',
-  read: 'text-gray-500',
+  unread: 'var(--notification-status-unread-text)',
+  read: 'var(--notification-status-read-text)',
 };
 
-// Notification status badges
+// Notification status badges using theme variables
 export const NOTIFICATION_STATUS_BADGES = {
-  unread: 'theme-badge-primary',
-  read: 'theme-badge-neutral',
+  unread: {
+    backgroundColor: 'var(--badge-primary-bg)',
+    color: 'var(--badge-primary-text)',
+  },
+  read: {
+    backgroundColor: 'var(--badge-neutral-bg)',
+    color: 'var(--badge-neutral-text)',
+  },
 };
 
 // Notification table column configuration

@@ -82,18 +82,18 @@ export const FOOTER_CONTENT = {
 
 /**
  * Footer Styling Configuration
- * CSS classes and styling constants
+ * Theme variables for consistent theming and improved readability across themes
  */
 export const FOOTER_STYLES = {
-  // Color schemes
+  // Color schemes using theme variables
   COLORS: {
-    BORDER: 'border-gray-200',
-    TEXT_PRIMARY: 'text-gray-900',
-    TEXT_SECONDARY: 'text-gray-700',
-    TEXT_MUTED: 'text-gray-500',
-    TEXT_DISABLED: 'text-gray-400',
-    ACCENT: 'text-purple-600',
-    ACCENT_HOVER: 'hover:text-purple-600',
+    borderColor: 'var(--border-color)',
+    textPrimary: 'var(--text-primary)',
+    textSecondary: 'var(--text-secondary)',
+    textMuted: 'var(--text-muted)',
+    textDisabled: 'var(--text-disabled, var(--text-muted))',
+    accent: 'var(--accent-from)',
+    accentHover: 'var(--accent-from)',
   },
   
   // Layout classes
@@ -108,6 +108,7 @@ export const FOOTER_STYLES = {
   INTERACTIVE: {
     TRANSITION: 'transition-colors duration-300',
     HOVER_SHADOW: 'hover:shadow-md',
-    FOCUS_RING: 'focus:outline-none focus:ring-2 focus:ring-purple-500',
+    FOCUS_RING: 'focus:outline-none focus:ring-2',
+    FOCUS_RING_COLOR: 'var(--accent-ring)',
   },
 } as const;

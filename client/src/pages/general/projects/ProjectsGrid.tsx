@@ -65,14 +65,9 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({
     }
   };
 
-  // Get status color for projects with theme-aware styling
+  // Get status color for projects using theme variables
   const getStatusColor = (status: string) => {
-    // Check if we're in brand theme by looking for data-theme attribute
-    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-    const isDarkTheme = document.documentElement.classList.contains('dark');
-
-    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-    return getProjectStatusColor(status, theme);
+    return getProjectStatusColor(status);
   };
 
   // Client-side sorting of projects
@@ -122,7 +117,7 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="font-semibold text-lg leading-tight" style={{ color: 'var(--text-primary)' }}>{project.name}</h3>
-                  <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(project.status)}`}>
+                  <span className="px-3 py-1 text-xs font-medium rounded-full" style={getStatusColor(project.status)}>
                     {project.status.replace('_', ' ')}
                   </span>
                 </div>

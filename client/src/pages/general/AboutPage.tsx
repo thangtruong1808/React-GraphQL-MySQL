@@ -287,7 +287,7 @@ const AboutPage: React.FC = () => {
                   key={index}
                   name={tech.name}
                   description={tech.description}
-                  color={tech.color}
+                  gradientStyle={tech.gradientStyle}
                 />
               ))}
             </div>

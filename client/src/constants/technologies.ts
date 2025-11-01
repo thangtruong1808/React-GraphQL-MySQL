@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * Technology Stack Constants
  * Contains technology information with styling
@@ -7,52 +9,68 @@
 export interface Technology {
   name: string;
   description: string;
-  color: string;
+  gradientStyle: React.CSSProperties;
 }
 
 /**
- * Technology stack data with descriptions and gradient colors
- * Each technology includes appropriate gradient color scheme
+ * Technology stack data with descriptions and gradient colors using theme variables
+ * Each technology includes appropriate gradient color scheme for better readability
  */
 export const TECHNOLOGIES: Technology[] = [
   {
     name: 'React',
     description: 'Frontend Framework',
-    color: 'from-blue-500 to-cyan-500'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-react-from), var(--tech-react-to))',
+    }
   },
   {
     name: 'GraphQL',
     description: 'API Technology',
-    color: 'from-pink-500 to-purple-500'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-graphql-from), var(--tech-graphql-to))',
+    }
   },
   {
     name: 'MySQL',
     description: 'Database System',
-    color: 'from-blue-600 to-blue-800'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-mysql-from), var(--tech-mysql-to))',
+    }
   },
   {
     name: 'Node.js',
     description: 'Backend Runtime',
-    color: 'from-green-600 to-green-800'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-nodejs-from), var(--tech-nodejs-to))',
+    }
   },
   {
     name: 'TypeScript',
     description: 'Type Safety',
-    color: 'from-blue-500 to-blue-700'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-typescript-from), var(--tech-typescript-to))',
+    }
   },
   {
     name: 'Tailwind CSS',
     description: 'Styling Framework',
-    color: 'from-cyan-500 to-blue-500'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-tailwind-from), var(--tech-tailwind-to))',
+    }
   },
   {
     name: 'Apollo Server',
     description: 'GraphQL Server',
-    color: 'from-purple-500 to-indigo-500'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-apollo-from), var(--tech-apollo-to))',
+    }
   },
   {
     name: 'JWT',
     description: 'Authentication',
-    color: 'from-orange-500 to-red-500'
+    gradientStyle: {
+      backgroundImage: 'linear-gradient(to bottom right, var(--tech-jwt-from), var(--tech-jwt-to))',
+    }
   }
 ];

@@ -79,7 +79,7 @@ const ProjectsTableRow: React.FC<ProjectsTableRowProps> = ({
         </div>
       </td>
       <td className="px-4 py-4 whitespace-nowrap text-left">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(project.status)}`}>
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={getStatusBadgeColor(project.status)}>
           {formatStatus(project.status)}
         </span>
       </td>

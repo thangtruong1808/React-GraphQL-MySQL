@@ -52,14 +52,9 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   itemsPerPage,
   onProjectClick
 }) => {
-  // Get status color classes with theme-aware styling
+  // Get status color using theme variables
   const getStatusColor = (status: string) => {
-    // Check if we're in brand theme by looking for data-theme attribute
-    const isBrandTheme = document.documentElement.getAttribute('data-theme') === 'brand';
-    const isDarkTheme = document.documentElement.classList.contains('dark');
-
-    const theme = isBrandTheme ? 'brand' : isDarkTheme ? 'dark' : 'light';
-    return getProjectStatusColor(status, theme);
+    return getProjectStatusColor(status);
   };
 
   // Handle project card click
@@ -115,7 +110,7 @@ const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               <svg className="h-4 w-4 transition-colors duration-200" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(project.status)} group-hover:shadow-md transition-shadow duration-200`}>
+              <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full group-hover:shadow-md transition-shadow duration-200" style={getStatusColor(project.status)}>
                 {project.status.replace('_', ' ')}
               </span>
             </div>
