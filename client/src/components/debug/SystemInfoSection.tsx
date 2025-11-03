@@ -24,14 +24,20 @@ const SystemInfoSection: React.FC<SystemInfoSectionProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} ${className}`}>
-      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-1`}>
+    <div 
+      className={className}
+      style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}
+    >
+      <div 
+        className="text-xs font-semibold mb-1"
+        style={{ color: 'var(--text-primary)' }}
+      >
         ⚙️ SYSTEM INFO
       </div>
 
       <div className="flex justify-between">
-        <span className="font-medium">Current Time:</span>
-        <span className="font-mono text-gray-600">{currentTime}</span>
+        <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Current Time:</span>
+        <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>{currentTime}</span>
       </div>
     </div>
   );

@@ -1,8 +1,4 @@
 import React from 'react';
-import {
-  ACTIVITY_DEBUGGER_LAYOUT,
-  ACTIVITY_DEBUGGER_MESSAGES,
-} from '../../constants/activityDebugger';
 
 /**
  * Help Info Section Component
@@ -10,21 +6,26 @@ import {
  */
 const HelpInfoSection: React.FC = () => {
   return (
-    <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
-      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
+    <div 
+      className="mt-4"
+      style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}
+    >
+      <div 
+        className="text-xs font-semibold mb-2"
+        style={{ color: 'var(--text-primary)' }}
+      >
         Help & Information
       </div>
 
-      <div className={`space-y-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
+      <div className="space-y-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
         {/* Help Information */}
         <div className="space-y-1">
-          <div className="font-medium">How it works:</div>
+          <div className="font-medium" style={{ color: 'var(--text-primary)' }}>How it works:</div>
           <div>• Activity timer resets on user activity</div>
           <div>• Refresh timer is fixed (unaffected by activity)</div>
           <div>• Modal appears when activity timer expires</div>
           <div>• "Continue to Work" refreshes session</div>
         </div>
-
       </div>
     </div>
   );

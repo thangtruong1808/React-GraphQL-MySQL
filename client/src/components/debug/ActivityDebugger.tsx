@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import InactivityTimer from './InactivityTimer';
 import SystemInfoSection from './SystemInfoSection';
@@ -23,15 +23,22 @@ const ActivityDebugger: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [isVisible, setIsVisible] = useState(false);
+  const prevIsAuthenticatedRef = useRef<boolean>(isAuthenticated);
 
-  // Reset debug panel visibility when authentication state changes
+  // Hide debug panel only on actual logout (not during refresh operations)
   useEffect(() => {
-    if (ACTIVITY_DEBUGGER_UI.HIDE_ON_AUTH_CHANGE) {
-      // Hide debug panel when user logs out or authentication state changes
-      // This ensures panel is always hidden by default on fresh login
+    const wasAuthenticated = prevIsAuthenticatedRef.current;
+    const isNowAuthenticated = isAuthenticated;
+
+    // Only hide panel when transitioning from authenticated to unauthenticated (actual logout)
+    // This prevents hiding during session refresh when user remains authenticated
+    if (wasAuthenticated && !isNowAuthenticated && ACTIVITY_DEBUGGER_UI.HIDE_ON_AUTH_CHANGE) {
       setIsVisible(false);
     }
-  }, [isAuthenticated, user?.id]); // Reset when auth state or user changes
+
+    // Update ref to track current authentication state
+    prevIsAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]); // Only watch isAuthenticated, not user?.id
 
   // Update current time every second
   useEffect(() => {
@@ -59,7 +66,13 @@ const ActivityDebugger: React.FC = () => {
       {isAuthenticated && (
         <button
           onClick={() => setIsVisible(!isVisible)} // Toggle debug panel visibility
-          className={`${ACTIVITY_DEBUGGER_LAYOUT.TOGGLE_BUTTON_POSITION} ${ACTIVITY_DEBUGGER_COLORS.PRIMARY_BUTTON} ${ACTIVITY_DEBUGGER_COLORS.BUTTON_TEXT} px-4 py-2 ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_ROUNDED} text-sm font-medium transition-colors ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_SHADOW}`}
+          className={`${ACTIVITY_DEBUGGER_LAYOUT.TOGGLE_BUTTON_POSITION} px-4 py-2 ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_ROUNDED} text-sm font-medium transition-colors ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_SHADOW}`}
+          style={{
+            backgroundColor: 'var(--accent-from)',
+            color: 'var(--text-primary)',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-to)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-from)'}
         >
           {isVisible ? ACTIVITY_DEBUGGER_MESSAGES.HIDE_DEBUG : ACTIVITY_DEBUGGER_MESSAGES.SHOW_DEBUG}
         </button>
@@ -67,8 +80,17 @@ const ActivityDebugger: React.FC = () => {
 
       {/* Debug Panel - only show when authenticated and visible */}
       {isAuthenticated && isVisible && (
-        <div className={`${ACTIVITY_DEBUGGER_LAYOUT.PANEL_POSITION} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_BACKGROUND} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_BORDER} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_ROUNDED} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_SHADOW} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_PADDING} w-80 max-h-full overflow-y-auto`}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">
+        <div
+          className={`${ACTIVITY_DEBUGGER_LAYOUT.PANEL_POSITION} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_ROUNDED} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_SHADOW} ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_PADDING} w-80 max-h-full overflow-y-auto`}
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            border: '1px solid var(--border-color)'
+          }}
+        >
+          <h3
+            className="text-lg font-semibold mb-3"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {ACTIVITY_DEBUGGER_MESSAGES.TITLE}
           </h3>
 

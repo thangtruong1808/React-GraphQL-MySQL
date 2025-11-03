@@ -1,9 +1,7 @@
 import React from 'react';
 import { TimerState } from './TimerCalculator';
 import {
-  ACTIVITY_DEBUGGER_LAYOUT,
   ACTIVITY_DEBUGGER_MESSAGES,
-  ACTIVITY_DEBUGGER_COLORS,
 } from '../../constants/activityDebugger';
 
 /**
@@ -43,18 +41,18 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
     return new Date(expiry).toLocaleTimeString();
   };
 
-  // Determine status color based on time remaining
-  const getStatusColor = (timeRemaining: number | null): string => {
+  // Determine status color based on time remaining using theme variables
+  const getStatusColor = (timeRemaining: number | null): React.CSSProperties => {
     if (!timeRemaining || timeRemaining <= 0) {
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
+      return { color: 'var(--error-text, #991b1b)' };
     }
     if (timeRemaining < 10 * 1000) { // Less than 10 seconds
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
+      return { color: 'var(--error-text, #991b1b)' };
     }
     if (timeRemaining < 30 * 1000) { // Less than 30 seconds
-      return ACTIVITY_DEBUGGER_COLORS.WARNING;
+      return { color: '#ca8a04' }; // yellow-600 equivalent
     }
-    return ACTIVITY_DEBUGGER_COLORS.SUCCESS;
+    return { color: 'var(--success-text, #166534)' };
   };
 
   // Get status message based on time remaining
@@ -78,25 +76,32 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
 
 
 
+  const statusColor = getStatusColor(refreshTokenTimeRemaining);
+
   return (
-    <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} mt-4`}>
-      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
+    <div 
+      className="mt-4"
+      style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}
+    >
+      <div 
+        className="text-xs font-semibold mb-2"
+        style={{ color: 'var(--text-primary)' }}
+      >
         Refresh Token Debug Info (1min countdown)
       </div>
 
-      <div className={`space-y-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
-
+      <div className="space-y-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
         {/* Status */}
         <div className="flex justify-between">
-          <span>Status:</span>
-          <span className={`font-mono ${getStatusColor(refreshTokenTimeRemaining)}`}>
+          <span style={{ color: 'var(--text-primary)' }}>Status:</span>
+          <span className="font-mono" style={statusColor}>
             {getStatusMessage(refreshTokenTimeRemaining)}
           </span>
         </div>
 
         {/* Expiry Time */}
         <div className="flex justify-between">
-          <span>Expires At:</span>
+          <span style={{ color: 'var(--text-primary)' }}>Expires At:</span>
           <span className="font-mono">
             {formatExpiryTime(refreshTokenExpiry)}
           </span>
@@ -104,14 +109,11 @@ const RefreshTokenInfo: React.FC<RefreshTokenInfoProps> = ({ timerState }) => {
 
         {/* Current Time */}
         <div className="flex justify-between">
-          <span>Current Time:</span>
+          <span style={{ color: 'var(--text-primary)' }}>Current Time:</span>
           <span className="font-mono">
             {new Date().toLocaleTimeString()}
           </span>
         </div>
-
-
-
       </div>
     </div>
   );

@@ -38,6 +38,8 @@ export const useAuthActions = (
   setLastModalShowTime: (time: number | null) => void,
   setModalAutoLogoutTimer: (timer: NodeJS.Timeout | null) => void,
   modalAutoLogoutTimer: NodeJS.Timeout | null,
+  pauseAutoLogoutForRefresh?: () => void,
+  resumeAutoLogoutAfterRefresh?: () => void,
 ) => {
   const client = useApolloClient();
   const { showError } = useError();
@@ -220,6 +222,11 @@ export const useAuthActions = (
       setUser(loginData.user);
       setIsAuthenticated(true);
 
+      // Reset session expiry modal state on login to ensure fresh start
+      setShowSessionExpiryModal(false);
+      setSessionExpiryMessage('');
+      setLastModalShowTime(null);
+
       // Set CSRF token in Apollo Client for future mutations
       if (loginData.csrfToken) {
         setApolloCSRFToken(loginData.csrfToken);
@@ -233,7 +240,7 @@ export const useAuthActions = (
     } finally {
       setLoginLoading(false);
     }
-  }, [loginMutation, setUser, setIsAuthenticated, setLoginLoading, showError]);
+  }, [loginMutation, setUser, setIsAuthenticated, setLoginLoading, showError, setShowSessionExpiryModal, setSessionExpiryMessage, setLastModalShowTime]);
 
   /**
    * Comprehensive logout function - Unified logout entry point

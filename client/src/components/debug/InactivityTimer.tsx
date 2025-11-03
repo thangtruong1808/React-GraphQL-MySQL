@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { TimerCalculator, TimerState } from './TimerCalculator';
 import TransitionProgressBar from './TransitionProgressBar';
 import RefreshTokenInfo from './RefreshTokenInfo';
 import {
   ACTIVITY_DEBUGGER_UI,
-  ACTIVITY_DEBUGGER_MESSAGES,
-  ACTIVITY_DEBUGGER_COLORS,
-  ACTIVITY_DEBUGGER_LAYOUT
+  ACTIVITY_DEBUGGER_MESSAGES
 } from '../../constants/activityDebugger';
 
 /**
@@ -30,7 +27,6 @@ interface InactivityTimerProps {
  * - Real-time updates every second
  */
 const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => {
-  const { showSessionExpiryModal } = useAuth(); // Access modal state for transition detection
   const [timerState, setTimerState] = useState<TimerState>({
     timeDisplay: ACTIVITY_DEBUGGER_MESSAGES.NOT_AVAILABLE,
     statusMessage: ACTIVITY_DEBUGGER_MESSAGES.ACCESS_TOKEN_VALID,
@@ -75,34 +71,34 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
 
 
 
-  // Determine display colors based on state
+  // Determine display colors based on state using theme variables
   const getTimerColor = () => {
     if (timerState.timerType === 'transition') {
-      return ACTIVITY_DEBUGGER_COLORS.WARNING; // Yellow for transition state
+      return { color: '#ca8a04' }; // yellow-600 equivalent
     }
     if (timerState.timerType === 'refresh') {
-      return ACTIVITY_DEBUGGER_COLORS.DANGER; // Red for refresh token countdown
+      return { color: 'var(--error-text, #991b1b)' }; // Red for refresh token countdown
     }
     if (timerState.isAccessTokenExpired) {
-      return ACTIVITY_DEBUGGER_COLORS.DANGER;
+      return { color: 'var(--error-text, #991b1b)' };
     }
-    return ACTIVITY_DEBUGGER_COLORS.SUCCESS;
+    return { color: 'var(--success-text, #166534)' };
   };
 
   const getProgressBarColor = () => {
     if (timerState.timerType === 'transition') {
-      return ACTIVITY_DEBUGGER_COLORS.PROGRESS_WARNING; // Yellow progress for transition
+      return { backgroundColor: '#eab308' }; // yellow-500 equivalent
     }
     if (timerState.timerType === 'refresh') {
-      return ACTIVITY_DEBUGGER_COLORS.PROGRESS_DANGER; // Red progress for refresh token
+      return { backgroundColor: '#dc2626' }; // red-600 equivalent
     }
     if (timerState.isAccessTokenExpired) {
-      return ACTIVITY_DEBUGGER_COLORS.PROGRESS_DANGER;
+      return { backgroundColor: '#dc2626' }; // red-600 equivalent
     }
     if (timerState.progressPercentage >= ACTIVITY_DEBUGGER_UI.PROGRESS_WARNING_THRESHOLD) {
-      return ACTIVITY_DEBUGGER_COLORS.PROGRESS_WARNING;
+      return { backgroundColor: '#eab308' }; // yellow-500 equivalent
     }
-    return ACTIVITY_DEBUGGER_COLORS.PROGRESS_SUCCESS;
+    return { backgroundColor: '#16a34a' }; // green-600 equivalent
   };
 
   const getStatusIcon = () => {
@@ -127,34 +123,58 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
     );
   }
 
+  const timerColor = getTimerColor();
+  const progressBarColor = getProgressBarColor();
+
   return (
     <>
-      <div className={`${ACTIVITY_DEBUGGER_LAYOUT.SECTION_BORDER} ${className}`}>
-        <div className={`${ACTIVITY_DEBUGGER_LAYOUT.HEADER_TEXT} mb-2`}>
+      <div 
+        className={className}
+        style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}
+      >
+        <div 
+          className="text-xs font-semibold mb-2"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {timerState.sectionTitle}
         </div>
 
         {/* Main Timer Display */}
         <div className="text-center mb-2">
-          <div className={`${ACTIVITY_DEBUGGER_LAYOUT.LARGE_TIMER_TEXT} ${getTimerColor()}`}>
+          <div 
+            className="text-2xl font-bold"
+            style={timerColor}
+          >
             {timerState.timeDisplay}
           </div>
-          <div className={`${ACTIVITY_DEBUGGER_LAYOUT.CONTENT_TEXT} font-semibold ${getTimerColor()}`}>
+          <div 
+            className="text-sm font-semibold"
+            style={timerColor}
+          >
             {getStatusIcon()}
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className={`w-full ${ACTIVITY_DEBUGGER_COLORS.PROGRESS_BACKGROUND} rounded-full h-2 mb-2`}>
+        <div 
+          className="w-full rounded-full h-2 mb-2"
+          style={{ backgroundColor: 'var(--border-light, #f3f4f6)' }}
+        >
           <div
-            className={`h-2 rounded-full transition-all duration-1000 ${getProgressBarColor()}`}
-            style={{ width: `${Math.min(100, timerState.progressPercentage)}%` }}
+            className="h-2 rounded-full transition-all duration-1000"
+            style={{ 
+              width: `${Math.min(100, timerState.progressPercentage)}%`,
+              ...progressBarColor
+            }}
           ></div>
         </div>
 
         {/* Status Message - Only show for refresh token countdown */}
         {timerState.isCountingDown && timerState.timerType === 'refresh' && (
-          <div className={`text-center mb-2 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT} ${ACTIVITY_DEBUGGER_COLORS.DANGER}`}>
+          <div 
+            className="text-center mb-2 text-xs"
+            style={{ color: 'var(--error-text, #991b1b)' }}
+          >
             <div className="font-medium">
               {timerState.statusMessage}
             </div>
@@ -162,20 +182,19 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
         )}
 
         {/* Essential Timer Details - Simplified */}
-        <div className={`space-y-1 ${ACTIVITY_DEBUGGER_LAYOUT.SMALL_TEXT}`}>
+        <div className="space-y-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
           <div className="flex justify-between">
-            <span>Type:</span>
+            <span style={{ color: 'var(--text-primary)' }}>Type:</span>
             <span className="font-mono">
               {timerState.timerType === 'access' ? 'Access Token' :
                 timerState.timerType === 'refresh' ? 'Refresh Token' : 'Transition'}
             </span>
           </div>
           <div className="flex justify-between">
-            <span>Progress:</span>
+            <span style={{ color: 'var(--text-primary)' }}>Progress:</span>
             <span className="font-mono">{Math.round(timerState.progressPercentage)}%</span>
           </div>
         </div>
-
       </div>
 
       {/* Show RefreshTokenInfo only when timer type is refresh */}
