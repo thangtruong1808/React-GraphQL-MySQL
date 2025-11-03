@@ -1,11 +1,10 @@
 import React, { createContext, ReactNode, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { LoginInput, User } from '../types/graphql';
-import { useAuthState, useAuthActions, useSessionManager, useAuthInitializer } from './auth';
-import { TokenManager } from '../utils/tokenManager/TokenManager';
-import { AuthInitializationSkeleton, LoginPageSkeleton, ProjectsPageSkeleton, TeamPageSkeleton, AboutPageSkeleton, NavBarSkeleton, SearchResultsPageSkeleton, ProjectDetailPageSkeleton } from '../components/ui';
-import { DashboardLayout } from '../components/layout';
+import { AboutPageSkeleton, AuthInitializationSkeleton, LoginPageSkeleton, NavBarSkeleton, ProjectDetailPageSkeleton, ProjectsPageSkeleton, SearchResultsPageSkeleton, TeamPageSkeleton } from '../components/ui';
 import { ROUTE_PATHS } from '../constants/routingConstants';
+import { LoginInput, User } from '../types/graphql';
+import { TokenManager } from '../utils/tokenManager/TokenManager';
+import { useAuthActions, useAuthInitializer, useAuthState, useSessionManager } from './auth';
 
 /**
  * Authentication Context Interface
@@ -108,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Authentication state management
   const authState = useAuthState();
 
-  // Authentication actions management (initial version without pause/resume)
+  // Authentication actions management
   const authActions = useAuthActions(
     authState.setUser,
     authState.setIsAuthenticated,
@@ -120,8 +119,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authState.setLastModalShowTime,
     authState.setModalAutoLogoutTimer,
     authState.modalAutoLogoutTimer,
-    undefined, // pauseAutoLogoutForRefresh
-    undefined, // resumeAutoLogoutAfterRefresh
   );
 
   // Session management

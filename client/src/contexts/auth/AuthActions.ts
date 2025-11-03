@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useMutation, useLazyQuery } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
+import { useCallback } from 'react';
+import { clearCSRFToken as clearApolloCSRFToken, setCSRFToken as setApolloCSRFToken } from '../../services/graphql/apollo-client';
 import { LOGIN, LOGOUT, REFRESH_TOKEN } from '../../services/graphql/mutations';
 import { LoginInput, User } from '../../types/graphql';
-import { clearCSRFToken as clearApolloCSRFToken, setCSRFToken as setApolloCSRFToken } from '../../services/graphql/apollo-client';
-import { getTokens, clearTokens, saveTokens, TokenManager } from '../../utils/tokenManager';
-import { useApolloClient } from '@apollo/client';
+import { clearTokens, saveTokens, TokenManager } from '../../utils/tokenManager';
 import { useError } from '../ErrorContext';
 
 /**
@@ -39,8 +38,6 @@ export const useAuthActions = (
   setLastModalShowTime: (time: number | null) => void,
   setModalAutoLogoutTimer: (timer: NodeJS.Timeout | null) => void,
   modalAutoLogoutTimer: NodeJS.Timeout | null,
-  pauseAutoLogoutForRefresh?: () => void,
-  resumeAutoLogoutAfterRefresh?: () => void,
 ) => {
   const client = useApolloClient();
   const { showError } = useError();
