@@ -20,31 +20,20 @@ export class ActivityManager {
    */
   static async updateActivity(): Promise<void> {
     try {
-      // SAFETY CHECK: Verify token is not expired before resetting expiry
-      // This prevents resetting expiry timer when token has already expired
-      const currentExpiry = MemoryStorage.getActivityBasedExpiry();
-      if (currentExpiry) {
-        const now = Date.now();
-        const isExpired = now >= currentExpiry;
-        if (isExpired) {
-          // Token is already expired - do not reset expiry timer
-          // This prevents activity updates from interfering with expired state
-          return;
-        }
-      }
-      
       const now = Date.now();
-      
+
+      // Do not reset if already expired (prevents missing first expiry)
+      const currentExpiry = MemoryStorage.getActivityBasedExpiry();
+      if (currentExpiry && now >= currentExpiry) {
+        return;
+      }
+
       // Step 1: Update last activity timestamp
       MemoryStorage.setLastActivity(now);
       
       // Step 2: Reset activity-based token expiry (1 minute from now)
       const activityExpiry = now + AUTH_CONFIG.ACTIVITY_TOKEN_EXPIRY;
       MemoryStorage.setActivityBasedExpiry(activityExpiry);
-      
-      // Step 3: Ensure all operations are completed before returning
-      // Small delay to ensure memory operations are fully processed
-      await new Promise(resolve => setTimeout(resolve, 10));
     } catch (error) {
       throw error; // Re-throw to allow proper error handling
     }

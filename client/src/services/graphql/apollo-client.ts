@@ -10,7 +10,8 @@ import { ROUTE_PATHS } from '../../constants/routingConstants';
 import {
   clearTokens,
   getTokens,
-  isTokenExpired
+  isTokenExpired,
+  TokenManager
 } from '../../utils/tokenManager';
 import { REFRESH_TOKEN } from './mutations';
 
@@ -115,13 +116,20 @@ const collectAuthData = async (): Promise<{ accessToken: string | null; csrfToke
   try {
     // Get current tokens
     const tokens = getTokens();
-    let accessToken = tokens.accessToken;
-    
-    // Refresh token if expired
-    if (accessToken && isTokenExpired(accessToken)) {
-      accessToken = await refreshTokenAutomatically();
+    let accessToken: string | null = null;
+
+    // Only use access token if it is still valid; DO NOT auto-refresh here
+    if (tokens.accessToken) {
+      const { isActivityBasedTokenExpired } = await import('../../utils/tokenManager');
+      const activityModeEnabled = AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED;
+      const isExpired = activityModeEnabled
+        ? isActivityBasedTokenExpired()
+        : isTokenExpired(tokens.accessToken);
+      if (!isExpired) {
+        accessToken = tokens.accessToken;
+      }
     }
-    
+
     // Ensure CSRF token is available
     if (!csrfToken) {
       try {
@@ -141,7 +149,7 @@ const collectAuthData = async (): Promise<{ accessToken: string | null; csrfToke
         // CSRF token fetch failed
       }
     }
-    
+
     return { accessToken, csrfToken };
   } catch (error) {
     return { accessToken: null, csrfToken: null };
@@ -295,6 +303,33 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     graphQLErrors.forEach(async ({ message, locations, path, extensions }) => {
       // Handle GraphQL errors
       if (extensions?.code === 'UNAUTHENTICATED') {
+        // Check if this is a notification-related error
+        const isNotificationError = message.includes('notification') || 
+                                   message.includes('Notification') ||
+                                   operation.operationName === 'GetUserUnreadNotifications' ||
+                                   operation.operationName === 'GetDashboardNotifications';
+        
+        // ALWAYS suppress notification errors - they're non-critical and shouldn't interrupt user flow
+        if (isNotificationError) {
+          return; // Suppress notification errors completely
+        }
+        
+        // During session-expiry window, suppress auth errors (no toast, no token clear)
+        try {
+          const isModalShowing = TokenManager.isSessionExpiryModalShowing();
+          const activityModeEnabled = AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED;
+          const isAccessExpired = activityModeEnabled ? TokenManager.isActivityBasedTokenExpired() : false;
+          const isAuthWindow = isModalShowing || isAccessExpired;
+          
+          if (isAuthWindow) {
+            return; // Let SessionManager handle the flow
+          }
+        } catch (_) {}
+
+        // Check authentication state more reliably - check if tokens exist
+        const tokens = getTokens();
+        const hasTokens = !!(tokens.accessToken || tokens.refreshToken);
+
         // Don't show authentication errors during initialization or for new users
         // These are expected for users without refresh tokens
         const isAuthOperation = operation.operationName === 'RefreshToken' || 
@@ -310,10 +345,12 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
         const isCommentOperation = operation.operationName === 'CreateComment' || 
                                   operation.operationName === 'ToggleCommentLike';
         
-        // Completely suppress authentication errors during initialization and after logout
-        if (isAuthOperation || isRefreshTokenRequiredError || isAuthInitializing || isAppInitializing) {
-          // Don't show any error messages for authentication operations
-          // These are expected for new users, during initialization, or after logout
+        // Suppress authentication errors during initialization, app initialization, or when tokens don't exist yet
+        // This prevents race conditions where queries execute before auth is ready
+        // The token check (!hasTokens) handles cases where queries run before tokens are set
+        if (isAuthOperation || isRefreshTokenRequiredError || isAuthInitializing || isAppInitializing || !hasTokens) {
+          // Don't show any error messages for authentication operations or when auth isn't ready
+          // These are expected for new users, during initialization, or when tokens haven't been set yet
           return;
         }
         
@@ -333,7 +370,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
           }
         }
         
-        // Clear tokens on authentication error for other operations
+        // Clear tokens on authentication error for other operations (outside modal flow)
         clearTokens();
         
         // Only show other authentication errors

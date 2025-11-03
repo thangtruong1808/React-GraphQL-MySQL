@@ -1,6 +1,9 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_USER_UNREAD_NOTIFICATIONS_QUERY, GetUserUnreadNotificationsQueryResponse } from '../../services/graphql/notificationQueries';
+import { useAuth } from '../../contexts/AuthContext';
+import { TokenManager, isActivityBasedTokenExpired, isTokenExpired, getTokens } from '../../utils/tokenManager';
+import { AUTH_CONFIG } from '../../constants/auth';
 import NotificationDrawerHeader from './NotificationDrawerHeader';
 import NotificationDrawerActions from './NotificationDrawerActions';
 import NotificationDrawerContent from './NotificationDrawerContent';
@@ -17,12 +20,75 @@ interface NotificationDrawerProps {
 }
 
 const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose }) => {
+  // Get session expiry modal state to pause queries during expiry
+  const { showSessionExpiryModal, isAuthenticated } = useAuth();
+
+  // Check if token is expired or close to expiring (async check to avoid race conditions)
+  const [shouldSkipNotifications, setShouldSkipNotifications] = React.useState(false);
+
+  // Update skip state asynchronously to check token expiry
+  React.useEffect(() => {
+    const checkTokenStatus = async () => {
+      try {
+        if (!isAuthenticated || showSessionExpiryModal || !isOpen) {
+          setShouldSkipNotifications(true);
+          return;
+        }
+
+        // Check if token is expired or close to expiring (within 10 seconds threshold)
+        const tokens = getTokens();
+        if (!tokens.accessToken) {
+          setShouldSkipNotifications(true);
+          return;
+        }
+
+        let isExpired = false;
+        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+          isExpired = isActivityBasedTokenExpired();
+          // Also check if close to expiring (within 10 seconds)
+          if (!isExpired) {
+            const expiry = TokenManager.getActivityBasedTokenExpiry();
+            if (expiry) {
+              const timeRemaining = expiry - Date.now();
+              isExpired = timeRemaining <= 10000; // 10 seconds threshold
+            }
+          }
+        } else {
+          isExpired = isTokenExpired(tokens.accessToken);
+          // Also check if close to expiring (within 10 seconds)
+          if (!isExpired) {
+            const expiry = TokenManager.getTokenExpiration(tokens.accessToken);
+            if (expiry) {
+              const timeRemaining = expiry - Date.now();
+              isExpired = timeRemaining <= 10000; // 10 seconds threshold
+            }
+          }
+        }
+
+        setShouldSkipNotifications(isExpired || showSessionExpiryModal);
+      } catch (error) {
+        // On error, skip to prevent unwanted queries
+        setShouldSkipNotifications(true);
+      }
+    };
+
+    if (isOpen) {
+      checkTokenStatus();
+      // Check every 5 seconds to update skip state as token approaches expiry
+      const interval = setInterval(checkTokenStatus, 5000);
+      return () => clearInterval(interval);
+    } else {
+      setShouldSkipNotifications(true);
+    }
+  }, [isAuthenticated, showSessionExpiryModal, isOpen]);
+
   // Fetch user's notifications when drawer is opened
+  // Skip query when session expiry modal is showing or token is expired/close to expiring
   const { data, loading, refetch } = useQuery<GetUserUnreadNotificationsQueryResponse>(
     GET_USER_UNREAD_NOTIFICATIONS_QUERY,
     {
       variables: { limit: 100 },
-      skip: !isOpen,
+      skip: !isOpen || showSessionExpiryModal || shouldSkipNotifications,
       errorPolicy: 'all'
     }
   );

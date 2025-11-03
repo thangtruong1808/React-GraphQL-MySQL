@@ -25,35 +25,10 @@ export const useAppFocusedActivityTracker = () => {
   // Handle user activity - called when any user interaction is detected
   const handleUserActivity = useCallback(async () => {
     try {
-      // Step 1: Check if session expiry modal is showing
-      // If modal is showing, skip activity updates to prevent interference
-      const isModalShowing = TokenManager.isSessionExpiryModalShowing();
-      if (isModalShowing) {
-        // App focused activity tracker: Session expiry modal showing - skipping activity update
-        return;
-      }
-
-      // Step 2: PRIORITY CHECK - Check if access token is expired FIRST
-      // This prevents activity updates from resetting the expiry timer after expiry
-      const tokens = getTokens();
-      if (tokens.accessToken) {
-        let isAccessTokenExpired = false;
-        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
-          isAccessTokenExpired = isActivityBasedTokenExpired();
-        } else {
-          isAccessTokenExpired = isTokenExpired(tokens.accessToken);
-        }
-        
-        if (isAccessTokenExpired) {
-          // App focused activity tracker: Access token expired - skipping activity update to prevent timer reset
-          return;
-        }
-      }
-
-      // Step 3: Get refresh token status asynchronously to avoid race conditions
+      // Step 1: Get refresh token status asynchronously to avoid race conditions
       const refreshTokenStatus = await TokenManager.getRefreshTokenStatus();
       
-      // Step 4: Check if refresh token timer is actively counting down
+      // Step 2: Check if refresh token timer is actively counting down
       // Only skip activity updates when refresh token timer is active AND not in transition
       const isRefreshTokenActive = refreshTokenStatus.expiry &&
                                   refreshTokenStatus.timeRemaining &&
@@ -61,12 +36,35 @@ export const useAppFocusedActivityTracker = () => {
 
       const isInTransition = refreshTokenStatus.isContinueToWorkTransition;
 
-      // Step 5: Skip activity updates only during refresh token countdown (not during transitions)
+      // Step 3: Skip activity updates only during refresh token countdown (not during transitions)
       if (isRefreshTokenActive && !isInTransition) {
         return;
       }
       
-      // Step 7: Update activity for access token timer asynchronously
+      // Step 4: Additional check - if refresh token timer hasn't started yet, allow activity updates
+      // This ensures normal activity tracking continues until the modal appears
+      if (!refreshTokenStatus.expiry) {
+        // App focused activity tracker: No refresh token timer active - allowing activity update
+      }
+      
+      // Step 5: Additional safety check - only allow activity updates if access token is still valid
+      // This prevents activity updates from interfering with expired tokens
+      const tokens = getTokens();
+      if (tokens.accessToken) {
+        let isAccessTokenStillValid = false;
+        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+          isAccessTokenStillValid = !isActivityBasedTokenExpired();
+        } else {
+          isAccessTokenStillValid = !isTokenExpired(tokens.accessToken);
+        }
+        
+        if (!isAccessTokenStillValid) {
+          // App focused activity tracker: Access token expired - skipping activity update
+          return;
+        }
+      }
+      
+      // Step 6: Update activity for access token timer asynchronously
       // Focus check is handled at the event level, not here
       await updateActivity();
     } catch (error) {

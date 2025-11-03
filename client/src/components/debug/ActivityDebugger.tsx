@@ -68,11 +68,18 @@ const ActivityDebugger: React.FC = () => {
           onClick={() => setIsVisible(!isVisible)} // Toggle debug panel visibility
           className={`${ACTIVITY_DEBUGGER_LAYOUT.TOGGLE_BUTTON_POSITION} px-4 py-2 ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_ROUNDED} text-sm font-medium transition-colors ${ACTIVITY_DEBUGGER_LAYOUT.PANEL_SHADOW}`}
           style={{
-            backgroundColor: 'var(--accent-from)',
-            color: 'var(--text-primary)',
+            backgroundColor: 'var(--button-secondary-bg)',
+            color: 'var(--button-secondary-text)',
+            border: '1px solid var(--border-color)',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-to)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--accent-from)'}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--button-secondary-hover-bg)';
+            e.currentTarget.style.color = 'var(--button-secondary-text)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--button-secondary-bg)';
+            e.currentTarget.style.color = 'var(--button-secondary-text)';
+          }}
         >
           {isVisible ? ACTIVITY_DEBUGGER_MESSAGES.HIDE_DEBUG : ACTIVITY_DEBUGGER_MESSAGES.SHOW_DEBUG}
         </button>

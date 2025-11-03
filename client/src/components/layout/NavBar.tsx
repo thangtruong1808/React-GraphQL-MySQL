@@ -13,6 +13,8 @@ import { SearchDrawer } from '../search';
 import { NotificationDrawer } from '../notifications';
 import { useQuery } from '@apollo/client';
 import { GET_USER_UNREAD_NOTIFICATIONS_QUERY } from '../../services/graphql/notificationQueries';
+import { TokenManager, isActivityBasedTokenExpired, isTokenExpired, getTokens } from '../../utils/tokenManager';
+import { AUTH_CONFIG } from '../../constants/auth';
 import NavbarDesktopNavigation from './navbar/NavbarDesktopNavigation';
 import NavbarUserActions from './navbar/NavbarUserActions';
 
@@ -43,18 +45,99 @@ const NavBar: React.FC = () => {
   const filteredNavItems = hasDashboardAccess ? navItems : navItems.filter(i => i.id !== 'dashboard');
   const filteredMobileNavItems = hasDashboardAccess ? mobileNavItems : mobileNavItems.filter((i: any) => i.id !== 'dashboard');
 
+  // Get session expiry modal state to pause queries during expiry
+  const { showSessionExpiryModal } = useAuth();
+
+  // Check if token is expired or close to expiring (async check to avoid race conditions)
+  const [shouldSkipNotifications, setShouldSkipNotifications] = useState(false);
+  
+  // Store last known unread count to maintain badge consistency when query is skipped
+  const [lastKnownUnreadCount, setLastKnownUnreadCount] = useState(0);
+
+  // Update skip state asynchronously to check token expiry
+  useEffect(() => {
+    const checkTokenStatus = async () => {
+      try {
+        if (!isAuthenticated || showSessionExpiryModal) {
+          setShouldSkipNotifications(true);
+          return;
+        }
+
+        // Check if token is expired or close to expiring (within 10 seconds threshold)
+        const tokens = getTokens();
+        if (!tokens.accessToken) {
+          setShouldSkipNotifications(true);
+          return;
+        }
+
+        let isExpired = false;
+        if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
+          isExpired = isActivityBasedTokenExpired();
+          // Also check if close to expiring (within 10 seconds)
+          if (!isExpired) {
+            const expiry = TokenManager.getActivityBasedTokenExpiry();
+            if (expiry) {
+              const timeRemaining = expiry - Date.now();
+              isExpired = timeRemaining <= 10000; // 10 seconds threshold
+            }
+          }
+        } else {
+          isExpired = isTokenExpired(tokens.accessToken);
+          // Also check if close to expiring (within 10 seconds)
+          if (!isExpired) {
+            const expiry = TokenManager.getTokenExpiration(tokens.accessToken);
+            if (expiry) {
+              const timeRemaining = expiry - Date.now();
+              isExpired = timeRemaining <= 10000; // 10 seconds threshold
+            }
+          }
+        }
+
+        setShouldSkipNotifications(isExpired || showSessionExpiryModal);
+      } catch (error) {
+        // On error, skip to prevent unwanted queries
+        setShouldSkipNotifications(true);
+      }
+    };
+
+    checkTokenStatus();
+
+    // Check every 5 seconds to update skip state as token approaches expiry
+    const interval = setInterval(checkTokenStatus, 5000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, showSessionExpiryModal]);
+
   // Fetch unread notification count for authenticated users
+  // Skip query when session expiry modal is showing or token is expired/close to expiring
   const { data: notificationData } = useQuery(GET_USER_UNREAD_NOTIFICATIONS_QUERY, {
     variables: { limit: 100 },
-    skip: !isAuthenticated,
-    pollInterval: 30000, // Poll every 30 seconds for real-time updates
+    skip: !isAuthenticated || showSessionExpiryModal || shouldSkipNotifications,
+    pollInterval: (showSessionExpiryModal || shouldSkipNotifications) ? 0 : 30000, // Stop polling when should skip
     errorPolicy: 'ignore'
   });
 
-  // Calculate unread count from user's notifications
+  // Reset last known count when user logs out or becomes unauthenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLastKnownUnreadCount(0);
+    }
+  }, [isAuthenticated]);
+
+  // Calculate unread count from user's notifications and update last known count
+  useEffect(() => {
+    if (notificationData?.dashboardNotifications?.notifications) {
+      // Update last known count only when we have fresh data
+      const currentUnreadCount = notificationData.dashboardNotifications.notifications.filter(
+        (notification: any) => !notification.isRead
+      ).length;
+      setLastKnownUnreadCount(currentUnreadCount);
+    }
+  }, [notificationData]);
+
+  // Use last known count for badge display to maintain consistency when query is skipped
   const unreadCount = notificationData?.dashboardNotifications?.notifications?.filter(
     (notification: any) => !notification.isRead
-  ).length || 0;
+  ).length ?? lastKnownUnreadCount;
 
   /**
    * Handle click outside to close dropdowns

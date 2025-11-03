@@ -38,6 +38,7 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
     sectionTitle: ACTIVITY_DEBUGGER_MESSAGES.INACTIVITY_TIMER_HEADER,
   });
 
+
   // Update timer state every second
   useEffect(() => {
     // Update timer state using the TimerCalculator utility (async)
@@ -70,6 +71,8 @@ const InactivityTimer: React.FC<InactivityTimerProps> = ({ className = '' }) => 
   }, []); // No dependencies needed - TimerCalculator handles all state internally
 
 
+
+  
 
   // Determine display colors based on state using theme variables
   const getTimerColor = () => {
