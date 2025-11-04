@@ -7,19 +7,50 @@ import { TokenManager } from './TokenManager';
  */
 
 /**
- * Save tokens to memory storage
+ * Save tokens to memory storage with verification
+ * Waits until tokens are actually available in storage before resolving
  * @param accessToken - JWT access token
  * @param refreshToken - Hex refresh token
- * 
+ * @returns Promise that resolves when tokens are verified to be in storage
+ *
  * CALLED BY: AuthContext after successful login/refresh
- * SCENARIOS: All scenarios - stores tokens in memory
+ * SCENARIOS: All scenarios - stores tokens in memory and verifies they're available
  */
-export const saveTokens = (accessToken: string, refreshToken: string): void => {
-  TokenManager.storeTokens(accessToken, refreshToken, null);
+export const saveTokens = async (accessToken: string, refreshToken: string): Promise<void> => {
+  console.log('[saveTokens] Starting to save tokens...');
   
+  // Store tokens synchronously
+  TokenManager.storeTokens(accessToken, refreshToken, null);
+  console.log('[saveTokens] Tokens stored via TokenManager.storeTokens()');
+
   // Store token creation time for dynamic buffer calculation
   // This enables the "Continue to Work" functionality with dynamic buffer based on session duration
   TokenManager.setTokenCreationTime(Date.now());
+
+  // Verify tokens are actually stored and available
+  // Retry up to 10 times with 10ms delay to handle any timing issues
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const tokens = TokenManager.getAccessToken();
+    console.log(`[saveTokens] Verification attempt ${attempt + 1}:`, {
+      tokenMatches: tokens === accessToken,
+      hasToken: !!tokens,
+      tokenLength: tokens?.length || 0,
+      expectedLength: accessToken.length
+    });
+    
+    if (tokens === accessToken) {
+      // Tokens verified - they're in storage
+      console.log('[saveTokens] Tokens verified successfully!');
+      return;
+    }
+    // Wait a small amount before retrying (allows any async operations to complete)
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+
+  // If we get here, tokens weren't verified but they should still be set
+  // This is a fallback - in practice, tokens should be available immediately
+  // since memory storage is synchronous
+  console.warn('[saveTokens] Tokens were not verified after 10 attempts, but should be set');
 };
 
 /**

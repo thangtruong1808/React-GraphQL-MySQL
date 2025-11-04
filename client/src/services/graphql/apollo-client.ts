@@ -84,9 +84,13 @@ const refreshTokenAutomatically = async (): Promise<string | null> => {
 
       const refreshData = result.data?.refreshToken;
       if (refreshData?.accessToken && refreshData?.refreshToken) {
-        // Update tokens in memory
+        // Update tokens in memory and verify they're stored
         const { saveTokens } = await import('../../utils/tokenManager');
-        saveTokens(refreshData.accessToken, refreshData.refreshToken);
+        await saveTokens(refreshData.accessToken, refreshData.refreshToken);
+        
+        // Clear auth data promise cache to force fresh token collection on next request
+        // This ensures collectAuthData() will create a new promise with the refreshed tokens
+        authDataPromise = null;
         
         // Update CSRF token if provided
         if (refreshData.csrfToken) {
@@ -117,17 +121,28 @@ const refreshTokenAutomatically = async (): Promise<string | null> => {
  * Returns object with accessToken and csrfToken
  */
 const collectAuthData = async (): Promise<{ accessToken: string | null; csrfToken: string | null }> => {
+  console.log('[apollo-client] collectAuthData() called');
+  
   // If auth data collection is already in progress, return the existing promise
   // This prevents race conditions when multiple queries fire simultaneously during fast navigation
   if (authDataPromise) {
+    console.log('[apollo-client] Auth data collection already in progress, returning existing promise');
     return authDataPromise;
   }
 
   // Create new promise for auth data collection
   authDataPromise = (async () => {
     try {
+      console.log('[apollo-client] Starting new auth data collection...');
+      
       // Get current tokens
       const tokens = getTokens();
+      console.log('[apollo-client] Tokens retrieved from getTokens():', {
+        hasAccessToken: !!tokens.accessToken,
+        hasRefreshToken: !!tokens.refreshToken,
+        accessTokenLength: tokens.accessToken?.length || 0
+      });
+      
       let accessToken: string | null = null;
 
       // Only use access token if it is still valid; DO NOT auto-refresh here
@@ -137,37 +152,67 @@ const collectAuthData = async (): Promise<{ accessToken: string | null; csrfToke
         const isExpired = activityModeEnabled
           ? isActivityBasedTokenExpired()
           : isTokenExpired(tokens.accessToken);
+        console.log('[apollo-client] Token expiry check:', {
+          activityModeEnabled,
+          isExpired
+        });
+        
         if (!isExpired) {
           accessToken = tokens.accessToken;
+          console.log('[apollo-client] Access token is valid and will be used');
+        } else {
+          console.log('[apollo-client] Access token is expired, not using it');
         }
+      } else {
+        console.log('[apollo-client] No access token found in storage');
       }
 
       // Ensure CSRF token is available
+      console.log('[apollo-client] CSRF token check:', {
+        hasCsrfToken: !!csrfToken
+      });
+      
       if (!csrfToken) {
+        console.log('[apollo-client] CSRF token not found, fetching from server...');
         try {
           const baseUrl = API_CONFIG.GRAPHQL_URL.replace('/graphql', '');
           const response = await fetch(`${baseUrl}/csrf-token`, {
             method: 'GET',
             credentials: 'include',
           });
-          
+
           if (response.ok) {
             const data = await response.json();
             if (data.csrfToken) {
               csrfToken = data.csrfToken;
+              console.log('[apollo-client] CSRF token fetched successfully from server');
+            } else {
+              console.log('[apollo-client] CSRF token not found in server response');
             }
+          } else {
+            console.log('[apollo-client] Failed to fetch CSRF token, status:', response.status);
           }
         } catch (error) {
-          // CSRF token fetch failed
+          console.error('[apollo-client] Error fetching CSRF token:', error);
         }
+      } else {
+        console.log('[apollo-client] Using existing CSRF token from memory');
       }
 
-      return { accessToken, csrfToken };
+      const result = { accessToken, csrfToken };
+      console.log('[apollo-client] Auth data collection completed:', {
+        hasAccessToken: !!result.accessToken,
+        hasCsrfToken: !!result.csrfToken
+      });
+      
+      return result;
     } catch (error) {
+      console.error('[apollo-client] Error in auth data collection:', error);
       return { accessToken: null, csrfToken: null };
     } finally {
       // Clear promise after completion to allow new collection
       authDataPromise = null;
+      console.log('[apollo-client] Auth data promise cleared');
     }
   })();
 
@@ -280,27 +325,41 @@ const wsLink = new GraphQLWsLink(wsClient);
  */
 const authLink = setContext(async (_, { headers }) => {
   try {
+    console.log('[apollo-client] authLink: Setting up request headers...');
+    
     // Collect all necessary authentication data asynchronously
     const { accessToken, csrfToken: currentCSRFToken } = await collectAuthData();
-    
+
     // Prepare headers
     const requestHeaders: any = {
       ...headers,
       'Content-Type': 'application/json',
     };
-    
+
     // Add authorization header if token is available
     if (accessToken) {
       requestHeaders.authorization = `Bearer ${accessToken}`;
+      console.log('[apollo-client] authLink: Authorization header added');
+    } else {
+      console.log('[apollo-client] authLink: No access token available, skipping authorization header');
     }
-    
+
     // Add CSRF token header for mutations
     if (currentCSRFToken) {
       requestHeaders['x-csrf-token'] = currentCSRFToken;
+      console.log('[apollo-client] authLink: CSRF token header added');
+    } else {
+      console.log('[apollo-client] authLink: No CSRF token available, skipping CSRF header');
     }
-    
+
+    console.log('[apollo-client] authLink: Headers prepared:', {
+      hasAuthorization: !!requestHeaders.authorization,
+      hasCsrfToken: !!requestHeaders['x-csrf-token']
+    });
+
     return { headers: requestHeaders };
   } catch (error) {
+    console.error('[apollo-client] authLink: Error setting up headers:', error);
     return { headers };
   }
 });
@@ -566,13 +625,25 @@ export const setCSRFToken = (token: string) => {
 /**
  * Clear CSRF token from Apollo Client memory
  * Called during logout or token clearing
- * 
+ *
  * CALLED BY: AuthContext during logout
  * SCENARIOS: Logout scenarios - clears CSRF token
  */
 export const clearCSRFToken = () => {
   csrfToken = null;
   // Debug logging disabled for better user experience
+};
+
+/**
+ * Clear auth data promise cache to force fresh token collection
+ * Called after tokens are saved/refreshed to ensure next collectAuthData() uses new tokens
+ *
+ * CALLED BY: AuthActions after login/refresh, refreshTokenAutomatically after token refresh
+ * SCENARIOS: After successful token save/refresh - ensures fresh promise with new tokens
+ */
+export const clearAuthDataPromise = () => {
+  console.log('[apollo-client] clearAuthDataPromise() called - clearing cached promise');
+  authDataPromise = null;
 };
 
 /**
@@ -583,10 +654,18 @@ export const clearCSRFToken = () => {
  * SCENARIOS: Comment posting, like toggling, and other authenticated operations
  */
 export const ensureAuthDataReady = async (): Promise<boolean> => {
+  console.log('[apollo-client] ensureAuthDataReady() called');
   try {
     const { accessToken, csrfToken: currentCSRFToken } = await collectAuthData();
-    return !!(accessToken && currentCSRFToken);
+    const isReady = !!(accessToken && currentCSRFToken);
+    console.log('[apollo-client] ensureAuthDataReady() result:', {
+      isReady,
+      hasAccessToken: !!accessToken,
+      hasCsrfToken: !!currentCSRFToken
+    });
+    return isReady;
   } catch (error) {
+    console.error('[apollo-client] ensureAuthDataReady() error:', error);
     return false;
   }
 };

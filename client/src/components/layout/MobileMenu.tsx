@@ -21,7 +21,7 @@ interface MobileMenuProps {
   getUserInitials: () => string;
   navItems?: NavItem[];
   onSearchToggle?: () => void;
-  unreadCount?: number;
+  unreadCount?: number | null;
   onNotificationToggle?: () => void;
 }
 
@@ -35,9 +35,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   getUserInitials,
   navItems = [],
   onSearchToggle,
-  unreadCount = 0,
+  unreadCount,
   onNotificationToggle,
 }) => {
+  // Handle default value for unreadCount - preserve null for loading state
+  const count = unreadCount !== undefined ? unreadCount : null;
   const location = useLocation();
 
 
@@ -180,7 +182,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                     className={`w-5 h-5 ${isActive ? 'text-purple-700' : 'text-gray-500'}`}
                   />
                   {/* Notification badge - positioned next to icon */}
-                  <NavbarNotificationBadge unreadCount={unreadCount} />
+                  <NavbarNotificationBadge unreadCount={count} />
                 </div>
                 <span>{item.label}</span>
               </button>

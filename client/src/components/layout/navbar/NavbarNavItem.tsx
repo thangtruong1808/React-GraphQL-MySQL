@@ -28,15 +28,17 @@ interface NavbarNavItemProps {
 const NavbarNavItem: React.FC<NavbarNavItemProps> = ({
   item,
   isActive,
-  unreadCount = 0,
+  unreadCount,
   onSearchClick,
   onNotificationClick
 }) => {
+  // Handle default value for unreadCount - preserve null for loading state, default to 0 for other items
+  const count = unreadCount !== undefined ? unreadCount : (item.id === 'notifications' ? null : 0);
   const location = useLocation();
   const baseClassName = `group relative px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-all duration-300 theme-tab-inactive-hover-bg hover:shadow-md transform hover:-translate-y-0.5 ${isActive
     ? 'theme-tab-active-text theme-tab-active-bg shadow-md'
     : ''
-  } theme-navbar-text`;
+    } theme-navbar-text`;
 
   // Search button
   if (item.id === 'search') {
@@ -73,17 +75,17 @@ const NavbarNavItem: React.FC<NavbarNavItemProps> = ({
         <div className="flex flex-col items-center space-y-1">
           <div className="flex items-center justify-center">
             {/* Dynamic notification icon based on unread status */}
-            {unreadCount > 0 ? (
+            {count !== null && count > 0 ? (
               // Bell icon with subtle lean for unread notifications
               <div className="transform rotate-12 transition-transform duration-300 hover:rotate-0">
                 <NavIcon icon={item.icon || 'default'} className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
             ) : (
-              // Normal bell icon for no unread notifications
+              // Normal bell icon for no unread notifications or loading state
               <NavIcon icon={item.icon || 'default'} className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
             {/* Notification badge - positioned next to icon */}
-            <NavbarNotificationBadge unreadCount={unreadCount} />
+            <NavbarNotificationBadge unreadCount={count} />
           </div>
           <span className="text-xs lg:text-sm">{item.label}</span>
         </div>

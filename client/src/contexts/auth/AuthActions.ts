@@ -148,8 +148,23 @@ export const useAuthActions = (
       // Store new tokens and update authentication state
       const { accessToken, refreshToken, csrfToken, user: refreshedUser } = refreshData;
       
-      // Store tokens (this resets access token to 1 minute like first-time login)
-      saveTokens(accessToken, refreshToken);
+      // Store tokens and verify they're stored before updating authentication state
+      // This ensures tokens are available before setIsAuthenticated(true) triggers queries
+      await saveTokens(accessToken, refreshToken);
+      
+      // Clear auth data promise cache to force fresh token collection on next request
+      // This ensures collectAuthData() will create a new promise with the refreshed tokens
+      const { clearAuthDataPromise } = await import('../../services/graphql/apollo-client');
+      clearAuthDataPromise();
+      
+      // Verify tokens are available before proceeding
+      const { getTokens } = await import('../../utils/tokenManager');
+      const storedTokens = getTokens();
+      if (!storedTokens.accessToken) {
+        throw new Error('Failed to save authentication tokens');
+      }
+      
+      // Update authentication state only after tokens are confirmed to be in storage
       setUser(refreshedUser);
       setIsAuthenticated(true);
       
@@ -217,10 +232,38 @@ export const useAuthActions = (
         return { success: false, error: errorMessage };
       }
 
-      // Save tokens and update authentication state
-      saveTokens(loginData.accessToken, loginData.refreshToken);
+      // Save tokens and verify they're stored before updating authentication state
+      // This ensures tokens are available before setIsAuthenticated(true) triggers queries
+      console.log('[AuthActions] Login successful, starting token save process...');
+      await saveTokens(loginData.accessToken, loginData.refreshToken);
+      console.log('[AuthActions] saveTokens() completed');
+      
+      // Clear auth data promise cache to force fresh token collection on next request
+      // This ensures collectAuthData() will create a new promise with the new tokens instead of reusing old one
+      const { clearAuthDataPromise } = await import('../../services/graphql/apollo-client');
+      clearAuthDataPromise();
+      console.log('[AuthActions] Auth data promise cache cleared');
+      
+      // Verify tokens are available before proceeding
+      const { getTokens } = await import('../../utils/tokenManager');
+      const storedTokens = getTokens();
+      console.log('[AuthActions] Verification check after saveTokens:', {
+        hasAccessToken: !!storedTokens.accessToken,
+        hasRefreshToken: !!storedTokens.refreshToken,
+        accessTokenLength: storedTokens.accessToken?.length || 0
+      });
+      
+      if (!storedTokens.accessToken) {
+        console.error('[AuthActions] ERROR: Tokens not found in storage after save!');
+        throw new Error('Failed to save authentication tokens');
+      }
+      console.log('[AuthActions] Tokens verified in storage, proceeding with state update');
+      
+      // Update authentication state only after tokens are confirmed to be in storage
+      console.log('[AuthActions] Updating AuthContext state - setting isAuthenticated to true');
       setUser(loginData.user);
       setIsAuthenticated(true);
+      console.log('[AuthActions] AuthContext state updated - isAuthenticated = true');
 
       // Reset session expiry modal state on login to ensure fresh start
       setShowSessionExpiryModal(false);

@@ -14,7 +14,7 @@ interface NavbarDesktopNavigationProps {
     icon?: string;
     description: string;
   }>;
-  unreadCount: number;
+  unreadCount: number | null;
   onSearchToggle: () => void;
   onNotificationToggle: () => void;
 }
