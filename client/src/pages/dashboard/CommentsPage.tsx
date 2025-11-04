@@ -21,10 +21,10 @@ import {
   UPDATE_COMMENT_MUTATION,
   DELETE_COMMENT_MUTATION,
   Comment,
-  CommentFormData,
   GetDashboardCommentsQueryVariables,
 } from '../../services/graphql/commentQueries';
 import { DEFAULT_COMMENTS_PAGINATION } from '../../constants/commentManagement';
+import { CommentFormData } from '../../types/commentManagement';
 
 /**
  * Comments Dashboard Page
@@ -61,7 +61,7 @@ const CommentsPage: React.FC = () => {
 
   // Sorting state - separate to prevent unnecessary re-renders
   const [sortBy, setSortBy] = useState(DEFAULT_COMMENTS_PAGINATION.sortBy);
-  const [sortOrder, setSortOrder] = useState(DEFAULT_COMMENTS_PAGINATION.sortOrder);
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>(DEFAULT_COMMENTS_PAGINATION.sortOrder);
   const [isSorting, setIsSorting] = useState(false);
 
   // Loading states for mutations
@@ -80,13 +80,14 @@ const CommentsPage: React.FC = () => {
 
   // Fetch comments
   // Wait for auth data to be ready to prevent race conditions during fast navigation
+  const shouldSkip = isInitializing || !hasDashboardAccess || !user || !isAuthDataReady;
   const { data, loading: queryLoading, error, refetch } = useQuery(GET_DASHBOARD_COMMENTS_QUERY, {
     variables: queryVariables,
     errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
     // Skip querying until auth is initialized, user has access, and auth data is ready
-    skip: isInitializing || !hasDashboardAccess || !user || !isAuthDataReady
+    skip: shouldSkip,
   });
 
   /**
@@ -111,17 +112,30 @@ const CommentsPage: React.FC = () => {
   }, [data, queryLoading, isInitializing, user, hasDashboardAccess]);
 
   /**
-   * Handle GraphQL errors gracefully
-   * Only show errors if not during auth initialization
+   * Clear error state when skip condition changes to prevent showing stale errors
+   * This prevents cached errors from showing when navigating fast
    */
   useEffect(() => {
-    if (error && !isInitializing && user && hasDashboardAccess) {
+    if (shouldSkip) {
+      setState(prev => ({
+        ...prev,
+        error: null
+      }));
+    }
+  }, [shouldSkip]);
+
+  /**
+   * Handle GraphQL errors gracefully
+   * Only show errors if not during auth initialization or when auth data is not ready
+   */
+  useEffect(() => {
+    if (error && !shouldSkip) {
       setState(prev => ({
         ...prev,
         error: error.message || 'Failed to load comments'
       }));
     }
-  }, [error, isInitializing, user, hasDashboardAccess]);
+  }, [error, shouldSkip]);
 
   /**
    * Fetch comments with current parameters
@@ -175,7 +189,8 @@ const CommentsPage: React.FC = () => {
   const handleSort = useCallback(async (newSortBy: string, newSortOrder: string) => {
     setIsSorting(true);
     setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
+    // Cast to 'ASC' | 'DESC' to match state type - values are validated by CommentsTable component
+    setSortOrder(newSortOrder as 'ASC' | 'DESC');
     setState(prev => ({ ...prev, currentPage: 1 }));
 
     try {

@@ -99,17 +99,33 @@ const TagsPage: React.FC = () => {
   }, [data, queryLoading]);
 
   /**
-   * Handle GraphQL errors gracefully
-   * Only show errors if not during auth initialization or when auth data is not ready
+   * Clear error state when skip condition changes to prevent showing stale errors
+   * This prevents cached errors from showing when navigating fast
    */
   useEffect(() => {
-    if (error && !shouldSkip) {
+    if (shouldSkip) {
+      setState(prev => ({
+        ...prev,
+        error: null
+      }));
+    }
+  }, [shouldSkip]);
+
+  /**
+   * Handle GraphQL errors gracefully
+   * Only show errors if not during auth initialization, when auth data is ready, and query has completed
+   * This prevents stale cached errors from showing during fast navigation
+   */
+  useEffect(() => {
+    // Only show errors if not skipping, not loading, and we have an error
+    // This prevents stale cached errors from showing during fast navigation
+    if (error && !shouldSkip && !queryLoading) {
       setState(prev => ({
         ...prev,
         error: error.message || TAGS_ERROR_MESSAGES.FETCH
       }));
     }
-  }, [error, shouldSkip]);
+  }, [error, shouldSkip, queryLoading]);
 
   // Fetch helper
   const fetchTags = useCallback(async (page: number, pageSize: number, search: string) => {

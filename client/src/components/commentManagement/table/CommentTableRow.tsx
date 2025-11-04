@@ -7,8 +7,8 @@ import { formatDate, formatContentWithWordWrap, getCommentPriority } from './uti
 
 interface CommentTableRowProps {
   comment: Comment;
-  onEdit: (comment: Comment) => void;
-  onDelete: (comment: Comment) => void;
+  onEdit?: (comment: Comment) => void;
+  onDelete?: (comment: Comment) => void;
 }
 
 /**
@@ -103,26 +103,32 @@ const CommentTableRow: React.FC<CommentTableRowProps> = ({
 
       {/* Actions */}
       <td className={`px-4 py-4 whitespace-nowrap text-left ${COMMENT_TABLE_COLUMNS.ACTIONS.width}`}>
-        <div className="flex justify-start space-x-2">
-          <button
-            onClick={() => onEdit(comment)}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-            style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
-            title="Edit comment"
-          >
-            <FaEdit className="w-3 h-3 mr-1" />
-            Edit
-          </button>
-          <button
-            onClick={() => onDelete(comment)}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-            style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-danger-bg)' }}
-            title="Delete comment"
-          >
-            <FaTrash className="w-3 h-3 mr-1" />
-            Delete
-          </button>
-        </div>
+        {(onEdit || onDelete) && (
+          <div className="flex justify-start space-x-2">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(comment)}
+                className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+                style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
+                title="Edit comment"
+              >
+                <FaEdit className="w-3 h-3 mr-1" />
+                Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(comment)}
+                className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+                style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-danger-bg)' }}
+                title="Delete comment"
+              >
+                <FaTrash className="w-3 h-3 mr-1" />
+                Delete
+              </button>
+            )}
+          </div>
+        )}
       </td>
     </tr>
   );

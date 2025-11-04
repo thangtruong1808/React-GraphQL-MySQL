@@ -16,8 +16,8 @@ export interface CommentsTableProps {
   onSort: (sortBy: string, sortOrder: string) => void;
   currentSortBy: string;
   currentSortOrder: string;
-  onEdit: (comment: Comment) => void;
-  onDelete: (comment: Comment) => void;
+  onEdit?: (comment: Comment) => void;
+  onDelete?: (comment: Comment) => void;
 }
 
 // Props for CommentSearchInput component

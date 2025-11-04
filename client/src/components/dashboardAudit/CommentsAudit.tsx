@@ -36,7 +36,18 @@ const CommentsAudit: React.FC = () => {
     }
   );
 
-  if (loading && !data) {
+  /**
+   * Determine if we should show errors
+   * Only show errors if:
+   * - Not skipping (auth is ready)
+   * - Not loading (query has completed)
+   * - Have an error object
+   * This prevents stale cached errors from showing during fast navigation
+   */
+  const shouldShowError = error && !shouldSkip && !loading;
+
+  // Show loading skeleton when loading, no data, or when skipping (waiting for auth)
+  if ((loading && !data) || shouldSkip) {
     return (
       <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
         <div className="p-4 border-b border-gray-100">
@@ -62,7 +73,8 @@ const CommentsAudit: React.FC = () => {
     );
   }
 
-  if (error && !shouldSkip) {
+  // Show error only if conditions are met (not skipping, not loading, has error)
+  if (shouldShowError) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <InlineError message={error.message || 'Failed to load comments'} />

@@ -387,31 +387,42 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 
         // Don't show authentication errors during initialization or for new users
         // These are expected for users without refresh tokens
-        const isAuthOperation = operation.operationName === 'RefreshToken' || 
+                const isAuthOperation = operation.operationName === 'RefreshToken' ||
                                operation.operationName === 'RefreshTokenRenewal';
-        
+
         // Don't show "Refresh token is required" errors for new users or after logout
-        const isRefreshTokenRequiredError = message === 'Refresh token is required' || 
+        const isRefreshTokenRequiredError = message === 'Refresh token is required' ||
                                           message === 'Invalid refresh token' ||
                                           message.includes('Refresh token') ||
                                           message.includes('refresh token');
-        
+
         // Check if this is a comment-related operation (queries or mutations)
-        const isCommentOperation = operation.operationName === 'CreateComment' || 
+        const isCommentOperation = operation.operationName === 'CreateComment' ||
                                   operation.operationName === 'ToggleCommentLike' ||
                                   operation.operationName === 'GetDashboardComments';
-        
-        // Check if this is a comment query that might be failing due to race condition during fast navigation
+
+        // Check if this is a comment or tags query that might be failing due to race condition during fast navigation
         // During fast navigation, queries might execute before auth data is ready
         const isCommentQuery = operation.operationName === 'GetDashboardComments';
+        const isTagsQuery = operation.operationName === 'GetDashboardTags';
         
-        // For comment queries during fast navigation, suppress errors if tokens exist
-        // This prevents false "You must be logged in to view comments" errors
-        // The query will retry automatically when auth data is ready
-        if (isCommentQuery && hasTokens && !isAuthInitializing && !isAppInitializing) {
-          // Suppress error for comment queries during fast navigation when tokens exist
-          // This is a race condition - query executed before auth data was ready
-          // The query will succeed on retry when auth data is available
+        // Check if error message contains tags/comments authentication error text
+        // This catches errors that might not have UNAUTHENTICATED code but contain auth-related messages
+        const isTagsOrCommentsAuthError = message.includes('must be logged in to view tags') ||
+                                         message.includes('must be logged in to view comments') ||
+                                         message.includes('Failed to fetch tags') ||
+                                         message.includes('Failed to fetch comments');
+
+        // For comment and tags queries, always suppress UNAUTHENTICATED errors if tokens exist
+        // Also suppress errors with tags/comments auth messages if tokens exist (catches non-UNAUTHENTICATED errors)
+        // This prevents false "You must be logged in to view comments/tags" errors during fast navigation
+        // Even if initialization flags are false, isAuthDataReady might still be false
+        // If tokens exist, this is likely a race condition - query executed before auth data was ready
+        // The query will retry automatically when auth data is available via skip condition
+        if (((isCommentQuery || isTagsQuery) && hasTokens) || 
+            (isTagsOrCommentsAuthError && hasTokens && (isCommentQuery || isTagsQuery))) {
+          // Suppress error for comment/tags queries when tokens exist - always, regardless of initialization state
+          // This handles race conditions during fast navigation where queries execute before auth data is ready
           return;
         }
         
@@ -459,7 +470,24 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
           throw new Error(message);
         }
       } else {
-        // Show other GraphQL errors to user (but not CSRF errors)
+        // Check if this is a comment or tags query that might be failing due to race condition
+        // Some errors might not have UNAUTHENTICATED code but still be auth-related for these queries
+        const isCommentQuery = operation.operationName === 'GetDashboardComments';
+        const isTagsQuery = operation.operationName === 'GetDashboardTags';
+        const tokens = getTokens();
+        const hasTokens = !!(tokens.accessToken || tokens.refreshToken);
+        const isTagsOrCommentsAuthError = message.includes('must be logged in to view tags') ||
+                                         message.includes('must be logged in to view comments') ||
+                                         message.includes('Failed to fetch tags') ||
+                                         message.includes('Failed to fetch comments');
+
+        // Suppress tags/comments auth errors if tokens exist (even if not UNAUTHENTICATED code)
+        if (((isCommentQuery || isTagsQuery) && hasTokens && isTagsOrCommentsAuthError)) {
+          // Suppress error - likely race condition during fast navigation
+          return;
+        }
+
+        // Show other GraphQL errors to user (but not CSRF errors or suppressed tags/comments errors)
         if (globalErrorHandler) {
           globalErrorHandler(message, 'GraphQL');
         }
