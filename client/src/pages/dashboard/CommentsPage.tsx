@@ -5,6 +5,7 @@ import { useError } from '../../contexts/ErrorContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { DashboardSkeleton } from '../../components/ui';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import AccessDenied from '../../components/auth/AccessDenied';
 import { FaPlus } from 'react-icons/fa';
 import {
@@ -35,6 +36,7 @@ const CommentsPage: React.FC = () => {
   const { showError } = useError();
   const { user, isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // Centralized state management
   const [state, setState] = useState({
@@ -77,13 +79,14 @@ const CommentsPage: React.FC = () => {
   };
 
   // Fetch comments
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
   const { data, loading: queryLoading, error, refetch } = useQuery(GET_DASHBOARD_COMMENTS_QUERY, {
     variables: queryVariables,
     errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
-    // Skip querying until auth is initialized and user has access to avoid flash/empty state
-    skip: isInitializing || !hasDashboardAccess || !user
+    // Skip querying until auth is initialized, user has access, and auth data is ready
+    skip: isInitializing || !hasDashboardAccess || !user || !isAuthDataReady
   });
 
   /**

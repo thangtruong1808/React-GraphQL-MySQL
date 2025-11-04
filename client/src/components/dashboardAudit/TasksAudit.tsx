@@ -2,6 +2,9 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_DASHBOARD_TASKS_QUERY, type GetDashboardTasksQueryResponse, type GetDashboardTasksQueryVariables } from '../../services/graphql/taskQueries';
 import { InlineError } from '../ui';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 
 /**
  * TasksAudit
@@ -16,12 +19,25 @@ const TasksAudit: React.FC = () => {
     sortOrder: 'DESC'
   }), []);
 
+  const { isInitializing, user } = useAuth();
+  const { hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
+  const shouldSkip = isInitializing || !hasDashboardAccess || !user || !isAuthDataReady;
+
   const { data, loading, error } = useQuery<GetDashboardTasksQueryResponse, GetDashboardTasksQueryVariables>(
     GET_DASHBOARD_TASKS_QUERY,
-    { variables, fetchPolicy: 'cache-and-network', errorPolicy: 'all' }
+    {
+      variables,
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'all',
+      notifyOnNetworkStatusChange: true,
+      skip: shouldSkip,
+    }
   );
 
-  if (loading && !data) {
+  // Render loading skeleton rows
+  if ((loading && !data) || shouldSkip) {
     return (
       <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
         <div className="p-4 border-b border-gray-100">
@@ -47,7 +63,7 @@ const TasksAudit: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && !shouldSkip) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <InlineError message={error.message || 'Failed to load tasks'} />

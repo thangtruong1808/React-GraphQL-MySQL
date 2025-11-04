@@ -19,6 +19,7 @@ import {
 } from '../../constants/activityManagement';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import {
   CREATE_ACTIVITY_MUTATION,
   DELETE_ACTIVITY_MUTATION,
@@ -45,6 +46,7 @@ const ActivitiesPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // State management
   const [state, setState] = useState<ActivityManagementState>({
@@ -72,6 +74,7 @@ const ActivitiesPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<string>(DEFAULT_ACTIVITY_PAGINATION.sortOrder);
 
   // GraphQL queries and mutations
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_ACTIVITIES_QUERY, {
     variables: {
       limit: state.pageSize,
@@ -82,7 +85,7 @@ const ActivitiesPage: React.FC = () => {
     },
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess
+    skip: isInitializing || !hasDashboardAccess || !isAuthDataReady
   });
 
   /**

@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import AccessDenied from '../../components/auth/AccessDenied';
 import {
   ActivitySearchInput,
@@ -46,6 +47,7 @@ const ActivityManagementPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // State management
   const [state, setState] = useState<ActivityManagementState>({
@@ -78,6 +80,7 @@ const ActivityManagementPage: React.FC = () => {
   const paginationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // GraphQL queries and mutations
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_ACTIVITIES_QUERY, {
     variables: {
       limit: state.pageSize,
@@ -88,7 +91,7 @@ const ActivityManagementPage: React.FC = () => {
     },
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess
+    skip: isInitializing || !hasDashboardAccess || !isAuthDataReady
   });
 
   const [createActivityMutation] = useMutation(CREATE_ACTIVITY_MUTATION);

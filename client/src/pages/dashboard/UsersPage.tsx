@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import AccessDenied from '../../components/auth/AccessDenied';
 import {
   UserSearchInput,
@@ -50,6 +51,7 @@ const UsersPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // State management
   const [state, setState] = useState<UserManagementState>({
@@ -80,6 +82,7 @@ const UsersPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<string>('ASC');
 
   // GraphQL queries and mutations
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
   const { data, loading: queryLoading, refetch } = useQuery(GET_USERS_QUERY, {
     variables: {
       limit: state.pageSize,
@@ -90,7 +93,7 @@ const UsersPage: React.FC = () => {
     },
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess
+    skip: isInitializing || !hasDashboardAccess || !isAuthDataReady
   });
 
   const [createUserMutation] = useMutation(CREATE_USER_MUTATION);

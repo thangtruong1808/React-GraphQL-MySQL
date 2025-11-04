@@ -4,6 +4,7 @@ import { GET_DASHBOARD_ACTIVITIES_QUERY, type GetDashboardActivitiesQueryRespons
 import { InlineError } from '../ui';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 
 /**
  * ActivityLogsAudit
@@ -20,7 +21,9 @@ const ActivityLogsAudit: React.FC = () => {
 
   const { isInitializing, user } = useAuth();
   const { hasDashboardAccess } = useRolePermissions();
-  const shouldSkip = isInitializing || !hasDashboardAccess || !user;
+  const isAuthDataReady = useAuthDataReady();
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
+  const shouldSkip = isInitializing || !hasDashboardAccess || !user || !isAuthDataReady;
 
   const { data, loading, error } = useQuery<GetDashboardActivitiesQueryResponse, GetDashboardActivitiesQueryVariables>(
     GET_DASHBOARD_ACTIVITIES_QUERY,

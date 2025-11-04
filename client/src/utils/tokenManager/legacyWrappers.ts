@@ -17,11 +17,8 @@ import { TokenManager } from './TokenManager';
  * SCENARIOS: All scenarios - stores tokens in memory and verifies they're available
  */
 export const saveTokens = async (accessToken: string, refreshToken: string): Promise<void> => {
-  console.log('[saveTokens] Starting to save tokens...');
-  
   // Store tokens synchronously
   TokenManager.storeTokens(accessToken, refreshToken, null);
-  console.log('[saveTokens] Tokens stored via TokenManager.storeTokens()');
 
   // Store token creation time for dynamic buffer calculation
   // This enables the "Continue to Work" functionality with dynamic buffer based on session duration
@@ -31,16 +28,9 @@ export const saveTokens = async (accessToken: string, refreshToken: string): Pro
   // Retry up to 10 times with 10ms delay to handle any timing issues
   for (let attempt = 0; attempt < 10; attempt++) {
     const tokens = TokenManager.getAccessToken();
-    console.log(`[saveTokens] Verification attempt ${attempt + 1}:`, {
-      tokenMatches: tokens === accessToken,
-      hasToken: !!tokens,
-      tokenLength: tokens?.length || 0,
-      expectedLength: accessToken.length
-    });
     
     if (tokens === accessToken) {
       // Tokens verified - they're in storage
-      console.log('[saveTokens] Tokens verified successfully!');
       return;
     }
     // Wait a small amount before retrying (allows any async operations to complete)
@@ -50,7 +40,6 @@ export const saveTokens = async (accessToken: string, refreshToken: string): Pro
   // If we get here, tokens weren't verified but they should still be set
   // This is a fallback - in practice, tokens should be available immediately
   // since memory storage is synchronous
-  console.warn('[saveTokens] Tokens were not verified after 10 attempts, but should be set');
 };
 
 /**

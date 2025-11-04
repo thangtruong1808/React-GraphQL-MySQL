@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import AccessDenied from '../../components/auth/AccessDenied';
 import { DashboardLayout } from '../../components/layout';
 import { DashboardSkeleton } from '../../components/ui';
@@ -41,6 +42,7 @@ import {
 const NotificationsPage: React.FC = () => {
   const { showNotification, isInitializing, user } = useAuth();
   const { hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // Centralized state management (UsersPage pattern)
   const [state, setState] = useState({
@@ -68,6 +70,7 @@ const NotificationsPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(DEFAULT_NOTIFICATION_PAGINATION.sortOrder);
 
   // GraphQL query
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_NOTIFICATIONS_QUERY, {
     variables: {
       limit: state.pageSize,
@@ -79,7 +82,7 @@ const NotificationsPage: React.FC = () => {
     errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess || !user,
+    skip: isInitializing || !hasDashboardAccess || !user || !isAuthDataReady,
   });
 
   // Sync state with GraphQL results

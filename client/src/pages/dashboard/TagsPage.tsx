@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaPlus } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import AccessDenied from '../../components/auth/AccessDenied';
 import { DashboardLayout } from '../../components/layout';
 import { DashboardSkeleton } from '../../components/ui';
@@ -39,6 +40,7 @@ import {
 const TagsPage: React.FC = () => {
   const { showNotification, isInitializing, user } = useAuth();
   const { hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // Centralized state (UsersPage pattern)
   const [state, setState] = useState({
@@ -66,7 +68,9 @@ const TagsPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState(DEFAULT_TAGS_PAGINATION.sortOrder);
 
   // Query
-  const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_TAGS_QUERY, {
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
+  const shouldSkip = isInitializing || !hasDashboardAccess || !user || !isAuthDataReady;
+  const { data, loading: queryLoading, error, refetch } = useQuery(GET_DASHBOARD_TAGS_QUERY, {
     variables: {
       limit: state.pageSize,
       offset: (state.currentPage - 1) * state.pageSize,
@@ -77,7 +81,7 @@ const TagsPage: React.FC = () => {
     errorPolicy: 'all',
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess || !user,
+    skip: shouldSkip,
   });
 
   // Sync state from GraphQL
@@ -93,6 +97,19 @@ const TagsPage: React.FC = () => {
       setState(prev => ({ ...prev, loading: queryLoading }));
     }
   }, [data, queryLoading]);
+
+  /**
+   * Handle GraphQL errors gracefully
+   * Only show errors if not during auth initialization or when auth data is not ready
+   */
+  useEffect(() => {
+    if (error && !shouldSkip) {
+      setState(prev => ({
+        ...prev,
+        error: error.message || TAGS_ERROR_MESSAGES.FETCH
+      }));
+    }
+  }, [error, shouldSkip]);
 
   // Fetch helper
   const fetchTags = useCallback(async (page: number, pageSize: number, search: string) => {
@@ -221,8 +238,8 @@ const TagsPage: React.FC = () => {
                 type="button"
                 onClick={() => setState(prev => ({ ...prev, createModalOpen: true }))}
                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent shadow-lg text-sm font-semibold rounded-xl transition-all duration-200 w-full sm:w-auto sm:flex-shrink-0 transform hover:scale-105"
-                style={{ 
-                  backgroundColor: 'var(--button-primary-bg)', 
+                style={{
+                  backgroundColor: 'var(--button-primary-bg)',
                   color: 'var(--button-primary-text)',
                   borderColor: 'var(--button-primary-bg)'
                 }}

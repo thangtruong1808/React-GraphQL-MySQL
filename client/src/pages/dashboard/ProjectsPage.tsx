@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { DashboardSkeleton } from '../../components/ui';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import AccessDenied from '../../components/auth/AccessDenied';
 import {
   ProjectSearchInput,
@@ -62,6 +63,7 @@ const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const { isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
+  const isAuthDataReady = useAuthDataReady();
 
   // State management
   const [state, setState] = useState<ProjectManagementState>({
@@ -120,6 +122,7 @@ const ProjectsPage: React.FC = () => {
   const [deletionCheck, setDeletionCheck] = useState<ProjectDeletionCheck | null>(null);
 
   // GraphQL queries and mutations
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
   const { data, loading: queryLoading, refetch } = useQuery(GET_DASHBOARD_PROJECTS_QUERY, {
     variables: {
       limit: state.pageSize,
@@ -130,7 +133,7 @@ const ProjectsPage: React.FC = () => {
     },
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
-    skip: isInitializing || !hasDashboardAccess
+    skip: isInitializing || !hasDashboardAccess || !isAuthDataReady
   });
 
   // Project members query - use lazy query to fetch when needed
