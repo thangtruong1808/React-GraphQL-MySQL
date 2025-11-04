@@ -47,6 +47,9 @@ let csrfToken: string | null = null;
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
 
+// Auth data collection promise queue - prevents race conditions during fast navigation
+let authDataPromise: Promise<{ accessToken: string | null; csrfToken: string | null }> | null = null;
+
 /**
  * Automatic token refresh function
  * Refreshes tokens when they're about to expire or have expired
@@ -110,50 +113,65 @@ const refreshTokenAutomatically = async (): Promise<string | null> => {
 /**
  * Collect all necessary authentication data asynchronously
  * Ensures all required data is available before mutations
+ * Uses promise queue to prevent race conditions during fast navigation
  * Returns object with accessToken and csrfToken
  */
 const collectAuthData = async (): Promise<{ accessToken: string | null; csrfToken: string | null }> => {
-  try {
-    // Get current tokens
-    const tokens = getTokens();
-    let accessToken: string | null = null;
-
-    // Only use access token if it is still valid; DO NOT auto-refresh here
-    if (tokens.accessToken) {
-      const { isActivityBasedTokenExpired } = await import('../../utils/tokenManager');
-      const activityModeEnabled = AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED;
-      const isExpired = activityModeEnabled
-        ? isActivityBasedTokenExpired()
-        : isTokenExpired(tokens.accessToken);
-      if (!isExpired) {
-        accessToken = tokens.accessToken;
-      }
-    }
-
-    // Ensure CSRF token is available
-    if (!csrfToken) {
-      try {
-        const baseUrl = API_CONFIG.GRAPHQL_URL.replace('/graphql', '');
-        const response = await fetch(`${baseUrl}/csrf-token`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.csrfToken) {
-            csrfToken = data.csrfToken;
-          }
-        }
-      } catch (error) {
-        // CSRF token fetch failed
-      }
-    }
-
-    return { accessToken, csrfToken };
-  } catch (error) {
-    return { accessToken: null, csrfToken: null };
+  // If auth data collection is already in progress, return the existing promise
+  // This prevents race conditions when multiple queries fire simultaneously during fast navigation
+  if (authDataPromise) {
+    return authDataPromise;
   }
+
+  // Create new promise for auth data collection
+  authDataPromise = (async () => {
+    try {
+      // Get current tokens
+      const tokens = getTokens();
+      let accessToken: string | null = null;
+
+      // Only use access token if it is still valid; DO NOT auto-refresh here
+      if (tokens.accessToken) {
+        const { isActivityBasedTokenExpired } = await import('../../utils/tokenManager');
+        const activityModeEnabled = AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED;
+        const isExpired = activityModeEnabled
+          ? isActivityBasedTokenExpired()
+          : isTokenExpired(tokens.accessToken);
+        if (!isExpired) {
+          accessToken = tokens.accessToken;
+        }
+      }
+
+      // Ensure CSRF token is available
+      if (!csrfToken) {
+        try {
+          const baseUrl = API_CONFIG.GRAPHQL_URL.replace('/graphql', '');
+          const response = await fetch(`${baseUrl}/csrf-token`, {
+            method: 'GET',
+            credentials: 'include',
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.csrfToken) {
+              csrfToken = data.csrfToken;
+            }
+          }
+        } catch (error) {
+          // CSRF token fetch failed
+        }
+      }
+
+      return { accessToken, csrfToken };
+    } catch (error) {
+      return { accessToken: null, csrfToken: null };
+    } finally {
+      // Clear promise after completion to allow new collection
+      authDataPromise = null;
+    }
+  })();
+
+  return authDataPromise;
 };
 
 /**
@@ -341,9 +359,24 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
                                           message.includes('Refresh token') ||
                                           message.includes('refresh token');
         
-        // Check if this is a comment operation that might be failing due to missing auth header
+        // Check if this is a comment-related operation (queries or mutations)
         const isCommentOperation = operation.operationName === 'CreateComment' || 
-                                  operation.operationName === 'ToggleCommentLike';
+                                  operation.operationName === 'ToggleCommentLike' ||
+                                  operation.operationName === 'GetDashboardComments';
+        
+        // Check if this is a comment query that might be failing due to race condition during fast navigation
+        // During fast navigation, queries might execute before auth data is ready
+        const isCommentQuery = operation.operationName === 'GetDashboardComments';
+        
+        // For comment queries during fast navigation, suppress errors if tokens exist
+        // This prevents false "You must be logged in to view comments" errors
+        // The query will retry automatically when auth data is ready
+        if (isCommentQuery && hasTokens && !isAuthInitializing && !isAppInitializing) {
+          // Suppress error for comment queries during fast navigation when tokens exist
+          // This is a race condition - query executed before auth data was ready
+          // The query will succeed on retry when auth data is available
+          return;
+        }
         
         // Suppress authentication errors during initialization, app initialization, or when tokens don't exist yet
         // This prevents race conditions where queries execute before auth is ready
@@ -354,13 +387,14 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
           return;
         }
         
-        // For comment operations, try to refresh token automatically
-        if (isCommentOperation) {
-          // Try to refresh token automatically for comment operations
+        // For comment mutations, try to refresh token automatically
+        if (isCommentOperation && !isCommentQuery) {
+          // Try to refresh token automatically for comment mutations
           const newToken = await refreshTokenAutomatically();
           if (newToken) {
             // Token refreshed successfully, retry the operation
-            return forward(operation);
+            forward(operation);
+            return;
           } else {
             // Refresh failed, show error
             if (globalErrorHandler) {

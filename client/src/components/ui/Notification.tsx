@@ -20,7 +20,7 @@ const Notification: React.FC<NotificationProps> = ({
   type,
   isVisible,
   onClose,
-  duration = 10000,
+  duration = 7000,
 }) => {
   useEffect(() => {
     if (isVisible && duration > 0) {
