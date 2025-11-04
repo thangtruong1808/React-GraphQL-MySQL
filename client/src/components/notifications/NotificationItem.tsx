@@ -1,6 +1,5 @@
 import React from 'react';
-import { FaCheck, FaEnvelope, FaTrash } from 'react-icons/fa';
-import { formatDate } from '../../utils/helpers/dateFormatter';
+import { FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
 import { Notification } from '../../types/notificationManagement';
 
 interface NotificationItemProps {
@@ -9,6 +8,7 @@ interface NotificationItemProps {
   onMarkAsRead: (notification: Notification) => void;
   onMarkAsUnread: (notification: Notification) => void;
   onDelete: (notification: Notification) => void;
+  isProcessing: boolean;
 }
 
 /**
@@ -20,37 +20,57 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   isRead,
   onMarkAsRead,
   onMarkAsUnread,
-  onDelete
+  onDelete,
+  isProcessing
 }) => {
   // Handle mark as read click
   const handleMarkAsRead = () => {
-    onMarkAsRead(notification);
+    if (!isProcessing) {
+      onMarkAsRead(notification);
+    }
   };
 
   // Handle mark as unread click
   const handleMarkAsUnread = () => {
-    onMarkAsUnread(notification);
+    if (!isProcessing) {
+      onMarkAsUnread(notification);
+    }
   };
 
   // Handle delete click
   const handleDelete = () => {
-    onDelete(notification);
+    if (!isProcessing) {
+      onDelete(notification);
+    }
   };
 
   return (
     <div
-      className={`p-4 rounded-lg transition-all duration-200 ${
-        isRead
-          ? 'theme-notification-read-border border theme-notification-read-bg theme-notification-read-hover-bg'
-          : 'theme-notification-unread-border border theme-notification-unread-bg shadow-sm hover:shadow-md'
-      }`}
+      className="p-4 rounded-lg transition-all duration-200 border"
+      style={{
+        backgroundColor: isRead ? 'var(--notification-read-bg)' : 'var(--notification-unread-bg)',
+        borderColor: isRead ? 'var(--notification-read-border)' : 'var(--notification-unread-border)'
+      }}
+      onMouseEnter={(e) => {
+        if (isRead) {
+          e.currentTarget.style.backgroundColor = 'var(--notification-read-hover-bg)';
+          e.currentTarget.style.borderColor = 'var(--border-medium)';
+        } else {
+          e.currentTarget.style.borderColor = 'var(--border-medium)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = isRead ? 'var(--notification-read-bg)' : 'var(--notification-unread-bg)';
+        e.currentTarget.style.borderColor = isRead ? 'var(--notification-read-border)' : 'var(--notification-unread-border)';
+      }}
     >
       <div className="flex items-start space-x-3">
         {/* Checkbox for mark as read/unread */}
         <div className="flex-shrink-0 pt-1">
           <button
             onClick={isRead ? handleMarkAsUnread : handleMarkAsRead}
-            className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200"
+            disabled={isProcessing}
+            className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             style={
               isRead
                 ? { borderColor: 'var(--border-color)', backgroundColor: 'var(--badge-success-bg)', color: 'var(--badge-success-text)' }
@@ -64,28 +84,27 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
         {/* Notification content */}
         <div className="flex-1 min-w-0">
-          <p className={`text-sm mb-2 ${isRead ? '' : 'font-medium'}`} style={{ color: isRead ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
             {notification.message}
           </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-              <FaEnvelope className="h-3 w-3" />
-              <span>
-                {notification.user.firstName} {notification.user.lastName}
-              </span>
-              <span>•</span>
-              <span>{formatDate(notification.createdAt)}</span>
-            </div>
-            {/* Delete button */}
-            <button
-              onClick={handleDelete}
-              className="p-1 rounded transition-colors"
-              style={{ color: 'var(--text-secondary)' }}
-              title="Delete notification"
-            >
-              <FaTrash className="h-3 w-3" />
-            </button>
-          </div>
+          {notification.createdAt && (
+            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              {new Date(notification.createdAt).toLocaleString()}
+            </p>
+          )}
+        </div>
+
+        {/* Delete button */}
+        <div className="flex-shrink-0">
+          <button
+            onClick={handleDelete}
+            disabled={isProcessing}
+            className="w-6 h-6 rounded flex items-center justify-center transition-all duration-200 hover:bg-red-100 dark:hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ color: 'var(--notification-delete-action-text)' }}
+            title="Delete notification"
+          >
+            <FaTrash className="h-3 w-3" />
+          </button>
         </div>
       </div>
     </div>

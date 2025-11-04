@@ -7,6 +7,7 @@ interface NotificationDrawerActionsProps {
   onMarkAllAsUnread: () => void;
   onDeleteAllUnread: () => void;
   onDeleteAllRead: () => void;
+  isProcessingBulk: boolean;
 }
 
 /**
@@ -19,26 +20,35 @@ const NotificationDrawerActions: React.FC<NotificationDrawerActionsProps> = ({
   onMarkAllAsRead,
   onMarkAllAsUnread,
   onDeleteAllUnread,
-  onDeleteAllRead
+  onDeleteAllRead,
+  isProcessingBulk
 }) => {
   // Handle mark all as read click
   const handleMarkAllAsRead = () => {
-    onMarkAllAsRead();
+    if (!isProcessingBulk) {
+      onMarkAllAsRead();
+    }
   };
 
   // Handle mark all as unread click
   const handleMarkAllAsUnread = () => {
-    onMarkAllAsUnread();
+    if (!isProcessingBulk) {
+      onMarkAllAsUnread();
+    }
   };
 
   // Handle delete all unread click
   const handleDeleteAllUnread = () => {
-    onDeleteAllUnread();
+    if (!isProcessingBulk) {
+      onDeleteAllUnread();
+    }
   };
 
   // Handle delete all read click
   const handleDeleteAllRead = () => {
-    onDeleteAllRead();
+    if (!isProcessingBulk) {
+      onDeleteAllRead();
+    }
   };
 
   return (
@@ -53,8 +63,26 @@ const NotificationDrawerActions: React.FC<NotificationDrawerActionsProps> = ({
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="text-sm font-medium transition-colors"
-              style={{ color: 'var(--text-primary)' }}
+              disabled={isProcessingBulk}
+              className="text-sm font-medium px-3 py-1 rounded-md transition-all duration-200 border disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                color: 'var(--text-primary)',
+                backgroundColor: 'var(--notification-action-button-bg)',
+                borderColor: 'var(--border-color)',
+                boxShadow: 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!isProcessingBulk) {
+                  e.currentTarget.style.backgroundColor = 'var(--notification-action-button-hover-bg)';
+                  e.currentTarget.style.borderColor = 'var(--notification-action-button-hover-border)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--notification-action-button-bg)';
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               Mark all as read
             </button>
@@ -62,8 +90,26 @@ const NotificationDrawerActions: React.FC<NotificationDrawerActionsProps> = ({
           {readCount > 0 && (
             <button
               onClick={handleMarkAllAsUnread}
-              className="text-sm font-medium transition-colors"
-              style={{ color: 'var(--text-primary)' }}
+              disabled={isProcessingBulk}
+              className="text-sm font-medium px-3 py-1 rounded-md transition-all duration-200 border disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                color: 'var(--text-primary)',
+                backgroundColor: 'var(--notification-action-button-bg)',
+                borderColor: 'var(--border-color)',
+                boxShadow: 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!isProcessingBulk) {
+                  e.currentTarget.style.backgroundColor = 'var(--notification-action-button-hover-bg)';
+                  e.currentTarget.style.borderColor = 'var(--notification-action-button-hover-border)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--notification-action-button-bg)';
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               Mark all as unread
             </button>
@@ -71,8 +117,28 @@ const NotificationDrawerActions: React.FC<NotificationDrawerActionsProps> = ({
           {unreadCount > 0 && (
             <button
               onClick={handleDeleteAllUnread}
-              className="text-sm font-medium transition-colors"
-              style={{ color: 'var(--text-primary)' }}
+              disabled={isProcessingBulk}
+              className="text-sm font-medium px-3 py-1 rounded-md transition-all duration-200 border disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                color: 'var(--notification-delete-action-text)',
+                backgroundColor: 'var(--notification-action-button-bg)',
+                borderColor: 'var(--border-color)',
+                boxShadow: 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!isProcessingBulk) {
+                  e.currentTarget.style.backgroundColor = 'var(--notification-delete-action-bg)';
+                  e.currentTarget.style.color = 'var(--notification-delete-action-hover-text)';
+                  e.currentTarget.style.borderColor = 'var(--notification-delete-action-bg)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--notification-action-button-bg)';
+                e.currentTarget.style.color = 'var(--notification-delete-action-text)';
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               Delete all unread
             </button>
@@ -80,8 +146,28 @@ const NotificationDrawerActions: React.FC<NotificationDrawerActionsProps> = ({
           {readCount > 0 && (
             <button
               onClick={handleDeleteAllRead}
-              className="text-sm font-medium transition-colors"
-              style={{ color: 'var(--text-primary)' }}
+              disabled={isProcessingBulk}
+              className="text-sm font-medium px-3 py-1 rounded-md transition-all duration-200 border disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                color: 'var(--notification-delete-action-text)',
+                backgroundColor: 'var(--notification-action-button-bg)',
+                borderColor: 'var(--border-color)',
+                boxShadow: 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!isProcessingBulk) {
+                  e.currentTarget.style.backgroundColor = 'var(--notification-delete-action-bg)';
+                  e.currentTarget.style.color = 'var(--notification-delete-action-hover-text)';
+                  e.currentTarget.style.borderColor = 'var(--notification-delete-action-bg)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--notification-action-button-bg)';
+                e.currentTarget.style.color = 'var(--notification-delete-action-text)';
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               Delete all read
             </button>

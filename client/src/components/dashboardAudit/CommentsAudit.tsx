@@ -5,6 +5,7 @@ import { InlineError } from '../ui';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
 import { useAuthDataReady } from '../../hooks/useAuthDataReady';
+import { getTokens } from '../../utils/tokenManager';
 
 /**
  * CommentsAudit
@@ -36,16 +37,6 @@ const CommentsAudit: React.FC = () => {
     }
   );
 
-  /**
-   * Determine if we should show errors
-   * Only show errors if:
-   * - Not skipping (auth is ready)
-   * - Not loading (query has completed)
-   * - Have an error object
-   * This prevents stale cached errors from showing during fast navigation
-   */
-  const shouldShowError = error && !shouldSkip && !loading;
-
   // Show loading skeleton when loading, no data, or when skipping (waiting for auth)
   if ((loading && !data) || shouldSkip) {
     return (
@@ -73,8 +64,16 @@ const CommentsAudit: React.FC = () => {
     );
   }
 
-  // Show error only if conditions are met (not skipping, not loading, has error)
-  if (shouldShowError) {
+  // Check if error is auth-related and tokens exist (matches apollo-client suppression logic)
+  // This prevents showing cached auth errors when tokens are available
+  const isAuthError = error?.message?.includes('must be logged in to view comments') ||
+    error?.message?.includes('Failed to fetch comments') ||
+    error?.message?.toLowerCase().includes('authenticated');
+  const tokens = getTokens();
+  const hasTokens = !!(tokens.accessToken || tokens.refreshToken);
+
+  // Show error only if not skipping and not an auth error when tokens exist (matches TasksAudit approach)
+  if (error && !shouldSkip && !(isAuthError && hasTokens)) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <InlineError message={error.message || 'Failed to load comments'} />

@@ -24,10 +24,21 @@ const NotificationDrawerHeader: React.FC<NotificationDrawerHeaderProps> = ({ onC
       <button
         onClick={handleClose}
         className="p-2 rounded-full transition-colors"
-        style={{ color: 'var(--text-secondary)' }}
+        style={{
+          color: 'var(--text-secondary)',
+          backgroundColor: 'transparent'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--card-hover-bg)';
+          e.currentTarget.style.color = 'var(--text-primary)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = 'var(--text-secondary)';
+        }}
         title="Close notifications"
       >
-        <FaTimes className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
+        <FaTimes className="h-4 w-4" />
       </button>
     </div>
   );

@@ -12,6 +12,7 @@ interface NotificationDrawerContentProps {
   onMarkAsRead: (notification: Notification) => void;
   onMarkAsUnread: (notification: Notification) => void;
   onDelete: (notification: Notification) => void;
+  isProcessing: (notificationId: string) => boolean;
 }
 
 /**
@@ -24,12 +25,18 @@ const NotificationDrawerContent: React.FC<NotificationDrawerContentProps> = ({
   readNotifications,
   onMarkAsRead,
   onMarkAsUnread,
-  onDelete
+  onDelete,
+  isProcessing
 }) => {
   const allNotifications = [...unreadNotifications, ...readNotifications];
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+    <div
+      className="flex-1 overflow-y-auto scrollbar-thin"
+      style={{
+        backgroundColor: 'var(--notification-drawer-bg)'
+      }}
+    >
       {loading ? (
         <NotificationLoadingState />
       ) : allNotifications.length === 0 ? (
@@ -49,6 +56,7 @@ const NotificationDrawerContent: React.FC<NotificationDrawerContentProps> = ({
                     onMarkAsRead={onMarkAsRead}
                     onMarkAsUnread={onMarkAsUnread}
                     onDelete={onDelete}
+                    isProcessing={isProcessing(notification.id)}
                   />
                 ))}
               </div>
@@ -68,6 +76,7 @@ const NotificationDrawerContent: React.FC<NotificationDrawerContentProps> = ({
                     onMarkAsRead={onMarkAsRead}
                     onMarkAsUnread={onMarkAsUnread}
                     onDelete={onDelete}
+                    isProcessing={isProcessing(notification.id)}
                   />
                 ))}
               </div>

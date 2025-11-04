@@ -481,10 +481,15 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
                                          message.includes('Failed to fetch tags') ||
                                          message.includes('Failed to fetch comments');
 
-        // Suppress tags/comments auth errors if tokens exist (even if not UNAUTHENTICATED code)
-        if (((isCommentQuery || isTagsQuery) && hasTokens && isTagsOrCommentsAuthError)) {
-          // Suppress error - likely race condition during fast navigation
-          return;
+        // For comment and tags queries, suppress auth errors if tokens exist
+        // This prevents cached errors from showing after navigation
+        // The query will be refetched by the component when auth is ready
+        if ((isCommentQuery || isTagsQuery) && hasTokens) {
+          // Suppress error if it's an auth-related error or if tokens exist
+          // This handles both UNAUTHENTICATED errors and cached errors
+          if (isTagsOrCommentsAuthError || extensions?.code === 'UNAUTHENTICATED') {
+            return;
+          }
         }
 
         // Show other GraphQL errors to user (but not CSRF errors or suppressed tags/comments errors)

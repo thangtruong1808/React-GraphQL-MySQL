@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_USER_UNREAD_NOTIFICATIONS_QUERY, GetUserUnreadNotificationsQueryResponse } from '../../services/graphql/notificationQueries';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 import { TokenManager, isActivityBasedTokenExpired, isTokenExpired, getTokens } from '../../utils/tokenManager';
 import { AUTH_CONFIG } from '../../constants/auth';
 import NotificationDrawerHeader from './NotificationDrawerHeader';
@@ -21,21 +22,27 @@ interface NotificationDrawerProps {
 
 const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose }) => {
   // Get session expiry modal state to pause queries during expiry
-  const { showSessionExpiryModal, isAuthenticated } = useAuth();
+  const { showSessionExpiryModal, isAuthenticated, isInitializing } = useAuth();
 
-  // Check if token is expired or close to expiring (async check to avoid race conditions)
+  // Wait for auth data to be ready to prevent race conditions during fast navigation
+  // This ensures Apollo Client's authLink has collected tokens before query runs
+  const isAuthDataReady = useAuthDataReady();
+
+  // Check if token is expired or close to expiring (async check to avoid race conditions)                                                                      
   const [shouldSkipNotifications, setShouldSkipNotifications] = React.useState(false);
 
   // Update skip state asynchronously to check token expiry
+  // Wait for auth data to be ready before checking token status to avoid race conditions
   React.useEffect(() => {
     const checkTokenStatus = async () => {
       try {
-        if (!isAuthenticated || showSessionExpiryModal || !isOpen) {
+        // Skip if not authenticated, auth is initializing, auth data not ready, session modal showing, or drawer closed
+        if (!isAuthenticated || isInitializing || !isAuthDataReady || showSessionExpiryModal || !isOpen) {
           setShouldSkipNotifications(true);
           return;
         }
 
-        // Check if token is expired or close to expiring (within 10 seconds threshold)
+        // Check if token is expired or close to expiring (within 10 seconds threshold)                                                                         
         const tokens = getTokens();
         if (!tokens.accessToken) {
           setShouldSkipNotifications(true);
@@ -80,20 +87,29 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose
     } else {
       setShouldSkipNotifications(true);
     }
-  }, [isAuthenticated, showSessionExpiryModal, isOpen]);
+  }, [isAuthenticated, isInitializing, isAuthDataReady, showSessionExpiryModal, isOpen]);
 
   // Fetch user's notifications when drawer is opened
-  // Skip query when session expiry modal is showing or token is expired/close to expiring
+  // Skip query when:
+  // - Drawer is closed
+  // - Auth is initializing
+  // - User is not authenticated
+  // - Auth data is not ready (tokens not collected yet - prevents race conditions)
+  // - Session expiry modal is showing
+  // - Token is expired/close to expiring
+  const shouldSkip = !isOpen || isInitializing || !isAuthenticated || !isAuthDataReady || showSessionExpiryModal || shouldSkipNotifications;
   const { data, loading, refetch } = useQuery<GetUserUnreadNotificationsQueryResponse>(
     GET_USER_UNREAD_NOTIFICATIONS_QUERY,
     {
       variables: { limit: 100 },
-      skip: !isOpen || showSessionExpiryModal || shouldSkipNotifications,
-      errorPolicy: 'all'
+      skip: shouldSkip,
+      errorPolicy: 'all',
+      fetchPolicy: 'cache-and-network', // Always fetch from network to ensure fresh data
+      notifyOnNetworkStatusChange: true
     }
   );
 
-  // Get all mutation handlers from custom hook
+  // Get all mutation handlers from custom hook with loading states
   const {
     markAsRead,
     markAsUnread,
@@ -101,15 +117,33 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose
     markAllAsUnread,
     deleteNotification,
     deleteAllRead,
-    deleteAllUnread
+    deleteAllUnread,
+    isProcessing,
+    isProcessingBulk,
+    reset
   } = useNotificationMutations(refetch);
 
-  // Refetch notifications when drawer opens for immediate updates
+  // Reset mutation state when drawer opens or closes to ensure clean state (prevents frozen buttons after navigation)
+  // Reset on open to clear any stale state from previous sessions
+  // Reset on close to clean up any in-progress operations
   React.useEffect(() => {
     if (isOpen) {
+      // Reset when drawer opens to ensure clean state after navigation
+      reset();
+    } else {
+      // Reset when drawer closes to clean up any in-progress operations
+      reset();
+    }
+  }, [isOpen, reset]);
+
+  // Refetch notifications when drawer opens and auth data is ready
+  // Only refetch if drawer is open, authenticated, and auth data is ready      
+  // This prevents race conditions during fast navigation
+  React.useEffect(() => {
+    if (isOpen && isAuthenticated && isAuthDataReady && !shouldSkipNotifications && !showSessionExpiryModal) {
       refetch();
     }
-  }, [isOpen, refetch]);
+  }, [isOpen, isAuthenticated, isAuthDataReady, shouldSkipNotifications, showSessionExpiryModal, refetch]);
 
   // Get all notifications (both read and unread) for better UX
   const allNotifications = data?.dashboardNotifications?.notifications || [];
@@ -120,22 +154,30 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose
 
   // Handle mark all as read
   const handleMarkAllAsRead = async () => {
-    await markAllAsRead(unreadNotifications);
+    if (!isProcessingBulk()) {
+      await markAllAsRead(unreadNotifications);
+    }
   };
 
   // Handle mark all as unread
   const handleMarkAllAsUnread = async () => {
-    await markAllAsUnread(readNotifications);
+    if (!isProcessingBulk()) {
+      await markAllAsUnread(readNotifications);
+    }
   };
 
   // Handle delete all unread
   const handleDeleteAllUnread = async () => {
-    await deleteAllUnread(unreadNotifications);
+    if (!isProcessingBulk()) {
+      await deleteAllUnread(unreadNotifications);
+    }
   };
 
   // Handle delete all read
   const handleDeleteAllRead = async () => {
-    await deleteAllRead(readNotifications);
+    if (!isProcessingBulk()) {
+      await deleteAllRead(readNotifications);
+    }
   };
 
   return (
@@ -162,6 +204,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose
           onMarkAllAsUnread={handleMarkAllAsUnread}
           onDeleteAllUnread={handleDeleteAllUnread}
           onDeleteAllRead={handleDeleteAllRead}
+          isProcessingBulk={isProcessingBulk()}
         />
 
         <NotificationDrawerContent
@@ -171,6 +214,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose
           onMarkAsRead={markAsRead}
           onMarkAsUnread={markAsUnread}
           onDelete={deleteNotification}
+          isProcessing={isProcessing}
         />
       </div>
     </>

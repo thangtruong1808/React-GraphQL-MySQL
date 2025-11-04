@@ -42,6 +42,12 @@
   --notification-unread-bg: #eff6ff; /* unread notification background */
   --notification-unread-border: #bfdbfe; /* unread notification border */
   --notification-read-bg: #f9fafb; /* read notification background */
+  --notification-delete-action-text: #dc2626; /* delete action button text color - red-600 for visibility on light backgrounds */
+  --notification-delete-action-bg: #fee2e2; /* delete action button hover background - red-100 */
+  --notification-delete-action-hover-text: #ffffff; /* delete action button hover text - white for contrast on red */
+  --notification-action-button-bg: #ffffff; /* notification action button default background */
+  --notification-action-button-hover-bg: #f3f4f6; /* notification action button hover background - gray-100 for better visibility */
+  --notification-action-button-hover-border: #d1d5db; /* notification action button hover border - gray-300 for better visibility */
   --notification-read-border: #e5e7eb; /* read notification border */
   --notification-read-hover-bg: #f3f4f6; /* read notification hover background */
   --button-primary-bg: #7c3aed; /* primary button background */
@@ -194,6 +200,12 @@
   --notification-read-bg: #f9fafb; /* light read notification background */
   --notification-read-border: #e5e7eb; /* light read notification border */
   --notification-read-hover-bg: #f3f4f6; /* light read notification hover background */
+  --notification-delete-action-text: #dc2626; /* light delete action button text color - red-600 for visibility on light backgrounds */
+  --notification-delete-action-bg: #fee2e2; /* light delete action button hover background - red-100 */
+  --notification-delete-action-hover-text: #ffffff; /* light delete action button hover text - white for contrast on red */
+  --notification-action-button-bg: #ffffff; /* light notification action button default background */
+  --notification-action-button-hover-bg: #f3f4f6; /* light notification action button hover background - gray-100 for better visibility */
+  --notification-action-button-hover-border: #d1d5db; /* light notification action button hover border - gray-300 for better visibility */
   /* Notification status text colors - light theme */
   --notification-status-unread-text: #dc2626; /* red-600 - unread notification status text */
   --notification-status-read-text: #16a34a; /* green-600 - read notification status text */
@@ -331,6 +343,12 @@
   --notification-read-bg: #374151; /* dark read notification background */
   --notification-read-border: #4b5563; /* dark read notification border */
   --notification-read-hover-bg: #4b5563; /* dark read notification hover background */
+  --notification-delete-action-text: #f87171; /* dark delete action button text color - red-400 for visibility on dark backgrounds */
+  --notification-delete-action-bg: #991b1b; /* dark delete action button hover background - red-800 */
+  --notification-delete-action-hover-text: #fee2e2; /* dark delete action button hover text - red-100 for contrast */
+  --notification-action-button-bg: #6b7280; /* dark notification action button default background - gray-500, much lighter than header for clear visibility */
+  --notification-action-button-hover-bg: #9ca3af; /* dark notification action button hover background - gray-400 for very clear hover effect */
+  --notification-action-button-hover-border: #d1d5db; /* dark notification action button hover border - gray-300 for maximum visibility */
   /* Notification status text colors - dark theme (high contrast) */
   --notification-status-unread-text: #f87171; /* red-400 - bright unread notification status text for dark theme */
   --notification-status-read-text: #10b981; /* green-500 - bright read notification status text for dark theme */
@@ -507,6 +525,12 @@
   --notification-read-bg: #f3e8ff; /* brand read notification background */
   --notification-read-border: #c084fc; /* brand read notification border */
   --notification-read-hover-bg: #e9d5ff; /* brand read notification hover background */
+  --notification-delete-action-text: #dc2626; /* brand delete action button text color - red-600 for visibility on light backgrounds */
+  --notification-delete-action-bg: #fee2e2; /* brand delete action button hover background - red-100 */
+  --notification-delete-action-hover-text: #ffffff; /* brand delete action button hover text - white for contrast on red */
+  --notification-action-button-bg: #ffffff; /* brand notification action button default background */
+  --notification-action-button-hover-bg: #e9d5ff; /* brand notification action button hover background - purple-200 for better visibility */
+  --notification-action-button-hover-border: #c084fc; /* brand notification action button hover border - purple-400 for better visibility */
   /* Notification status text colors - brand theme */
   --notification-status-unread-text: #dc2626; /* red-600 - unread notification status text */
   --notification-status-read-text: #16a34a; /* green-600 - read notification status text */
