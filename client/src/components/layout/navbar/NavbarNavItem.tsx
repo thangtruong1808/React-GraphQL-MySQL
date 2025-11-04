@@ -15,7 +15,7 @@ interface NavbarNavItemProps {
     description: string;
   };
   isActive: boolean;
-  unreadCount?: number;
+  unreadCount?: number | null;
   onSearchClick?: () => void;
   onNotificationClick?: () => void;
 }

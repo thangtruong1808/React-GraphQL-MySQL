@@ -26,8 +26,8 @@ import NavbarUserActions from './navbar/NavbarUserActions';
  */
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
-  // Consume context from AuthContext.tsx to get user, isAuthenticated, performLogout, and logoutLoading
-  const { user, isAuthenticated, performLogout, logoutLoading } = useAuth();
+  // Consume context from AuthContext.tsx to get user, isAuthenticated, isInitializing, loginLoading, performLogout, and logoutLoading
+  const { user, isAuthenticated, isInitializing, loginLoading, performLogout, logoutLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isSearchDrawerOpen, setIsSearchDrawerOpen] = useState(false);
@@ -48,32 +48,129 @@ const NavBar: React.FC = () => {
   // Get session expiry modal state to pause queries during expiry
   const { showSessionExpiryModal } = useAuth();
 
-  // Check if token is expired or close to expiring (async check to avoid race conditions)
-  const [shouldSkipNotifications, setShouldSkipNotifications] = useState(false);
-  
+  // Track loading state for notification badge - show "..." while waiting
+  const [isNotificationLoading, setIsNotificationLoading] = useState(false);
+
   // Store last known unread count to maintain badge consistency when query is skipped
   const [lastKnownUnreadCount, setLastKnownUnreadCount] = useState(0);
 
-  // Update skip state asynchronously to check token expiry
+  // Track when it's safe to query notifications (after server authentication confirmed)
+  const [canQueryNotifications, setCanQueryNotifications] = useState(false);
+
+  /**
+   * Wait for all authentication conditions to be ready before allowing notification query
+   * Simple async approach: wait for login to complete, tokens to be stored, AuthContext to update,
+   * and apollo-client's authLink to be ready to collect tokens
+   * Show loading badge ("...") during wait
+   * This avoids race conditions by ensuring apollo-client can add Authorization header before query executes
+   */
   useEffect(() => {
-    const checkTokenStatus = async () => {
+    const waitForAllAuthReady = async () => {
+      // Step 1: Wait for login to complete and AuthContext to update with user
+      // Skip if not authenticated, still initializing, or login is in progress
+      if (!isAuthenticated || isInitializing || loginLoading || !user) {
+        setCanQueryNotifications(false);
+        setIsNotificationLoading(false);
+        return;
+      }
+
+      // Login completed - show loading badge while waiting for server
+      setIsNotificationLoading(true);
+
+      // Step 2: Wait for tokens to be stored after login
+      // Retry up to 10 times with 100ms delay to check if tokens are available
+      let tokensReady = false;
+      for (let i = 0; i < 10; i++) {
+        const tokens = getTokens();
+
+        if (tokens.accessToken) {
+          // Verify token is not expired
+          const isExpired = AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED
+            ? isActivityBasedTokenExpired()
+            : isTokenExpired(tokens.accessToken);
+
+          if (!isExpired) {
+            tokensReady = true;
+            break;
+          }
+        }
+
+        // Wait 100ms before next check
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      if (!tokensReady) {
+        setCanQueryNotifications(false);
+        return;
+      }
+
+      // Step 3: Wait for apollo-client's authLink (setContext) to be ready to collect tokens
+      // apollo-client's setContext calls collectAuthData() on every request
+      // We need to wait a bit for apollo-client's context to refresh after tokens are stored
+      // This ensures collectAuthData() can access the new tokens when query executes
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Step 4: Final verification - tokens are still valid and apollo-client can access them
+      const finalTokens = getTokens();
+      const finalIsExpired = finalTokens.accessToken
+        ? (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED
+          ? isActivityBasedTokenExpired()
+          : isTokenExpired(finalTokens.accessToken))
+        : true;
+
+      if (finalTokens.accessToken && !finalIsExpired) {
+        // All conditions ready: login complete, AuthContext updated, tokens stored, apollo-client ready
+        // apollo-client's authLink (setContext) will now collect tokens and add Authorization header
+        setCanQueryNotifications(true);
+      } else {
+        // Tokens expired or not available, keep waiting
+        setCanQueryNotifications(false);
+      }
+    };
+
+    waitForAllAuthReady();
+  }, [isAuthenticated, isInitializing, loginLoading, user]);
+
+  /**
+   * Monitor token expiry to skip notifications when tokens are expired
+   * Prevents querying when tokens are expired or close to expiring
+   * Only runs when canQueryNotifications is true (all auth conditions are ready)
+   */
+  const [shouldSkipNotifications, setShouldSkipNotifications] = useState(false);
+
+  useEffect(() => {
+    // Only check if user is authenticated and can query
+    if (!isAuthenticated || isInitializing || loginLoading || !canQueryNotifications) {
+      setShouldSkipNotifications(true);
+      return;
+    }
+
+    // When canQueryNotifications becomes true, immediately set shouldSkipNotifications to false
+    // We already verified tokens are valid in waitForAllAuthReady before setting canQueryNotifications
+    // This allows query to execute immediately while token expiry check runs in background
+    setShouldSkipNotifications(false);
+
+    // Verify tokens are still valid and update shouldSkipNotifications if needed
+    // This runs in background to monitor token expiry
+    const checkTokenExpiry = async () => {
       try {
-        if (!isAuthenticated || showSessionExpiryModal) {
+        // Skip notifications when session expiry modal is showing
+        if (showSessionExpiryModal) {
           setShouldSkipNotifications(true);
           return;
         }
 
-        // Check if token is expired or close to expiring (within 10 seconds threshold)
+        // Check if tokens exist
         const tokens = getTokens();
         if (!tokens.accessToken) {
           setShouldSkipNotifications(true);
           return;
         }
 
+        // Check if token is expired or close to expiring (within 10 seconds threshold)
         let isExpired = false;
         if (AUTH_CONFIG.ACTIVITY_BASED_TOKEN_ENABLED) {
           isExpired = isActivityBasedTokenExpired();
-          // Also check if close to expiring (within 10 seconds)
           if (!isExpired) {
             const expiry = TokenManager.getActivityBasedTokenExpiry();
             if (expiry) {
@@ -83,7 +180,6 @@ const NavBar: React.FC = () => {
           }
         } else {
           isExpired = isTokenExpired(tokens.accessToken);
-          // Also check if close to expiring (within 10 seconds)
           if (!isExpired) {
             const expiry = TokenManager.getTokenExpiration(tokens.accessToken);
             if (expiry) {
@@ -93,6 +189,8 @@ const NavBar: React.FC = () => {
           }
         }
 
+        // Set shouldSkipNotifications based on token expiry status
+        // If tokens are valid, set to false to allow query
         setShouldSkipNotifications(isExpired || showSessionExpiryModal);
       } catch (error) {
         // On error, skip to prevent unwanted queries
@@ -100,21 +198,60 @@ const NavBar: React.FC = () => {
       }
     };
 
-    checkTokenStatus();
+    // Check token expiry immediately when canQueryNotifications becomes true
+    // This verifies tokens are still valid (should already be valid from waitForAllAuthReady)
+    checkTokenExpiry();
 
-    // Check every 5 seconds to update skip state as token approaches expiry
-    const interval = setInterval(checkTokenStatus, 5000);
+    // Check every 5 seconds to update state as token approaches expiry
+    const interval = setInterval(checkTokenExpiry, 5000);
     return () => clearInterval(interval);
-  }, [isAuthenticated, showSessionExpiryModal]);
+  }, [isAuthenticated, isInitializing, loginLoading, canQueryNotifications, showSessionExpiryModal]);
 
   // Fetch unread notification count for authenticated users
-  // Skip query when session expiry modal is showing or token is expired/close to expiring
-  const { data: notificationData } = useQuery(GET_USER_UNREAD_NOTIFICATIONS_QUERY, {
-    variables: { limit: 100 },
-    skip: !isAuthenticated || showSessionExpiryModal || shouldSkipNotifications,
-    pollInterval: (showSessionExpiryModal || shouldSkipNotifications) ? 0 : 30000, // Stop polling when should skip
-    errorPolicy: 'ignore'
+  // Query only after server authentication is confirmed (canQueryNotifications is true)
+  // Skip query during initialization, login, or when tokens are expired
+  // Errors are suppressed in error link
+  const shouldSkip = isInitializing || loginLoading || !isAuthenticated || !user || showSessionExpiryModal || shouldSkipNotifications || !canQueryNotifications;
+
+  console.log('[NavBar] Query skip state:', {
+    shouldSkip,
+    isInitializing,
+    loginLoading,
+    isAuthenticated,
+    hasUser: !!user,
+    showSessionExpiryModal,
+    shouldSkipNotifications,
+    canQueryNotifications
   });
+
+  const { data: notificationData, loading: notificationQueryLoading, error: notificationError } = useQuery(GET_USER_UNREAD_NOTIFICATIONS_QUERY, {
+    variables: { limit: 100 },
+    skip: shouldSkip,
+    errorPolicy: 'all' // Use 'all' to prevent errors from being thrown, errors are suppressed in error link
+  });
+
+  console.log('[NavBar] Query result:', {
+    hasData: !!notificationData,
+    loading: notificationQueryLoading,
+    hasError: !!notificationError,
+    error: notificationError,
+    data: notificationData,
+    notifications: notificationData?.dashboardNotifications?.notifications,
+    notificationsCount: notificationData?.dashboardNotifications?.notifications?.length,
+    unreadCount: notificationData?.dashboardNotifications?.notifications?.filter((n: any) => !n.isRead)?.length
+  });
+
+  // Update loading state based on query status
+  // Show loading badge while waiting for server auth or while query is loading
+  useEffect(() => {
+    if (shouldSkip) {
+      setIsNotificationLoading(false);
+    } else if (notificationQueryLoading) {
+      setIsNotificationLoading(true); // Show loading badge while querying
+    } else if (notificationData) {
+      setIsNotificationLoading(false); // Hide loading badge when data is received
+    }
+  }, [shouldSkip, notificationQueryLoading, notificationData]);
 
   // Reset last known count when user logs out or becomes unauthenticated
   useEffect(() => {
@@ -134,10 +271,22 @@ const NavBar: React.FC = () => {
     }
   }, [notificationData]);
 
-  // Use last known count for badge display to maintain consistency when query is skipped
-  const unreadCount = notificationData?.dashboardNotifications?.notifications?.filter(
-    (notification: any) => !notification.isRead
-  ).length ?? lastKnownUnreadCount;
+  // Calculate unread count - show loading state if query is loading or waiting for server auth
+  // Show actual count when data is loaded, otherwise show last known count
+  const unreadCount = isNotificationLoading
+    ? null // null indicates loading state for badge
+    : (notificationData?.dashboardNotifications?.notifications?.filter(
+      (notification: any) => !notification.isRead
+    ).length ?? lastKnownUnreadCount);
+
+  console.log('[NavBar] Unread count calculation:', {
+    isNotificationLoading,
+    hasNotificationData: !!notificationData,
+    notifications: notificationData?.dashboardNotifications?.notifications,
+    calculatedUnreadCount: notificationData?.dashboardNotifications?.notifications?.filter((n: any) => !n.isRead)?.length,
+    lastKnownUnreadCount,
+    finalUnreadCount: unreadCount
+  });
 
   /**
    * Handle click outside to close dropdowns

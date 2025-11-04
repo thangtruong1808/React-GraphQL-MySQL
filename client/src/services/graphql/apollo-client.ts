@@ -318,19 +318,45 @@ const authLink = setContext(async (_, { headers }) => {
  */
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
+    // Check if this is a notification-related operation first (before processing errors)
+    // This allows us to suppress notification errors early to prevent race conditions
+    const isNotificationOperation = operation.operationName === 'GetUserUnreadNotifications' ||
+                                     operation.operationName === 'GetDashboardNotifications';
+    
+    // ALWAYS suppress errors from notification operations - they're non-critical
+    // Check both operation name AND error message to catch all notification errors
+    // If operation is a notification operation, suppress ALL errors from it
+    const hasNotificationError = isNotificationOperation || graphQLErrors.some(({ message }) => {
+      // Check if it's a notification-related error by message
+      const isNotificationMessage = message.toLowerCase().includes('notification') || 
+                                   message.toLowerCase().includes('notifications') ||
+                                   message.includes('Failed to fetch notifications') ||
+                                   message.includes('must be logged in to view notifications');
+      
+      // If it's a notification operation, suppress ALL errors regardless of code or message
+      if (isNotificationOperation) {
+        return true;
+      }
+      
+      // If message contains notification-related text, suppress it
+      return isNotificationMessage;
+    });
+    
+    // ALWAYS suppress notification errors - they're non-critical and shouldn't interrupt user flow
+    // Suppress in all cases: during initialization, after login (before tokens ready), or race conditions
+    // Query will retry automatically via polling (pollInterval: 30000)
+    if (hasNotificationError) {
+      // Always suppress notification errors - don't show toast
+      // The query will retry automatically via polling every 30 seconds
+      return; // Suppress notification errors completely - no toast shown
+    }
+    
     graphQLErrors.forEach(async ({ message, locations, path, extensions }) => {
       // Handle GraphQL errors
       if (extensions?.code === 'UNAUTHENTICATED') {
-        // Check if this is a notification-related error
-        const isNotificationError = message.includes('notification') || 
-                                   message.includes('Notification') ||
-                                   operation.operationName === 'GetUserUnreadNotifications' ||
-                                   operation.operationName === 'GetDashboardNotifications';
-        
-        // ALWAYS suppress notification errors - they're non-critical and shouldn't interrupt user flow
-        if (isNotificationError) {
-          return; // Suppress notification errors completely
-        }
+        // Check authentication state more reliably - check if tokens exist
+        const tokens = getTokens();
+        const hasTokens = !!(tokens.accessToken || tokens.refreshToken);
         
         // During session-expiry window, suppress auth errors (no toast, no token clear)
         try {
@@ -343,10 +369,6 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
             return; // Let SessionManager handle the flow
           }
         } catch (_) {}
-
-        // Check authentication state more reliably - check if tokens exist
-        const tokens = getTokens();
-        const hasTokens = !!(tokens.accessToken || tokens.refreshToken);
 
         // Don't show authentication errors during initialization or for new users
         // These are expected for users without refresh tokens
