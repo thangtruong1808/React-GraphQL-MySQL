@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, NetworkStatus } from '@apollo/client';
 import { GET_DASHBOARD_ACTIVITIES_QUERY, type GetDashboardActivitiesQueryResponse, type GetDashboardActivitiesQueryVariables } from '../../services/graphql/activityQueries';
 import { InlineError } from '../ui';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,7 +25,7 @@ const ActivityLogsAudit: React.FC = () => {
   // Wait for auth data to be ready to prevent race conditions during fast navigation
   const shouldSkip = isInitializing || !hasDashboardAccess || !user || !isAuthDataReady;
 
-  const { data, loading, error } = useQuery<GetDashboardActivitiesQueryResponse, GetDashboardActivitiesQueryVariables>(
+  const { data, loading, error, networkStatus } = useQuery<GetDashboardActivitiesQueryResponse, GetDashboardActivitiesQueryVariables>(
     GET_DASHBOARD_ACTIVITIES_QUERY,
     {
       variables,
@@ -36,8 +36,18 @@ const ActivityLogsAudit: React.FC = () => {
     }
   );
 
-  // Render loading skeleton rows
-  if ((loading && !data) || shouldSkip) {
+  // Check if we're currently fetching from network (even with cached data)
+  // NetworkStatus.loading = 1, NetworkStatus.fetchMore = 3, NetworkStatus.refetch = 4
+  const isFetching = loading || 
+                     networkStatus === NetworkStatus.fetchMore || 
+                     networkStatus === NetworkStatus.refetch;
+
+  // Render loading skeleton rows when:
+  // 1. Loading and no data
+  // 2. Skipping (waiting for auth)
+  // 3. Fetching and have empty cached data (prevents showing stale empty state)
+  const hasEmptyCachedData = data?.dashboardActivities?.activities?.length === 0;
+  if ((loading && !data) || shouldSkip || (isFetching && hasEmptyCachedData)) {
     return (
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm hover:shadow-md dark:hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-100 dark:border-gray-800">
         <div className="p-4 border-b border-gray-100 dark:border-gray-800">
@@ -74,7 +84,7 @@ const ActivityLogsAudit: React.FC = () => {
     );
   }
 
-  const activities = data?.dashboardActivities.activities ?? [];
+  const activities = data?.dashboardActivities?.activities ?? [];
 
   return (
     <div
@@ -114,21 +124,22 @@ const ActivityLogsAudit: React.FC = () => {
                 <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{a.user?.firstName} {a.user?.lastName}</span>
                 <span style={{ color: 'var(--text-secondary)' }}> {a.action?.toLowerCase()} </span>
                 {a.project?.name && (
-                  <span style={{ color: 'var(--text-primary)' }}>project “{a.project.name}”</span>
+                  <span style={{ color: 'var(--text-primary)' }}>project "{a.project.name}"</span>
                 )}
                 {a.task?.title && !a.project?.name && (
-                  <span style={{ color: 'var(--text-primary)' }}>task “{a.task.title}”</span>
+                  <span style={{ color: 'var(--text-primary)' }}>task "{a.task.title}"</span>
                 )}
                 {a.targetUser && !a.project?.name && !a.task?.title && (
-                  <span style={{ color: 'var(--text-primary)' }}>user “{a.targetUser.firstName} {a.targetUser.lastName}”</span>
+                  <span style={{ color: 'var(--text-primary)' }}>user "{a.targetUser.firstName} {a.targetUser.lastName}"</span>
                 )}
               </p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{new Date(a.createdAt).toLocaleString()}</p>
             </div>
           </div>
         ))}
-        {activities.length === 0 && (
-          <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-300">No recent activity</div>
+        {/* Only show empty state when not loading/fetching and data exists but is empty */}
+        {!isFetching && data && activities.length === 0 && (
+          <div className="p-6 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>No recent activity</div>
         )}
       </div>
     </div>

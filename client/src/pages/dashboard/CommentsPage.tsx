@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { DashboardLayout } from '../../components/layout';
-import { useError } from '../../contexts/ErrorContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { DashboardSkeleton } from '../../components/ui';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
@@ -33,7 +32,6 @@ import { CommentFormData } from '../../types/commentManagement';
  * Features responsive design with improved mobile UX when sidebar is collapsed
  */
 const CommentsPage: React.FC = () => {
-  const { showError } = useError();
   const { user, isInitializing, showNotification } = useAuth();
   const { canCreate, canEdit, canDelete, hasDashboardAccess } = useRolePermissions();
   const isAuthDataReady = useAuthDataReady();
@@ -93,6 +91,7 @@ const CommentsPage: React.FC = () => {
   /**
    * Update state when GraphQL data changes
    * Handles loading states and data updates
+   * Always updates loading state to prevent race conditions during fast navigation
    */
   useEffect(() => {
     if (data?.dashboardComments) {
@@ -100,16 +99,15 @@ const CommentsPage: React.FC = () => {
         ...prev,
         comments: data.dashboardComments.comments,
         paginationInfo: data.dashboardComments.paginationInfo,
-        loading: queryLoading // Use queryLoading to show skeleton during pagination changes
+        loading: queryLoading
       }));
-    } else if (!isInitializing && user && hasDashboardAccess) {
-      // Only update loading state if we're past auth initialization
+    } else {
       setState(prev => ({
         ...prev,
         loading: queryLoading
       }));
     }
-  }, [data, queryLoading, isInitializing, user, hasDashboardAccess]);
+  }, [data, queryLoading]);
 
   /**
    * Clear error state when skip condition changes to prevent showing stale errors
