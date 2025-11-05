@@ -1,0 +1,147 @@
+/**
+ * CSS Variables - Light Theme
+ * Defines CSS custom properties for light theme
+ */
+
+[data-theme="light"] {
+  --accent-from: #7c3aed; /* keep brand accent for light */
+  --accent-to: #ec4899;
+  --accent-ring: #7c3aed;
+  --bg-base: #ffffff;
+  --bg-gradient: none;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: #e5e7eb;
+  --border-light: #f3f4f6;
+  --border-medium: #d1d5db;
+  --border-dark: #9ca3af;
+  --card-bg: #ffffff;
+  --card-hover-bg: #f9fafb;   /* light card hover background */
+  --input-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --table-header-bg: #f8fafc;      /* light table header background - distinct from rows */
+  --table-row-bg: #ffffff;         /* light table row background */
+  --table-row-hover-bg: #f9fafb;   /* light table row hover background */
+  --project-info-bg: #f8fafc;      /* light project info section background */
+  --project-info-border: #e2e8f0;  /* light project info section border */
+  --project-info-text: #1e293b;    /* light project info text color */
+  --project-info-text-secondary: #475569; /* light project info secondary text */
+  --tab-active-bg: #f1f5f9;      /* light active tab background */
+  --tab-active-text: #1e293b;    /* light active tab text color */
+  --tab-active-border: #cbd5e1;  /* light active tab border */
+  --tab-inactive-text: #64748b;  /* light inactive tab text color */
+  --tab-inactive-hover-bg: #f8fafc; /* light inactive tab hover background */
+  --tab-inactive-border: #e2e8f0; /* light inactive tab border */
+  --notification-drawer-bg: #ffffff; /* light notification drawer background */
+  --notification-drawer-border: #e5e7eb; /* light notification drawer border */
+  --notification-drawer-header-bg: #f9fafb; /* light notification drawer header background */
+  --notification-drawer-text: #111827; /* light notification drawer text color */
+  --notification-drawer-text-secondary: #6b7280; /* light notification drawer secondary text */
+  --notification-unread-bg: #eff6ff; /* light unread notification background */
+  --notification-unread-border: #bfdbfe; /* light unread notification border */
+  --notification-read-bg: #f9fafb; /* light read notification background */
+  --notification-read-border: #e5e7eb; /* light read notification border */
+  --notification-read-hover-bg: #f3f4f6; /* light read notification hover background */
+  --notification-delete-action-text: #dc2626; /* light delete action button text color - red-600 for visibility on light backgrounds */
+  --notification-delete-action-bg: #fee2e2; /* light delete action button hover background - red-100 */
+  --notification-delete-action-hover-text: #ffffff; /* light delete action button hover text - white for contrast on red */
+  --notification-action-button-bg: #ffffff; /* light notification action button default background */
+  --notification-action-button-hover-bg: #f3f4f6; /* light notification action button hover background - gray-100 for better visibility */
+  --notification-action-button-hover-border: #d1d5db; /* light notification action button hover border - gray-300 for better visibility */
+  /* Notification status text colors - light theme */
+  --notification-status-unread-text: #dc2626; /* red-600 - unread notification status text */
+  --notification-status-read-text: #16a34a; /* green-600 - read notification status text */
+  --button-primary-bg: #7c3aed; /* light primary button background */
+  --button-primary-hover-bg: #6d28d9; /* light primary button hover background */
+  --button-primary-text: #ffffff; /* light primary button text color */
+  --button-primary-ring: #a855f7; /* light primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* light secondary button background */
+  --button-secondary-hover-bg: #2563eb; /* light secondary button hover background */
+  --button-secondary-text: #ffffff; /* light secondary button text color */
+  --button-secondary-ring: #60a5fa; /* light secondary button focus ring */
+  --button-success-bg: #16a34a; /* light success button background */
+  --button-success-hover-bg: #15803d; /* light success button hover background */
+  --button-success-text: #ffffff; /* light success button text color */
+  --button-danger-bg: #dc2626; /* light danger button background */
+  --button-danger-hover-bg: #b91c1c; /* light danger button hover background */
+  --button-danger-text: #ffffff; /* light danger button text color */
+  --table-text-primary: #111827; /* light primary table text color */
+  --table-text-secondary: #6b7280; /* light secondary table text color */
+  --bg-color_gray-300: #d1d5db; /* light gray-300 background color */
+  --role-selection-border: #e5e7eb; /* light role selection border */
+  --role-selection-border-hover: #d1d5db; /* light role selection border hover */
+  --role-selection-active-bg: #eff6ff; /* light role selection active background */
+  --role-selection-active-border: #3b82f6; /* light role selection active border */
+  --role-selection-text: #111827; /* light role selection text */
+  --role-selection-text-secondary: #6b7280; /* light role selection secondary text */
+  --text-badge-primary-bg: #f8fafc; /* light text badge primary background */
+  --text-badge-primary-text: #1e293b; /* light text badge primary text */
+  --text-badge-secondary-bg: #f1f5f9; /* light text badge secondary background */
+  --text-badge-secondary-text: #475569; /* light text badge secondary text */
+  /* Section icons - light */
+  --icon-activity-bg: #e0e7ff; /* indigo-100 */
+  --icon-activity-fg: #4338ca; /* indigo-700 */
+  --icon-users-bg: #d1fae5;    /* emerald-100 */
+  --icon-users-fg: #047857;    /* emerald-700 */
+  --icon-projects-bg: #dbeafe; /* blue-100 */
+  --icon-projects-fg: #1d4ed8; /* blue-700 */
+  --icon-tasks-bg: #ede9fe;    /* violet-100 */
+  --icon-tasks-fg: #6d28d9;    /* violet-700 */
+  --icon-comments-bg: #ffedd5; /* orange-100 */
+  --icon-comments-fg: #c2410c; /* orange-700 */
+  /* Audit badges */
+  --badge-audit-bg: #e5e7eb; /* gray-200 */
+  --badge-audit-text: #111827; /* gray-900 */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --navbar-gradient: none;       /* light navbar gradient */
+  --footer-gradient: none;       /* light footer gradient */
+  --navbar-bg: #f9fafb;          /* light navbar background */
+  --footer-bg: #f9fafb;          /* light footer background */
+  --navbar-text: #374151;        /* light navbar text color */
+  --navbar-text-secondary: #6b7280; /* light navbar secondary text color */
+  --user-dropdown-bg: #ffffff;   /* light user dropdown background */
+  --user-dropdown-border: #e5e7eb; /* light user dropdown border */
+  --user-profile-bg: #f0fdf4;    /* light user profile section background */
+  --user-profile-text: #111827;  /* light user profile text color */
+  --user-profile-text-secondary: #4b5563; /* light user profile secondary text */
+  --user-profile-role-bg: #d1fae5; /* light user profile role badge background */
+  --user-profile-role-text: #065f46; /* light user profile role badge text */
+  --success-bg: #f0fdf4; /* light success message background */
+  --success-border: #bbf7d0; /* light success message border */
+  --success-text: #166534; /* light success message text */
+  /* System Status Indicator - light theme */
+  --status-indicator-online: #10b981; /* green-500 - online/operational status indicator */
+  --footer-resource-hover-bg: #f3f4f6; /* light footer resource link hover background */
+  /* Technology gradient colors - light theme */
+  --tech-react-from: #3b82f6; /* blue-500 */
+  --tech-react-to: #06b6d4; /* cyan-500 */
+  --tech-graphql-from: #ec4899; /* pink-500 */
+  --tech-graphql-to: #a855f7; /* purple-500 */
+  --tech-mysql-from: #2563eb; /* blue-600 */
+  --tech-mysql-to: #1e40af; /* blue-800 */
+  --tech-nodejs-from: #16a34a; /* green-600 */
+  --tech-nodejs-to: #166534; /* green-800 */
+  --tech-typescript-from: #3b82f6; /* blue-500 */
+  --tech-typescript-to: #1d4ed8; /* blue-700 */
+  --tech-tailwind-from: #06b6d4; /* cyan-500 */
+  --tech-tailwind-to: #3b82f6; /* blue-500 */
+  --tech-apollo-from: #a855f7; /* purple-500 */
+  --tech-apollo-to: #6366f1; /* indigo-500 */
+  --tech-jwt-from: #f97316; /* orange-500 */
+  --tech-jwt-to: #ef4444; /* red-500 */
+  /* Search components now use standard theme variables - no special search variables needed */
+}
+
+/* Light theme specific modal header background - override any conflicting styles */
+[data-theme="light"] .modal-header-bg {
+  background-color: #d1d5db !important;
+  background-image: none !important;
+}
+
+/* Light theme pagination active page - ensure gray-300 background is not overridden */
+[data-theme="light"] button.bg-gray-300 {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+}
+

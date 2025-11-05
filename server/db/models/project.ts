@@ -105,7 +105,7 @@ Project.init(
         await createActivityLog({
           type: 'PROJECT_CREATED',
           action: generateActionDescription('create', 'project', extractEntityName(project, 'project')),
-          targetUserId: project.ownerId || null, // The project owner being affected
+          targetUserId: project.ownerId ?? undefined, // The project owner being affected
           projectId: project.id,
           metadata: {
             name: project.name,
@@ -120,7 +120,7 @@ Project.init(
         await createActivityLog({
           type: 'PROJECT_UPDATED',
           action: generateActionDescription('update', 'project', extractEntityName(project, 'project')),
-          targetUserId: project.ownerId || null, // The project owner being affected
+          targetUserId: project.ownerId ?? undefined, // The project owner being affected
           projectId: project.id,
           metadata: {
             name: project.name,
@@ -135,7 +135,7 @@ Project.init(
         await createActivityLog({
           type: 'PROJECT_DELETED',
           action: generateActionDescription('delete', 'project', extractEntityName(project, 'project')),
-          targetUserId: project.ownerId || null, // The project owner being affected
+          targetUserId: project.ownerId ?? undefined, // The project owner being affected
           projectId: project.id,
           metadata: {
             name: project.name,

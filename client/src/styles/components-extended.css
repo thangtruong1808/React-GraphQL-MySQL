@@ -1,0 +1,103 @@
+/* Removed all hardcoded table-row-hover CSS - now using Tailwind classes directly in components */
+
+/* Theme-aware badges and labels */
+.badge, .label {
+  background-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Theme-aware progress bars */
+.progress-bar {
+  background-color: var(--accent-from) !important;
+}
+
+.progress-bg {
+  background-color: var(--border-light) !important;
+}
+
+/* Theme-aware tooltips */
+.tooltip {
+  background-color: var(--text-primary) !important;
+  color: var(--bg-base) !important;
+}
+
+/* Theme-aware charts and graphs */
+.chart-container, .graph-container {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Theme-aware code blocks */
+.code-block, pre, code {
+  background-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Enhanced dark theme contrast */
+[data-theme="dark"] {
+  /* Ensure all text has sufficient contrast */
+  .text-gray-900, .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500 {
+    color: #ffffff !important;
+  }
+  
+  .text-gray-400, .text-gray-300 {
+    color: #d1d5db !important;
+  }
+  
+  /* Enhanced border visibility */
+  .border-gray-200, .border-gray-300, .border-gray-400 {
+    border-color: #6b7280 !important;
+  }
+  
+  .border-gray-100 {
+    border-color: #4b5563 !important;
+  }
+  
+  /* Better card contrast */
+  .bg-white, .bg-gray-50, .bg-gray-100 {
+    background-color: #1f2937 !important;
+  }
+  
+  /* Removed hardcoded input visibility - now using Tailwind classes directly in components */
+  
+  input::placeholder, textarea::placeholder {
+    color: #9ca3af !important;
+  }
+  
+  /* Better table contrast */
+  table {
+    background-color: #1f2937 !important;
+  }
+  
+  table th {
+    background-color: #374151 !important;
+    color: #ffffff !important;
+  }
+  
+  table td {
+    /* Removed background-color to allow hover states to work properly */
+    color: #ffffff !important;
+  }
+  
+  /* Enhanced modal contrast */
+  .modal, .modal-content {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    border-color: #6b7280 !important;
+  }
+  
+  /* Better button contrast */
+  button:not(.bg-purple-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-gray-300):not([class*="bg-gray-"]):not(.search-pagination-btn):not(.footer-resource-btn):not(.user-dropdown-toggle-btn):not(.user-dropdown-logout-btn) {
+    background-color: #374151 !important;
+    color: #ffffff !important;
+    border-color: #6b7280 !important;
+  }
+  
+  /* Ensure search pagination buttons respect theme variables */
+  button.search-pagination-btn {
+    background-color: var(--button-primary-bg) !important;
+    color: var(--button-primary-text) !important;
+    border-color: var(--button-primary-bg) !important;
+  }
+}

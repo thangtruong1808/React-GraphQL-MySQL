@@ -1,0 +1,162 @@
+.theme-table-row-hover-bg:hover .theme-badge-warning {
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-neutral {
+  background-color: var(--badge-neutral-bg) !important;
+  color: var(--badge-neutral-text) !important;
+}
+
+/* Theme-aware badge styling */
+.theme-badge-primary {
+  background-color: var(--badge-primary-bg) !important;
+  color: var(--badge-primary-text) !important;
+}
+
+.theme-badge-secondary {
+  background-color: var(--badge-secondary-bg) !important;
+  color: var(--badge-secondary-text) !important;
+}
+
+.theme-badge-success {
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+}
+
+.theme-badge-warning {
+  background-color: var(--badge-warning-bg) !important;
+  color: var(--badge-warning-text) !important;
+}
+
+.theme-badge-neutral {
+  background-color: var(--badge-neutral-bg) !important;
+  color: var(--badge-neutral-text) !important;
+}
+
+/* Theme-aware avatar styling */
+.theme-avatar-bg {
+  background-color: var(--avatar-bg) !important;
+}
+
+.theme-avatar-text {
+  color: var(--avatar-text) !important;
+}
+
+/* Theme-aware sort icon styling */
+.theme-sort-icon {
+  color: var(--sort-icon) !important;
+}
+
+.theme-sort-icon-active {
+  color: var(--sort-icon-active) !important;
+}
+
+/* Force consistent sort icons for ALL columns - highest specificity */
+table th .theme-sort-icon,
+table th .theme-sort-icon-active,
+table th[onclick*="userId"] .theme-sort-icon,
+table th[onclick*="userId"] .theme-sort-icon-active,
+table th[onclick*="memberRole"] .theme-sort-icon,
+table th[onclick*="memberRole"] .theme-sort-icon-active,
+table th[onclick*="role"] .theme-sort-icon,
+table th[onclick*="role"] .theme-sort-icon-active,
+table th[onclick*="createdAt"] .theme-sort-icon,
+table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Force consistent active sort icons for ALL columns */
+table th .theme-sort-icon-active,
+table th[onclick*="userId"] .theme-sort-icon-active,
+table th[onclick*="memberRole"] .theme-sort-icon-active,
+table th[onclick*="role"] .theme-sort-icon-active,
+table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon-active) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Ultimate override for ProjectMembersTable sort icons - maximum specificity */
+.ProjectMembersTable table th .theme-sort-icon,
+.ProjectMembersTable table th .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="userId"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="userId"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="memberRole"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="memberRole"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="role"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="role"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="createdAt"] .theme-sort-icon,
+.ProjectMembersTable table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.ProjectMembersTable table th .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="userId"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="memberRole"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="role"] .theme-sort-icon-active,
+.ProjectMembersTable table th[onclick*="createdAt"] .theme-sort-icon-active {
+  color: var(--sort-icon-active) !important;
+  width: 16px !important;
+  height: 16px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Removed hardcoded table-row-hover notification badge CSS - now using Tailwind classes directly in components */
+
+/* Removed hardcoded table-row-hover tag badge CSS - now using Tailwind classes directly in components */
+
+/* Task status and priority badges hover contrast - ensure proper contrast on table row hover */
+/* Removed hardcoded table-row-hover task badge CSS - now using Tailwind classes directly in components */
+
+/* Theme-aware role selection styling */
+.theme-role-selection-bg {
+  background-color: var(--role-selection-bg) !important;
+}
+
+.theme-role-selection-border {
+  border-color: var(--role-selection-border) !important;
+}
+
+.theme-role-selection-border-hover:hover {
+  border-color: var(--role-selection-border-hover) !important;
+}
+
+.theme-role-selection-active-bg {
+  background-color: var(--role-selection-active-bg) !important;
+}
+
+.theme-role-selection-active-border {
+  border-color: var(--role-selection-active-border) !important;
+}
+
+.theme-role-selection-text {
+  color: var(--role-selection-text) !important;
+}
+
+.theme-role-selection-text-secondary {
+  color: var(--role-selection-text-secondary) !important;
+}

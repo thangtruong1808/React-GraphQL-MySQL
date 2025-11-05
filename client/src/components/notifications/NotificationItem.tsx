@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaCheck, FaTrash } from 'react-icons/fa';
 import { Notification } from '../../types/notificationManagement';
 
 interface NotificationItemProps {

@@ -1,0 +1,187 @@
+/**
+ * CSS Variables - Dark Theme
+ * Defines CSS custom properties for dark theme
+ */
+
+[data-theme="dark"] {
+  --accent-from: #3b82f6; /* blue-500 - better visibility */
+  --accent-to: #8b5cf6;   /* violet-500 */
+  --accent-ring: #3b82f6;
+  --bg-base: #111827;     /* gray-900 - darker base */
+  --bg-gradient: radial-gradient(1200px 800px at 10% -20%, rgba(59,130,246,0.1), transparent), radial-gradient(1000px 700px at 110% 10%, rgba(139,92,246,0.08), transparent);
+  --text-primary: #ffffff; /* pure white for maximum contrast */
+  --text-secondary: #e5e7eb; /* gray-200 - high contrast */
+  --text-muted: #9ca3af;   /* gray-400 - still readable */
+  --border-color: #4b5563; /* gray-600 - more visible borders */
+  --border-light: #6b7280; /* gray-500 - lighter borders */
+  --border-medium: #4b5563; /* gray-600 - medium borders */
+  --border-dark: #374151;  /* gray-700 - dark borders */
+  --card-bg: #1f2937;      /* gray-800 - lighter than base */
+  --card-hover-bg: #4b5563; /* gray-600 - matches row hover */
+  --input-bg: #1f2937;     /* gray-800 - consistent with cards */
+  --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
+  --table-header-bg: #374151; /* dark table header background - darker than rows */
+  --table-row-bg: #1f2937;    /* dark table row background */
+  --table-row-hover-bg: #4b5563; /* dark table row hover background - lighter for better contrast */
+  --project-info-bg: #374151;    /* dark project info section background */
+  --project-info-border: #4b5563; /* dark project info section border */
+  --project-info-text: #f9fafb;  /* dark project info text color */
+  --project-info-text-secondary: #d1d5db; /* dark project info secondary text */
+  --tab-active-bg: #374151;    /* dark active tab background */
+  --tab-active-text: #f9fafb;  /* dark active tab text color */
+  --tab-active-border: #4b5563; /* dark active tab border */
+  --tab-inactive-text: #9ca3af; /* dark inactive tab text color */
+  --tab-inactive-hover-bg: #374151; /* dark inactive tab hover background */
+  --tab-inactive-border: #4b5563; /* dark inactive tab border */
+  --notification-drawer-bg: #1f2937; /* dark notification drawer background */
+  --notification-drawer-border: #4b5563; /* dark notification drawer border */
+  --notification-drawer-header-bg: #374151; /* dark notification drawer header background */
+  --notification-drawer-text: #f9fafb; /* dark notification drawer text color */
+  --notification-drawer-text-secondary: #d1d5db; /* dark notification drawer secondary text */
+  --notification-unread-bg: #1e3a8a; /* dark unread notification background */
+  --notification-unread-border: #3b82f6; /* dark unread notification border */
+  --notification-read-bg: #374151; /* dark read notification background */
+  --notification-read-border: #4b5563; /* dark read notification border */
+  --notification-read-hover-bg: #4b5563; /* dark read notification hover background */
+  --notification-delete-action-text: #f87171; /* dark delete action button text color - red-400 for visibility on dark backgrounds */
+  --notification-delete-action-bg: #991b1b; /* dark delete action button hover background - red-800 */
+  --notification-delete-action-hover-text: #fee2e2; /* dark delete action button hover text - red-100 for contrast */
+  --notification-action-button-bg: #6b7280; /* dark notification action button default background - gray-500, much lighter than header for clear visibility */
+  --notification-action-button-hover-bg: #9ca3af; /* dark notification action button hover background - gray-400 for very clear hover effect */
+  --notification-action-button-hover-border: #d1d5db; /* dark notification action button hover border - gray-300 for maximum visibility */
+  /* Notification status text colors - dark theme (high contrast) */
+  --notification-status-unread-text: #f87171; /* red-400 - bright unread notification status text for dark theme */
+  --notification-status-read-text: #10b981; /* green-500 - bright read notification status text for dark theme */
+  --button-primary-bg: #7c3aed; /* dark primary button background */
+  --button-primary-hover-bg: #8b5cf6; /* dark primary button hover background */
+  --button-primary-text: #ffffff; /* dark primary button text color */
+  --button-primary-ring: #a855f7; /* dark primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* dark secondary button background */
+  --button-secondary-hover-bg: #1d4ed8; /* dark secondary button hover background */
+  --button-secondary-text: #ffffff; /* dark secondary button text color */
+  --button-secondary-ring: #60a5fa; /* dark secondary button focus ring */
+  --button-success-bg: #16a34a; /* dark success button background */
+  --button-success-hover-bg: #15803d; /* dark success button hover background */
+  --button-success-text: #ffffff; /* dark success button text color */
+  --button-danger-bg: #dc2626; /* dark danger button background */
+  --button-danger-hover-bg: #b91c1c; /* dark danger button hover background */
+  --button-danger-text: #ffffff; /* dark danger button text color */
+  --table-text-primary: #ffffff; /* dark primary table text color - pure white for maximum contrast */
+  --table-text-secondary: #e5e7eb; /* dark secondary table text color - lighter gray for better contrast */
+  --table-text-muted: #d1d5db; /* dark muted table text color */
+  --table-text-hover: #ffffff; /* dark table text color on hover - pure white */
+  --badge-primary-bg: #4c1d95; /* dark primary badge background */
+  --badge-primary-text: #c4b5fd; /* dark primary badge text */
+  --badge-secondary-bg: #1e3a8a; /* dark secondary badge background */
+  --badge-secondary-text: #93c5fd; /* dark secondary badge text */
+  --badge-success-bg: #14532d; /* dark success badge background */
+  --badge-success-text: #86efac; /* dark success badge text */
+  --badge-warning-bg: #9a3412; /* dark warning badge background */
+  --badge-warning-text: #fed7aa; /* dark warning badge text */
+  --badge-neutral-bg: #374151; /* dark neutral badge background */
+  --badge-neutral-text: #d1d5db; /* dark neutral badge text */
+  /* Project status colors - dark theme (high contrast) */
+  --project-status-planning-bg: #1e3a8a; /* blue-800 - planning status background for dark theme */
+  --project-status-planning-text: #93c5fd; /* blue-300 - high contrast planning status text */
+  --project-status-in-progress-bg: #9a3412; /* orange-800 - in progress status background for dark theme */
+  --project-status-in-progress-text: #fdba74; /* orange-300 - high contrast in progress status text */
+  --project-status-completed-bg: #14532d; /* green-800 - completed status background for dark theme */
+  --project-status-completed-text: #86efac; /* green-300 - high contrast completed status text */
+  --avatar-bg: #4c1d95; /* dark avatar background */
+  --avatar-text: #c4b5fd; /* dark avatar text */
+  --sort-icon: #6b7280; /* dark sort icon color */
+  --sort-icon-active: #a855f7; /* dark active sort icon color */
+  --role-selection-bg: #1f2937; /* dark role selection background */
+  --role-selection-border: #4b5563; /* dark role selection border */
+  --role-selection-border-hover: #6b7280; /* dark role selection border hover */
+  --role-selection-active-bg: #1e3a8a; /* dark role selection active background */
+  --role-selection-active-border: #3b82f6; /* dark role selection active border */
+  --role-selection-text: #f9fafb; /* dark role selection text */
+  --role-selection-text-secondary: #d1d5db; /* dark role selection secondary text */
+  --text-badge-primary-bg: #374151; /* dark text badge primary background */
+  --text-badge-primary-text: #ffffff; /* dark text badge primary text */
+  --text-badge-secondary-bg: #4b5563; /* dark text badge secondary background */
+  --text-badge-secondary-text: #e5e7eb; /* dark text badge secondary text */
+  /* Section icons - dark (higher contrast) */
+  --icon-activity-bg: #312e81; /* indigo-900 */
+  --icon-activity-fg: #c7d2fe; /* indigo-200 */
+  --icon-users-bg: #064e3b;    /* emerald-900 */
+  --icon-users-fg: #a7f3d0;    /* emerald-200 */
+  --icon-projects-bg: #1e3a8a; /* blue-900 */
+  --icon-projects-fg: #bfdbfe; /* blue-200 */
+  --icon-tasks-bg: #4c1d95;    /* violet-900 */
+  --icon-tasks-fg: #ddd6fe;    /* violet-200 */
+  --icon-comments-bg: #7c2d12; /* orange-900 */
+  --icon-comments-fg: #fed7aa; /* orange-200 */
+  /* Audit badges */
+  --badge-audit-bg: #374151; /* gray-700 */
+  --badge-audit-text: #f9fafb; /* gray-50 */
+  /* Activity badges - high contrast for dark theme readability */
+  --activity-created-bg: #065f46; /* emerald-800 - brighter than badge-success for readability */
+  --activity-created-text: #d1fae5; /* emerald-100 - high contrast text */
+  --activity-updated-bg: #1e40af; /* blue-800 - brighter than badge-secondary for readability */
+  --activity-updated-text: #dbeafe; /* blue-100 - high contrast text */
+  --activity-deleted-bg: #991b1b; /* red-800 - brighter than badge-warning for readability */
+  --activity-deleted-text: #fee2e2; /* red-100 - high contrast text */
+  --activity-primary-bg: #6b21a8; /* purple-800 - brighter than badge-primary for readability */
+  --activity-primary-text: #e9d5ff; /* purple-200 - high contrast text */
+  /* Error/Danger colors for form validation - dark theme (high contrast) */
+  --error-color: #f87171; /* red-400 - bright error color for dark theme */
+  --error-bg: #991b1b; /* red-800 - error background for dark theme */
+  --error-text: #fee2e2; /* red-100 - high contrast error text for dark theme */
+  --error-border: #ef4444; /* red-500 - error border for dark theme */
+  /* Error Display colors - dark theme (high contrast) */
+  --error-display-bg: #991b1b; /* red-800 - error display background for dark theme */
+  --error-display-border: #b91c1c; /* red-700 - error display border for dark theme */
+  --error-display-text: #fee2e2; /* red-100 - high contrast error display text */
+  --error-display-icon: #f87171; /* red-400 - bright error display icon */
+  /* Warning Display colors - dark theme (high contrast) */
+  --warning-display-bg: #78350f; /* yellow-800 - warning display background for dark theme */
+  --warning-display-border: #92400e; /* yellow-700 - warning display border for dark theme */
+  --warning-display-text: #fef3c7; /* yellow-100 - high contrast warning display text */
+  --warning-display-icon: #fbbf24; /* yellow-400 - bright warning display icon */
+  /* Info Display colors - dark theme (high contrast) */
+  --info-display-bg: #1e40af; /* blue-800 - info display background for dark theme */
+  --info-display-border: #1e3a8a; /* blue-700 - info display border for dark theme */
+  --info-display-text: #dbeafe; /* blue-100 - high contrast info display text */
+  --info-display-icon: #60a5fa; /* blue-400 - bright info display icon */
+  --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
+  --navbar-gradient: none;       /* dark navbar gradient */
+  --footer-gradient: none;       /* dark footer gradient */
+  --navbar-bg: #1f2937;    /* dark navbar background */
+  --footer-bg: #1f2937;    /* dark footer background */
+  --navbar-text: #f9fafb;  /* dark navbar text color */
+  --navbar-text-secondary: #d1d5db; /* dark navbar secondary text color */
+  --user-dropdown-bg: #374151; /* dark user dropdown background */
+  --user-dropdown-border: #4b5563; /* dark user dropdown border */
+  --user-profile-bg: #064e3b; /* dark user profile section background */
+  --user-profile-text: #ffffff; /* dark user profile text color */
+  --user-profile-text-secondary: #d1d5db; /* dark user profile secondary text */
+  --user-profile-role-bg: #065f46; /* dark user profile role badge background */
+  --user-profile-role-text: #ffffff; /* dark user profile role badge text */
+  --success-bg: #064e3b; /* dark success message background */
+  --success-border: #065f46; /* dark success message border */
+  --success-text: #10b981; /* dark success message text */
+  /* System Status Indicator - dark theme */
+  --status-indicator-online: #10b981; /* green-500 - bright online/operational status indicator for dark theme */
+  --footer-resource-hover-bg: #4b5563; /* dark footer resource link hover background */
+  /* Technology gradient colors - dark theme (brighter for better visibility) */
+  --tech-react-from: #60a5fa; /* blue-400 */
+  --tech-react-to: #22d3ee; /* cyan-400 */
+  --tech-graphql-from: #f472b6; /* pink-400 */
+  --tech-graphql-to: #c084fc; /* purple-400 */
+  --tech-mysql-from: #3b82f6; /* blue-500 */
+  --tech-mysql-to: #2563eb; /* blue-600 */
+  --tech-nodejs-from: #34d399; /* green-400 */
+  --tech-nodejs-to: #10b981; /* green-500 */
+  --tech-typescript-from: #60a5fa; /* blue-400 */
+  --tech-typescript-to: #3b82f6; /* blue-500 */
+  --tech-tailwind-from: #22d3ee; /* cyan-400 */
+  --tech-tailwind-to: #60a5fa; /* blue-400 */
+  --tech-apollo-from: #c084fc; /* purple-400 */
+  --tech-apollo-to: #818cf8; /* indigo-400 */
+  --tech-jwt-from: #fb923c; /* orange-400 */
+  --tech-jwt-to: #f87171; /* red-400 */
+  /* Search components now use standard theme variables - no special search variables needed */
+}
+

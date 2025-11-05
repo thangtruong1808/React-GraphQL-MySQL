@@ -1,0 +1,162 @@
+/**
+ * CSS Variables - Root Theme
+ * Defines default CSS custom properties for root theme
+ */
+
+/* Dashboard theme variables */
+:root {
+  --accent-from: #7c3aed; /* brand default */
+  --accent-to: #ec4899;
+  --accent-ring: #7c3aed;
+  --bg-base: #ffffff;             /* default dashboard background */
+  --bg-gradient: none;            /* optional gradient layer */
+  --text-primary: #1f2937;        /* primary text color */
+  --text-secondary: #6b7280;      /* secondary text color */
+  --text-muted: #9ca3af;          /* muted text color */
+  --border-color: #e5e7eb;        /* border color */
+  --border-light: #f3f4f6;        /* light border color */
+  --border-medium: #d1d5db;       /* medium border color */
+  --border-dark: #9ca3af;         /* dark border color */
+  --card-bg: #ffffff;             /* card background */
+  --card-hover-bg: #f9fafb;       /* card hover background */
+  --input-bg: #ffffff;            /* input background */
+  --modal-bg: #ffffff;            /* modal background */
+  --table-header-bg: #f8fafc;      /* table header background - lighter than rows */
+  --table-row-bg: #ffffff;         /* table row background */
+  --table-row-hover-bg: #f9fafb;   /* table row hover background */
+  --project-info-bg: #f8fafc;      /* project info section background */
+  --project-info-border: #e2e8f0;  /* project info section border */
+  --project-info-text: #1e293b;    /* project info text color */
+  --project-info-text-secondary: #475569; /* project info secondary text */
+  --tab-active-bg: #f1f5f9;      /* active tab background */
+  --tab-active-text: #1e293b;    /* active tab text color */
+  --tab-active-border: #cbd5e1;  /* active tab border */
+  --tab-inactive-text: #64748b;  /* inactive tab text color */
+  --tab-inactive-hover-bg: #f8fafc; /* inactive tab hover background */
+  --tab-inactive-border: #e2e8f0; /* inactive tab border */
+  --notification-drawer-bg: #ffffff; /* notification drawer background */
+  --notification-drawer-border: #e5e7eb; /* notification drawer border */
+  --notification-drawer-header-bg: #f9fafb; /* notification drawer header background */
+  --notification-drawer-text: #111827; /* notification drawer text color */
+  --notification-drawer-text-secondary: #6b7280; /* notification drawer secondary text */
+  --notification-unread-bg: #eff6ff; /* unread notification background */
+  --notification-unread-border: #bfdbfe; /* unread notification border */
+  --notification-read-bg: #f9fafb; /* read notification background */
+  --notification-delete-action-text: #dc2626; /* delete action button text color - red-600 for visibility on light backgrounds */
+  --notification-delete-action-bg: #fee2e2; /* delete action button hover background - red-100 */
+  --notification-delete-action-hover-text: #ffffff; /* delete action button hover text - white for contrast on red */
+  --notification-action-button-bg: #ffffff; /* notification action button default background */
+  --notification-action-button-hover-bg: #f3f4f6; /* notification action button hover background - gray-100 for better visibility */
+  --notification-action-button-hover-border: #d1d5db; /* notification action button hover border - gray-300 for better visibility */
+  --notification-read-border: #e5e7eb; /* read notification border */
+  --notification-read-hover-bg: #f3f4f6; /* read notification hover background */
+  --button-primary-bg: #7c3aed; /* primary button background */
+  --button-primary-hover-bg: #6d28d9; /* primary button hover background */
+  --button-primary-text: #ffffff; /* primary button text color */
+  --button-primary-ring: #a855f7; /* primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* secondary button background */
+  --button-secondary-hover-bg: #2563eb; /* secondary button hover background */
+  --button-secondary-text: #ffffff; /* secondary button text color */
+  --button-secondary-ring: #60a5fa; /* secondary button focus ring */
+  --button-success-bg: #16a34a; /* success button background */
+  --button-success-hover-bg: #15803d; /* success button hover background */
+  --button-success-text: #ffffff; /* success button text color */
+  --button-danger-bg: #dc2626; /* danger button background */
+  --button-danger-hover-bg: #b91c1c; /* danger button hover background */
+  --button-danger-text: #ffffff; /* danger button text color */
+  --table-text-primary: #111827; /* primary table text color */
+  --table-text-secondary: #6b7280; /* secondary table text color */
+  --table-text-muted: #9ca3af; /* muted table text color */
+  --table-text-hover: #111827; /* table text color on hover */
+  --badge-primary-bg: #f3e8ff; /* primary badge background */
+  --badge-primary-text: #7c3aed; /* primary badge text */
+  --badge-secondary-bg: #dbeafe; /* secondary badge background */
+  --badge-secondary-text: #1d4ed8; /* secondary badge text */
+  --badge-success-bg: #dcfce7; /* success badge background */
+  --badge-success-text: #166534; /* success badge text */
+  --badge-warning-bg: #fed7aa; /* warning badge background */
+  --badge-warning-text: #c2410c; /* warning badge text */
+  --badge-neutral-bg: #f3f4f6; /* neutral badge background */
+  --badge-neutral-text: #374151; /* neutral badge text */
+  /* Project status colors - light theme */
+  --project-status-planning-bg: #dbeafe; /* blue-100 - planning status background */
+  --project-status-planning-text: #1e40af; /* blue-800 - planning status text */
+  --project-status-in-progress-bg: #fed7aa; /* orange-100 - in progress status background */
+  --project-status-in-progress-text: #9a3412; /* orange-800 - in progress status text */
+  --project-status-completed-bg: #dcfce7; /* green-100 - completed status background */
+  --project-status-completed-text: #166534; /* green-800 - completed status text */
+  /* Activity badges - light theme */
+  --activity-created-bg: #dcfce7; /* success badge background */
+  --activity-created-text: #166534; /* success badge text */
+  --activity-updated-bg: #dbeafe; /* secondary badge background */
+  --activity-updated-text: #1d4ed8; /* secondary badge text */
+  --activity-deleted-bg: #fee2e2; /* danger badge background (red-100) */
+  --activity-deleted-text: #991b1b; /* danger badge text (red-800) */
+  --activity-primary-bg: #f3e8ff; /* primary badge background */
+  --activity-primary-text: #7c3aed; /* primary badge text */
+  /* Error/Danger colors for form validation - light theme */
+  --error-color: #dc2626; /* red-600 - high contrast error color */
+  --error-bg: #fee2e2; /* red-100 - error background */
+  --error-text: #991b1b; /* red-800 - error text */
+  --error-border: #f87171; /* red-400 - error border */
+  /* Error Display colors - light theme */
+  --error-display-bg: #fee2e2; /* red-50 - error display background */
+  --error-display-border: #fecaca; /* red-200 - error display border */
+  --error-display-text: #991b1b; /* red-800 - error display text */
+  --error-display-icon: #f87171; /* red-400 - error display icon */
+  /* Warning Display colors - light theme */
+  --warning-display-bg: #fef3c7; /* yellow-50 - warning display background */
+  --warning-display-border: #fde68a; /* yellow-200 - warning display border */
+  --warning-display-text: #92400e; /* yellow-800 - warning display text */
+  --warning-display-icon: #fbbf24; /* yellow-400 - warning display icon */
+  /* Info Display colors - light theme */
+  --info-display-bg: #dbeafe; /* blue-50 - info display background */
+  --info-display-border: #bfdbfe; /* blue-200 - info display border */
+  --info-display-text: #1e40af; /* blue-800 - info display text */
+  --info-display-icon: #60a5fa; /* blue-400 - info display icon */
+  /* Audit badges (higher-contrast across themes) */
+  --badge-audit-bg: #f3f4f6; /* default fallback */
+  --badge-audit-text: #111827; /* default fallback */
+  --avatar-bg: #f3e8ff; /* avatar background */
+  --avatar-text: #7c3aed; /* avatar text */
+  --sort-icon: #9ca3af; /* sort icon color */
+  --sort-icon-active: #7c3aed; /* active sort icon color */
+  /* Section icon defaults (readable across themes; overridden per theme) */
+  --icon-activity-bg: #e0e7ff; /* indigo-100 */
+  --icon-activity-fg: #4338ca; /* indigo-700 */
+  --icon-users-bg: #d1fae5;    /* emerald-100 */
+  --icon-users-fg: #047857;    /* emerald-700 */
+  --icon-projects-bg: #dbeafe; /* blue-100 */
+  --icon-projects-fg: #1d4ed8; /* blue-700 */
+  --icon-tasks-bg: #ede9fe;    /* violet-100 */
+  --icon-tasks-fg: #6d28d9;    /* violet-700 */
+  --icon-comments-bg: #ffedd5; /* orange-100 */
+  --icon-comments-fg: #c2410c; /* orange-700 */
+  --role-selection-bg: #ffffff; /* role selection background */
+  --role-selection-border: #e5e7eb; /* role selection border */
+  --role-selection-border-hover: #d1d5db; /* role selection border hover */
+  --role-selection-active-bg: #eff6ff; /* role selection active background */
+  --role-selection-active-border: #3b82f6; /* role selection active border */
+  --role-selection-text: #111827; /* role selection text */
+  --role-selection-text-secondary: #6b7280; /* role selection secondary text */
+  --text-badge-primary-bg: #f8fafc; /* text badge primary background */
+  --text-badge-primary-text: #1e293b; /* text badge primary text */
+  --text-badge-secondary-bg: #f1f5f9; /* text badge secondary background */
+  --text-badge-secondary-text: #475569; /* text badge secondary text */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* shadow color */
+  --navbar-gradient: none;       /* navbar gradient background */
+  --footer-gradient: none;       /* footer gradient background */
+  --navbar-bg: #f9fafb;          /* navbar background */
+  --footer-bg: #f9fafb;          /* footer background */
+  --navbar-text: #374151;        /* navbar text color */
+  --navbar-text-secondary: #6b7280; /* navbar secondary text color */
+  --user-dropdown-bg: #ffffff;   /* user dropdown background */
+  --user-dropdown-border: #e5e7eb; /* user dropdown border */
+  --user-profile-bg: #f0fdf4;    /* user profile section background */
+  --user-profile-text: #111827;  /* user profile text color */
+  --user-profile-text-secondary: #4b5563; /* user profile secondary text */
+  --user-profile-role-bg: #d1fae5; /* user profile role badge background */
+  --user-profile-role-text: #065f46; /* user profile role badge text */
+  --footer-resource-hover-bg: #f3f4f6; /* footer resource link hover background */
+}
+

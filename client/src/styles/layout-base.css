@@ -1,0 +1,281 @@
+/**
+ * Layout - Base
+ * Base layout styles for dashboard, login, and authenticated pages
+ */
+
+/* Ensure footer resource buttons respect theme variables for hover across all themes */
+button.footer-resource-btn:hover {
+  background-color: var(--footer-resource-hover-bg) !important;
+}
+
+/* User dropdown buttons - respect theme variables for background and hover */
+button.user-dropdown-toggle-btn {
+  background-color: transparent !important;
+  color: var(--navbar-text) !important;
+  border-color: transparent !important;
+}
+
+button.user-dropdown-toggle-btn:hover,
+button.user-dropdown-toggle-btn:focus {
+  background-color: var(--tab-inactive-hover-bg) !important;
+  color: var(--navbar-text) !important;
+}
+
+[data-theme="light"] button.user-dropdown-toggle-btn:hover,
+[data-theme="light"] button.user-dropdown-toggle-btn:focus,
+[data-theme="dark"] button.user-dropdown-toggle-btn:hover,
+[data-theme="dark"] button.user-dropdown-toggle-btn:focus,
+[data-theme="brand"] button.user-dropdown-toggle-btn:hover,
+[data-theme="brand"] button.user-dropdown-toggle-btn:focus {
+  background-color: var(--tab-inactive-hover-bg) !important;
+}
+
+button.user-dropdown-logout-btn {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  border-color: transparent !important;
+}
+
+button.user-dropdown-logout-btn:hover,
+button.user-dropdown-logout-btn:focus {
+  background-color: var(--card-hover-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] button.user-dropdown-logout-btn:hover,
+[data-theme="light"] button.user-dropdown-logout-btn:focus,
+[data-theme="dark"] button.user-dropdown-logout-btn:hover,
+[data-theme="dark"] button.user-dropdown-logout-btn:focus,
+[data-theme="brand"] button.user-dropdown-logout-btn:hover,
+[data-theme="brand"] button.user-dropdown-logout-btn:focus {
+  background-color: var(--card-hover-bg) !important;
+}
+
+/* Apply themed backgrounds to dashboard surfaces */
+.dashboard-layout,
+.dashboard-content {
+  background-color: var(--bg-base) !important;
+  background-image: var(--bg-gradient) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  transition: background-color 0.3s ease, background-image 0.3s ease;
+}
+
+/* Higher specificity for theme application */
+html[data-theme] .dashboard-layout,
+html[data-theme] .dashboard-content,
+body[data-theme] .dashboard-layout,
+body[data-theme] .dashboard-content {
+  background-color: var(--bg-base) !important;
+  background-image: var(--bg-gradient) !important;
+}
+
+/* Apply theme to body and html for full coverage */
+html[data-theme] {
+  background-color: var(--bg-base) !important;
+  transition: background-color 0.3s ease;
+}
+
+body[data-theme] {
+  background-color: var(--bg-base) !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Enhanced login page theme-aware background */
+.login-page {
+  background-color: var(--bg-base) !important;
+  background-image: var(--bg-gradient) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 100vh !important;
+}
+
+/* Higher specificity for login page theme application */
+html[data-theme] .login-page,
+body[data-theme] .login-page {
+  background-color: var(--bg-base) !important;
+  background-image: var(--bg-gradient) !important;
+}
+
+/* Theme-aware card styling - now handled by Tailwind classes */
+
+/* Enhanced login page container for better theme integration */
+.login-container {
+  background: linear-gradient(135deg, 
+    var(--bg-base) 0%, 
+    var(--card-bg) 50%, 
+    var(--bg-base) 100%) !important;
+  background-size: 200% 200% !important;
+  animation: gradientShift 8s ease infinite !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Subtle gradient animation for enhanced UX */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Theme-specific enhancements for better visual hierarchy */
+[data-theme="brand"] .login-page {
+  background-image: 
+    radial-gradient(1200px 800px at 10% -20%, rgba(124,58,237,0.15), transparent),
+    radial-gradient(1000px 700px at 110% 10%, rgba(236,72,153,0.12), transparent),
+    linear-gradient(135deg, #f3e8ff 0%, #faf5ff 50%, #f3e8ff 100%) !important;
+}
+
+[data-theme="dark"] .login-page {
+  background-image: 
+    radial-gradient(1200px 800px at 10% -20%, rgba(59, 130, 246, 0.1), transparent),
+    radial-gradient(1000px 700px at 110% 10%, rgba(147, 51, 234, 0.08), transparent),
+    linear-gradient(135deg, #1f2937 0%, #374151 50%, #1f2937 100%) !important;
+}
+
+[data-theme="light"] .login-page {
+  background-image: 
+    radial-gradient(1200px 800px at 10% -20%, rgba(59, 130, 246, 0.05), transparent),
+    radial-gradient(1000px 700px at 110% 10%, rgba(147, 51, 234, 0.03), transparent),
+    linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #ffffff 100%) !important;
+}
+
+/* Enhanced theme transitions for login page */
+.login-page,
+.login-container,
+.theme-card {
+  will-change: background-color, background-image, transform !important;
+}
+
+/* Improved theme card hover effects */
+.theme-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border-color) !important;
+}
+
+/* Theme-specific card enhancements */
+[data-theme="brand"] .theme-card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 
+    0 25px 50px -12px rgba(124, 58, 237, 0.25), 
+    0 0 0 1px var(--border-color),
+    0 0 0 0 rgba(124, 58, 237, 0.1) !important;
+}
+
+[data-theme="brand"] .theme-card:hover {
+  box-shadow: 
+    0 32px 64px -12px rgba(124, 58, 237, 0.3), 
+    0 0 0 1px var(--border-color),
+    0 0 0 4px rgba(124, 58, 237, 0.1) !important;
+}
+
+[data-theme="dark"] .theme-card {
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+    0 0 0 1px var(--border-color),
+    0 0 0 0 rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-theme="dark"] .theme-card:hover {
+  box-shadow: 
+    0 32px 64px -12px rgba(0, 0, 0, 0.6), 
+    0 0 0 1px var(--border-color),
+    0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-theme="light"] .theme-card {
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.15), 
+    0 0 0 1px var(--border-color),
+    0 0 0 0 rgba(59, 130, 246, 0.05) !important;
+}
+
+[data-theme="light"] .theme-card:hover {
+  box-shadow: 
+    0 32px 64px -12px rgba(0, 0, 0, 0.2), 
+    0 0 0 1px var(--border-color),
+    0 0 0 4px rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Theme-aware input styling */
+.theme-input {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.theme-input-border {
+  border-color: var(--border-color) !important;
+}
+
+.theme-input:focus {
+  border-color: var(--accent-ring) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+}
+
+/* Theme-aware text colors */
+.theme-text-primary {
+  color: var(--text-primary) !important;
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.theme-text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Theme-aware success message */
+.theme-success-message {
+  background-color: var(--success-bg, #f0fdf4) !important;
+  border-color: var(--success-border, #bbf7d0) !important;
+  color: var(--success-text, #166534) !important;
+}
+
+/* Theme-aware button styling */
+.theme-button-primary {
+  background: linear-gradient(135deg, var(--button-primary-bg), var(--accent-to)) !important;
+  color: var(--button-primary-text) !important;
+  border-color: transparent !important;
+}
+
+.theme-button-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--button-primary-hover-bg), var(--accent-to)) !important;
+  box-shadow: 0 0 0 3px var(--button-primary-ring) !important;
+}
+
+.theme-button-primary:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--button-primary-ring) !important;
+}
+
+/* Higher specificity for theme input application */
+html[data-theme] .theme-input,
+body[data-theme] .theme-input,
+html[data-theme] .theme-input-border,
+body[data-theme] .theme-input-border {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme] .theme-text-primary,
+body[data-theme] .theme-text-primary {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme] .theme-text-secondary,
+body[data-theme] .theme-text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme] .theme-text-muted,
+body[data-theme] .theme-text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Clean theme-aware styling - now handled by Tailwind classes */

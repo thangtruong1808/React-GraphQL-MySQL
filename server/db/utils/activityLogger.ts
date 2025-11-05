@@ -8,7 +8,7 @@ import { getActivityContext } from './activityContext';
  */
 
 export interface ActivityLogData {
-  userId: number; // The logged-in user performing the action
+  userId?: number; // The logged-in user performing the action (obtained from context if not provided)
   type: 'USER_CREATED' | 'USER_UPDATED' | 'USER_DELETED' | 'PROJECT_CREATED' | 'PROJECT_UPDATED' | 'PROJECT_DELETED' | 'TASK_CREATED' | 'TASK_UPDATED' | 'TASK_DELETED';
   action: string;
   targetUserId?: number; // The user being affected by the action

@@ -1,7 +1,7 @@
 /* eslint-disable */
 export { };
 import React, { useMemo } from 'react';
-import { useQuery } from '../../services/graphql/hooks';
+import { useQuery } from '@apollo/client';
 import { GET_USERS_QUERY, type GetUsersQueryResponse, type GetUsersQueryVariables } from '../../services/graphql/userQueries';
 import { InlineError } from '../ui';
 import { useAuth } from '../../contexts/AuthContext';

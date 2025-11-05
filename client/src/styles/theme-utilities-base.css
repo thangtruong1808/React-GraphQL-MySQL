@@ -1,0 +1,305 @@
+/**
+ * Theme Utilities - Base
+ * Theme-aware utility classes for common UI elements
+ */
+
+/* Helper class to apply theme accent gradient */
+.theme-accent-gradient {
+  background-image: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+}
+
+/* Make Tailwind bg-white respect the active theme's base color */
+.bg-white {
+  background-color: var(--bg-base) !important;
+}
+
+/* Theme-aware navbar and footer backgrounds */
+
+.theme-navbar-bg {
+  background-color: var(--navbar-bg) !important;
+  background-image: var(--navbar-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.theme-footer-bg {
+  background-color: var(--footer-bg) !important;
+  background-image: var(--footer-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Theme-aware navbar text colors */
+.theme-navbar-text {
+  color: var(--navbar-text) !important;
+}
+
+.theme-navbar-text-secondary {
+  color: var(--navbar-text-secondary) !important;
+}
+
+/* Theme-aware user dropdown styles */
+.theme-user-dropdown-bg {
+  background-color: var(--user-dropdown-bg) !important;
+}
+
+.theme-user-dropdown-border {
+  border-color: var(--user-dropdown-border) !important;
+}
+
+/* Theme-aware user profile styles */
+.theme-user-profile-bg {
+  background-color: var(--user-profile-bg) !important;
+}
+
+.theme-user-profile-text {
+  color: var(--user-profile-text) !important;
+}
+
+.theme-user-profile-text-secondary {
+  color: var(--user-profile-text-secondary) !important;
+}
+
+.theme-user-profile-role-bg {
+  background-color: var(--user-profile-role-bg) !important;
+}
+
+.theme-user-profile-role-text {
+  color: var(--user-profile-role-text) !important;
+}
+
+/* Theme-aware border colors */
+.theme-border {
+  border-color: var(--border-color) !important;
+}
+
+.theme-border-light {
+  border-color: var(--border-light) !important;
+}
+
+.theme-border-medium {
+  border-color: var(--border-medium) !important;
+}
+
+.theme-border-dark {
+  border-color: var(--border-dark) !important;
+}
+
+/* Theme-aware table styling */
+.theme-table-header-bg {
+  background-color: var(--table-header-bg) !important;
+}
+
+.theme-table-row-bg {
+  background-color: var(--table-row-bg) !important;
+}
+
+/* Removed hardcoded table-row-hover CSS variable usage - now using Tailwind classes directly in components */
+
+.theme-table-border {
+  border-color: var(--border-color) !important;
+}
+
+.theme-table-divide {
+  border-color: var(--border-color) !important;
+}
+
+/* Theme-aware project info styling */
+.theme-project-info-bg {
+  background-color: var(--project-info-bg) !important;
+}
+
+.theme-project-info-border {
+  border-color: var(--project-info-border) !important;
+}
+
+.theme-project-info-text {
+  color: var(--project-info-text) !important;
+}
+
+.theme-project-info-text-secondary {
+  color: var(--project-info-text-secondary) !important;
+}
+
+/* Theme-aware tab styling */
+.theme-tab-active-bg {
+  background-color: var(--tab-active-bg) !important;
+}
+
+.theme-tab-active-text {
+  color: var(--tab-active-text) !important;
+}
+
+.theme-tab-active-border {
+  border-color: var(--tab-active-border) !important;
+}
+
+.theme-tab-inactive-text {
+  color: var(--tab-inactive-text) !important;
+}
+
+.theme-tab-inactive-hover-bg:hover {
+  background-color: var(--tab-inactive-hover-bg) !important;
+}
+
+.theme-tab-inactive-border {
+  border-color: var(--tab-inactive-border) !important;
+}
+
+/* Theme-aware notification drawer styling */
+.theme-notification-drawer-bg {
+  background-color: var(--notification-drawer-bg) !important;
+}
+
+.theme-notification-drawer-border {
+  border-color: var(--notification-drawer-border) !important;
+}
+
+.theme-notification-drawer-header-bg {
+  background-color: var(--notification-drawer-header-bg) !important;
+}
+
+.theme-notification-drawer-text {
+  color: var(--notification-drawer-text) !important;
+}
+
+.theme-notification-drawer-text-secondary {
+  color: var(--notification-drawer-text-secondary) !important;
+}
+
+.theme-notification-unread-bg {
+  background-color: var(--notification-unread-bg) !important;
+}
+
+.theme-notification-unread-border {
+  border-color: var(--notification-unread-border) !important;
+}
+
+.theme-notification-read-bg {
+  background-color: var(--notification-read-bg) !important;
+}
+
+.theme-notification-read-border {
+  border-color: var(--notification-read-border) !important;
+}
+
+.theme-notification-read-hover-bg:hover {
+  background-color: var(--notification-read-hover-bg) !important;
+}
+
+/* Theme-aware button styling */
+.theme-button-primary {
+  background-color: var(--button-primary-bg) !important;
+  color: var(--button-primary-text) !important;
+}
+
+.theme-button-primary:hover {
+  background-color: var(--button-primary-hover-bg) !important;
+}
+
+.theme-button-primary:focus {
+  --tw-ring-color: var(--button-primary-ring) !important;
+}
+
+.theme-button-secondary {
+  background-color: var(--button-secondary-bg) !important;
+  color: var(--button-secondary-text) !important;
+}
+
+.theme-button-secondary:hover {
+  background-color: var(--button-secondary-hover-bg) !important;
+}
+
+.theme-button-secondary:focus {
+  --tw-ring-color: var(--button-secondary-ring) !important;
+}
+
+.theme-button-success {
+  background-color: var(--button-success-bg) !important;
+  color: var(--button-success-text) !important;
+}
+
+.theme-button-success:hover {
+  background-color: var(--button-success-hover-bg) !important;
+}
+
+.theme-button-danger {
+  background-color: var(--button-danger-bg) !important;
+  color: var(--button-danger-text) !important;
+}
+
+.theme-button-danger:hover {
+  background-color: var(--button-danger-hover-bg) !important;
+}
+
+/* Theme-aware table text styling */
+.theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+.theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+.theme-table-text-muted {
+  color: var(--table-text-muted) !important;
+}
+
+/* Ensure text colors are maintained with maximum specificity */
+.theme-table-row-hover-bg:hover .theme-table-text-primary,
+.theme-table-row-hover-bg:hover td .theme-table-text-primary,
+.theme-table-row-hover-bg:hover div .theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-table-text-secondary,
+.theme-table-row-hover-bg:hover td .theme-table-text-secondary,
+.theme-table-row-hover-bg:hover div .theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-table-text-muted,
+.theme-table-row-hover-bg:hover td .theme-table-text-muted,
+.theme-table-row-hover-bg:hover div .theme-table-text-muted {
+  color: var(--table-text-muted) !important;
+}
+
+/* Additional specificity for hover:bg-gray-50 class */
+.hover\:bg-gray-50:hover .theme-table-text-primary {
+  color: var(--table-text-primary) !important;
+}
+
+.hover\:bg-gray-50:hover .theme-table-text-secondary {
+  color: var(--table-text-secondary) !important;
+}
+
+.hover\:bg-gray-50:hover .theme-table-text-muted {
+  color: var(--table-text-muted) !important;
+}
+
+.hover\:bg-gray-50:hover .theme-avatar-text {
+  color: var(--avatar-text) !important;
+}
+
+.theme-table-text-hover:hover {
+  color: var(--table-text-hover) !important;
+}
+
+/* Removed hardcoded text hover colors - now using Tailwind classes directly in components */
+
+/* Removed hardcoded avatar text hover colors - now using Tailwind classes directly in components */
+
+.theme-table-row-hover-bg:hover .theme-badge-primary {
+  background-color: var(--badge-primary-bg) !important;
+  color: var(--badge-primary-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-secondary {
+  background-color: var(--badge-secondary-bg) !important;
+  color: var(--badge-secondary-text) !important;
+}
+
+.theme-table-row-hover-bg:hover .theme-badge-success {
+  background-color: var(--badge-success-bg) !important;
+  color: var(--badge-success-text) !important;
+}

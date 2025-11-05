@@ -4,24 +4,24 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRealTimeCommentsWithLikes } from '../../hooks/custom/useRealTimeCommentsWithLikes';
 import { useRealTimeTasks } from '../../hooks/custom/useRealTimeTasks';
 import {
-  useProjectDetailData,
-  useProjectDetailMutations,
-  useProjectDetailPermissions,
-  useProjectDetailUtils,
-  useProjectDetailHandlers,
-} from './ProjectDetailPage/hooks';
-import {
   BackNavigation,
+  CommentsSection,
+  MembersSection,
+  ProjectDetailError,
+  ProjectDetailNotFound,
+  ProjectDetailSkeleton,
   ProjectHeader,
   ProjectOwner,
   ProjectTimeline,
   TasksSection,
-  MembersSection,
-  CommentsSection,
-  ProjectDetailSkeleton,
-  ProjectDetailError,
-  ProjectDetailNotFound,
 } from './ProjectDetailPage/components';
+import {
+  useProjectDetailData,
+  useProjectDetailHandlers,
+  useProjectDetailMutations,
+  useProjectDetailPermissions,
+  useProjectDetailUtils,
+} from './ProjectDetailPage/hooks';
 
 /**
  * Project Detail Page Component

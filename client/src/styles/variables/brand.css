@@ -1,0 +1,187 @@
+/**
+ * CSS Variables - Brand Theme
+ * Defines CSS custom properties for brand theme
+ */
+
+[data-theme="brand"] {
+  --accent-from: #7c3aed; /* brand signature */
+  --accent-to: #ec4899;
+  --accent-ring: #7c3aed;
+  --bg-base: #f3e8ff;     /* purple-100 - more visible than violet-50 */
+  --bg-gradient: radial-gradient(1200px 800px at 10% -20%, rgba(124,58,237,0.12), transparent), radial-gradient(1000px 700px at 110% 10%, rgba(236,72,153,0.10), transparent);
+  --text-primary: #581c87;
+  --text-secondary: #7c3aed;
+  --text-muted: #a855f7;
+  --border-color: #c084fc;
+  --border-light: #ddd6fe;
+  --border-medium: #c084fc;
+  --border-dark: #a855f7;
+  --card-bg: #faf5ff;
+  --card-hover-bg: #f3e8ff; /* match table-row-hover for seamless edge */
+  --input-bg: #faf5ff;
+  --modal-bg: #faf5ff;
+  --table-header-bg: #f3e8ff;   /* brand table header background - lighter than rows */
+  --table-row-bg: #faf5ff;      /* brand table row background */
+  --table-row-hover-bg: #f3e8ff; /* brand table row hover background */
+  --project-info-bg: #f3e8ff;   /* brand project info section background */
+  --project-info-border: #c084fc; /* brand project info section border */
+  --project-info-text: #581c87; /* brand project info text color */
+  --project-info-text-secondary: #7c3aed; /* brand project info secondary text */
+  --tab-active-bg: #f3e8ff;   /* brand active tab background */
+  --tab-active-text: #581c87; /* brand active tab text color */
+  --tab-active-border: #c084fc; /* brand active tab border */
+  --tab-inactive-text: #a855f7; /* brand inactive tab text color */
+  --tab-inactive-hover-bg: #faf5ff; /* brand inactive tab hover background */
+  --tab-inactive-border: #c084fc; /* brand inactive tab border */
+  --notification-drawer-bg: #faf5ff; /* brand notification drawer background */
+  --notification-drawer-border: #c084fc; /* brand notification drawer border */
+  --notification-drawer-header-bg: #f3e8ff; /* brand notification drawer header background */
+  --notification-drawer-text: #581c87; /* brand notification drawer text color */
+  --notification-drawer-text-secondary: #7c3aed; /* brand notification drawer secondary text */
+  --notification-unread-bg: #ede9fe; /* brand unread notification background */
+  --notification-unread-border: #a855f7; /* brand unread notification border */
+  --notification-read-bg: #f3e8ff; /* brand read notification background */
+  --notification-read-border: #c084fc; /* brand read notification border */
+  --notification-read-hover-bg: #e9d5ff; /* brand read notification hover background */
+  --notification-delete-action-text: #dc2626; /* brand delete action button text color - red-600 for visibility on light backgrounds */
+  --notification-delete-action-bg: #fee2e2; /* brand delete action button hover background - red-100 */
+  --notification-delete-action-hover-text: #ffffff; /* brand delete action button hover text - white for contrast on red */
+  --notification-action-button-bg: #ffffff; /* brand notification action button default background */
+  --notification-action-button-hover-bg: #e9d5ff; /* brand notification action button hover background - purple-200 for better visibility */
+  --notification-action-button-hover-border: #c084fc; /* brand notification action button hover border - purple-400 for better visibility */
+  /* Notification status text colors - brand theme */
+  --notification-status-unread-text: #dc2626; /* red-600 - unread notification status text */
+  --notification-status-read-text: #16a34a; /* green-600 - read notification status text */
+  --button-primary-bg: #7c3aed; /* brand primary button background */
+  --button-primary-hover-bg: #6d28d9; /* brand primary button hover background */
+  --button-primary-text: #ffffff; /* brand primary button text color */
+  --button-primary-ring: #a855f7; /* brand primary button focus ring */
+  --button-secondary-bg: #3b82f6; /* brand secondary button background */
+  --button-secondary-hover-bg: #2563eb; /* brand secondary button hover background */
+  --button-secondary-text: #ffffff; /* brand secondary button text color */
+  --button-secondary-ring: #60a5fa; /* brand secondary button focus ring */
+  --button-success-bg: #16a34a; /* brand success button background */
+  --button-success-hover-bg: #15803d; /* brand success button hover background */
+  --button-success-text: #ffffff; /* brand success button text color */
+  --button-danger-bg: #dc2626; /* brand danger button background */
+  --button-danger-hover-bg: #b91c1c; /* brand danger button hover background */
+  --button-danger-text: #ffffff; /* brand danger button text color */
+  --table-text-primary: #581c87; /* brand primary table text color */
+  --table-text-secondary: #7c3aed; /* brand secondary table text color */
+  --table-text-muted: #a855f7; /* brand muted table text color */
+  --table-text-hover: #581c87; /* brand table text color on hover */
+  --badge-primary-bg: #f3e8ff; /* brand primary badge background */
+  --badge-primary-text: #7c3aed; /* brand primary badge text */
+  --badge-secondary-bg: #dbeafe; /* brand secondary badge background */
+  --badge-secondary-text: #1d4ed8; /* brand secondary badge text */
+  --badge-success-bg: #dcfce7; /* brand success badge background */
+  --badge-success-text: #166534; /* brand success badge text */
+  --badge-warning-bg: #fed7aa; /* brand warning badge background */
+  --badge-warning-text: #c2410c; /* brand warning badge text */
+  --badge-neutral-bg: #f3f4f6; /* brand neutral badge background */
+  --badge-neutral-text: #374151; /* brand neutral badge text */
+  /* Project status colors - brand theme */
+  --project-status-planning-bg: #dbeafe; /* blue-100 - planning status background */
+  --project-status-planning-text: #1e40af; /* blue-800 - planning status text */
+  --project-status-in-progress-bg: #fed7aa; /* orange-100 - in progress status background */
+  --project-status-in-progress-text: #9a3412; /* orange-800 - in progress status text */
+  --project-status-completed-bg: #d1fae5; /* emerald-100 - completed status background for better contrast against purple */
+  --project-status-completed-text: #065f46; /* emerald-800 - completed status text */
+  /* Activity badges - using theme-aware colors for brand theme */
+  --activity-created-bg: #dcfce7; /* brand success badge background */
+  --activity-created-text: #166534; /* brand success badge text */
+  --activity-updated-bg: #dbeafe; /* brand secondary badge background */
+  --activity-updated-text: #1d4ed8; /* brand secondary badge text */
+  --activity-deleted-bg: #fee2e2; /* brand danger badge background (red-100) */
+  --activity-deleted-text: #991b1b; /* brand danger badge text (red-800) */
+  --activity-primary-bg: #f3e8ff; /* brand primary badge background */
+  --activity-primary-text: #7c3aed; /* brand primary badge text */
+  /* Error/Danger colors for form validation - brand theme */
+  --error-color: #dc2626; /* red-600 - error color */
+  --error-bg: #fee2e2; /* red-100 - error background */
+  --error-text: #991b1b; /* red-800 - error text */
+  --error-border: #f87171; /* red-400 - error border */
+  /* Error Display colors - brand theme */
+  --error-display-bg: #fee2e2; /* red-50 - error display background */
+  --error-display-border: #fecaca; /* red-200 - error display border */
+  --error-display-text: #991b1b; /* red-800 - error display text */
+  --error-display-icon: #f87171; /* red-400 - error display icon */
+  /* Warning Display colors - brand theme */
+  --warning-display-bg: #fef3c7; /* yellow-50 - warning display background */
+  --warning-display-border: #fde68a; /* yellow-200 - warning display border */
+  --warning-display-text: #92400e; /* yellow-800 - warning display text */
+  --warning-display-icon: #fbbf24; /* yellow-400 - warning display icon */
+  /* Info Display colors - brand theme */
+  --info-display-bg: #dbeafe; /* blue-50 - info display background */
+  --info-display-border: #bfdbfe; /* blue-200 - info display border */
+  --info-display-text: #1e40af; /* blue-800 - info display text */
+  --info-display-icon: #60a5fa; /* blue-400 - info display icon */
+  --avatar-bg: #f3e8ff; /* brand avatar background */
+  --avatar-text: #7c3aed; /* brand avatar text */
+  --sort-icon: #a855f7; /* brand sort icon color */
+  --sort-icon-active: #7c3aed; /* brand active sort icon color */
+  --role-selection-bg: #faf5ff; /* brand role selection background */
+  --role-selection-border: #c084fc; /* brand role selection border */
+  --role-selection-border-hover: #a855f7; /* brand role selection border hover */
+  --role-selection-active-bg: #ede9fe; /* brand role selection active background */
+  --role-selection-active-border: #7c3aed; /* brand role selection active border */
+  --role-selection-text: #581c87; /* brand role selection text */
+  --role-selection-text-secondary: #7c3aed; /* brand role selection secondary text */
+  --text-badge-primary-bg: #f3e8ff; /* brand text badge primary background */
+  --text-badge-primary-text: #581c87; /* brand text badge primary text */
+  --text-badge-secondary-bg: #ede9fe; /* brand text badge secondary background */
+  --text-badge-secondary-text: #7c3aed; /* brand text badge secondary text */
+  /* Section icons - brand (ensure readability on light brand surfaces) */
+  --icon-activity-bg: #ede9fe; /* violet-100 */
+  --icon-activity-fg: #4c1d95; /* violet-900 */
+  --icon-users-bg: #e9d5ff;    /* purple-200 */
+  --icon-users-fg: #581c87;    /* purple-900 */
+  --icon-projects-bg: #e0e7ff; /* indigo-100 */
+  --icon-projects-fg: #3730a3; /* indigo-800 */
+  --icon-tasks-bg: #f5d0fe;    /* fuchsia-200 */
+  --icon-tasks-fg: #86198f;    /* fuchsia-900 */
+  --icon-comments-bg: #ffedd5; /* orange-100 */
+  --icon-comments-fg: #7c2d12; /* orange-900 */
+  /* Audit badges - tuned for brand readability */
+  --badge-audit-bg: #ede9fe; /* violet-100 */
+  --badge-audit-text: #4c1d95; /* violet-900 */
+  --shadow-color: rgba(124, 58, 237, 0.2);
+  --navbar-gradient: linear-gradient(to bottom right, #f3e8ff, #fce7f3); /* brand navbar gradient */
+  --footer-gradient: linear-gradient(to bottom right, #f3e8ff, #fce7f3); /* brand footer gradient */
+  --navbar-bg: #faf5ff;   /* brand navbar background */
+  --footer-bg: #faf5ff;   /* brand footer background */
+  --navbar-text: #581c87; /* brand navbar text color */
+  --navbar-text-secondary: #7c3aed; /* brand navbar secondary text color */
+  --user-dropdown-bg: #ffffff; /* brand user dropdown background */
+  --user-dropdown-border: #e9d5ff; /* brand user dropdown border */
+  --user-profile-bg: #f3e8ff; /* brand user profile section background */
+  --user-profile-text: #581c87; /* brand user profile text color */
+  --user-profile-text-secondary: #7c3aed; /* brand user profile secondary text */
+  --user-profile-role-bg: #e9d5ff; /* brand user profile role badge background */
+  --user-profile-role-text: #581c87; /* brand user profile role badge text */
+  --success-bg: #f0fdf4; /* brand success message background */
+  --success-border: #bbf7d0; /* brand success message border */
+  --success-text: #166534; /* brand success message text */
+  /* System Status Indicator - brand theme */
+  --status-indicator-online: #10b981; /* green-500 - online/operational status indicator */
+  --footer-resource-hover-bg: #e9d5ff; /* brand footer resource link hover background - purple-200 */
+  /* Technology gradient colors - brand theme */
+  --tech-react-from: #6366f1; /* indigo-500 */
+  --tech-react-to: #8b5cf6; /* violet-500 */
+  --tech-graphql-from: #ec4899; /* pink-500 */
+  --tech-graphql-to: #a855f7; /* purple-500 */
+  --tech-mysql-from: #818cf8; /* indigo-400 */
+  --tech-mysql-to: #6366f1; /* indigo-500 */
+  --tech-nodejs-from: #10b981; /* green-500 */
+  --tech-nodejs-to: #059669; /* green-600 */
+  --tech-typescript-from: #6366f1; /* indigo-500 */
+  --tech-typescript-to: #4f46e5; /* indigo-600 */
+  --tech-tailwind-from: #8b5cf6; /* violet-500 */
+  --tech-tailwind-to: #6366f1; /* indigo-500 */
+  --tech-apollo-from: #a855f7; /* purple-500 */
+  --tech-apollo-to: #7c3aed; /* purple-600 */
+  --tech-jwt-from: #f97316; /* orange-500 */
+  --tech-jwt-to: #ec4899; /* pink-500 */
+  /* Search components now use standard theme variables - no special search variables needed */
+}
+

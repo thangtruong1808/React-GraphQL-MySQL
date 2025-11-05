@@ -1,0 +1,6 @@
+/**
+ * CSS Variables Module
+ * Re-exports all CSS custom properties for backward compatibility
+ */
+
+@import './variables/index.css';
