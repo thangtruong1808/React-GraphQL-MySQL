@@ -1,0 +1,2 @@
+export { useAboutPageData } from './useAboutPageData';
+

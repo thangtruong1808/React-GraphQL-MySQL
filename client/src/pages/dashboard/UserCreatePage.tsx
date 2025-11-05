@@ -20,7 +20,7 @@ const UserCreatePage: React.FC = () => {
     lastName: '',
     role: 'Frontend Developer' as UserRole,
   });
-  const [errors, setErrors] = useState<Partial<UserInput>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof UserInput, string>>>({});
   const [createUser, { loading }] = useMutation(CREATE_USER_MUTATION);
 
   // Validate field on change/blur
@@ -61,7 +61,7 @@ const UserCreatePage: React.FC = () => {
    */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Partial<UserInput> = {};
+    const newErrors: Partial<Record<keyof UserInput, string>> = {};
     (Object.keys(form) as Array<keyof UserInput>).forEach((k) => {
       const err = validate(k, (form as any)[k] || '');
       if (err) newErrors[k] = err;

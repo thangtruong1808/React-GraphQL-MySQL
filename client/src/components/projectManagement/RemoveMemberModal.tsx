@@ -3,25 +3,7 @@ import { FaTimes, FaExclamationTriangle, FaTrash, FaTasks } from 'react-icons/fa
 import { useQuery } from '@apollo/client';
 import { CHECK_MEMBER_TASKS_QUERY, CheckMemberTasksQueryResponse } from '../../services/graphql/projectMemberQueries';
 import { formatRoleForDisplay } from '../../utils/roleFormatter';
-
-interface ProjectMember {
-  projectId: string;
-  userId: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-  };
-  project: {
-    id: string;
-    name: string;
-  };
-}
+import { ProjectMember } from '../../types/projectManagement';
 
 interface RemoveMemberModalProps {
   isOpen: boolean;

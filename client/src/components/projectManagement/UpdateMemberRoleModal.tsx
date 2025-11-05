@@ -1,25 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaEdit, FaUser } from 'react-icons/fa';
 import { ProjectMemberRole, PROJECT_MEMBER_ROLES } from '../../services/graphql/projectMemberQueries';
-
-interface ProjectMember {
-  projectId: string;
-  userId: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-  };
-  project: {
-    id: string;
-    name: string;
-  };
-}
+import { ProjectMember } from '../../types/projectManagement';
 
 interface UpdateMemberRoleModalProps {
   isOpen: boolean;

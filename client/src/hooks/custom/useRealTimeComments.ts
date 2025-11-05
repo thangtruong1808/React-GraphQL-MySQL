@@ -161,15 +161,18 @@ export const useRealTimeComments = (options: UseRealTimeCommentsOptions) => {
     setComments(initialComments);
   }, []);
 
+  // Destructure subscription to exclude loading (handled separately)
+  const { loading: subscriptionLoading, ...subscriptionData } = subscription;
+
   return {
     // Comment state
     comments,
     isConnected,
-    loading: queryLoading || subscription.loading,
-    error: queryError || subscription.error,
+    loading: queryLoading || subscriptionLoading,
+    error: queryError,
     
-    // Subscription data
-    ...subscription,
+    // Subscription data (excluding loading which is handled above)
+    ...subscriptionData,
     
     // Comment management functions
     addComment,

@@ -1,33 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '../../../constants/routingConstants';
-import { getProjectStatusColor } from '../../../constants/projectManagement';
 import { ProjectsGridSkeleton } from '../../../components/ui';
-import { Project } from './types';
+import { getProjectStatusColor } from '../../../constants/projectManagement';
+import { Project, SortOption } from './types';
 
 /**
  * Projects Grid Component
  * Displays projects in a grid layout with client-side sorting
  */
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  status: 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED';
-  taskCount: number;
-  memberCount: number;
-  createdAt: string;
-  owner: {
-    firstName: string;
-    lastName: string;
-  };
-}
-
-interface SortOption {
-  field: 'name' | 'createdAt' | 'taskCount' | 'memberCount';
-  direction: 'ASC' | 'DESC';
-}
 
 interface ProjectsGridProps {
   projects: Project[];
