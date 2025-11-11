@@ -1,5 +1,5 @@
 import { useSubscription } from '@apollo/client';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { 
   TASK_ADDED_SUBSCRIPTION, 
   TASK_UPDATED_SUBSCRIPTION, 
@@ -87,21 +87,37 @@ export const useTaskSubscriptions = (options: UseTaskSubscriptionsOptions) => {
   }, [onTaskDeleted]);
 
   // Effect to handle subscription data changes - only trigger once per event
+  const previousAddedIdRef = useRef<string | null>(null);
+  const previousUpdatedIdRef = useRef<string | null>(null);
+  const previousDeletedIdRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (addedData?.taskAdded) {
-      handleTaskAdded(addedData.taskAdded);
+      const currentId = addedData.taskAdded.id;
+      if (previousAddedIdRef.current !== currentId) {
+        previousAddedIdRef.current = currentId;
+        handleTaskAdded(addedData.taskAdded);
+      }
     }
   }, [addedData, handleTaskAdded]);
 
   useEffect(() => {
     if (updatedData?.taskUpdated) {
-      handleTaskUpdated(updatedData.taskUpdated);
+      const currentId = updatedData.taskUpdated.id;
+      if (previousUpdatedIdRef.current !== currentId) {
+        previousUpdatedIdRef.current = currentId;
+        handleTaskUpdated(updatedData.taskUpdated);
+      }
     }
   }, [updatedData, handleTaskUpdated]);
 
   useEffect(() => {
     if (deletedData?.taskDeleted) {
-      handleTaskDeleted(deletedData.taskDeleted);
+      const currentId = deletedData.taskDeleted.taskId;
+      if (previousDeletedIdRef.current !== currentId) {
+        previousDeletedIdRef.current = currentId;
+        handleTaskDeleted(deletedData.taskDeleted);
+      }
     }
   }, [deletedData, handleTaskDeleted]);
 

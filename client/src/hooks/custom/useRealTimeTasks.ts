@@ -56,7 +56,11 @@ export const useRealTimeTasks = (options: UseRealTimeTasksOptions) => {
     });
     
     // Mark task as processed
-    setProcessedTaskIds(prev => new Set(prev).add(newTask.id));
+    setProcessedTaskIds(prev => {
+      const next = new Set(prev);
+      next.add(newTask.id);
+      return next;
+    });
     
     // Show notification if enabled and not within 2 seconds of last notification
     const now = Date.now();
