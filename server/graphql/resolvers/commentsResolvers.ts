@@ -192,18 +192,20 @@ export const createProjectComment = async (parent: any, args: any, context: any,
       throw new Error('Project not found');
     }
 
+    const userId = Number(context.user.id);
+
     // Check if user has permission to create comments (project owner or team member)
     let canCreateComment = false;
     try {
       // Check if user is project owner
-      if (project.ownerId === context.user.id) {
+      if (project.ownerId === userId) {
         canCreateComment = true;
       } else {
         // Check if user is a project member
         const projectMember = await ProjectMember.findOne({
           where: {
             projectId: parseInt(input.projectId),
-            userId: context.user.id,
+            userId,
             isDeleted: false
           }
         });
@@ -227,7 +229,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
     const comment = await Comment.create({
       content: input.content.trim(),
       taskId: discussionTaskId,
-      userId: context.user.id,
+      userId,
       isDeleted: false,
       version: 1
     });
@@ -244,7 +246,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
 
       if (projectInfo) {
         // 1. Send notification to project owner if exists and different from commenter
-        if (projectInfo.ownerId && projectInfo.ownerId !== context.user.id) {
+        if (projectInfo.ownerId && projectInfo.ownerId !== userId) {
           await Notification.create({
             userId: projectInfo.ownerId,
             message: `New comment added to project "${projectInfo.name}" by ${actorName} (${actorRole})`,
@@ -256,7 +258,7 @@ export const createProjectComment = async (parent: any, args: any, context: any,
         await sendNotificationsToProjectMembers(
           projectInfo.id,
           `New comment added to project "${projectInfo.name}" by ${actorName} (${actorRole})`,
-          [context.user.id, projectInfo.ownerId].filter(id => id) // Exclude commenter and owner
+          [userId, projectInfo.ownerId].filter(id => id !== undefined && id !== null)
         );
       }
     } catch (notificationError) {

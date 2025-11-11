@@ -116,6 +116,15 @@ export const useRealTimeTasks = (options: UseRealTimeTasksOptions) => {
       setLastNotificationTime(now);
     }
     
+    setProcessedTaskIds(prev => {
+      if (prev.has(event.taskId)) {
+        const updated = new Set(prev);
+        updated.delete(event.taskId);
+        return updated;
+      }
+      return prev;
+    });
+    
     // Call custom handler if provided
     if (onTaskDeleted) {
       onTaskDeleted(event);
