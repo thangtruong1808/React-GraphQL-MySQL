@@ -7,4 +7,4 @@
  */
 
 // Re-export everything from the new structure
-export * from './queries';
+export * from './queries/index';

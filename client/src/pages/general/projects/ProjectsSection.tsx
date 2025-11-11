@@ -6,9 +6,9 @@ import ProjectsFilters from './ProjectsFilters';
 import ProjectsGrid from './ProjectsGrid';
 
 /**
- * Projects Section Component
- * Combines filters and grid to manage filter state locally and isolate re-renders
- * Only this component re-renders when filters change, not the entire page
+ * Description: Coordinates filters, pagination, and rendering for the public projects view.
+ * Data created: Local filter state, pagination offsets, and loading indicators.
+ * Author: thangtruong
  */
 interface ProjectsSectionProps {
   sortOption: SortOption;

@@ -11,9 +11,9 @@ import {
 } from './projects';
 
 /**
- * Projects Page Component
- * Displays all projects for public exploration
- * Allows users to browse projects without authentication
+ * Description: Displays public projects with sorting controls and summary insights.
+ * Data created: Client-side sort state for project listing interactions.
+ * Author: thangtruong
  */
 
 

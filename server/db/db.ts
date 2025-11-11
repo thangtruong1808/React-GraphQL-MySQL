@@ -6,8 +6,9 @@ import path from 'path';
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 /**
- * Database Configuration
- * Sets up Sequelize connection to MySQL database
+ * Description: Configures Sequelize instance for MySQL using environment variables.
+ * Data created: Sequelize connection instance for database interactions.
+ * Author: thangtruong
  */
 // Validate required database environment variables
 const DB_HOST = process.env.DB_HOST;
@@ -28,8 +29,11 @@ if (!DB_NAME) {
 if (!DB_USER) {
   throw new Error('DB_USER environment variable is required');
 }
-if (!DB_PASSWORD) {
-  throw new Error('DB_PASSWORD environment variable is required');
+const LOCAL_DB_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
+const isLocalConnection = DB_HOST ? LOCAL_DB_HOSTS.has(DB_HOST.toLowerCase()) : false;
+
+if (!DB_PASSWORD && !isLocalConnection) {
+  throw new Error('DB_PASSWORD environment variable is required for non-local connections');
 }
 
 const sequelize = new Sequelize({
@@ -38,7 +42,7 @@ const sequelize = new Sequelize({
   port: parseInt(DB_PORT),
   database: DB_NAME,
   username: DB_USER,
-  password: DB_PASSWORD,
+  password: DB_PASSWORD || undefined,
   
   // Basic pool settings
   pool: {

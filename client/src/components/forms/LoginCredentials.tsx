@@ -7,27 +7,27 @@ import { getRoleColorScheme } from '../../utils/roleColors';
  */
 const TEST_CREDENTIALS = [
   {
-    email: 'admin25@gmail.com',
+    email: 'thangtruong@example.com',
     password: 'UserTest123!<>',
     role: 'ADMIN'
   },
   {
-    email: 'karenacosta@gmail.com',
+    email: 'david.brown@example.com',
     password: 'UserTest123!<>',
     role: 'Project Manager'
   },
   {
-    email: 'jgriffin@thomas.com',
+    email: 'grace.davis@example.com',
     password: 'UserTest123!<>',
     role: 'Software Architect'
   },
   {
-    email: 'dicksonmark@greene.com',
+    email: 'jack.hill@example.com',
     password: 'UserTest123!<>',
     role: 'Frontend Developer'
   },
   {
-    email: 'andrewmay@yahoo.com',
+    email: 'karen.young@example.com',
     password: 'UserTest123!<>',
     role: 'Backend Developer'
   }
