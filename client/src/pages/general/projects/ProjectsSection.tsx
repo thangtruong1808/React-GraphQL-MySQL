@@ -6,8 +6,8 @@ import ProjectsFilters from './ProjectsFilters';
 import ProjectsGrid from './ProjectsGrid';
 
 /**
- * Description: Coordinates filters, pagination, and rendering for the public projects view.
- * Data created: Local filter state, pagination offsets, and loading indicators.
+ * Description: Coordinates project fetching, filtering, and sorting for the public projects view.
+ * Data created: Local filter state, pagination offset, loading state, and derived project counts.
  * Author: thangtruong
  */
 interface ProjectsSectionProps {

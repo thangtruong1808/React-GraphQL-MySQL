@@ -11,8 +11,8 @@ import {
 } from './projects';
 
 /**
- * Description: Displays public projects with sorting controls and summary insights.
- * Data created: Client-side sort state for project listing interactions.
+ * Description: Renders the public projects page with statistics, sorting, and project content.
+ * Data created: Local sort option state and derived total project count.
  * Author: thangtruong
  */
 
@@ -58,6 +58,11 @@ const ProjectsPage: React.FC = () => {
   }
 
 
+  /**
+   * Description: Outputs the composed sections of the public projects experience.
+   * Data created: None; consumes props/state from parent scope.
+   * Author: thangtruong
+   */
   const PublicProjectsContent = () => (
     <>
       {/* Projects Header */}

@@ -5,8 +5,8 @@ import { getProjectStatusColor } from '../../../constants/projectManagement';
 import { Project, SortOption } from './types';
 
 /**
- * Description: Renders a sorted project card grid with loading and end-of-list indicators.
- * Data created: Memoized sorted projects array for presentation logic.
+ * Description: Presents projects in a responsive grid with client-side sorting and states.
+ * Data created: Derived sorted project list for rendering.
  * Author: thangtruong
  */
 
@@ -88,118 +88,84 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({
     return <ProjectsGridSkeleton />;
   }
 
-  if (!loading && sortedProjects.length === 0) {
-    return (
-      <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div
-          className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
-          style={{ backgroundColor: 'var(--card-bg)' }}
-        >
-          <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
-            <svg
-              className="w-12 h-12 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8c.637 0 1.159-.387 1.28-.91.189-.832-.473-1.59-1.28-1.59-.637 0-1.159.387-1.28.91-.189.832.473 1.59 1.28 1.59zm0 2c-.637 0-1.159.387-1.28.91-.189.832.473 1.59 1.28 1.59.637 0 1.159-.387 1.28-.91.189-.832-.473-1.59-1.28-1.59zM12 14c-.637 0-1.159.387-1.28.91-.189.832.473 1.59 1.28 1.59.637 0 1.159-.387 1.28-.91.189-.832-.473-1.59-1.28-1.59z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 5h12a2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2z"
-              />
-            </svg>
-            <div>
-              <p className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                No projects available yet
-              </p>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Check back soon or be the first to create a new project.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedProjects.map((project: Project, index: number) => (
-            <div key={`${project.id}-${index}`} className="rounded-lg shadow-md border theme-border hover:shadow-lg transition-shadow duration-200" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <h3 className="font-semibold text-lg leading-tight" style={{ color: 'var(--text-primary)' }}>{project.name}</h3>
-                  <span className="px-3 py-1 text-xs font-medium rounded-full" style={getStatusColor(project.status)}>
-                    {project.status.replace('_', ' ')}
-                  </span>
-                </div>
+        {sortedProjects.length === 0 && !loading ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>No projects to display</h3>
+            <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Projects will appear here as soon as your team creates them.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedProjects.map((project: Project, index: number) => (
+              <div key={`${project.id}-${index}`} className="rounded-lg shadow-md border theme-border hover:shadow-lg transition-shadow duration-200" style={{ backgroundColor: 'var(--card-bg)' }}>
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-semibold text-lg leading-tight" style={{ color: 'var(--text-primary)' }}>{project.name}</h3>
+                    <span className="px-3 py-1 text-xs font-medium rounded-full" style={getStatusColor(project.status)}>
+                      {project.status.replace('_', ' ')}
+                    </span>
+                  </div>
 
-                <p className="text-sm mb-4 line-clamp-3" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
+                  <p className="text-sm mb-4 line-clamp-3" style={{ color: 'var(--text-secondary)' }}>{project.description}</p>
 
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                      </svg>
-                      {project.taskCount === 1 ? 'Task' : 'Tasks'}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
+                        <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        {project.taskCount === 1 ? 'Task' : 'Tasks'}
+                      </div>
+                      <span className="font-semibold px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>{project.taskCount}</span>
                     </div>
-                    <span className="font-semibold px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'var(--badge-secondary-bg)', color: 'var(--badge-secondary-text)' }}>{project.taskCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-green-500 dark:text-green-400 [data-theme='brand']:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      {project.memberCount === 1 ? 'Team Member' : 'Team Members'}
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
+                        <svg className="w-4 h-4 mr-2 text-green-500 dark:text-green-400 [data-theme='brand']:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        {project.memberCount === 1 ? 'Team Member' : 'Team Members'}
+                      </div>
+                      <span className="font-semibold px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'var(--badge-success-bg)', color: 'var(--badge-success-text)' }}>{project.memberCount}</span>
                     </div>
-                    <span className="font-semibold px-2 py-1 rounded-full text-xs" style={{ backgroundColor: 'var(--badge-success-bg)', color: 'var(--badge-success-text)' }}>{project.memberCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-purple-500 dark:text-purple-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Project Owner
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
+                        <svg className="w-4 h-4 mr-2 text-purple-500 dark:text-purple-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Project Owner
+                      </div>
+                      <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>{project.owner.firstName} {project.owner.lastName}</span>
                     </div>
-                    <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>{project.owner.firstName} {project.owner.lastName}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-orange-500 dark:text-orange-400 [data-theme='brand']:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      Created
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
+                        <svg className="w-4 h-4 mr-2 text-orange-500 dark:text-orange-400 [data-theme='brand']:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Created
+                      </div>
+                      <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>{formatCreatedDate(project.createdAt)}</span>
                     </div>
-                    <span className="font-medium text-xs" style={{ color: 'var(--text-primary)' }}>{formatCreatedDate(project.createdAt)}</span>
                   </div>
-                </div>
 
-                <div className="pt-4 border-t theme-border">
-                  <Link
-                    to={`/projects/${project.id}`}
-                    className="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    View Details
-                  </Link>
+                  <div className="pt-4 border-t theme-border">
+                    <Link
+                      to={`/projects/${project.id}`}
+                      className="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      View Details
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Loading skeleton for infinite scroll */}
         {loadingMore && (

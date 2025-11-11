@@ -1,24 +1,23 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
-import { ROUTE_PATHS } from '../../constants/routingConstants';
 import { GET_PAGINATED_TEAM_MEMBERS, GET_TEAM_STATS } from '../../services/graphql/queries';
-import { InlineError, TeamPageSkeleton } from '../../components/ui';
-import { TeamHeader, TeamFilters, TeamSortControls, TeamMembersGrid } from './team';
+import { InlineError } from '../../components/ui';
+import TeamPageContent from './team/TeamPageContent';
 import { useFormatJoinDate } from './team/teamHooks';
 import { FilterType, SortOption } from './team/types';
 
 /**
- * Team Page Component - Server-side filtering with client-side sorting
- * Displays team members with server-side role filtering and client-side sorting
- * Uses GraphQL queries with role filter parameters for database-level filtering
+ * Description: Renders the public team page with filtering, sorting, and paginated loading controls.
+ * Data created: Local filter state, sort option state, pagination offset, and loading state.
+ * Author: thangtruong
  */
 const TeamPage: React.FC = () => {
 
   // State for server-side filtering and client-side sorting
   const [filter, setFilter] = useState<FilterType>('ALL');
   const [sortOption, setSortOption] = useState<SortOption>({ field: 'name', direction: 'ASC' });
-  const [currentOffset, setCurrentOffset] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [noAdditionalResults, setNoAdditionalResults] = useState(false);
 
   // Custom hooks for functionality
   const formatJoinDate = useFormatJoinDate();
@@ -41,9 +40,22 @@ const TeamPage: React.FC = () => {
     errorPolicy: 'all'
   });
 
+  // Team collection from GraphQL response
+  const teamMembers = data?.paginatedTeamMembers?.teamMembers || [];
+  const uniqueTeamMembers = useMemo(
+    () =>
+      teamMembers.filter(
+        (member, index, array) =>
+          array.findIndex(candidate => candidate.id === member.id) === index
+      ),
+    [teamMembers]
+  );
+  const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
+  const totalCount = data?.paginatedTeamMembers?.paginationInfo?.totalCount || 0;
+
   // Handle filter changes - refetch data with new role filter
   useEffect(() => {
-    setCurrentOffset(0);
+    setNoAdditionalResults(false);
     refetch({
       limit: 12,
       offset: 0,
@@ -51,17 +63,45 @@ const TeamPage: React.FC = () => {
     });
   }, [filter, refetch]);
 
-  // Load more team members function for infinite scroll with server-side filtering
+  // Derived UI states for paging
+  const showLoadMoreButton = uniqueTeamMembers.length > 0 && !noAdditionalResults && (hasMore || uniqueTeamMembers.length < totalCount);
+
+  // Handlers exposed to child components
+  const handleSortChange = useCallback((field: SortOption['field']) => {
+    setSortOption(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
+    }));
+  }, []);
+
+  const handleFilterChange = useCallback((newFilter: FilterType) => {
+    setFilter(newFilter);
+  }, []);
+
+  // Load more team members button handler with server-side pagination
   const loadMoreTeamMembers = useCallback(async () => {
-    if (loadingMore || !data?.paginatedTeamMembers?.paginationInfo?.hasNextPage) return;
+    if (loadingMore) {
+      return;
+    }
+
+    const remainingCount = totalCount > 0 ? totalCount - uniqueTeamMembers.length : 12;
+    if (remainingCount <= 0) {
+      setNoAdditionalResults(true);
+      return;
+    }
 
     setLoadingMore(true);
+    setNoAdditionalResults(false);
+    const existingIds = new Set(uniqueTeamMembers.map(member => member.id));
+    let fetchedUniqueCount = 0;
+    const nextOffset = data?.paginatedTeamMembers?.teamMembers?.length || uniqueTeamMembers.length;
+    const nextLimit = Math.min(12, remainingCount > 0 ? remainingCount : 12);
 
     try {
       const result = await fetchMore({
         variables: {
-          limit: 12,
-          offset: currentOffset + 12,
+          limit: nextLimit,
+          offset: nextOffset,
           roleFilter: filter === 'ALL' ? null : filter
         },
         updateQuery: (prev, { fetchMoreResult }) => {
@@ -69,6 +109,7 @@ const TeamPage: React.FC = () => {
 
           const newTeamMembers = fetchMoreResult.paginatedTeamMembers.teamMembers;
           const newPaginationInfo = fetchMoreResult.paginatedTeamMembers.paginationInfo;
+          fetchedUniqueCount = newTeamMembers.filter(member => !existingIds.has(member.id)).length;
 
           return {
             paginatedTeamMembers: {
@@ -80,41 +121,16 @@ const TeamPage: React.FC = () => {
         }
       });
 
-      setCurrentOffset(prev => prev + 12);
+      if (fetchedUniqueCount === 0) {
+        setNoAdditionalResults(true);
+      }
     } catch (error) {
       // Handle error silently - could be displayed via error context in future
+      setNoAdditionalResults(true);
     } finally {
       setLoadingMore(false);
     }
-  }, [fetchMore, currentOffset, loadingMore, data?.paginatedTeamMembers?.paginationInfo?.hasNextPage, filter]);
-
-  // Scroll event handler for infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 1000) {
-        loadMoreTeamMembers();
-      }
-    };
-
-    // Only add scroll listener if we have team members and more to load
-    const teamMembers = data?.paginatedTeamMembers?.teamMembers || [];
-    const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
-
-    if (teamMembers.length > 0 && hasMore && !loadingMore) {
-      window.addEventListener('scroll', handleScroll);
-    }
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [loadMoreTeamMembers, data?.paginatedTeamMembers?.teamMembers?.length, data?.paginatedTeamMembers?.paginationInfo?.hasNextPage, loadingMore]);
-
-  // Handle filter reset when data changes to prevent stale state
-  useEffect(() => {
-    if (data?.paginatedTeamMembers?.teamMembers) {
-      setCurrentOffset(0);
-    }
-  }, [data?.paginatedTeamMembers?.teamMembers]);
+  }, [fetchMore, loadingMore, data?.paginatedTeamMembers?.teamMembers?.length, filter, uniqueTeamMembers, totalCount]);
 
   // Handle errors with inline display
   if (error) {
@@ -130,83 +146,6 @@ const TeamPage: React.FC = () => {
   }
 
 
-  // Get team members and pagination info from GraphQL response
-  const teamMembers = data?.paginatedTeamMembers?.teamMembers || [];
-  const hasMore = data?.paginatedTeamMembers?.paginationInfo?.hasNextPage || false;
-  const totalCount = data?.paginatedTeamMembers?.paginationInfo?.totalCount || 0;
-
-
-  const PublicTeamContent = () => (
-    <>
-      {/* Team Header */}
-      <TeamHeader
-        statsData={statsData}
-      />
-
-      {/* Team Sort Controls - Client-side sorting */}
-      <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
-          <TeamSortControls
-            sortOption={sortOption}
-            onSortChange={(field) => {
-              setSortOption(prev => ({
-                field,
-                direction: prev.field === field && prev.direction === 'ASC' ? 'DESC' : 'ASC'
-              }));
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Team Filters - Server-side filtering */}
-      <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
-          <TeamFilters
-            filter={filter}
-            setFilter={setFilter}
-            teamStats={statsData?.teamStats || null}
-          />
-        </div>
-      </div>
-
-      {/* Team Members Grid - Server-filtered results with client-side sorting */}
-      <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
-          <TeamMembersGrid
-            filteredMembers={teamMembers}
-            filter={filter}
-            setFilter={setFilter}
-            sortOption={sortOption}
-            formatJoinDate={formatJoinDate}
-            loading={loading}
-          />
-        </div>
-      </div>
-
-      {/* Loading More Indicator */}
-      {loadingMore && (
-        <div className="py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* End of Results Indicator */}
-      {!hasMore && teamMembers.length > 0 && (
-        <div className="py-4 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
-            <div className="text-center text-gray-500">
-              <p>You've reached the end of the team members list.</p>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-
   // All users see traditional layout with top navbar (NavBar handled by App.tsx)
   return (
     <div className="w-full public-dashboard">
@@ -220,7 +159,23 @@ const TeamPage: React.FC = () => {
           backgroundSize: 'cover'
         }}
       >
-        <PublicTeamContent />
+        <TeamPageContent
+          statsData={statsData}
+          sortOption={sortOption}
+          onSortChange={handleSortChange}
+          filter={filter}
+          onFilterChange={handleFilterChange}
+          teamStats={statsData?.teamStats || null}
+          members={uniqueTeamMembers}
+          formatJoinDate={formatJoinDate}
+          loading={loading}
+          showLoadMoreButton={showLoadMoreButton}
+          onLoadMore={loadMoreTeamMembers}
+          loadingMore={loadingMore}
+          noAdditionalResults={noAdditionalResults}
+          hasMore={hasMore}
+          totalVisible={uniqueTeamMembers.length}
+        />
       </div>
     </div>
   );

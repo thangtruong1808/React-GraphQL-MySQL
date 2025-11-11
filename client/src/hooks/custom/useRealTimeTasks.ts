@@ -162,17 +162,44 @@ export const useRealTimeTasks = (options: UseRealTimeTasksOptions) => {
   }, []);
 
   // Set initial tasks
-  const setInitialTasks = useCallback((initialTasks: Task[]) => {
-    setTasks(initialTasks);
+  const setInitialTasks = useCallback((incomingTasks: Task[]) => {
+    setTasks(incomingTasks);
+    setIsInitialized(true);
   }, []);
 
   // Initialize tasks when initialTasks change
   useEffect(() => {
-    setTasks(initialTasks as Task[]);
+    const incomingTasks = initialTasks as Task[];
+
     if (!isInitialized) {
+      setTasks(incomingTasks);
       setIsInitialized(true);
+      return;
     }
-  }, [initialTasks]);
+
+    setTasks(prevTasks => {
+      if (incomingTasks.length === 0 && prevTasks.length === 0) {
+        return prevTasks;
+      }
+
+      if (incomingTasks.length < prevTasks.length) {
+        return prevTasks;
+      }
+
+      const incomingIds = new Set(incomingTasks.map(task => task.id));
+      const prevIds = new Set(prevTasks.map(task => task.id));
+      const sameComposition =
+        prevTasks.length === incomingTasks.length &&
+        prevTasks.every(task => incomingIds.has(task.id)) &&
+        incomingTasks.every(task => prevIds.has(task.id));
+
+      if (sameComposition) {
+        return prevTasks;
+      }
+
+      return incomingTasks;
+    });
+  }, [initialTasks, isInitialized]);
 
   // Clear notifications after 5 seconds
   useEffect(() => {
