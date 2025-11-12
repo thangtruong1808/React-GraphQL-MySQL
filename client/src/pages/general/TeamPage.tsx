@@ -135,8 +135,24 @@ const TeamPage: React.FC = () => {
   // Handle errors with inline display
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
-        <div className="container mx-auto px-4">
+      <div
+        className="min-h-screen py-8"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      >
+        <div
+          className="container mx-auto px-4 max-w-4xl rounded-2xl shadow-lg border theme-border py-8"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            backgroundImage: 'var(--card-surface-overlay)',
+            borderColor: 'var(--border-color)',
+            boxShadow: '0 24px 48px var(--shadow-color)'
+          }}
+        >
           <InlineError
             message="Failed to load team members. Please try again later."
           />

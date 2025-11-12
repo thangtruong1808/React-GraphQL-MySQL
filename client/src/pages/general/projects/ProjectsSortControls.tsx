@@ -1,8 +1,9 @@
 import React from 'react';
 
 /**
- * Projects Sort Controls Component
- * Displays sorting options for projects
+ * Description: Provides themed sorting buttons for public projects listing with direction indicators.
+ * Data created: None; triggers sorting updates via callback.
+ * Author: thangtruong
  */
 
 interface SortOption {
@@ -15,10 +16,6 @@ interface ProjectsSortControlsProps {
   onSortChange: (field: SortOption['field']) => void;
 }
 
-/**
- * Sort controls component for projects page displaying sorting options
- * Handles client-side sorting of filtered projects
- */
 const ProjectsSortControls: React.FC<ProjectsSortControlsProps> = ({ sortOption, onSortChange }) => {
   const sortOptions = [
     {
@@ -45,22 +42,44 @@ const ProjectsSortControls: React.FC<ProjectsSortControlsProps> = ({ sortOption,
 
   return (
     <div className="flex flex-wrap gap-3 justify-center items-center">
-      <span className="text-sm font-medium text-gray-700 mr-2">Sort by:</span>
+      <span className="text-sm font-medium mr-2" style={{ color: 'var(--text-secondary)' }}>Sort by:</span>
       {sortOptions.map((sortButton) => (
         <button
           key={sortButton.field}
           onClick={() => onSortChange(sortButton.field)}
-          className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${sortButton.field === sortOption.field
-            ? 'bg-indigo-600 text-white shadow-md'
-            : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200 hover:border-indigo-500'
-            }`}
+          className="flex items-center px-4 py-2 rounded-lg text-sm font-medium border theme-border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={
+            sortButton.field === sortOption.field
+              ? {
+                  backgroundImage: 'linear-gradient(120deg, var(--accent-from), var(--accent-to))',
+                  color: 'var(--button-primary-text)',
+                  boxShadow: '0 16px 32px rgba(124, 58, 237, 0.2)'
+                }
+              : {
+                  backgroundColor: 'var(--card-bg)',
+                  backgroundImage: 'var(--card-surface-overlay)',
+                  color: 'var(--text-secondary)',
+                  borderColor: 'var(--border-color)',
+                  boxShadow: '0 12px 24px var(--shadow-color)'
+                }
+          }
+          onMouseEnter={(event) => {
+            if (sortButton.field !== sortOption.field) {
+              event.currentTarget.style.backgroundColor = 'var(--card-hover-bg)';
+            }
+          }}
+          onMouseLeave={(event) => {
+            if (sortButton.field !== sortOption.field) {
+              event.currentTarget.style.backgroundColor = 'var(--card-bg)';
+            }
+          }}
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: sortButton.field === sortOption.field ? 'var(--button-primary-text)' : 'var(--text-secondary)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortButton.icon} />
           </svg>
           {sortButton.label}
           {sortButton.field === sortOption.field && (
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--button-primary-text)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortOption.direction === 'ASC' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'} />
             </svg>
           )}

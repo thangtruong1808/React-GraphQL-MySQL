@@ -49,8 +49,23 @@ const ProjectsPage: React.FC = () => {
   // Handle error state
   if (statsError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md mx-auto">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        }}
+      >
+        <div
+          className="max-w-md mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            backgroundImage: 'var(--card-surface-overlay)',
+            borderColor: 'var(--border-color)'
+          }}
+        >
           <InlineError message={statsError.message || 'An error occurred'} />
         </div>
       </div>
@@ -70,7 +85,15 @@ const ProjectsPage: React.FC = () => {
 
       {/* Projects Sort Controls - Client-side sorting */}
       <div className="py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+        <div
+          className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+          style={{
+            backgroundColor: 'var(--card-bg)',
+            backgroundImage: 'var(--card-surface-overlay)',
+            borderColor: 'var(--border-color)',
+            boxShadow: '0 24px 48px var(--shadow-color)'
+          }}
+        >
           <ProjectsSortControls
             sortOption={sortOption}
             onSortChange={handleSortChange}

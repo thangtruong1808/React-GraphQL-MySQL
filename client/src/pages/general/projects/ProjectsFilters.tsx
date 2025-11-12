@@ -1,8 +1,9 @@
 import React from 'react';
 
 /**
- * Projects Filters Component
- * Displays status-based filter buttons showing project counts
+ * Description: Offers themed status filter buttons with count badges for the public projects page.
+ * Data created: None; acts on provided counts/state setter.
+ * Author: thangtruong
  */
 
 interface ProjectCounts {
@@ -18,10 +19,6 @@ interface ProjectsFiltersProps {
   projectCounts: ProjectCounts;
 }
 
-/**
- * Filter component for projects page displaying status-based filtering buttons
- * Shows database-wide statistics for all projects
- */
 const ProjectsFilters: React.FC<ProjectsFiltersProps> = ({ filter, setFilter, projectCounts }) => {
   const filterOptions = [
     {
@@ -52,19 +49,49 @@ const ProjectsFilters: React.FC<ProjectsFiltersProps> = ({ filter, setFilter, pr
 
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <div className="flex flex-wrap gap-4 justify-center">
           {filterOptions.map((filterOption) => (
             <button
               key={filterOption.key}
               onClick={() => setFilter(filterOption.key)}
-              className={`flex items-center px-6 py-3 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
-                ? 'bg-purple-600 text-white shadow-lg transform scale-105'
-                : 'border theme-border transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
-                }`}
-              style={filter === filterOption.key ? undefined : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)' }}
+              className="flex items-center px-6 py-3 rounded-lg text-sm font-medium border theme-border transition-all duration-300 transform focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              style={
+                filter === filterOption.key
+                  ? {
+                      backgroundImage: 'linear-gradient(120deg, var(--accent-from), var(--accent-to))',
+                      color: 'var(--button-primary-text)',
+                      boxShadow: '0 18px 36px rgba(124, 58, 237, 0.22)',
+                      borderColor: 'var(--accent-ring)'
+                    }
+                  : {
+                      backgroundColor: 'var(--card-bg)',
+                      backgroundImage: 'var(--card-surface-overlay)',
+                      color: 'var(--text-secondary)',
+                      borderColor: 'var(--border-color)',
+                      boxShadow: '0 16px 32px var(--shadow-color)'
+                    }
+              }
+              onMouseEnter={(event) => {
+                if (filter !== filterOption.key) {
+                  event.currentTarget.style.backgroundColor = 'var(--card-hover-bg)';
+                }
+              }}
+              onMouseLeave={(event) => {
+                if (filter !== filterOption.key) {
+                  event.currentTarget.style.backgroundColor = 'var(--card-bg)';
+                }
+              }}
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: filter === filterOption.key ? 'var(--button-primary-text)' : 'var(--text-secondary)' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={filterOption.icon} />
               </svg>
               {filterOption.label} ({filterOption.count})

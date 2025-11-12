@@ -121,9 +121,22 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
             <div
               key={member.id}
               className="rounded-xl shadow-lg border theme-border hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 group"
-              style={{ backgroundColor: 'var(--card-bg)' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-hover-bg)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.backgroundColor = 'var(--card-bg)'; }}
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                backgroundImage: 'var(--card-surface-overlay)',
+                borderColor: 'var(--border-color)',
+                boxShadow: '0 24px 48px var(--shadow-color)'
+              }}
+              onMouseEnter={(e) => {
+                const target = e.currentTarget as HTMLDivElement;
+                target.style.backgroundColor = 'var(--card-hover-bg)';
+                target.style.boxShadow = '0 28px 56px var(--shadow-color)';
+              }}
+              onMouseLeave={(e) => {
+                const target = e.currentTarget as HTMLDivElement;
+                target.style.backgroundColor = 'var(--card-bg)';
+                target.style.boxShadow = '0 24px 48px var(--shadow-color)';
+              }}
             >
               <div className="p-6 text-center">
                 {/* Avatar */}
@@ -152,7 +165,7 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--icon-projects-fg)' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                       {member.projectCount === 1 ? 'Project' : 'Projects'}
@@ -161,7 +174,7 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-green-500 dark:text-green-400 [data-theme='brand']:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--icon-tasks-fg)' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
                       {member.taskCount === 1 ? 'Task' : 'Tasks'}
@@ -170,7 +183,7 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center" style={{ color: 'var(--text-secondary)' }}>
-                      <svg className="w-4 h-4 mr-2 text-purple-500 dark:text-purple-400 [data-theme='brand']:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--icon-activity-fg)' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Joined
@@ -184,13 +197,17 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
                 {/* Action Button */}
                 <Link
                   to={ROUTE_PATHS.LOGIN}
-                  className="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md"
-                  style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}
+                  className="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style={{
+                    backgroundImage: 'linear-gradient(120deg, var(--accent-from), var(--accent-to))',
+                    color: 'var(--button-primary-text)',
+                    boxShadow: '0 16px 32px rgba(124, 58, 237, 0.22)'
+                  }}
                   onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)';
+                    event.currentTarget.style.boxShadow = '0 20px 40px rgba(124, 58, 237, 0.3)';
                   }}
                   onMouseLeave={(event) => {
-                    event.currentTarget.style.backgroundColor = 'var(--button-primary-bg)';
+                    event.currentTarget.style.boxShadow = '0 16px 32px rgba(124, 58, 237, 0.22)';
                   }}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--button-primary-text)' }}>
@@ -205,15 +222,22 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
           /* Empty State for Filtered Results */
           <div className="col-span-full flex flex-col items-center justify-center py-3 px-4">
             <div className="text-center max-w-md">
-              <div className="w-24 h-24 bg-gradient-to-br from-gray-100 dark:from-gray-700 to-gray-200 dark:to-gray-600 [data-theme='brand']:from-purple-100 [data-theme='brand']:to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-gray-400 dark:text-gray-500 [data-theme='brand']:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div
+                className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
+                style={{
+                  backgroundColor: 'var(--card-bg)',
+                  backgroundImage: 'var(--card-surface-overlay)',
+                  boxShadow: '0 24px 48px var(--shadow-color)'
+                }}
+              >
+                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--icon-users-fg)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white [data-theme='brand']:text-purple-900 mb-3">
+              <h3 className="text-xl font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
                 No {filter === 'ALL' ? 'team members' : formatRoleForDisplay(filter).toLowerCase()} found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 [data-theme='brand']:text-purple-800 mb-6">
+              <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
                 {filter === 'ALL'
                   ? "We're still building our amazing team. Check back soon for new members!"
                   : `No team members with the role "${formatRoleForDisplay(filter)}" are currently loaded. Scroll down to load more members or select a different filter.`
@@ -222,13 +246,17 @@ const TeamMembersGrid: React.FC<TeamMembersGridProps> = ({
               {filter !== 'ALL' && (
                 <button
                   onClick={() => setFilter('ALL')}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105"
-                  style={{ backgroundColor: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style={{
+                    backgroundImage: 'linear-gradient(120deg, var(--accent-from), var(--accent-to))',
+                    color: 'var(--button-primary-text)',
+                    boxShadow: '0 16px 32px rgba(124, 58, 237, 0.22)'
+                  }}
                   onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)';
+                    event.currentTarget.style.boxShadow = '0 20px 40px rgba(124, 58, 237, 0.3)';
                   }}
                   onMouseLeave={(event) => {
-                    event.currentTarget.style.backgroundColor = 'var(--button-primary-bg)';
+                    event.currentTarget.style.boxShadow = '0 16px 32px rgba(124, 58, 237, 0.22)';
                   }}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--button-primary-text)' }}>

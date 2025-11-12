@@ -22,8 +22,9 @@ export interface AboutStatisticsProps {
 }
 
 /**
- * About Statistics Component
- * Displays statistics section with 8 stat cards
+ * Description: Displays TaskFlow public statistics in themed summary cards.
+ * Data created: None; relies on provided statistics props.
+ * Author: thangtruong
  */
 export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
   const statistics = [
@@ -31,9 +32,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
       ),
-      color: 'text-purple-500',
-      valueColor: 'text-purple-600',
-      hoverColor: 'hover:shadow-purple-500/20',
+      iconColor: 'var(--icon-projects-fg)',
+      accentColor: 'var(--badge-secondary-text)',
       value: stats?.totalProjects || 0,
       label: 'Total Projects',
     },
@@ -41,9 +41,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       ),
-      color: 'text-pink-500',
-      valueColor: 'text-pink-600',
-      hoverColor: 'hover:shadow-pink-500/20',
+      iconColor: 'var(--icon-users-fg)',
+      accentColor: 'var(--badge-success-text)',
       value: stats?.totalUsers || 0,
       label: 'Team Members',
     },
@@ -51,9 +50,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
       ),
-      color: 'text-indigo-500',
-      valueColor: 'text-indigo-600',
-      hoverColor: 'hover:shadow-indigo-500/20',
+      iconColor: 'var(--icon-tasks-fg)',
+      accentColor: 'var(--accent-from)',
       value: stats?.totalTasks || 0,
       label: 'Tasks Managed',
     },
@@ -61,9 +59,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       ),
-      color: 'text-orange-500',
-      valueColor: 'text-orange-600',
-      hoverColor: 'hover:shadow-orange-500/20',
+      iconColor: 'var(--badge-success-text)',
+      accentColor: 'var(--badge-success-text)',
       value: stats?.completedTasks || 0,
       label: 'Completed Tasks',
     },
@@ -71,9 +68,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       ),
-      color: 'text-green-500',
-      valueColor: 'text-green-600',
-      hoverColor: 'hover:shadow-green-500/20',
+      iconColor: 'var(--icon-projects-fg)',
+      accentColor: 'var(--badge-secondary-text)',
       value: stats?.activeProjects || 0,
       label: 'Active Projects',
     },
@@ -81,9 +77,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       ),
-      color: 'text-blue-500',
-      valueColor: 'text-blue-600',
-      hoverColor: 'hover:shadow-blue-500/20',
+      iconColor: 'var(--accent-to)',
+      accentColor: 'var(--accent-to)',
       value: stats?.inProgressTasks || 0,
       label: 'In Progress Tasks',
     },
@@ -91,9 +86,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
       ),
-      color: 'text-yellow-500',
-      valueColor: 'text-yellow-600',
-      hoverColor: 'hover:shadow-yellow-500/20',
+      iconColor: 'var(--icon-tasks-fg)',
+      accentColor: 'var(--badge-primary-text)',
       value: stats?.todoTasks || 0,
       label: 'Todo Tasks',
     },
@@ -101,9 +95,8 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
       icon: (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       ),
-      color: 'text-teal-500',
-      valueColor: 'text-teal-600',
-      hoverColor: 'hover:shadow-teal-500/20',
+      iconColor: 'var(--badge-primary-text)',
+      accentColor: 'var(--badge-primary-text)',
       value: stats?.completedProjects || 0,
       label: 'Completed Projects',
     },
@@ -111,10 +104,18 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
 
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">TaskFlow by the Numbers</h2>
-          <p className="text-lg text-gray-700">
+          <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>TaskFlow by the Numbers</h2>
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
             Our platform is trusted by teams worldwide to deliver exceptional results.
           </p>
         </div>
@@ -124,15 +125,33 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
           {statistics.slice(0, 4).map((stat, index) => (
             <div
               key={index}
-              className={`text-center bg-gray-100 rounded-xl shadow-lg p-6 border border-gray-300 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${stat.hoverColor}`}
+              className="text-center rounded-xl shadow-lg p-6 border theme-border transition-transform duration-300"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                backgroundImage: 'var(--card-surface-overlay)',
+                borderColor: 'var(--border-color)',
+                boxShadow: '0 20px 40px var(--shadow-color)'
+              }}
+              onMouseEnter={(event) => {
+                const target = event.currentTarget as HTMLDivElement;
+                target.style.backgroundColor = 'var(--card-hover-bg)';
+                target.style.boxShadow = '0 24px 48px var(--shadow-color)';
+                target.style.transform = 'translateY(-4px)';
+              }}
+              onMouseLeave={(event) => {
+                const target = event.currentTarget as HTMLDivElement;
+                target.style.backgroundColor = 'var(--card-bg)';
+                target.style.boxShadow = '0 20px 40px var(--shadow-color)';
+                target.style.transform = 'translateY(0)';
+              }}
             >
               <div className="flex items-center justify-center mb-3">
-                <svg className={`w-10 h-10 ${stat.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: stat.iconColor }}>
                   {stat.icon}
                 </svg>
               </div>
-              <div className={`text-4xl font-bold ${stat.valueColor} mb-2`}>{stat.value}</div>
-              <div className="text-gray-600">{stat.label}</div>
+              <div className="text-4xl font-bold mb-2" style={{ color: stat.accentColor }}>{stat.value}</div>
+              <div style={{ color: 'var(--text-secondary)' }}>{stat.label}</div>
             </div>
           ))}
         </div>
@@ -142,15 +161,33 @@ export const AboutStatistics: React.FC<AboutStatisticsProps> = ({ stats }) => {
           {statistics.slice(4).map((stat, index) => (
             <div
               key={index}
-              className={`text-center bg-gray-100 rounded-xl shadow-lg p-6 border border-gray-300 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 ${stat.hoverColor}`}
+              className="text-center rounded-xl shadow-lg p-6 border theme-border transition-transform duration-300"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                backgroundImage: 'var(--card-surface-overlay)',
+                borderColor: 'var(--border-color)',
+                boxShadow: '0 20px 40px var(--shadow-color)'
+              }}
+              onMouseEnter={(event) => {
+                const target = event.currentTarget as HTMLDivElement;
+                target.style.backgroundColor = 'var(--card-hover-bg)';
+                target.style.boxShadow = '0 24px 48px var(--shadow-color)';
+                target.style.transform = 'translateY(-4px)';
+              }}
+              onMouseLeave={(event) => {
+                const target = event.currentTarget as HTMLDivElement;
+                target.style.backgroundColor = 'var(--card-bg)';
+                target.style.boxShadow = '0 20px 40px var(--shadow-color)';
+                target.style.transform = 'translateY(0)';
+              }}
             >
               <div className="flex items-center justify-center mb-3">
-                <svg className={`w-10 h-10 ${stat.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: stat.iconColor }}>
                   {stat.icon}
                 </svg>
               </div>
-              <div className={`text-4xl font-bold ${stat.valueColor} mb-2`}>{stat.value}</div>
-              <div className="text-gray-600">{stat.label}</div>
+              <div className="text-4xl font-bold mb-2" style={{ color: stat.accentColor }}>{stat.value}</div>
+              <div style={{ color: 'var(--text-secondary)' }}>{stat.label}</div>
             </div>
           ))}
         </div>

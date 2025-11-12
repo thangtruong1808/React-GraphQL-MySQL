@@ -3,16 +3,25 @@ import { TechnologyItem } from '../../../../components/shared';
 import { TECHNOLOGIES } from '../../../../constants/technologies';
 
 /**
- * About Technology Stack Component
- * Displays the technology stack section
+ * Description: Showcases TaskFlow’s technology stack using themed surfaces and typography.
+ * Data created: None; consumes shared technology constants.
+ * Author: thangtruong
  */
 export const AboutTechnologyStack: React.FC = () => {
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Built with Modern Technology</h2>
-          <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Built with Modern Technology</h2>
+          <p className="text-lg max-w-3xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
             TaskFlow leverages cutting-edge technologies to deliver a robust, scalable, and secure platform.
           </p>
         </div>

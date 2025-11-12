@@ -2,8 +2,9 @@ import React from 'react';
 import { FilterType, TeamStats } from './types';
 
 /**
- * Team Filters Component
- * Displays role-based filter buttons showing database-wide member counts
+ * Description: Offers themed role filter buttons with live counts for the team page grid.
+ * Data created: None; relies on provided statistics and state setters.
+ * Author: thangtruong
  */
 
 interface TeamFiltersProps {
@@ -12,10 +13,6 @@ interface TeamFiltersProps {
   teamStats: TeamStats | null;
 }
 
-/**
- * Team filter component displaying role-based filtering buttons
- * Shows database-wide statistics for all team members
- */
 const TeamFilters: React.FC<TeamFiltersProps> = ({ filter, setFilter, teamStats }) => {
   const filterOptions = [
     { key: 'ALL' as const, label: 'All Members', count: teamStats?.totalMembers || 0, icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
@@ -40,16 +37,39 @@ const TeamFilters: React.FC<TeamFiltersProps> = ({ filter, setFilter, teamStats 
       {filterOptions
         .filter(option => option.count > 0)
         .map((filterOption) => (
+          // Button uses theme-aware styles for readability
           <button
             key={filterOption.key}
             onClick={() => setFilter(filterOption.key)}
-            className={`flex items-center px-6 py-3 rounded-lg text-sm font-medium transition-all duration-500 ${filter === filterOption.key
-              ? 'bg-purple-600 text-white shadow-lg transform scale-105'
-              : 'border theme-border transition-all duration-500 transform hover:scale-105 hover:shadow-lg'
-              }`}
-            style={filter === filterOption.key ? undefined : { backgroundColor: 'var(--card-bg)', color: 'var(--text-secondary)' }}
+            className="flex items-center px-6 py-3 rounded-lg text-sm font-medium border theme-border transition-all duration-300 transform focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={
+              filter === filterOption.key
+                ? {
+                    backgroundImage: 'linear-gradient(120deg, var(--accent-from), var(--accent-to))',
+                    color: 'var(--button-primary-text)',
+                    boxShadow: '0 18px 36px rgba(124, 58, 237, 0.22)',
+                    borderColor: 'var(--accent-ring)'
+                  }
+                : {
+                    backgroundColor: 'var(--card-bg)',
+                    backgroundImage: 'var(--card-surface-overlay)',
+                    color: 'var(--text-secondary)',
+                    borderColor: 'var(--border-color)',
+                    boxShadow: '0 16px 32px var(--shadow-color)'
+                  }
+            }
+            onMouseEnter={(event) => {
+              if (filter !== filterOption.key) {
+                event.currentTarget.style.backgroundColor = 'var(--card-hover-bg)';
+              }
+            }}
+            onMouseLeave={(event) => {
+              if (filter !== filterOption.key) {
+                event.currentTarget.style.backgroundColor = 'var(--card-bg)';
+              }
+            }}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: filter === filterOption.key ? 'var(--button-primary-text)' : 'var(--text-secondary)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={filterOption.icon} />
             </svg>
             {filterOption.label} ({filterOption.count})

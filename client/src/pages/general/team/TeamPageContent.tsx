@@ -46,19 +46,43 @@ const TeamPageContent: React.FC<TeamPageContentProps> = ({
     <TeamHeader statsData={statsData} />
 
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <TeamSortControls sortOption={sortOption} onSortChange={onSortChange} />
       </div>
     </div>
 
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <TeamFilters filter={filter} setFilter={onFilterChange} teamStats={teamStats || null} />
       </div>
     </div>
 
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <TeamMembersGrid
           filteredMembers={members}
           filter={filter}
@@ -108,8 +132,13 @@ const TeamLoadMoreSection: React.FC<TeamLoadMoreSectionProps> = ({
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div
-        className="max-w-7xl mx-auto rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border theme-border flex justify-center"
-        style={{ backgroundColor: 'var(--card-bg)' }}
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border flex justify-center"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
       >
         <button
           type="button"
@@ -119,15 +148,17 @@ const TeamLoadMoreSection: React.FC<TeamLoadMoreSectionProps> = ({
           style={{
             backgroundColor: 'var(--button-primary-bg)',
             color: 'var(--button-primary-text)',
-            boxShadow: '0 10px 25px rgba(124, 58, 237, 0.12)'
+            boxShadow: '0 12px 30px rgba(124, 58, 237, 0.18)'
           }}
           onMouseEnter={(event) => {
             if (!event.currentTarget.disabled) {
               event.currentTarget.style.backgroundColor = 'var(--button-primary-hover-bg)';
+              event.currentTarget.style.boxShadow = '0 14px 34px rgba(124, 58, 237, 0.24)';
             }
           }}
           onMouseLeave={(event) => {
             event.currentTarget.style.backgroundColor = 'var(--button-primary-bg)';
+            event.currentTarget.style.boxShadow = '0 12px 30px rgba(124, 58, 237, 0.18)';
           }}
           onFocus={(event) => {
             if (!event.currentTarget.disabled) {
@@ -135,7 +166,7 @@ const TeamLoadMoreSection: React.FC<TeamLoadMoreSectionProps> = ({
             }
           }}
           onBlur={(event) => {
-            event.currentTarget.style.boxShadow = '0 10px 25px rgba(124, 58, 237, 0.12)';
+            event.currentTarget.style.boxShadow = '0 12px 30px rgba(124, 58, 237, 0.18)';
           }}
         >
           {loadingMore ? (
@@ -210,13 +241,18 @@ const TeamEndOfResultsSection: React.FC<TeamEndOfResultsSectionProps> = ({
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
       <div
-        className="max-w-7xl mx-auto rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border theme-border"
-        style={{ backgroundColor: 'var(--card-bg)' }}
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
       >
         <div className="flex flex-col items-center text-center space-y-3">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: 'var(--badge-primary-bg)' }}
+            style={{ backgroundColor: 'var(--badge-primary-bg)', boxShadow: '0 10px 20px var(--shadow-color)' }}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--badge-primary-text)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

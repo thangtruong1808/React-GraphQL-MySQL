@@ -1,16 +1,25 @@
 import React from 'react';
 
 /**
- * About Mission Component
- * Displays the mission statement section
+ * Description: Highlights TaskFlow’s mission with themed layout for improved readability.
+ * Data created: None; static messaging only.
+ * Author: thangtruong
  */
 export const AboutMission: React.FC = () => {
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 [data-theme='brand']:bg-gradient-to-br [data-theme='brand']:from-purple-50 [data-theme='brand']:to-pink-50 rounded-2xl shadow-lg dark:shadow-gray-900/20 [data-theme='brand']:shadow-purple-200/20 p-8 border border-gray-200 dark:border-gray-700 [data-theme='brand']:border-purple-200">
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 24px 48px var(--shadow-color)'
+        }}
+      >
         <div className="text-center p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
-          <p className="text-lg text-gray-700 max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Our Mission</h2>
+          <p className="text-lg max-w-4xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
             To revolutionize project management by providing teams with powerful, intuitive tools that streamline workflows,
             enhance collaboration, and drive successful project outcomes. We believe that great projects start with great project management.
           </p>
