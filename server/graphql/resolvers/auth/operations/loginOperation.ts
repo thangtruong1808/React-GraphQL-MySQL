@@ -6,6 +6,7 @@
 
 import { GraphQLError } from 'graphql';
 import { v4 as uuidv4 } from 'uuid';
+import { Op } from 'sequelize';
 import { JWT_CONFIG, AUTH_CONFIG } from '../../../../constants';
 import { RefreshToken, User } from '../../../../db';
 import { setCSRFToken } from '../../../../auth/csrf';
@@ -75,7 +76,7 @@ export const login = async (input: { email: string; password: string }, res: any
         userId: user.id,
         isRevoked: false,
         expiresAt: {
-          [require('sequelize').Op.gt]: new Date(),
+          [Op.gt]: new Date(),
         },
       },
     });
@@ -91,7 +92,7 @@ export const login = async (input: { email: string; password: string }, res: any
 
     // Generate tokens with enhanced security
     const accessToken = generateAccessToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
+    const refreshToken = generateRefreshToken();
 
     // Hash refresh token for storage
     const tokenHash = await hashRefreshToken(refreshToken);

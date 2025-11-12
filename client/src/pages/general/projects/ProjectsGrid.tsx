@@ -131,7 +131,7 @@ const ProjectsGrid: React.FC<ProjectsGridProps> = ({
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="font-semibold text-lg leading-tight" style={{ color: 'var(--text-primary)' }}>{project.name}</h3>
-                    <span className="px-3 py-1 text-xs font-medium rounded-full" style={getStatusColor(project.status)}>
+                    <span className="px-3 py-0.5 text-[0.625rem] font-medium rounded-full whitespace-nowrap" style={getStatusColor(project.status)}>
                       {project.status.replace('_', ' ')}
                     </span>
                   </div>

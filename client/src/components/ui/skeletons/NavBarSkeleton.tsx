@@ -8,7 +8,15 @@ import { SkeletonBox } from '../SkeletonLoader';
  */
 export const NavBarSkeleton: React.FC = () => {
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full bg-gray-100 border-b border-gray-200 z-50">
+    <nav
+      className="fixed top-0 left-0 right-0 w-full border-b theme-border z-50 theme-navbar-bg theme-navbar-text"
+      style={{
+        backgroundColor: 'var(--navbar-bg)',
+        backgroundImage: 'var(--navbar-gradient)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover'
+      }}
+    >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo Skeleton */}

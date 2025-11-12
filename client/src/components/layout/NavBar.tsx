@@ -15,12 +15,7 @@ import { useNotificationCount } from '../../hooks/useNotificationCount';
 import NavbarDesktopNavigation from './navbar/NavbarDesktopNavigation';
 import NavbarUserActions from './navbar/NavbarUserActions';
 
-/**
- * Navigation Bar Component
- * Main navigation component that adapts based on authentication status * 
- * CALLED BY: App.tsx for all users
- * SCENARIOS: Both authenticated and unauthenticated user navigation
- */
+/** Description: Main navigation container that adapts to authentication state and theme variables; Data created: Local UI state for drawers, dropdowns, and menu visibility; Author: thangtruong */
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
   // Consume context from AuthContext.tsx to get user, isAuthenticated, isInitializing, loginLoading, performLogout, and logoutLoading
@@ -169,7 +164,17 @@ const NavBar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full theme-navbar-bg border-b theme-border z-50">
+    <nav
+      className="fixed top-0 left-0 right-0 w-full border-b theme-border z-50 theme-navbar-bg theme-navbar-text"
+      style={{
+        backgroundColor: 'var(--navbar-bg)',
+        backgroundImage: 'var(--navbar-gradient)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        color: 'var(--navbar-text)',
+        boxShadow: '0 16px 32px var(--shadow-color)'
+      }}
+    >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Brand */}

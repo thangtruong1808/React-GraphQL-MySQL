@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG, ERROR_MESSAGES, JWT_CONFIG } from '../../../constants';
 
@@ -55,9 +56,9 @@ export const generateAccessToken = (userId: number): string => {
  * SCENARIOS: All scenarios - creates cryptographically secure random tokens
  * FEATURES: 64 bytes (128 characters), hex format, cryptographically secure
  */
-export const generateRefreshToken = (userId: number): string => {
+export const generateRefreshToken = (): string => {
   // Generate a cryptographically secure random token
-  return require('crypto').randomBytes(AUTH_CONFIG.REFRESH_TOKEN_BYTES).toString('hex');
+  return crypto.randomBytes(AUTH_CONFIG.REFRESH_TOKEN_BYTES).toString('hex');
 };
 
 /**

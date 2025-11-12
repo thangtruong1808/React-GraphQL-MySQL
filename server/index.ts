@@ -1,4 +1,3 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
 import { ApolloServer } from 'apollo-server-express';
 import { PubSub } from 'graphql-subscriptions';
 import { WebSocketServer } from 'ws';
@@ -8,8 +7,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import { createServer } from 'http';
-import path from 'path';
-import { csrfProtection } from './auth/csrf';
+import { csrfProtection, setCSRFToken } from './auth/csrf';
 import { authenticateUser } from './auth/middleware';
 import { setupAssociations, testConnection } from './db';
 import { createContext } from './graphql/context';
@@ -17,7 +15,7 @@ import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
 
 // Load environment variables from project root
-dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config({ path: `${process.cwd()}/.env` });
 
 /**
  * Main Server Setup
@@ -74,46 +72,11 @@ app.get('/health', (req, res) => {
 // CSRF token endpoint for initial token generation
 app.get('/csrf-token', (req, res) => {
   try {
-    const { generateCSRFToken, setCSRFToken } = require('./auth/csrf');
     const csrfToken = setCSRFToken(res);
     res.json({ csrfToken });
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate CSRF token' });
   }
-});
-
-/**
- * Create GraphQL Schema
- * Creates executable schema for Apollo Server
- */
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
-});
-
-/**
- * Apollo Server Configuration
- * Sets up GraphQL server with authentication context and cookie support
- */
-const server = new ApolloServer({
-  schema: schema,
-  context: ({ req, res, connection }: { req: any; res: any; connection?: any }) => {
-    // Create unified context with authentication
-    const context = createContext({ req, res });
-    // Add pubsub to context for subscriptions
-    return {
-      ...context,
-      pubsub,
-    };
-  },
-  formatError: (error: any) => {
-    // Return sanitized error to client
-    return {
-      message: error.message,
-      path: error.path,
-    };
-  },
-  plugins: [],
 });
 
 /**
@@ -132,6 +95,33 @@ async function startServer() {
       throw new Error('Database connection is required for the server to start');
     }
     
+    const { makeExecutableSchema } = await import('@graphql-tools/schema');
+    const schema = makeExecutableSchema({
+      typeDefs,
+      resolvers,
+    });
+
+    const server = new ApolloServer({
+      schema,
+      context: ({ req, res }: { req: any; res: any }) => {
+        // Create unified context with authentication
+        const context = createContext({ req, res });
+        // Add pubsub to context for subscriptions
+        return {
+          ...context,
+          pubsub,
+        };
+      },
+      formatError: (error: any) => {
+        // Return sanitized error to client
+        return {
+          message: error.message,
+          path: error.path,
+        };
+      },
+      plugins: [],
+    });
+
     // Start Apollo Server
     await server.start();
     

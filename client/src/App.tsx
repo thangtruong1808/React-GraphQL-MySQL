@@ -40,7 +40,16 @@ const RouteAwareLoadingFallback = () => {
   // Show NavBar layout for public pages (Projects, Team, About)
   if (location.pathname === ROUTE_PATHS.PROJECTS) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
         <NavBarSkeleton />
         <main className="flex-1">
           <ProjectsPageSkeleton />
@@ -51,7 +60,16 @@ const RouteAwareLoadingFallback = () => {
 
   if (location.pathname === ROUTE_PATHS.TEAM) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
         <NavBarSkeleton />
         <main className="flex-1">
           <TeamPageSkeleton />
@@ -62,7 +80,16 @@ const RouteAwareLoadingFallback = () => {
 
   if (location.pathname === ROUTE_PATHS.ABOUT) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
         <NavBarSkeleton />
         <main className="flex-1">
           <AboutPageSkeleton />
@@ -73,7 +100,16 @@ const RouteAwareLoadingFallback = () => {
 
   if (location.pathname === ROUTE_PATHS.HOME) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
         <NavBarSkeleton />
         <main className="flex-1">
           <AuthInitializationSkeleton />
@@ -84,7 +120,16 @@ const RouteAwareLoadingFallback = () => {
 
   if (location.pathname === ROUTE_PATHS.SEARCH) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
         <NavBarSkeleton />
         <main className="flex-1">
           <SearchResultsPageSkeleton />
@@ -96,7 +141,16 @@ const RouteAwareLoadingFallback = () => {
   // Show project detail skeleton for project detail routes (only if not initializing auth)
   if (location.pathname.startsWith('/projects/') && location.pathname !== ROUTE_PATHS.PROJECTS && !isInitializing) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
         <NavBarSkeleton />
         <main className="flex-1">
           <ProjectDetailPageSkeleton />
@@ -107,7 +161,16 @@ const RouteAwareLoadingFallback = () => {
 
   // Generic loading spinner for other routes (like About, Search, etc.)
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div
+      className="min-h-screen flex items-center justify-center theme-navbar-text"
+      style={{
+        backgroundColor: 'var(--bg-base)',
+        backgroundImage: 'var(--bg-gradient)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        color: 'var(--text-primary)'
+      }}
+    >
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
     </div>
   );
@@ -145,7 +208,16 @@ const AppContent: React.FC = () => {
 
   // For non-authenticated users or authenticated users on homepage, use layout with NavBar
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div
+      className="min-h-screen flex flex-col theme-navbar-text"
+      style={{
+        backgroundColor: 'var(--bg-base)',
+        backgroundImage: 'var(--bg-gradient)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        color: 'var(--text-primary)'
+      }}
+    >
       {/* Global navigation bar - show for non-authenticated users and authenticated users on homepage */}
       {shouldShowNavBar && <NavBar />}
 

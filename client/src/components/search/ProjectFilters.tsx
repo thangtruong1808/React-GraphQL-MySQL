@@ -1,12 +1,6 @@
 import React from 'react';
 
-/**
- * Project Filters Component
- * Handles project status filtering with checkboxes
- * Displays planning, in progress, and completed project status options
- */
-
-// Props interface for ProjectFilters component
+/** Description: Project status checkbox group inside search drawer; Data created: None, relies on parent state callbacks; Author: thangtruong */
 interface ProjectFiltersProps {
   projectFilters: {
     planning: boolean;
@@ -17,85 +11,105 @@ interface ProjectFiltersProps {
   onClearProjectFilters: () => void;
 }
 
-/**
- * ProjectFilters Component
- * Renders project status filter checkboxes with icons and color-coded indicators
- * Enhanced with meaningful icons for better user experience
- */
 const ProjectFilters: React.FC<ProjectFiltersProps> = ({
   projectFilters,
   onProjectFilterChange,
   onClearProjectFilters
 }) => {
-  // Check if any project filters are selected
   const hasSelectedFilters = Object.values(projectFilters).some(Boolean);
 
   return (
-    <div className="p-4 border-b border-gray-200">
-      {/* Header */}
+    <div className="p-4 border-b theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-900">Filter by Project Status</h3>
+        <h3 className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Filter by Project Status</h3>
         {hasSelectedFilters && (
           <button
             onClick={onClearProjectFilters}
-            className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+            className="text-xs font-medium transition-colors"
+            style={{ color: 'var(--accent-from)' }}
+            onMouseEnter={(event) => {
+              event.currentTarget.style.color = 'var(--accent-to)';
+            }}
+            onMouseLeave={(event) => {
+              event.currentTarget.style.color = 'var(--accent-from)';
+            }}
           >
             Clear All
           </button>
         )}
       </div>
 
-      {/* Project Status Filters */}
       <div className="space-y-3">
-        {/* Planning Status */}
         <label className="flex items-center space-x-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={projectFilters.planning}
             onChange={() => onProjectFilterChange('planning')}
-            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            className="w-4 h-4 rounded theme-border"
+            style={{
+              accentColor: 'var(--project-status-planning-text)',
+              borderColor: 'var(--border-color)',
+              backgroundColor: 'var(--card-bg)'
+            }}
           />
           <div className="flex items-center space-x-2 flex-1">
-            <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--project-status-planning-text)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
-            <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+            <span
+              className="text-sm transition-colors group-hover:text-[var(--text-primary)]"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Planning
             </span>
           </div>
         </label>
 
-        {/* In Progress Status */}
         <label className="flex items-center space-x-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={projectFilters.inProgress}
             onChange={() => onProjectFilterChange('inProgress')}
-            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            className="w-4 h-4 rounded theme-border"
+            style={{
+              accentColor: 'var(--project-status-in-progress-text)',
+              borderColor: 'var(--border-color)',
+              backgroundColor: 'var(--card-bg)'
+            }}
           />
           <div className="flex items-center space-x-2 flex-1">
-            <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--project-status-in-progress-text)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+            <span
+              className="text-sm transition-colors group-hover:text-[var(--text-primary)]"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               In Progress
             </span>
           </div>
         </label>
 
-        {/* Completed Status */}
         <label className="flex items-center space-x-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={projectFilters.completed}
             onChange={() => onProjectFilterChange('completed')}
-            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+            className="w-4 h-4 rounded theme-border"
+            style={{
+              accentColor: 'var(--project-status-completed-text)',
+              borderColor: 'var(--border-color)',
+              backgroundColor: 'var(--card-bg)'
+            }}
           />
           <div className="flex items-center space-x-2 flex-1">
-            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--project-status-completed-text)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+            <span
+              className="text-sm transition-colors group-hover:text-[var(--text-primary)]"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Completed
             </span>
           </div>

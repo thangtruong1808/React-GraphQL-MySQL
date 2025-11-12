@@ -4,7 +4,8 @@
  * Follows GraphQL and Apollo Server best practices
  */
 
-import { RefreshToken } from '../../../../db';
+import { Op } from 'sequelize';
+import { RefreshToken, User } from '../../../../db';
 import { clearCSRFToken } from '../../../../auth/csrf';
 import { verifyRefreshTokenHash } from '../tokenManager';
 import { AUTH_OPERATIONS_CONFIG } from './constants';
@@ -34,10 +35,10 @@ export const logout = async (req: any, res: any) => {
         where: {
           isRevoked: false,
           expiresAt: {
-            [require('sequelize').Op.gt]: new Date(),
+            [Op.gt]: new Date(),
           },
         },
-        include: [{ model: require('../../../../db').User, as: 'user' }],
+        include: [{ model: User, as: 'user' }],
       });
 
       // Find the matching token and delete it

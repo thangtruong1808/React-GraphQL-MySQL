@@ -5,51 +5,37 @@ import ProjectFilters from './ProjectFilters';
 import TaskFilters from './TaskFilters';
 import RoleFilters from './RoleFilters';
 
-/**
- * Search Drawer Component
- * Left-side sliding drawer for search input with clear functionality
- * Follows React best practices with component separation and state management
- */
+const INITIAL_PROJECT_FILTERS = { planning: false, inProgress: false, completed: false };
+const INITIAL_TASK_FILTERS = { todo: false, inProgress: false, completed: false };
 
 interface SearchDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-/**
- * SearchDrawer Component
- * Renders a sliding drawer with search input that navigates to results page
- */
+/** Description: Sliding search drawer with theme-aware styling and filter orchestration; Data created: Drawer-local query and filter state via useState hooks; Author: thangtruong */
 const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
-  // State for search query
   const [searchQuery, setSearchQuery] = useState('');
-  // State for project status filters
-  const [projectFilters, setProjectFilters] = useState({
-    planning: false,
-    inProgress: false,
-    completed: false
-  });
-  // State for task status filters
-  const [taskFilters, setTaskFilters] = useState({
-    todo: false,
-    inProgress: false,
-    completed: false
-  });
-  // State for role filters
+  const [projectFilters, setProjectFilters] = useState(INITIAL_PROJECT_FILTERS);
+  const [taskFilters, setTaskFilters] = useState(INITIAL_TASK_FILTERS);
   const [roleFilters, setRoleFilters] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
+  const hasProjectFilters = Object.values(projectFilters).some(Boolean);
+  const hasTaskFilters = Object.values(taskFilters).some(Boolean);
+  const hasRoleFilters = Object.values(roleFilters).some(Boolean);
+  const hasAnyFilters = hasProjectFilters || hasTaskFilters || hasRoleFilters;
 
-  // Handle search input change
+  // Event: update search query from text input.
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
-  // Handle clear search input
+  // Event: clear search value from the input.
   const handleClearSearch = () => {
     setSearchQuery('');
   };
 
-  // Handle project status filter change
+  // Event: toggle a project status filter.
   const handleProjectFilterChange = (status: keyof typeof projectFilters) => {
     setProjectFilters(prev => ({
       ...prev,
@@ -57,16 +43,12 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  // Handle clear all project filters
+  // Event: reset all project status filters.
   const handleClearProjectFilters = () => {
-    setProjectFilters({
-      planning: false,
-      inProgress: false,
-      completed: false
-    });
+    setProjectFilters({ ...INITIAL_PROJECT_FILTERS });
   };
 
-  // Handle task status filter change
+  // Event: toggle a task status filter.
   const handleTaskFilterChange = (status: keyof typeof taskFilters) => {
     setTaskFilters(prev => ({
       ...prev,
@@ -74,16 +56,12 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  // Handle clear all task filters
+  // Event: reset all task status filters.
   const handleClearTaskFilters = () => {
-    setTaskFilters({
-      todo: false,
-      inProgress: false,
-      completed: false
-    });
+    setTaskFilters({ ...INITIAL_TASK_FILTERS });
   };
 
-  // Handle role filter change
+  // Event: toggle a role filter selection.
   const handleRoleFilterChange = (role: string) => {
     setRoleFilters(prev => ({
       ...prev,
@@ -91,35 +69,27 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  // Handle clear all role filters
+  // Event: clear every role filter selection.
   const handleClearRoleFilters = () => {
     setRoleFilters({});
   };
 
-  // Handle search submission
+  // Event: submit search form to navigate to results.
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    // Check if there's a search query or any filters selected
     const hasQuery = searchQuery.trim().length > 0;
-    const hasProjectFilters = Object.values(projectFilters).some(Boolean);
-    const hasTaskFilters = Object.values(taskFilters).some(Boolean);
-    const hasRoleFilters = Object.values(roleFilters).some(Boolean);
 
     if (hasQuery || hasProjectFilters || hasTaskFilters || hasRoleFilters) {
-      // Build query parameters including project and task filters
       const params = new URLSearchParams();
 
-      // Add search query if provided
       if (hasQuery) {
         params.set('q', searchQuery.trim());
       }
 
-      // Add project status filters if any are selected
       const selectedProjectFilters = Object.entries(projectFilters)
         .filter(([_, isSelected]) => isSelected)
         .map(([status, _]) => {
-          // Map frontend status names to GraphQL schema values
           switch (status) {
             case 'planning':
               return 'PLANNING';
@@ -136,11 +106,9 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
         params.set('projectStatus', selectedProjectFilters.join(','));
       }
 
-      // Add task status filters if any are selected
       const selectedTaskFilters = Object.entries(taskFilters)
         .filter(([_, isSelected]) => isSelected)
         .map(([status, _]) => {
-          // Map frontend status names to GraphQL schema values
           switch (status) {
             case 'todo':
               return 'TODO';
@@ -157,7 +125,6 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
         params.set('taskStatus', selectedTaskFilters.join(','));
       }
 
-      // Add role filters if any are selected
       const selectedRoleFilters = Object.entries(roleFilters)
         .filter(([_, isSelected]) => isSelected)
         .map(([role, _]) => role);
@@ -166,30 +133,20 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
         params.set('roleFilter', selectedRoleFilters.join(','));
       }
 
-      // Navigate to search results page with query parameters
       navigate(`/search?${params.toString()}`);
       handleClose();
     }
   };
 
-  // Handle drawer close
+  // Event: close the drawer and reset all filters.
   const handleClose = () => {
     setSearchQuery('');
-    setProjectFilters({
-      planning: false,
-      inProgress: false,
-      completed: false
-    });
-    setTaskFilters({
-      todo: false,
-      inProgress: false,
-      completed: false
-    });
+    setProjectFilters({ ...INITIAL_PROJECT_FILTERS });
+    setTaskFilters({ ...INITIAL_TASK_FILTERS });
     setRoleFilters({});
     onClose();
   };
 
-  // Handle escape key press
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -203,7 +160,6 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  // Prevent body scroll when drawer is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -223,49 +179,57 @@ const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
         />
       )}
 
-      {/* Search drawer */}
       <div
-        className={`fixed left-0 top-0 h-full w-[28rem] bg-white shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${isOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+        className={`fixed left-0 top-0 h-full w-[28rem] transform transition-transform duration-300 ease-in-out z-50 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          color: 'var(--text-primary)',
+          borderRight: '1px solid var(--border-color)',
+          boxShadow: '0 32px 64px var(--shadow-color)'
+        }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Search</h2>
+        <div className="flex items-center justify-between p-4 border-b theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Search</h2>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors"
             aria-label="Close search drawer"
+            style={{ backgroundColor: 'transparent', color: 'var(--text-secondary)' }}
+            onMouseEnter={(event) => {
+              event.currentTarget.style.backgroundColor = 'var(--tab-inactive-hover-bg)';
+              event.currentTarget.style.color = 'var(--text-primary)';
+            }}
+            onMouseLeave={(event) => {
+              event.currentTarget.style.backgroundColor = 'transparent';
+              event.currentTarget.style.color = 'var(--text-secondary)';
+            }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'inherit' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Search input */}
         <SearchInput
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           onClearSearch={handleClearSearch}
           onSubmit={handleSearchSubmit}
-          hasFilters={Object.values(projectFilters).some(Boolean) || Object.values(taskFilters).some(Boolean) || Object.values(roleFilters).some(Boolean)}
+          hasFilters={hasAnyFilters}
         />
 
-        {/* Role Filters */}
         <RoleFilters
           roleFilters={roleFilters}
           onRoleFilterChange={handleRoleFilterChange}
           onClearRoleFilters={handleClearRoleFilters}
         />
 
-        {/* Project Status Filters */}
         <ProjectFilters
           projectFilters={projectFilters}
           onProjectFilterChange={handleProjectFilterChange}
           onClearProjectFilters={handleClearProjectFilters}
         />
 
-        {/* Task Status Filters */}
         <TaskFilters
           taskFilters={taskFilters}
           onTaskFilterChange={handleTaskFilterChange}

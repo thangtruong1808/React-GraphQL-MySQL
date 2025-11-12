@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { RefreshToken } from '../../../db';
 import { JWT_CONFIG } from '../../../constants';
 
@@ -30,7 +31,7 @@ export const cleanupRefreshTokens = async (userId: number): Promise<void> => {
       where: {
         userId,
         expiresAt: {
-          [require('sequelize').Op.lt]: bufferTime, // Only remove tokens expired more than 30 seconds ago
+          [Op.lt]: bufferTime, // Only remove tokens expired more than 30 seconds ago
         },
       },
     });
@@ -65,7 +66,7 @@ export const limitRefreshTokens = async (userId: number): Promise<void> => {
         userId,
         isRevoked: false,
         expiresAt: {
-          [require('sequelize').Op.gt]: new Date(),
+          [Op.gt]: new Date(),
         },
       },
     });
@@ -80,7 +81,7 @@ export const limitRefreshTokens = async (userId: number): Promise<void> => {
           userId,
           isRevoked: false,
           expiresAt: {
-            [require('sequelize').Op.gt]: new Date(),
+            [Op.gt]: new Date(),
           },
         },
         order: [['createdAt', 'ASC']],

@@ -6,6 +6,7 @@
 
 import { GraphQLError } from 'graphql';
 import { v4 as uuidv4 } from 'uuid';
+import { Op } from 'sequelize';
 import { JWT_CONFIG, AUTH_CONFIG } from '../../../../constants';
 import { RefreshToken, User } from '../../../../db';
 import { setCSRFToken } from '../../../../auth/csrf';
@@ -67,9 +68,9 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
     where: {
       isRevoked: false,
       // Check expiresAt to ensure token is still valid
-      expiresAt: {
-        [require('sequelize').Op.gt]: new Date(),
-      },
+        expiresAt: {
+          [Op.gt]: new Date(),
+        },
     },
     include: [{ model: User, as: 'user' }],
   });
@@ -107,7 +108,7 @@ export const refreshToken = async (req: any, res: any, dynamicBuffer?: number) =
 
   // Generate new tokens with enhanced security
   const newAccessToken = generateAccessToken(user.id);
-  const newRefreshToken = generateRefreshToken(user.id);
+  const newRefreshToken = generateRefreshToken();
 
   // Hash new refresh token
   const newTokenHash = await hashRefreshToken(newRefreshToken);
@@ -203,7 +204,7 @@ export const refreshTokenRenewal = async (req: any, res: any) => {
       isRevoked: false,
       // Check expiresAt to ensure token is still valid
       expiresAt: {
-        [require('sequelize').Op.gt]: new Date(),
+        [Op.gt]: new Date(),
       },
     },
     include: [{ model: User, as: 'user' }],

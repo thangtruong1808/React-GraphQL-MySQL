@@ -8,7 +8,9 @@
 
 /* CSS variables for all themes */
 @import './styles/variables-root.css';
-@import './styles/variables-themes.css';
+@import './styles/variables/light.css';
+@import './styles/variables/dark.css';
+@import './styles/variables/brand.css';
 
 /* Theme-aware utility classes */
 @import './styles/theme-utilities-base.css';

@@ -4,21 +4,21 @@
  */
 
 [data-theme="dark"] {
-  --accent-from: #3b82f6; /* blue-500 - better visibility */
-  --accent-to: #8b5cf6;   /* violet-500 */
-  --accent-ring: #3b82f6;
-  --bg-base: #111827;     /* gray-900 - darker base */
-  --bg-gradient: radial-gradient(1200px 800px at 10% -20%, rgba(59,130,246,0.1), transparent), radial-gradient(1000px 700px at 110% 10%, rgba(139,92,246,0.08), transparent);
-  --text-primary: #ffffff; /* pure white for maximum contrast */
-  --text-secondary: #e5e7eb; /* gray-200 - high contrast */
-  --text-muted: #9ca3af;   /* gray-400 - still readable */
-  --border-color: #4b5563; /* gray-600 - more visible borders */
-  --border-light: #6b7280; /* gray-500 - lighter borders */
-  --border-medium: #4b5563; /* gray-600 - medium borders */
-  --border-dark: #374151;  /* gray-700 - dark borders */
-  --card-bg: #1f2937;      /* gray-800 - lighter than base */
-  --card-hover-bg: #4b5563; /* gray-600 - matches row hover */
-  --card-surface-overlay: none; /* disable overlays for dark theme cards */
+  --accent-from: #60a5fa; /* blue-400 for clearer accents */
+  --accent-to: #a855f7;   /* violet-400 for smooth blend */
+  --accent-ring: #60a5fa;
+  --bg-base: #0f172a;     /* slate-900 base */
+  --bg-gradient: radial-gradient(1200px 800px at 12% -10%, rgba(96,165,250,0.12), transparent), radial-gradient(1100px 760px at 100% 0%, rgba(168,85,247,0.08), transparent);
+  --text-primary: #f8fafc; /* almost white for softer contrast */
+  --text-secondary: #cbd5f5; /* slate-200 with subtle blue tone */
+  --text-muted: #94a3b8;   /* slate-400 */
+  --border-color: #334155; /* slate-700 */
+  --border-light: #475569; /* slate-600 */
+  --border-medium: #334155; /* slate-700 */
+  --border-dark: #1f2937;  /* slate-800 */
+  --card-bg: #15213b;      /* deep slate for cards */
+  --card-hover-bg: #1f2f4d; /* lighter hover */
+  --card-surface-overlay: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(168,85,247,0.08)); /* subtle sheen */
   --input-bg: #1f2937;     /* gray-800 - consistent with cards */
   --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
   --table-header-bg: #374151; /* dark table header background - darker than rows */
@@ -47,20 +47,20 @@
   --notification-delete-action-text: #f87171; /* dark delete action button text color - red-400 for visibility on dark backgrounds */
   --notification-delete-action-bg: #991b1b; /* dark delete action button hover background - red-800 */
   --notification-delete-action-hover-text: #fee2e2; /* dark delete action button hover text - red-100 for contrast */
-  --notification-action-button-bg: #6b7280; /* dark notification action button default background - gray-500, much lighter than header for clear visibility */
-  --notification-action-button-hover-bg: #9ca3af; /* dark notification action button hover background - gray-400 for very clear hover effect */
-  --notification-action-button-hover-border: #d1d5db; /* dark notification action button hover border - gray-300 for maximum visibility */
+  --notification-action-button-bg: #384863; /* desaturated slate for buttons */
+  --notification-action-button-hover-bg: #4c5f80; /* brighter hover */
+  --notification-action-button-hover-border: #9ca3af; /* soft highlight */
   /* Notification status text colors - dark theme (high contrast) */
   --notification-status-unread-text: #f87171; /* red-400 - bright unread notification status text for dark theme */
   --notification-status-read-text: #10b981; /* green-500 - bright read notification status text for dark theme */
   --button-primary-bg: #7c3aed; /* dark primary button background */
   --button-primary-hover-bg: #8b5cf6; /* dark primary button hover background */
-  --button-primary-text: #ffffff; /* dark primary button text color */
+  --button-primary-text: #f8fafc; /* softened white */
   --button-primary-ring: #a855f7; /* dark primary button focus ring */
   --button-secondary-bg: #3b82f6; /* dark secondary button background */
   --button-secondary-hover-bg: #1d4ed8; /* dark secondary button hover background */
-  --button-secondary-text: #ffffff; /* dark secondary button text color */
-  --button-secondary-ring: #60a5fa; /* dark secondary button focus ring */
+  --button-secondary-text: #f8fafc; /* softened white */
+  --button-secondary-ring: #93c5fd; /* lighter focus for contrast */
   --button-success-bg: #16a34a; /* dark success button background */
   --button-success-hover-bg: #15803d; /* dark success button hover background */
   --button-success-text: #ffffff; /* dark success button text color */
@@ -99,10 +99,10 @@
   --role-selection-active-border: #3b82f6; /* dark role selection active border */
   --role-selection-text: #f9fafb; /* dark role selection text */
   --role-selection-text-secondary: #d1d5db; /* dark role selection secondary text */
-  --text-badge-primary-bg: #374151; /* dark text badge primary background */
-  --text-badge-primary-text: #ffffff; /* dark text badge primary text */
-  --text-badge-secondary-bg: #4b5563; /* dark text badge secondary background */
-  --text-badge-secondary-text: #e5e7eb; /* dark text badge secondary text */
+  --text-badge-primary-bg: #1f2f4d; /* unify with cards */
+  --text-badge-primary-text: #e0f2fe; /* sky-100 for highlight */
+  --text-badge-secondary-bg: #273963; /* slightly brighter */
+  --text-badge-secondary-text: #cbd5f5; /* soft secondary text */
   /* Section icons - dark (higher contrast) */
   --icon-activity-bg: #312e81; /* indigo-900 */
   --icon-activity-fg: #c7d2fe; /* indigo-200 */
@@ -146,18 +146,18 @@
   --info-display-border: #1e3a8a; /* blue-700 - info display border for dark theme */
   --info-display-text: #dbeafe; /* blue-100 - high contrast info display text */
   --info-display-icon: #60a5fa; /* blue-400 - bright info display icon */
-  --shadow-color: rgba(0, 0, 0, 0.4); /* darker shadows */
-  --navbar-gradient: none;       /* dark navbar gradient */
-  --footer-gradient: none;       /* dark footer gradient */
-  --navbar-bg: #1f2937;    /* dark navbar background */
-  --footer-bg: #1f2937;    /* dark footer background */
-  --navbar-text: #f9fafb;  /* dark navbar text color */
-  --navbar-text-secondary: #d1d5db; /* dark navbar secondary text color */
-  --user-dropdown-bg: #374151; /* dark user dropdown background */
-  --user-dropdown-border: #4b5563; /* dark user dropdown border */
-  --user-profile-bg: #064e3b; /* dark user profile section background */
-  --user-profile-text: #ffffff; /* dark user profile text color */
-  --user-profile-text-secondary: #d1d5db; /* dark user profile secondary text */
+  --shadow-color: rgba(15, 23, 42, 0.65); /* deeper slate shadow */
+  --navbar-gradient: linear-gradient(90deg, rgba(15,23,42,0.95), rgba(30,64,175,0.35));
+  --footer-gradient: linear-gradient(270deg, rgba(15,23,42,0.95), rgba(30,64,175,0.35));
+  --navbar-bg: #101a30;    /* refined navbar background */
+  --footer-bg: #101a30;    /* refined footer background */
+  --navbar-text: #f1f5f9;  /* softer white */
+  --navbar-text-secondary: #cbd5f5; /* lighter secondary */
+  --user-dropdown-bg: #1f2f4d; /* cohesive surface */
+  --user-dropdown-border: #334155; /* defined border */
+  --user-profile-bg: #0f3f53; /* rich teal accent */
+  --user-profile-text: #f8fafc; /* softened white */
+  --user-profile-text-secondary: #cbd5f5; /* gentle secondary */
   --user-profile-role-bg: #065f46; /* dark user profile role badge background */
   --user-profile-role-text: #ffffff; /* dark user profile role badge text */
   --success-bg: #064e3b; /* dark success message background */
