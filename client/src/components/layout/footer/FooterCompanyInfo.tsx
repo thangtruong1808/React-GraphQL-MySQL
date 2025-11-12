@@ -2,11 +2,7 @@ import React from 'react';
 import Logo from '../Logo';
 import { FOOTER_CONTENT, FOOTER_LINKS } from '../../../constants/footer';
 
-/**
- * Footer Company Info Component
- * Displays company information, logo, description, and social media links
- * Provides company branding and social connectivity
- */
+/** Description: Displays branded company info with social links in the footer; Data created: None (stateless rendering only); Author: thangtruong */
 const FooterCompanyInfo: React.FC = () => {
   /**
    * Handle external link click
@@ -32,10 +28,22 @@ const FooterCompanyInfo: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.GITHUB)}
-          className="transition-colors duration-300"
-          style={{ color: 'var(--text-secondary)' }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+          className="transition-all duration-300 rounded-full"
+          style={{
+            color: 'var(--footer-social-github)',
+            backgroundColor: 'var(--footer-social-github-bg)',
+            padding: '0.5rem'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--footer-social-github-hover)';
+            e.currentTarget.style.backgroundColor = 'var(--footer-social-github-bg-hover)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--footer-social-github)';
+            e.currentTarget.style.backgroundColor = 'var(--footer-social-github-bg)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
           aria-label="GitHub"
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -44,10 +52,22 @@ const FooterCompanyInfo: React.FC = () => {
         </button>
         <button
           onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.LINKEDIN)}
-          className="transition-colors duration-300"
-          style={{ color: 'var(--text-secondary)' }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+          className="transition-all duration-300 rounded-full"
+          style={{
+            color: 'var(--footer-social-linkedin)',
+            backgroundColor: 'var(--footer-social-linkedin-bg)',
+            padding: '0.5rem'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--footer-social-linkedin-hover)';
+            e.currentTarget.style.backgroundColor = 'var(--footer-social-linkedin-bg-hover)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--footer-social-linkedin)';
+            e.currentTarget.style.backgroundColor = 'var(--footer-social-linkedin-bg)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
           aria-label="LinkedIn"
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -56,10 +76,22 @@ const FooterCompanyInfo: React.FC = () => {
         </button>
         <button
           onClick={() => handleExternalLinkClick(FOOTER_LINKS.SOCIAL.FACEBOOK)}
-          className="transition-colors duration-300"
-          style={{ color: 'var(--text-secondary)' }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--button-primary-bg)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+          className="transition-all duration-300 rounded-full"
+          style={{
+            color: 'var(--footer-social-facebook)',
+            backgroundColor: 'var(--footer-social-facebook-bg)',
+            padding: '0.5rem'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--footer-social-facebook-hover)';
+            e.currentTarget.style.backgroundColor = 'var(--footer-social-facebook-bg-hover)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--footer-social-facebook)';
+            e.currentTarget.style.backgroundColor = 'var(--footer-social-facebook-bg)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
           aria-label="Facebook"
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

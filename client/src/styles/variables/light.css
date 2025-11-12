@@ -114,6 +114,18 @@
   /* System Status Indicator - light theme */
   --status-indicator-online: #10b981; /* green-500 - online/operational status indicator */
   --footer-resource-hover-bg: #f3f4f6; /* light footer resource link hover background */
+  --footer-social-github: #181717; /* light GitHub icon color */
+  --footer-social-github-hover: #0d1117; /* light GitHub hover color */
+  --footer-social-github-bg: rgba(24, 23, 23, 0.12); /* light GitHub icon background */
+  --footer-social-github-bg-hover: rgba(24, 23, 23, 0.2); /* light GitHub icon hover background */
+  --footer-social-linkedin: #0a66c2; /* light LinkedIn icon color */
+  --footer-social-linkedin-hover: #0b5aa7; /* light LinkedIn hover color */
+  --footer-social-linkedin-bg: rgba(10, 102, 194, 0.12); /* light LinkedIn icon background */
+  --footer-social-linkedin-bg-hover: rgba(10, 102, 194, 0.2); /* light LinkedIn icon hover background */
+  --footer-social-facebook: #1877f2; /* light Facebook icon color */
+  --footer-social-facebook-hover: #1466d4; /* light Facebook hover color */
+  --footer-social-facebook-bg: rgba(24, 119, 242, 0.12); /* light Facebook icon background */
+  --footer-social-facebook-bg-hover: rgba(24, 119, 242, 0.2); /* light Facebook icon hover background */
   /* Technology gradient colors - light theme */
   --tech-react-from: #3b82f6; /* blue-500 */
   --tech-react-to: #06b6d4; /* cyan-500 */

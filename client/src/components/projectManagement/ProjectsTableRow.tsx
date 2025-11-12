@@ -10,10 +10,7 @@ interface ProjectsTableRowProps {
   onViewMembers?: (project: Project) => void;
 }
 
-/**
- * Projects Table Row Component
- * Displays individual project row with actions
- */
+/** Description: Renders a project row with themed action buttons inside the projects dashboard table; Data created: None (stateless row rendering only); Author: thangtruong */
 const ProjectsTableRow: React.FC<ProjectsTableRowProps> = ({
   project,
   onEdit,
@@ -106,8 +103,22 @@ const ProjectsTableRow: React.FC<ProjectsTableRowProps> = ({
           {onViewMembers && (
             <button
               onClick={handleViewMembers}
-              className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-              style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
+              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+              style={{
+                backgroundImage: 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))',
+                color: 'var(--button-primary-text)',
+                boxShadow: '0 10px 20px -8px var(--shadow-color)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 12px 24px -8px var(--shadow-color)';
+                e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-hover-bg), var(--accent-to))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 20px -8px var(--shadow-color)';
+                e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))';
+              }}
               title="View project members"
             >
               <FaUsers className="w-3 h-3 mr-1" />
@@ -116,8 +127,22 @@ const ProjectsTableRow: React.FC<ProjectsTableRowProps> = ({
           )}
           <button
             onClick={handleEdit}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-            style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+            style={{
+              backgroundImage: 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))',
+              color: 'var(--button-primary-text)',
+              boxShadow: '0 10px 20px -8px var(--shadow-color)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 12px 24px -8px var(--shadow-color)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-hover-bg), var(--accent-to))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 20px -8px var(--shadow-color)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))';
+            }}
             title="Edit project"
           >
             <FaEdit className="w-3 h-3 mr-1" />
@@ -125,8 +150,22 @@ const ProjectsTableRow: React.FC<ProjectsTableRowProps> = ({
           </button>
           <button
             onClick={handleDelete}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-            style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-danger-bg)' }}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+            style={{
+              backgroundImage: 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)',
+              color: 'var(--button-primary-text)',
+              boxShadow: '0 10px 20px -8px rgba(220, 38, 38, 0.45)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(220, 38, 38, 0.55)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-hover-bg), #ef4444)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 20px -8px rgba(220, 38, 38, 0.45)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)';
+            }}
             title="Delete project"
           >
             <FaTrash className="w-3 h-3 mr-1" />

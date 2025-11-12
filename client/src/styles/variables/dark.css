@@ -166,6 +166,18 @@
   /* System Status Indicator - dark theme */
   --status-indicator-online: #10b981; /* green-500 - bright online/operational status indicator for dark theme */
   --footer-resource-hover-bg: #4b5563; /* dark footer resource link hover background */
+  --footer-social-github: #181717; /* dark theme GitHub icon color */
+  --footer-social-github-hover: #0d1117; /* dark theme GitHub hover icon color */
+  --footer-social-github-bg: rgba(248, 250, 252, 0.82); /* dark theme GitHub background */
+  --footer-social-github-bg-hover: rgba(248, 250, 252, 0.94); /* dark theme GitHub hover background */
+  --footer-social-linkedin: #0a66c2; /* dark theme LinkedIn icon color */
+  --footer-social-linkedin-hover: #0b5aa7; /* dark theme LinkedIn hover icon color */
+  --footer-social-linkedin-bg: rgba(10, 102, 194, 0.42); /* dark theme LinkedIn background */
+  --footer-social-linkedin-bg-hover: rgba(10, 102, 194, 0.58); /* dark theme LinkedIn hover background */
+  --footer-social-facebook: #1877f2; /* dark theme Facebook icon color */
+  --footer-social-facebook-hover: #1466d4; /* dark theme Facebook hover icon color */
+  --footer-social-facebook-bg: rgba(24, 119, 242, 0.42); /* dark theme Facebook background */
+  --footer-social-facebook-bg-hover: rgba(24, 119, 242, 0.58); /* dark theme Facebook hover background */
   /* Technology gradient colors - dark theme (brighter for better visibility) */
   --tech-react-from: #60a5fa; /* blue-400 */
   --tech-react-to: #22d3ee; /* cyan-400 */

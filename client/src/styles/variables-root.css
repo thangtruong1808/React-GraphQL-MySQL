@@ -158,5 +158,17 @@
   --user-profile-role-bg: #d1fae5; /* user profile role badge background */
   --user-profile-role-text: #065f46; /* user profile role badge text */
   --footer-resource-hover-bg: #f3f4f6; /* footer resource link hover background */
+  --footer-social-github: #181717; /* GitHub brand color */
+  --footer-social-github-hover: #0d1117; /* GitHub hover color */
+  --footer-social-github-bg: rgba(24, 23, 23, 0.12); /* GitHub icon background */
+  --footer-social-github-bg-hover: rgba(24, 23, 23, 0.2); /* GitHub icon hover background */
+  --footer-social-linkedin: #0a66c2; /* LinkedIn brand blue */
+  --footer-social-linkedin-hover: #0b5aa7; /* LinkedIn hover blue */
+  --footer-social-linkedin-bg: rgba(10, 102, 194, 0.12); /* LinkedIn icon background */
+  --footer-social-linkedin-bg-hover: rgba(10, 102, 194, 0.2); /* LinkedIn icon hover background */
+  --footer-social-facebook: #1877f2; /* Facebook brand blue */
+  --footer-social-facebook-hover: #1466d4; /* Facebook hover blue */
+  --footer-social-facebook-bg: rgba(24, 119, 242, 0.12); /* Facebook icon background */
+  --footer-social-facebook-bg-hover: rgba(24, 119, 242, 0.2); /* Facebook icon hover background */
 }
 

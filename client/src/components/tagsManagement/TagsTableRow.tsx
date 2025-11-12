@@ -9,10 +9,7 @@ interface TagsTableRowProps {
   onDelete: (tag: Tag) => void;
 }
 
-/**
- * Tags Table Row Component
- * Displays a single tag row with all columns and actions
- */
+/** Description: Displays a single tag row with themed action buttons in the tags dashboard table; Data created: None (stateless row component); Author: thangtruong */
 const TagsTableRow: React.FC<TagsTableRowProps> = ({ tag, onEdit, onDelete }) => {
   // Handle edit click
   const handleEdit = () => {
@@ -34,26 +31,6 @@ const TagsTableRow: React.FC<TagsTableRowProps> = ({ tag, onEdit, onDelete }) =>
     e.currentTarget.style.backgroundColor = 'var(--table-row-bg)';
   };
 
-  // Handle mouse enter for edit button
-  const handleEditMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = 'var(--button-secondary-hover-bg)';
-  };
-
-  // Handle mouse leave for edit button
-  const handleEditMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = 'var(--button-secondary-bg)';
-  };
-
-  // Handle mouse enter for delete button
-  const handleDeleteMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = 'var(--button-danger-hover-bg)';
-  };
-
-  // Handle mouse leave for delete button
-  const handleDeleteMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = 'var(--button-danger-bg)';
-  };
-
   return (
     <tr
       className="transition-colors duration-200"
@@ -64,7 +41,7 @@ const TagsTableRow: React.FC<TagsTableRowProps> = ({ tag, onEdit, onDelete }) =>
       {/* ID Column - Hidden on mobile */}
       <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm font-medium text-left" style={{ color: 'var(--table-text-primary)' }}>
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--badge-neutral-bg)', color: 'var(--badge-neutral-text)' }}>
-          #{tag.id}
+          {tag.id}
         </span>
       </td>
 
@@ -140,10 +117,22 @@ const TagsTableRow: React.FC<TagsTableRowProps> = ({ tag, onEdit, onDelete }) =>
         <div className="flex items-center space-x-2">
           <button
             onClick={handleEdit}
-            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white transition-all duration-200 shadow-sm"
-            style={{ backgroundColor: 'var(--button-secondary-bg)' }}
-            onMouseEnter={handleEditMouseEnter}
-            onMouseLeave={handleEditMouseLeave}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+            style={{
+              backgroundImage: 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))',
+              color: 'var(--button-primary-text)',
+              boxShadow: '0 10px 20px -8px var(--shadow-color)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 12px 24px -8px var(--shadow-color)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-hover-bg), var(--accent-to))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 20px -8px var(--shadow-color)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))';
+            }}
             title="Edit tag"
           >
             <FaEdit className="w-3 h-3 mr-1.5" />
@@ -151,10 +140,22 @@ const TagsTableRow: React.FC<TagsTableRowProps> = ({ tag, onEdit, onDelete }) =>
           </button>
           <button
             onClick={handleDelete}
-            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white transition-all duration-200 shadow-sm"
-            style={{ backgroundColor: 'var(--button-danger-bg)' }}
-            onMouseEnter={handleDeleteMouseEnter}
-            onMouseLeave={handleDeleteMouseLeave}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+            style={{
+              backgroundImage: 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)',
+              color: 'var(--button-primary-text)',
+              boxShadow: '0 10px 20px -8px rgba(220, 38, 38, 0.45)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(220, 38, 38, 0.55)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-hover-bg), #ef4444)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 20px -8px rgba(220, 38, 38, 0.45)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)';
+            }}
             title="Delete tag"
           >
             <FaTrash className="w-3 h-3 mr-1.5" />

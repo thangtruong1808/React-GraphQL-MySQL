@@ -93,7 +93,7 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
     <div className="space-y-10">
       {/* Members Section - Show ONLY when searching by user name (q parameter) */}
       {shouldShowMembersSection && (
-        <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <div className="pt-4 px-4 sm:px-6 lg:px-8">
           <div className="search-section max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border" style={{
             backgroundColor: 'var(--card-bg)',
             borderColor: 'var(--border-color)',
@@ -117,7 +117,7 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
 
       {/* Projects Section - Show ONLY when explicitly searching by project status */}
       {shouldShowProjectsSection && (
-        <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="search-section max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border" style={{
             backgroundColor: 'var(--card-bg)',
             borderColor: 'var(--border-color)',
@@ -141,7 +141,7 @@ const SearchSectionsContainer: React.FC<SearchSectionsContainerProps> = ({
 
       {/* Tasks Section - Show ONLY when explicitly searching by task status */}
       {shouldShowTasksSection && (
-        <div className="py-4 px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="search-section max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border" style={{
             backgroundColor: 'var(--card-bg)',
             borderColor: 'var(--border-color)',

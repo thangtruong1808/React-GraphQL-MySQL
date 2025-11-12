@@ -11,10 +11,7 @@ interface CommentTableRowProps {
   onDelete?: (comment: Comment) => void;
 }
 
-/**
- * Comment Table Row Component
- * Displays a single comment row in the table
- */
+/** Description: Displays a comment row with themed action buttons in the comments dashboard table; Data created: None (stateless row component); Author: thangtruong */
 const CommentTableRow: React.FC<CommentTableRowProps> = ({
   comment,
   onEdit,
@@ -106,21 +103,49 @@ const CommentTableRow: React.FC<CommentTableRowProps> = ({
         {(onEdit || onDelete) && (
           <div className="flex justify-start space-x-2">
             {onEdit && (
-              <button
-                onClick={() => onEdit(comment)}
-                className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-                style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-secondary-bg)' }}
-                title="Edit comment"
-              >
-                <FaEdit className="w-3 h-3 mr-1" />
-                Edit
-              </button>
+            <button
+              onClick={() => onEdit(comment)}
+              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+              style={{
+                backgroundImage: 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))',
+                color: 'var(--button-primary-text)',
+                boxShadow: '0 10px 20px -8px var(--shadow-color)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 12px 24px -8px var(--shadow-color)';
+                e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-hover-bg), var(--accent-to))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 20px -8px var(--shadow-color)';
+                e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))';
+              }}
+              title="Edit comment"
+            >
+              <FaEdit className="w-3 h-3 mr-1" />
+              Edit
+            </button>
             )}
             {onDelete && (
               <button
                 onClick={() => onDelete(comment)}
-                className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
-                style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--button-danger-bg)' }}
+              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+              style={{
+                backgroundImage: 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)',
+                color: 'var(--button-primary-text)',
+                boxShadow: '0 10px 20px -8px rgba(220, 38, 38, 0.45)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(220, 38, 38, 0.55)';
+                e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-hover-bg), #ef4444)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 20px -8px rgba(220, 38, 38, 0.45)';
+                e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)';
+              }}
                 title="Delete comment"
               >
                 <FaTrash className="w-3 h-3 mr-1" />

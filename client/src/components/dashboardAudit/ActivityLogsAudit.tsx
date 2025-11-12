@@ -6,16 +6,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRolePermissions } from '../../hooks/useRolePermissions';
 import { useAuthDataReady } from '../../hooks/useAuthDataReady';
 
-/**
- * ActivityLogsAudit
- * Fetches recent activity logs for auditing and displays them in a compact list
- * Uses theme-friendly utility classes for consistent styling
- */
+/** Description: Fetches and displays a compact list of recent dashboard activities with themed styling; Data created: Memoized query variables for limit/ordering; Author: thangtruong */
 const ActivityLogsAudit: React.FC = () => {
   const variables: GetDashboardActivitiesQueryVariables = useMemo(() => ({
     limit: 4,
     offset: 0,
-    sortBy: 'createdAt',
+    sortBy: 'id',
     sortOrder: 'DESC'
   }), []);
 
@@ -29,7 +25,8 @@ const ActivityLogsAudit: React.FC = () => {
     GET_DASHBOARD_ACTIVITIES_QUERY,
     {
       variables,
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'cache-first',
       errorPolicy: 'all',
       notifyOnNetworkStatusChange: true,
       skip: shouldSkip,

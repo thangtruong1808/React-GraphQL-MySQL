@@ -23,11 +23,7 @@ import {
   useProjectDetailUtils,
 } from './ProjectDetailPage/hooks';
 
-/**
- * Project Detail Page Component
- * Displays detailed information about a specific project
- * Fetches project data using GraphQL and shows comprehensive project information
- */
+/** Description: Displays detailed information for a single project using themed layout; Data created: Derived task stats and sorted task arrays via useMemo; Author: thangtruong */
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user, isAuthenticated } = useAuth();
@@ -124,7 +120,15 @@ const ProjectDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-8">
+    <div
+      className="min-h-screen pt-24 pb-0"
+      style={{
+        backgroundColor: 'var(--bg-base)',
+        backgroundImage: 'var(--bg-gradient)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover'
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Navigation */}
         <BackNavigation />

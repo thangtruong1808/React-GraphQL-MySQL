@@ -10,10 +10,7 @@ interface UsersTableRowProps {
   onDelete: (user: User) => void;
 }
 
-/**
- * Users Table Row Component
- * Displays individual user row with actions
- */
+/** Description: Displays a single user row with themed action buttons inside the users table; Data created: None (stateless row component); Author: thangtruong */
 const UsersTableRow: React.FC<UsersTableRowProps> = ({ user, onEdit, onDelete }) => {
   // Handle edit click
   const handleEdit = () => {
@@ -97,14 +94,26 @@ const UsersTableRow: React.FC<UsersTableRowProps> = ({ user, onEdit, onDelete })
 
       {/* Actions Column */}
       <td className="px-4 py-4 whitespace-nowrap text-left">
-        <div className="flex justify-start space-x-2">
+        <div className="flex items-center space-x-2">
           {/* Edit button */}
           <button
             onClick={handleEdit}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors duration-150 shadow-sm"
-            style={{ backgroundColor: 'var(--button-secondary-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--border-color)', borderWidth: 1 }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-secondary-hover-bg)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-secondary-bg)'; }}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+            style={{
+              backgroundImage: 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))',
+              color: 'var(--button-primary-text)',
+              boxShadow: '0 10px 20px -8px var(--shadow-color)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 12px 24px -8px var(--shadow-color)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-hover-bg), var(--accent-to))';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 20px -8px var(--shadow-color)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-secondary-bg), var(--accent-to))';
+            }}
             title="Edit user"
           >
             <FaEdit className="w-3 h-3 mr-1" />
@@ -114,10 +123,22 @@ const UsersTableRow: React.FC<UsersTableRowProps> = ({ user, onEdit, onDelete })
           {/* Delete button */}
           <button
             onClick={handleDelete}
-            className="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md transition-colors duration-150 shadow-sm"
-            style={{ backgroundColor: 'var(--button-danger-bg)', color: 'var(--button-primary-text)', borderColor: 'var(--border-color)', borderWidth: 1 }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-danger-hover-bg)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--button-danger-bg)'; }}
+            className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-transform duration-150"
+            style={{
+              backgroundImage: 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)',
+              color: 'var(--button-primary-text)',
+              boxShadow: '0 10px 20px -8px rgba(220, 38, 38, 0.45)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(220, 38, 38, 0.55)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-hover-bg), #ef4444)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 20px -8px rgba(220, 38, 38, 0.45)';
+              e.currentTarget.style.backgroundImage = 'linear-gradient(120deg, var(--button-danger-bg), #ef4444)';
+            }}
             title="Delete user"
           >
             <FaTrash className="w-3 h-3 mr-1" />

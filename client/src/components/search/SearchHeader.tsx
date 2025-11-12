@@ -31,7 +31,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
   searchType
 }) => {
   return (
-    <div className="py-4 px-4 sm:px-6 lg:px-8">
+    <div className="px-4 sm:px-6 lg:px-8 mb-4">
       <div className="search-header max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border" style={{
         backgroundColor: 'var(--card-bg)',
         borderColor: 'var(--border-color)',

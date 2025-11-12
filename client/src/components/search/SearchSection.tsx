@@ -90,17 +90,17 @@ const SearchSection: React.FC<SearchSectionProps> = ({
 
               {/* Pagination controls */}
               {totalPages > 1 && onPageChange && (
-                <div className="flex items-center justify-between pt-6 theme-border">
-                  <div className="flex items-center space-x-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    <span>Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} {totalItems === 1 ? 'result' : 'results'}</span>
+                <div className="flex flex-col gap-4 pt-6 theme-border">
+                  <div className="text-sm text-center sm:text-left" style={{ color: 'var(--text-secondary)' }}>
+                    Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} {totalItems === 1 ? 'result' : 'results'}
                   </div>
 
-                  <div className="flex items-center space-x-1">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     {/* First page button */}
                     <button
                       onClick={() => onPageChange(1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 border"
+                      className="flex items-center justify-center px-2.5 py-2 text-sm font-medium rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[2.75rem]"
                       style={{
                         color: 'var(--text-secondary)',
                         backgroundColor: 'var(--card-bg)',
@@ -114,7 +114,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                       }}
                       title="Go to first page"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                       </svg>
                       <span className="hidden sm:inline">First</span>
@@ -124,7 +124,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 border"
+                      className="flex items-center justify-center px-2.5 py-2 text-sm font-medium rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[2.75rem]"
                       style={{
                         color: 'var(--text-secondary)',
                         backgroundColor: 'var(--card-bg)',
@@ -138,14 +138,14 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                       }}
                       title="Go to previous page"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                       <span className="hidden sm:inline">Previous</span>
                     </button>
 
-                    {/* Page numbers with enhanced spacing */}
-                    <div className="flex items-center space-x-1 mx-2">
+                    {/* Page numbers */}
+                    <div className="flex items-center gap-1 mx-1">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
                         if (pageNum > totalPages) return null;
@@ -154,7 +154,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                           <button
                             key={pageNum}
                             onClick={() => onPageChange(pageNum)}
-                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors min-w-[2.5rem] border ${pageNum === currentPage ? 'search-pagination-btn' : ''}`}
+                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors min-w-[2.75rem] border ${pageNum === currentPage ? 'search-pagination-btn' : ''}`}
                             style={pageNum === currentPage
                               ? {
                                 backgroundColor: 'var(--button-primary-bg)',
@@ -188,7 +188,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      className="flex items-center justify-center px-2.5 py-2 text-sm font-medium border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[2.75rem]"
                       style={{
                         color: 'var(--text-secondary)',
                         backgroundColor: 'var(--card-bg)',
@@ -202,7 +202,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                       }}
                       title="Go to next page"
                     >
-                      <span className="hidden sm:inline">Next</span>
+                      <span className="hidden sm:inline mr-1">Next</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
@@ -212,7 +212,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                     <button
                       onClick={() => onPageChange(totalPages)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm font-medium border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
+                      className="flex items-center justify-center px-2.5 py-2 text-sm font-medium border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[2.75rem]"
                       style={{
                         color: 'var(--text-secondary)',
                         backgroundColor: 'var(--card-bg)',
@@ -226,7 +226,7 @@ const SearchSection: React.FC<SearchSectionProps> = ({
                       }}
                       title="Go to last page"
                     >
-                      <span className="hidden sm:inline">Last</span>
+                      <span className="hidden sm:inline mr-1">Last</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                       </svg>
