@@ -10,10 +10,9 @@ import { DatabaseConnectionError } from '../errors';
 import { useDatabaseErrorHandler } from '../../hooks/useDatabaseErrorHandler';
 
 /**
- * Public Dashboard Component
- * Displays comprehensive public statistics and overview to attract users before login
- * Showcases TaskFlow capabilities with key metrics and call-to-action
- * Uses real GraphQL queries to fetch accurate database statistics
+ * Description: Renders the public dashboard using live statistics, hero messaging, and calls to action for unauthenticated visitors.
+ * Data created: Apollo GraphQL query responses for public statistics alongside derived defaults when data is unavailable.
+ * Author: thangtruong
  */
 
 // Public statistics interface based on database schema
@@ -143,7 +142,8 @@ const PublicDashboard: React.FC = () => {
           backgroundColor: 'var(--bg-base)',
           backgroundImage: 'var(--bg-gradient)',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover'
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
         }}
       >
         <div className="max-w-md mx-auto text-center">
@@ -158,7 +158,10 @@ const PublicDashboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full public-dashboard">
+    <div
+      className="w-full public-dashboard"
+      style={{ color: 'var(--text-primary)' }}
+    >
       <div
         className="min-h-screen pt-24"
         style={{

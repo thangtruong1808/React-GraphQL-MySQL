@@ -18,6 +18,7 @@
   --border-dark: #374151;  /* gray-700 - dark borders */
   --card-bg: #1f2937;      /* gray-800 - lighter than base */
   --card-hover-bg: #4b5563; /* gray-600 - matches row hover */
+  --card-surface-overlay: none; /* disable overlays for dark theme cards */
   --input-bg: #1f2937;     /* gray-800 - consistent with cards */
   --modal-bg: #1f2937;     /* gray-800 - consistent with cards */
   --table-header-bg: #374151; /* dark table header background - darker than rows */

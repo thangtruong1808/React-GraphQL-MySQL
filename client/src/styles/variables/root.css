@@ -19,6 +19,7 @@
   --border-dark: #9ca3af;         /* dark border color */
   --card-bg: #ffffff;             /* card background */
   --card-hover-bg: #f9fafb;       /* card hover background */
+  --card-surface-overlay: none;   /* optional card surface overlay */
   --input-bg: #ffffff;            /* input background */
   --modal-bg: #ffffff;            /* modal background */
   --table-header-bg: #f8fafc;      /* table header background - lighter than rows */

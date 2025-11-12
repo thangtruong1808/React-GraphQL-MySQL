@@ -2,9 +2,9 @@ import React from 'react';
 import PublicStatsDisplay from './PublicStatsDisplay';
 
 /**
- * Hero Section Component
- * Displays the main hero section with title, description, and public statistics
- * Provides the first impression and key statistics for the public dashboard
+ * Description: Presents the public dashboard hero banner with overview text and summary statistics for visitors.
+ * Data created: Consumes provided stats to deliver context-specific messaging and passes them to child displays.
+ * Author: thangtruong
  */
 
 // Props interface for HeroSection component
@@ -55,12 +55,23 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ stats }) => {
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+      <div
+        className="max-w-7xl mx-auto rounded-2xl shadow-lg p-8 border theme-border"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          backgroundImage: 'var(--card-surface-overlay)',
+          borderColor: 'var(--border-color)',
+          boxShadow: '0 20px 40px var(--shadow-color)'
+        }}
+      >
         <div className="text-center">
           {/* Main title with gradient text */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
             Discover{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+            <span
+              className="text-transparent bg-clip-text"
+              style={{ backgroundImage: 'linear-gradient(90deg, var(--accent-from), var(--accent-to))' }}
+            >
               TaskFlow
             </span>
           </h1>

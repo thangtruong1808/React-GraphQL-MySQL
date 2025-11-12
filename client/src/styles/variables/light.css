@@ -18,6 +18,7 @@
   --border-dark: #9ca3af;
   --card-bg: #ffffff;
   --card-hover-bg: #f9fafb;   /* light card hover background */
+  --card-surface-overlay: none; /* light theme card overlay */
   --input-bg: #ffffff;
   --modal-bg: #ffffff;
   --table-header-bg: #f8fafc;      /* light table header background - distinct from rows */

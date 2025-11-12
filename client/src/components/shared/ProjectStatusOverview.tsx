@@ -2,9 +2,9 @@ import React from 'react';
 import { SimpleChart } from '../charts';
 
 /**
- * Project Status Overview Component
- * Displays project status distribution with charts
- * Shows completed, active, and planning projects counts from database
+ * Description: Visualises project status distribution on the public dashboard using themed chart colours.
+ * Data created: Relays provided status counts into the chart component without additional state.
+ * Author: thangtruong
  */
 
 // Props interface for ProjectStatusOverview component
@@ -24,7 +24,14 @@ interface ProjectStatusOverviewProps {
  */
 const ProjectStatusOverview: React.FC<ProjectStatusOverviewProps> = ({ stats }) => {
   return (
-    <div className="shadow-lg border theme-border rounded-2xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
+    <div
+      className="shadow-lg border theme-border rounded-2xl p-4"
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        backgroundImage: 'var(--card-surface-overlay)',
+        borderColor: 'var(--border-color)'
+      }}
+    >
       <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Project Status Overview</h3>
 
       {/* Description */}

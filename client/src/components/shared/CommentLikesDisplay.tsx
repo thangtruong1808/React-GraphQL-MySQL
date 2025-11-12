@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 
 /**
- * Comment Likes Display Component
- * Displays comment likes information with comment content details
- * Shows total likes count and expandable list of comment content with their individual like counts by task status
- * Follows the same design pattern as TaskLikesDisplay for consistency
+ * Description: Presents themed comment like summaries with expandable badges for the public dashboard.
+ * Data created: Manages local UI expansion state while consuming supplied comment like data.
+ * Author: thangtruong
  */
 
 // Props interface for CommentLikesDisplay component
@@ -13,8 +12,8 @@ interface CommentLikesDisplayProps {
   likeCount: number;
   commentsWithLikes: Array<{ commentContent: string; likeCount: number }>;
   colorScheme: {
-    text: string;
-    bg: string;
+    badgeBg: string;
+    badgeText: string;
     icon: string;
   };
 }
@@ -52,15 +51,22 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
   };
 
   return (
-    <div className="border border-gray-300 rounded-xl p-4 bg-gray-100">
+    <div
+      className="border theme-border rounded-xl p-4"
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        backgroundImage: 'var(--card-surface-overlay)',
+        borderColor: 'var(--border-color)'
+      }}
+    >
       {/* Header with task status and comment likes */}
       <div className="flex items-center justify-between mb-2">
-        <span className="font-medium text-gray-900">Comments on {taskStatus} Tasks</span>
-        <div className={`flex items-center ${colorScheme.text}`}>
+        <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Comments on {taskStatus} Tasks</span>
+        <div className="flex items-center" style={{ color: colorScheme.icon }}>
           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
           </svg>
-          <span className="text-sm font-medium">{likeCount} likes</span>
+          <span className="text-sm font-medium" style={{ color: colorScheme.icon }}>{likeCount} likes</span>
         </div>
       </div>
 
@@ -72,7 +78,11 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
             {getDisplayComments().map((comment, index) => (
               <span
                 key={index}
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${colorScheme.bg} ${colorScheme.text}`}
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs"
+                style={{
+                  backgroundColor: colorScheme.badgeBg,
+                  color: colorScheme.badgeText
+                }}
                 title={comment.commentContent} // Show full comment on hover
               >
                 {comment.commentContent.length > 30
@@ -86,7 +96,11 @@ const CommentLikesDisplay: React.FC<CommentLikesDisplayProps> = ({
             {getRemainingCount() > 0 && (
               <button
                 onClick={handleToggleExpansion}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors transform hover:scale-105 hover:shadow-lg"
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs transition-colors transform hover:scale-105 hover:shadow-lg"
+                style={{
+                  backgroundColor: 'var(--badge-neutral-bg)',
+                  color: 'var(--badge-neutral-text)'
+                }}
               >
                 {isExpanded ? 'Show less' : `+${getRemainingCount()} more`}
               </button>

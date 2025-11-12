@@ -18,6 +18,7 @@
   --border-dark: #a855f7;
   --card-bg: #faf5ff;
   --card-hover-bg: #f3e8ff; /* match table-row-hover for seamless edge */
+  --card-surface-overlay: radial-gradient(1200px 800px at 10% -20%, rgba(124, 58, 237, 0.18), transparent), radial-gradient(1000px 700px at 105% 10%, rgba(236, 72, 153, 0.16), transparent); /* brand card overlay */
   --input-bg: #faf5ff;
   --modal-bg: #faf5ff;
   --table-header-bg: #f3e8ff;   /* brand table header background - lighter than rows */

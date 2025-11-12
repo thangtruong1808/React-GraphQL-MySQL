@@ -2,9 +2,9 @@ import React from 'react';
 import { SimpleChart } from '../charts';
 
 /**
- * Task Completion Progress Component
- * Displays task completion progress with charts
- * Shows completed, in progress, and todo tasks counts from database
+ * Description: Renders task completion distribution with themed styling inside the public dashboard content grid.
+ * Data created: Forwards supplied task statistics into the chart component without persisting new state.
+ * Author: thangtruong
  */
 
 // Props interface for TaskCompletionProgress component
@@ -24,7 +24,14 @@ interface TaskCompletionProgressProps {
  */
 const TaskCompletionProgress: React.FC<TaskCompletionProgressProps> = ({ stats }) => {
   return (
-    <div className="shadow-lg border theme-border rounded-2xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
+    <div
+      className="shadow-lg border theme-border rounded-2xl p-4"
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        backgroundImage: 'var(--card-surface-overlay)',
+        borderColor: 'var(--border-color)'
+      }}
+    >
       <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Task Completion Progress</h3>
 
       {/* Description */}

@@ -2,9 +2,9 @@ import React from 'react';
 import CommentLikesDisplay from './CommentLikesDisplay';
 
 /**
- * Comment Activity Overview Component
- * Displays comment statistics and comment likes information by task status
- * Shows total comments, comments by task status, and comment likes with content
+ * Description: Summarises comment engagement metrics and passes themed colour accents into comment like displays.
+ * Data created: Reads provided statistics to derive presentation-only aggregates without storing additional state.
+ * Author: thangtruong
  */
 
 // Props interface for CommentActivityOverview component
@@ -32,7 +32,12 @@ const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats
   return (
     <div
       className="rounded-2xl shadow-lg border theme-border p-6 max-w-7xl mx-auto"
-      style={{ backgroundColor: 'var(--card-bg)' }}
+      style={{
+        backgroundColor: 'var(--card-bg)',
+        backgroundImage: 'var(--card-surface-overlay)',
+        borderColor: 'var(--border-color)',
+        boxShadow: '0 20px 40px var(--shadow-color)'
+      }}
     >
       <h3 className="text-xl font-semibold mb-2 text-center" style={{ color: 'var(--text-primary)' }}>Comment Activity Overview</h3>
 
@@ -50,15 +55,15 @@ const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats
 
         {/* Comments by Task Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
             <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{stats.commentsOnCompletedTasks}</div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Comments on Completed Tasks</div>
           </div>
-          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
             <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{stats.commentsOnInProgressTasks}</div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Comments on In Progress Tasks</div>
           </div>
-          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <div className="text-center p-4 rounded-xl border theme-border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
             <div className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{stats.commentsOnTodoTasks}</div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Comments on Todo Tasks</div>
           </div>
@@ -74,9 +79,9 @@ const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats
             likeCount={stats.likesOnCommentsOnCompletedTasks}
             commentsWithLikes={stats.commentsWithLikesOnCompletedTasks}
             colorScheme={{
-              text: "text-green-600",
-              bg: "bg-green-100 text-green-800",
-              icon: "text-green-600"
+              badgeBg: 'var(--badge-success-bg)',
+              badgeText: 'var(--badge-success-text)',
+              icon: 'var(--badge-success-text)'
             }}
           />
 
@@ -86,9 +91,9 @@ const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats
             likeCount={stats.likesOnCommentsOnInProgressTasks}
             commentsWithLikes={stats.commentsWithLikesOnInProgressTasks}
             colorScheme={{
-              text: "text-blue-600",
-              bg: "bg-blue-100 text-blue-800",
-              icon: "text-blue-600"
+              badgeBg: 'var(--badge-secondary-bg)',
+              badgeText: 'var(--badge-secondary-text)',
+              icon: 'var(--badge-secondary-text)'
             }}
           />
 
@@ -98,9 +103,9 @@ const CommentActivityOverview: React.FC<CommentActivityOverviewProps> = ({ stats
             likeCount={stats.likesOnCommentsOnTodoTasks}
             commentsWithLikes={stats.commentsWithLikesOnTodoTasks}
             colorScheme={{
-              text: "text-gray-600",
-              bg: "bg-gray-100 text-gray-800",
-              icon: "text-gray-600"
+              badgeBg: 'var(--badge-neutral-bg)',
+              badgeText: 'var(--badge-neutral-text)',
+              icon: 'var(--badge-neutral-text)'
             }}
           />
         </div>
