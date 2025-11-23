@@ -19,7 +19,9 @@ export interface CommentListProps {
 
 /**
  * Comment List Component
- * Displays list of comments with like and reply functionality
+ * Description: Displays list of comments with like and reply functionality
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const CommentList: React.FC<CommentListProps> = ({
   comments,

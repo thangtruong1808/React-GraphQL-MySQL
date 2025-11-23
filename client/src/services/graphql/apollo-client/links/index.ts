@@ -6,12 +6,16 @@ import { errorLink } from './error';
 
 /**
  * Apollo Client Links
- * Combines HTTP, WebSocket, auth, and error links
+ * Description: Combines HTTP, WebSocket, auth, and error links
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 /**
  * Create split link to route queries/mutations to HTTP and subscriptions to WebSocket
- * Routes subscriptions to WebSocket and queries/mutations to HTTP
+ * Description: Routes subscriptions to WebSocket and queries/mutations to HTTP
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const splitLink = split(
   ({ query }) => {

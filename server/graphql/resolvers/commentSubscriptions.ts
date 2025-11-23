@@ -3,13 +3,17 @@ import { Comment, ProjectMember, Project } from '../../db';
 
 /**
  * Comment Subscription Resolvers
- * Handles real-time comment events for collaborative discussions
+ * Description: Handles real-time comment events for collaborative discussions
+ * Date: 2024-12-19
+ * Author: thangtruong
  * Provides filtered subscriptions based on team membership
  */
 
 /**
  * Comment Added Subscription
- * Notifies team members when a new comment is added
+ * Description: Notifies team members when a new comment is added
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const commentAdded = {
   subscribe: withFilter(

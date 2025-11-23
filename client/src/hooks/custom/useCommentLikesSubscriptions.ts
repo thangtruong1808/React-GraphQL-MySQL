@@ -40,7 +40,9 @@ export interface UseCommentLikesSubscriptionsOptions {
 
 /**
  * Custom hook for real-time comment likes subscriptions
- * Provides real-time updates for comment like events in a project
+ * Description: Provides real-time updates for comment like events in a project
+ * Date: 2024-12-19
+ * Author: thangtruong
  * 
  * @param options - Configuration options for the subscription
  * @returns Object containing subscription data and loading states
@@ -72,29 +74,49 @@ export const useCommentLikesSubscriptions = (options: UseCommentLikesSubscriptio
   );
 
   // Handle comment liked event
-  const handleCommentLiked = useCallback((event: CommentLikeEvent) => {
+  const handleCommentLiked = useCallback(async (event: CommentLikeEvent) => {
     if (onCommentLiked) {
-      onCommentLiked(event);
+      try {
+        const result = onCommentLiked(event) as unknown;
+        // If handler returns a promise, await it
+        if (result != null && typeof result === 'object' && 'then' in result && typeof (result as any).then === 'function') {
+          await (result as Promise<any>);
+        }
+      } catch (error) {
+        // Error handling for async callback
+      }
     }
   }, [onCommentLiked]);
 
   // Handle comment unliked event
-  const handleCommentUnliked = useCallback((event: CommentLikeEvent) => {
+  const handleCommentUnliked = useCallback(async (event: CommentLikeEvent) => {
     if (onCommentUnliked) {
-      onCommentUnliked(event);
+      try {
+        const result = onCommentUnliked(event) as unknown;
+        // If handler returns a promise, await it
+        if (result != null && typeof result === 'object' && 'then' in result && typeof (result as any).then === 'function') {
+          await (result as Promise<any>);
+        }
+      } catch (error) {
+        // Error handling for async callback
+      }
     }
   }, [onCommentUnliked]);
 
   // Effect to handle subscription data changes - only trigger once per event
   useEffect(() => {
     if (likedData?.commentLiked) {
-      handleCommentLiked(likedData.commentLiked);
+      handleCommentLiked(likedData.commentLiked).catch(() => {
+        // Error handling for async callback
+      });
     }
   }, [likedData?.commentLiked, handleCommentLiked]);
 
   useEffect(() => {
     if (unlikedData?.commentUnliked) {
-      handleCommentUnliked(unlikedData.commentUnliked);
+      handleCommentUnliked(unlikedData.commentUnliked).catch(() => {
+        // Error handling for async callback
+      });
     }
   }, [unlikedData?.commentUnliked, handleCommentUnliked]);
 

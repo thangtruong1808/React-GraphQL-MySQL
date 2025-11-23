@@ -12,21 +12,22 @@ interface FooterLinkProps {
 
 /**
  * Footer Link Component
- * Reusable link component with theme-aware hover effects
- * Provides consistent styling and interaction across footer links
+ * Description: Reusable link component with enhanced hover effects and improved accessibility
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 const FooterLink: React.FC<FooterLinkProps> = ({ to, children, className = '' }) => {
   return (
     <Link
       to={to}
-      className={`text-sm text-left transition-colors duration-300 ${className}`}
+      className={`text-sm text-left transition-all duration-300 py-1.5 block rounded-md px-2 -ml-2 hover:translate-x-1 focus:outline-none focus:ring-2 focus:ring-offset-2 ${className}`}
       style={{
         color: 'var(--text-secondary)',
         backgroundColor: 'transparent'
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.color = 'var(--text-primary)';
-        e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+        e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg, rgba(0,0,0,0.05))';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.color = 'var(--text-secondary)';

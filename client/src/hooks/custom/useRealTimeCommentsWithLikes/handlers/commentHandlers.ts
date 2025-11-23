@@ -6,7 +6,9 @@ import { CommentHandlersDependencies } from '../types';
 
 /**
  * Comment Handlers Hook
- * Handles comment CRUD operations (added, updated, deleted)
+ * Description: Handles comment CRUD operations (added, updated, deleted) with proper async state updates
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
   const {
@@ -23,9 +25,9 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
    * Handle comment added with state update
    * Updates Apollo cache and local state when a new comment is added
    */
-  const handleCommentAdded = useCallback((comment: Comment) => {
-    // Update Apollo cache directly
+  const handleCommentAdded = useCallback(async (comment: Comment) => {
     try {
+      // Update Apollo cache directly (readQuery/writeQuery are synchronous)
       const existingProject = apolloClient.readQuery({
         query: GET_PROJECT_DETAILS,
         variables: { projectId }
@@ -41,7 +43,8 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
         // New comments should always have isLikedByUser: false initially
         const commentWithCorrectLikeStatus = {
           ...comment,
-          isLikedByUser: false // New comments are never liked by anyone initially
+          isLikedByUser: false,
+          likers: comment.likers || []
         };
         
         // Add new comment and sort by creation date (latest first)
@@ -49,6 +52,7 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
+        // Write updated comments to cache - Apollo will automatically trigger re-render
         apolloClient.writeQuery({
           query: GET_PROJECT_DETAILS,
           variables: { projectId },
@@ -59,6 +63,9 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
             }
           }
         });
+        
+        // Also update local state as backup to ensure UI updates
+        setComments(updatedComments);
       }
     } catch (error) {
       // Fallback to local state update if cache update fails
@@ -72,7 +79,8 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
         // New comments should always have isLikedByUser: false initially
         const commentWithCorrectLikeStatus = {
           ...comment,
-          isLikedByUser: false // New comments are never liked by anyone initially
+          isLikedByUser: false,
+          likers: comment.likers || []
         };
         
         // Add new comment and sort by creation date (latest first)
@@ -90,8 +98,7 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
 
     // Show notification if enabled
     if (showNotifications) {
-      // You can integrate with your notification system here
-      // showNotification(`New comment by ${comment.author.firstName} ${comment.author.lastName}`, 'info');
+      // Notification system integration can be added here
     }
   }, [onCommentAdded, showNotifications, apolloClient, projectId, setComments]);
 
@@ -99,9 +106,9 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
    * Handle comment updated with state update
    * Updates Apollo cache and local state when a comment is updated
    */
-  const handleCommentUpdated = useCallback((updatedComment: Comment) => {
-    // Update Apollo cache directly
+  const handleCommentUpdated = useCallback(async (updatedComment: Comment) => {
     try {
+      // Update Apollo cache directly (readQuery/writeQuery are synchronous)
       const existingProject = apolloClient.readQuery({
         query: GET_PROJECT_DETAILS,
         variables: { projectId }
@@ -147,9 +154,9 @@ export const useCommentHandlers = (deps: CommentHandlersDependencies) => {
    * Handle comment deleted with state update
    * Updates Apollo cache and local state when a comment is deleted
    */
-  const handleCommentDeleted = useCallback((event: { commentId: string; projectId: string; deletedAt: string }) => {
-    // Update Apollo cache directly
+  const handleCommentDeleted = useCallback(async (event: { commentId: string; projectId: string; deletedAt: string }) => {
     try {
+      // Update Apollo cache directly (readQuery/writeQuery are synchronous)
       const existingProject = apolloClient.readQuery({
         query: GET_PROJECT_DETAILS,
         variables: { projectId }

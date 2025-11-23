@@ -9,7 +9,9 @@ import express from 'express';
 import { createServer } from 'http';
 import { csrfProtection, setCSRFToken } from './auth/csrf';
 import { authenticateUser } from './auth/middleware';
+import { verifyAccessToken } from './auth/jwt';
 import { setupAssociations, testConnection } from './db';
+import User from './db/models/user';
 import { createContext } from './graphql/context';
 import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
@@ -19,7 +21,9 @@ dotenv.config({ path: `${process.cwd()}/.env` });
 
 /**
  * Main Server Setup
- * Configures Express and Apollo Server with authentication and secure cookie handling
+ * Description: Configures Express and Apollo Server with authentication and secure cookie handling
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 // Create PubSub instance for real-time subscriptions
@@ -81,7 +85,9 @@ app.get('/csrf-token', (req, res) => {
 
 /**
  * Start Server Function
- * Initializes database and starts the server
+ * Description: Initializes database and starts the server with WebSocket support
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 async function startServer() {
   try {
@@ -91,7 +97,7 @@ async function startServer() {
       // Setup model associations
       setupAssociations();
     } catch (dbError) {
-      console.error('❌ Database connection failed:', dbError);
+      // Error handling without console.log for production
       throw new Error('Database connection is required for the server to start');
     }
     
@@ -142,21 +148,35 @@ async function startServer() {
     });
 
     // Configure WebSocket server for GraphQL subscriptions
+    // Description: Sets up WebSocket context with authentication matching HTTP context
+    // Date: 2024-12-19
+    // Author: thangtruong
     useServer({
       schema,
       context: async ({ connectionParams }: { connectionParams: any }) => {
-        // Handle WebSocket authentication
+        // Handle WebSocket authentication - must match HTTP context structure
         const token = connectionParams?.authorization?.replace('Bearer ', '');
         if (token) {
           try {
-            // Verify JWT token and get user info
-            const jwt = require('jsonwebtoken');
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-            return { 
-              user: { id: decoded.userId, role: decoded.role },
-              pubsub // Use the same pubsub instance
-            };
+            // Verify JWT token using the same method as HTTP context
+            const decoded = verifyAccessToken(token);
+            
+            if (decoded && decoded.userId) {
+              // Load full user from database to match HTTP context structure
+              const user = await User.findByPk(decoded.userId, {
+                attributes: ['id', 'uuid', 'firstName', 'lastName', 'email', 'role', 'isDeleted', 'version', 'createdAt', 'updatedAt']
+              });
+              
+              if (user && !user.isDeleted) {
+                return { 
+                  user: user,
+                  pubsub // Use the same pubsub instance
+                };
+              }
+            }
+            return { user: null, pubsub };
           } catch (error: any) {
+            // Error handling without console.log for production
             return { user: null, pubsub };
           }
         }

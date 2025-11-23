@@ -3,7 +3,9 @@ import { Comment } from '../../../../services/graphql/commentQueries';
 
 /**
  * Comment State Management Hook
- * Provides utilities for managing comment state
+ * Description: Provides utilities for managing comment state
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const useCommentState = (
   setComments: React.Dispatch<React.SetStateAction<Comment[]>>,

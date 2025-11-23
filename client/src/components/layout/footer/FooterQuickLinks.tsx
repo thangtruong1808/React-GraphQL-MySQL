@@ -4,14 +4,15 @@ import FooterLink from './FooterLink';
 
 /**
  * Footer Quick Links Component
- * Displays navigation links for quick access to main pages
- * Provides convenient navigation shortcuts
+ * Description: Displays navigation links for quick access to main pages with improved spacing and visual hierarchy
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 const FooterQuickLinks: React.FC = () => {
   return (
     <div>
       {/* Section Header */}
-      <h4 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+      <h4 className="text-lg font-semibold mb-5" style={{ color: 'var(--text-primary)' }}>
         Quick Links
       </h4>
 

@@ -6,12 +6,16 @@ import { collectAuthData } from '../tokens';
 
 /**
  * HTTP and WebSocket Links for Apollo Client
- * Creates HTTP link for queries/mutations and WebSocket link for subscriptions
+ * Description: Creates HTTP link for queries/mutations and WebSocket link for subscriptions
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 /**
  * Create HTTP link with timeout using centralized constants
- * Handles all GraphQL queries and mutations
+ * Description: Handles all GraphQL queries and mutations
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const httpLink = createHttpLink({
   uri: API_CONFIG.GRAPHQL_URL,
@@ -23,9 +27,11 @@ export const httpLink = createHttpLink({
 
 /**
  * Create WebSocket link for subscriptions
- * Handles real-time GraphQL subscriptions
+ * Description: Handles real-time GraphQL subscriptions with proper URL conversion
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
-const wsUrl = API_CONFIG.GRAPHQL_URL.replace('http', 'ws');
+const wsUrl = API_CONFIG.GRAPHQL_URL.replace(/^https?/, (match) => match === 'https' ? 'wss' : 'ws');
 const wsClient = createClient({
   url: wsUrl,
   connectionParams: async () => {
@@ -34,6 +40,13 @@ const wsClient = createClient({
     return {
       authorization: accessToken ? `Bearer ${accessToken}` : '',
     };
+  },
+  shouldRetry: () => true,
+  retryAttempts: 5,
+  retryWait: async function* () {
+    for (let i = 1; i <= 5; i++) {
+      yield i * 1000; // Wait 1s, 2s, 3s, 4s, 5s between retries
+    }
   },
 });
 

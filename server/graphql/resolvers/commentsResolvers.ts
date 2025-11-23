@@ -159,6 +159,9 @@ export const getProjectComments = async (projectId: number, context?: any) => {
 
 /**
  * Create a new comment on a project
+ * Description: Creates a comment and publishes real-time subscription event
+ * Date: 2024-12-19
+ * Author: thangtruong
  * Requires authentication and validates user permissions
  * Only project team members can post comments
  * Uses the first task in the project as the target for the comment
@@ -296,16 +299,38 @@ export const createProjectComment = async (parent: any, args: any, context: any,
     try {
       if (context.pubsub) {
         // Transform the comment to match GraphQL Comment type structure
+        // Author and task must be plain objects, not Sequelize model instances
         const commentPayload = {
           id: createdComment!.id.toString(),
           uuid: createdComment!.uuid,
           content: createdComment!.content,
           // Include raw database fields for Comment type resolvers
           user_id: createdComment!.userId || createdComment!.user_id,
+          userId: createdComment!.userId,
           task_id: createdComment!.taskId || createdComment!.task_id,
-          // Include populated objects for direct access
-          author: createdComment!.user,
-          task: createdComment!.task,
+          taskId: createdComment!.taskId?.toString() || null,
+          projectId: input.projectId,
+          // Transform author to plain object (not Sequelize model instance)
+          author: {
+            id: createdComment!.user.id.toString(),
+            uuid: createdComment!.user.uuid,
+            firstName: createdComment!.user.firstName,
+            lastName: createdComment!.user.lastName,
+            email: createdComment!.user.email,
+            role: createdComment!.user.role
+          },
+          // Transform task to plain object (not Sequelize model instance)
+          task: {
+            id: createdComment!.task.id.toString(),
+            uuid: createdComment!.task.uuid,
+            title: createdComment!.task.title,
+            projectId: createdComment!.task.projectId,
+            project: {
+              id: createdComment!.task.project.id.toString(),
+              uuid: createdComment!.task.project.uuid,
+              name: createdComment!.task.project.name
+            }
+          },
           isDeleted: createdComment!.isDeleted,
           version: createdComment!.version,
           createdAt: createdComment!.createdAt.toISOString(),
@@ -319,7 +344,6 @@ export const createProjectComment = async (parent: any, args: any, context: any,
         await context.pubsub.publish(`COMMENT_ADDED_${input.projectId}`, commentPayload);
       }
     } catch (subscriptionError) {
-      // Log subscription error but don't fail the comment creation
       // Error handling without console.log for production
     }
 
@@ -351,6 +375,9 @@ export const createProjectComment = async (parent: any, args: any, context: any,
 
 /**
  * Toggle like/unlike on a comment
+ * Description: Toggles like/unlike status for a comment with authentication and permission checks
+ * Date: 2024-12-19
+ * Author: thangtruong
  * Requires authentication and validates user permissions
  * Only project team members can like comments
  */

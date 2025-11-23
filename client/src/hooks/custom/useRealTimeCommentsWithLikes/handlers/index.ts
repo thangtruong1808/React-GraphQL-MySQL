@@ -1,6 +1,8 @@
 /**
  * Comment Handlers Module Exports
- * Centralized exports for all comment event handlers
+ * Description: Centralized exports for all comment event handlers
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 export { useCommentHandlers } from './commentHandlers';

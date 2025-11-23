@@ -27,7 +27,9 @@ export interface CommentsSectionProps {
 
 /**
  * Comments Section Component
- * Displays comments section with permissions, form, and list
+ * Description: Displays comments section with permissions, form, and list
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const CommentsSection: React.FC<CommentsSectionProps> = ({
   project,

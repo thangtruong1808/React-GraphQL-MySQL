@@ -17,8 +17,9 @@ interface FooterAccountSectionProps {
 
 /**
  * Footer Account Section Component
- * Displays user account information or sign-in link
- * Shows authenticated user profile or guest access options
+ * Description: Displays user account information or sign-in link with improved layout and spacing
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 const FooterAccountSection: React.FC<FooterAccountSectionProps> = ({ isAuthenticated, user }) => {
   /**
@@ -36,47 +37,49 @@ const FooterAccountSection: React.FC<FooterAccountSectionProps> = ({ isAuthentic
    */
   const getUserRoleDisplay = () => {
     if (!user || !user.role) return 'Guest';
-    return user.role; // Display actual role from database, not enum value
+    return user.role;
   };
 
   return (
     <div>
       {/* Section Header */}
-      <h4 className="text-lg font-semibold mb-4 text-center" style={{ color: 'var(--text-primary)' }}>
+      <h4 className="text-lg font-semibold mb-5" style={{ color: 'var(--text-primary)' }}>
         Account
       </h4>
 
       {/* Authenticated User View */}
       {isAuthenticated && user ? (
-        <div className="space-y-3 text-center">
+        <div className="space-y-4">
           {/* User Avatar and Info */}
-          <div className="flex flex-col items-center space-y-2">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center theme-accent-gradient">
-              <span className="text-white text-sm font-medium">
-                {getUserInitials()}
-              </span>
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                {user.firstName} {user.lastName}
-              </p>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                {getUserRoleDisplay()}
-              </p>
+          <div className="flex flex-col items-start space-y-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center theme-accent-gradient shadow-md">
+                <span className="text-white text-base font-semibold">
+                  {getUserInitials()}
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  {user.firstName} {user.lastName}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  {getUserRoleDisplay()}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Dashboard Link */}
           <Link
             to="/dashboard"
-            className="text-sm text-left transition-colors duration-300"
+            className="text-sm transition-all duration-300 py-1.5 block rounded-md px-2 -ml-2 hover:translate-x-1 focus:outline-none focus:ring-2 focus:ring-offset-2 inline-block"
             style={{
               color: 'var(--text-secondary)',
               backgroundColor: 'transparent'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = 'var(--text-primary)';
-              e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+              e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg, rgba(0,0,0,0.05))';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = 'var(--text-secondary)';
@@ -88,18 +91,18 @@ const FooterAccountSection: React.FC<FooterAccountSectionProps> = ({ isAuthentic
         </div>
       ) : (
         /* Guest User View */
-        <div className="space-y-3 text-center">
+        <div className="space-y-3">
           {/* Sign In Link */}
           <Link
             to={ROUTE_PATHS.LOGIN}
-            className="text-sm text-left transition-colors duration-300"
+            className="text-sm transition-all duration-300 py-2 px-4 block rounded-md hover:translate-x-1 focus:outline-none focus:ring-2 focus:ring-offset-2 inline-block"
             style={{
               color: 'var(--text-secondary)',
               backgroundColor: 'transparent'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = 'var(--text-primary)';
-              e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg)';
+              e.currentTarget.style.backgroundColor = 'var(--footer-resource-hover-bg, rgba(0,0,0,0.05))';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = 'var(--text-secondary)';
@@ -110,7 +113,7 @@ const FooterAccountSection: React.FC<FooterAccountSectionProps> = ({ isAuthentic
           </Link>
 
           {/* Guest Message */}
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-xs leading-relaxed max-w-xs" style={{ color: 'var(--text-muted)' }}>
             {FOOTER_CONTENT.USER_CONTEXT.GUEST_MESSAGE}
           </p>
         </div>

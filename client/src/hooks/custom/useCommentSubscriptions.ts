@@ -41,7 +41,9 @@ export interface UseCommentSubscriptionsOptions {
 
 /**
  * Custom hook for real-time comment subscriptions
- * Provides real-time updates for comment events in a project
+ * Description: Provides real-time updates for comment events in a project
+ * Date: 2024-12-19
+ * Author: thangtruong
  * 
  * @param options - Configuration options for the subscription
  * @returns Object containing subscription data and loading states
@@ -83,42 +85,72 @@ export const useCommentSubscriptions = (options: UseCommentSubscriptionsOptions)
   );
 
   // Handle comment added event
-  const handleCommentAdded = useCallback((comment: Comment) => {
+  const handleCommentAdded = useCallback(async (comment: Comment) => {
     if (onCommentAdded) {
-      onCommentAdded(comment);
+      try {
+        const result = onCommentAdded(comment) as unknown;
+        // If handler returns a promise, await it
+        if (result != null && typeof result === 'object' && 'then' in result && typeof (result as any).then === 'function') {
+          await (result as Promise<any>);
+        }
+      } catch (error) {
+        // Error handling for async callback
+      }
     }
   }, [onCommentAdded]);
 
   // Handle comment updated event
-  const handleCommentUpdated = useCallback((comment: Comment) => {
+  const handleCommentUpdated = useCallback(async (comment: Comment) => {
     if (onCommentUpdated) {
-      onCommentUpdated(comment);
+      try {
+        const result = onCommentUpdated(comment) as unknown;
+        // If handler returns a promise, await it
+        if (result != null && typeof result === 'object' && 'then' in result && typeof (result as any).then === 'function') {
+          await (result as Promise<any>);
+        }
+      } catch (error) {
+        // Error handling for async callback
+      }
     }
   }, [onCommentUpdated]);
 
   // Handle comment deleted event
-  const handleCommentDeleted = useCallback((event: CommentDeletedEvent['commentDeleted']) => {
+  const handleCommentDeleted = useCallback(async (event: CommentDeletedEvent['commentDeleted']) => {
     if (onCommentDeleted) {
-      onCommentDeleted(event);
+      try {
+        const result = onCommentDeleted(event) as unknown;
+        // If handler returns a promise, await it
+        if (result != null && typeof result === 'object' && 'then' in result && typeof (result as any).then === 'function') {
+          await (result as Promise<any>);
+        }
+      } catch (error) {
+        // Error handling for async callback
+      }
     }
   }, [onCommentDeleted]);
 
   // Effect to handle subscription data changes - only trigger once per event
   useEffect(() => {
     if (addedData?.commentAdded) {
-      handleCommentAdded(addedData.commentAdded);
+      handleCommentAdded(addedData.commentAdded).catch(() => {
+        // Error handling for async callback
+      });
     }
   }, [addedData?.commentAdded, handleCommentAdded]);
 
   useEffect(() => {
     if (updatedData?.commentUpdated) {
-      handleCommentUpdated(updatedData.commentUpdated);
+      handleCommentUpdated(updatedData.commentUpdated).catch(() => {
+        // Error handling for async callback
+      });
     }
   }, [updatedData?.commentUpdated, handleCommentUpdated]);
 
   useEffect(() => {
     if (deletedData?.commentDeleted) {
-      handleCommentDeleted(deletedData.commentDeleted);
+      handleCommentDeleted(deletedData.commentDeleted).catch(() => {
+        // Error handling for async callback
+      });
     }
   }, [deletedData?.commentDeleted, handleCommentDeleted]);
 

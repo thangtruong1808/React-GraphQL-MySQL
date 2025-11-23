@@ -3,12 +3,16 @@ import { splitLink } from './links';
 
 /**
  * Apollo Client Configuration
- * Creates and configures the Apollo Client instance
+ * Description: Creates and configures the Apollo Client instance
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 /**
  * Create Apollo Client with enhanced error handling and security
- * Configures the complete GraphQL client with authentication support
+ * Description: Configures the complete GraphQL client with authentication support
+ * Date: 2024-12-19
+ * Author: thangtruong
  * 
  * CALLED BY: App initialization
  * SCENARIOS: All scenarios - provides GraphQL communication layer

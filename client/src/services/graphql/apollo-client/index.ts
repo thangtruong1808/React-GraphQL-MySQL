@@ -1,6 +1,8 @@
 /**
  * Apollo Client Module
- * Central export point for Apollo Client and related utilities
+ * Description: Central export point for Apollo Client and related utilities
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 import { createApolloClient } from './config';
@@ -17,6 +19,7 @@ import {
 import {
   clearAuthDataPromise,
   ensureAuthDataReady,
+  collectAuthData,
 } from './tokens';
 
 // Create Apollo Client instance
@@ -37,5 +40,5 @@ export { setGlobalErrorHandler, setAuthInitializing, setAppInitialized };
 export { setCSRFToken, clearCSRFToken };
 
 // Export token management functions
-export { clearAuthDataPromise, ensureAuthDataReady };
+export { clearAuthDataPromise, ensureAuthDataReady, collectAuthData };
 

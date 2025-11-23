@@ -6,7 +6,9 @@ import { useError } from '../../../../contexts/ErrorContext';
 
 /**
  * Custom hook for project detail mutations
- * Handles comment creation and like toggling
+ * Description: Handles comment creation and like toggling with cache updates
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const useProjectDetailMutations = (
   projectId: string | undefined,
@@ -30,7 +32,8 @@ export const useProjectDetailMutations = (
     }
   }, [createCommentDataInternal, createCommentData, setNewComment]);
 
-  // Toggle comment like mutation with optimized cache update
+  // Toggle comment like mutation - subscription will handle real-time updates
+  // Cache update provides optimistic UI feedback
   const [toggleCommentLike] = useAuthenticatedMutation(TOGGLE_COMMENT_LIKE, {
     update: (cache: any, { data }: { data: any }) => {
       if (data?.toggleCommentLike) {
@@ -43,9 +46,15 @@ export const useProjectDetailMutations = (
 
           if (existingProject && 'project' in existingProject && existingProject.project) {
             // Update the specific comment with new like count
+            // Subscription will update likers array and ensure consistency
             const updatedComments = existingProject.project.comments.map((comment: any) =>
               comment.id === data.toggleCommentLike.id
-                ? { ...comment, likesCount: data.toggleCommentLike.likesCount, isLikedByUser: data.toggleCommentLike.isLikedByUser }
+                ? { 
+                    ...comment, 
+                    likesCount: data.toggleCommentLike.likesCount, 
+                    isLikedByUser: data.toggleCommentLike.isLikedByUser,
+                    likers: data.toggleCommentLike.likers || comment.likers || []
+                  }
                 : comment
             );
 
@@ -68,7 +77,8 @@ export const useProjectDetailMutations = (
       }
     },
     onError: (error: any) => {
-      // Handle error silently
+      // Error handling - errors are shown via error context in handlers
+      // Subscription will ensure correct state if mutation succeeds
     },
   }) as [(variables: { commentId: string }) => Promise<any>, any];
 

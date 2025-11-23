@@ -14,7 +14,9 @@ export interface CommentFormProps {
 
 /**
  * Comment Form Component
- * Displays comment input form for authenticated users
+ * Description: Displays comment input form for authenticated users
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const CommentForm: React.FC<CommentFormProps> = ({
   newComment,

@@ -34,6 +34,7 @@ export interface LikeHandlersDependencies {
   apolloClient: any;
   projectId: string;
   setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
+  currentUserId?: string | null;
   onCommentLiked?: (event: any) => void;
   onCommentUnliked?: (event: any) => void;
 }

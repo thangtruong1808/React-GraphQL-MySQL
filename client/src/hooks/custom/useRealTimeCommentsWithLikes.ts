@@ -4,6 +4,7 @@ import { useCommentSubscriptions } from './useCommentSubscriptions';
 import { useCommentLikesSubscriptions } from './useCommentLikesSubscriptions';
 import { Comment } from '../../services/graphql/commentQueries';
 import { GET_PROJECT_DETAILS } from '../../services/graphql/queries';
+import { useAuth } from '../../contexts/AuthContext';
 import { useCommentHandlers } from './useRealTimeCommentsWithLikes/handlers';
 import { useLikeHandlers } from './useRealTimeCommentsWithLikes/handlers';
 import { useCommentState } from './useRealTimeCommentsWithLikes/state/commentState';
@@ -11,8 +12,9 @@ import { UseRealTimeCommentsWithLikesOptions, CommentHandlersDependencies, LikeH
 
 /**
  * Real-time Comments with Likes Hook
- * Provides comprehensive real-time comment and like management with state updates
- * Combines all comment and like management modules into a unified interface
+ * Description: Provides comprehensive real-time comment and like management with state updates
+ * Date: 2024-12-19
+ * Author: thangtruong
  * 
  * @param options - Configuration options for real-time comments and likes
  * @returns Object containing comment state, like state, and handlers
@@ -33,6 +35,9 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
 
   // Get Apollo client for cache updates
   const apolloClient = useApolloClient();
+  
+  // Get current user for like status calculation
+  const { user } = useAuth();
 
   // Local state for comments
   const [comments, setComments] = useState<Comment[]>(initialComments);
@@ -44,13 +49,14 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
     skip: !projectId || !enabled,
   });
 
-  // Handle initial comments loading with useEffect instead of onCompleted
+  // Handle initial comments loading and sync with Apollo cache updates
   useEffect(() => {
     if (projectData?.project?.comments) {
       // Sort comments by creation date (latest first) to ensure consistent ordering
       const sortedComments = [...projectData.project.comments].sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
+      // Update local state to keep it in sync with Apollo cache
       setComments(sortedComments);
     }
   }, [projectData?.project?.comments]);
@@ -74,6 +80,7 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
     apolloClient,
     projectId,
     setComments,
+    currentUserId: user?.id?.toString() || null,
     onCommentLiked,
     onCommentUnliked,
   };
@@ -120,9 +127,12 @@ export const useRealTimeCommentsWithLikes = (options: UseRealTimeCommentsWithLik
   const { loading: commentSubscriptionLoading, ...commentSubscriptionData } = commentSubscription;
   const { loading: commentLikesSubscriptionLoading, ...commentLikesSubscriptionData } = commentLikesSubscription;
 
+  // Use Apollo cache data as source of truth, fallback to local state
+  const displayComments = projectData?.project?.comments || comments;
+
   return {
-    // Comment state - use Apollo cache data instead of local state
-    comments: projectData?.project?.comments || comments,
+    // Comment state - use Apollo cache data as source of truth
+    comments: displayComments,
     isConnected,
     loading: queryLoading || commentSubscriptionLoading || commentLikesSubscriptionLoading,
     error: queryError,
