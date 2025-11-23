@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ensureAuthDataReady, collectAuthData } from '../../../../services/graphql/apollo-client';
 import { updateActivity } from '../../../../utils/tokenManager';
 import { useError } from '../../../../contexts/ErrorContext';
+import { verifyAuthenticationBeforeMutation } from '../../../../utils/authVerification';
 
 /**
  * Project Detail Handlers Dependencies
@@ -42,8 +42,14 @@ export const useProjectDetailHandlers = ({
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Synchronous check: Verify AuthContext state first (source of truth)
+    if (!isAuthenticated) {
+      showError('You must be logged in to post comments');
+      return;
+    }
+
     // Prevent multiple simultaneous submissions
-    if (isSubmittingComment || !newComment.trim() || !isAuthenticated || !projectId || !canPostComments()) {
+    if (isSubmittingComment || !newComment.trim() || !projectId || !canPostComments()) {
       return;
     }
 
@@ -51,21 +57,23 @@ export const useProjectDetailHandlers = ({
     setIsSubmittingComment(true);
 
     try {
-      // Ensure all authentication data is ready before mutation
-      const authDataReady = await ensureAuthDataReady();
-      if (!authDataReady) {
-        showError('Authentication data not ready. Please try again.');
+      // Verify authentication before mutation (checks AuthContext and tokens)
+      // AuthContext already checked synchronously above, this ensures tokens are ready
+      const authVerification = await verifyAuthenticationBeforeMutation(isAuthenticated);
+      
+      if (!authVerification.isValid) {
+        showError(authVerification.error || 'Authentication verification failed. Please try again.');
         return;
       }
 
-      // Update user activity after ensuring auth data is ready
+      // Update user activity after verifying authentication
       try {
         await updateActivity();
       } catch (error) {
         // Continue with comment submission even if activity update fails
       }
 
-      // Execute comment creation with proper async/await
+      // Execute comment creation with verified authentication
       await createComment({
         variables: {
           input: {
@@ -94,36 +102,32 @@ export const useProjectDetailHandlers = ({
    * Author: thangtruong
    */
   const handleToggleLike = async (commentId: string) => {
-    if (!isAuthenticated || !canLikeComments()) return;
+    // Synchronous check: Verify AuthContext state first (source of truth)
+    if (!isAuthenticated) {
+      showError('You must be logged in to like comments');
+      return;
+    }
+
+    if (!canLikeComments()) return;
 
     try {
-      // Ensure all authentication data is ready before mutation
-      // Wait for tokens to be collected and available
-      const authDataReady = await ensureAuthDataReady();
-      if (!authDataReady) {
-        showError('Authentication data not ready. Please try again.');
-        return;
-      }
-
-      // Collect auth data to ensure tokens are fresh and available
-      const { accessToken } = await collectAuthData();
+      // Verify authentication before mutation (checks AuthContext and tokens)
+      // AuthContext already checked synchronously above, this ensures tokens are ready
+      const authVerification = await verifyAuthenticationBeforeMutation(isAuthenticated);
       
-      if (!accessToken) {
-        showError('Authentication token not available. Please log in again.');
+      if (!authVerification.isValid) {
+        showError(authVerification.error || 'Authentication verification failed. Please try again.');
         return;
       }
 
-      // Small delay to ensure auth headers are properly set in Apollo Client
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Update user activity after ensuring auth data is ready
+      // Update user activity after verifying authentication
       try {
         await updateActivity();
       } catch (error) {
         // Continue with like toggle even if activity update fails
       }
 
-      // Execute mutation with proper error handling
+      // Execute mutation with verified authentication
       await toggleCommentLike({
         commentId: commentId,
       });

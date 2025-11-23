@@ -17,29 +17,19 @@ import { TokenManager } from './TokenManager';
  * SCENARIOS: All scenarios - stores tokens in memory and verifies they're available
  */
 export const saveTokens = async (accessToken: string, refreshToken: string): Promise<void> => {
-  // Store tokens synchronously
+  // Store tokens synchronously (memory storage is immediate)
   TokenManager.storeTokens(accessToken, refreshToken, null);
 
   // Store token creation time for dynamic buffer calculation
   // This enables the "Continue to Work" functionality with dynamic buffer based on session duration
   TokenManager.setTokenCreationTime(Date.now());
 
-  // Verify tokens are actually stored and available
-  // Retry up to 10 times with 10ms delay to handle any timing issues
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const tokens = TokenManager.getAccessToken();
-    
-    if (tokens === accessToken) {
-      // Tokens verified - they're in storage
-      return;
-    }
-    // Wait a small amount before retrying (allows any async operations to complete)
-    await new Promise(resolve => setTimeout(resolve, 10));
+  // Verify tokens are stored (memory storage is synchronous, so this should be immediate)
+  const tokens = TokenManager.getAccessToken();
+  if (tokens !== accessToken) {
+    // This should never happen with synchronous memory storage, but throw error if it does
+    throw new Error('Failed to save authentication tokens');
   }
-
-  // If we get here, tokens weren't verified but they should still be set
-  // This is a fallback - in practice, tokens should be available immediately
-  // since memory storage is synchronous
 };
 
 /**

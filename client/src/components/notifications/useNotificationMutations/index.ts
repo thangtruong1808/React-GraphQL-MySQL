@@ -1,7 +1,8 @@
 /**
  * useNotificationMutations Hook
- * Main entry point that combines all mutation handlers
- * Provides all mutation handlers with error handling, race condition prevention, and loading states
+ * Description: Main entry point that combines all mutation handlers with error handling and race condition prevention
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 
 import { useCallback } from 'react';
@@ -31,7 +32,9 @@ import { UseNotificationMutationsReturn } from './types';
 
 /**
  * Custom hook for notification mutations
- * Provides all mutation handlers with error handling, race condition prevention, and loading states
+ * Description: Provides all mutation handlers with error handling, race condition prevention, and loading states
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 export const useNotificationMutations = (refetch: () => void): UseNotificationMutationsReturn => {
   // Initialize state and refs

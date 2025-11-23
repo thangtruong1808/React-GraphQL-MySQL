@@ -20,6 +20,7 @@ import {
   clearAuthDataPromise,
   ensureAuthDataReady,
   collectAuthData,
+  ensureTokensReady,
 } from './tokens';
 
 // Create Apollo Client instance
@@ -40,5 +41,5 @@ export { setGlobalErrorHandler, setAuthInitializing, setAppInitialized };
 export { setCSRFToken, clearCSRFToken };
 
 // Export token management functions
-export { clearAuthDataPromise, ensureAuthDataReady, collectAuthData };
+export { clearAuthDataPromise, ensureAuthDataReady, collectAuthData, ensureTokensReady };
 

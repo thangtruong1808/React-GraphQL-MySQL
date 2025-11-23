@@ -10,6 +10,7 @@ const ProjectsPage = React.lazy(() => import('../../pages/general/ProjectsPage')
 const ProjectDetailPage = React.lazy(() => import('../../pages/general/ProjectDetailPage'));
 const TeamPage = React.lazy(() => import('../../pages/general/TeamPage'));
 const AboutPage = React.lazy(() => import('../../pages/general/AboutPage'));
+const ApiGuidePage = React.lazy(() => import('../../pages/general/ApiGuidePage'));
 const SearchResultsPage = React.lazy(() => import('../../pages/search/SearchResultsPage'));
 
 // Dashboard pages for authenticated users
@@ -62,6 +63,11 @@ const AppRoutes: React.FC = () => {
       <Route
         path={ROUTE_PATHS.ABOUT}
         element={<AboutPage />}
+      />
+
+      <Route
+        path={ROUTE_PATHS.API_GUIDE}
+        element={<ApiGuidePage />}
       />
 
       <Route

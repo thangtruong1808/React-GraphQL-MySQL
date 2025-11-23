@@ -16,6 +16,7 @@ export const ROUTE_PATHS = {
   TEAM: '/team',
   ABOUT: '/about',
   SEARCH: '/search',
+  API_GUIDE: '/api-guide',
   
   // Protected routes (require authentication)
   HOME: '/',
@@ -50,6 +51,7 @@ export const ROUTE_PROTECTION = {
     ROUTE_PATHS.TEAM,
     ROUTE_PATHS.ABOUT,
     ROUTE_PATHS.SEARCH,
+    ROUTE_PATHS.API_GUIDE,
   ],
   
   // Protected routes (authentication required)
@@ -89,6 +91,7 @@ export const ROUTE_CONFIG = {
     [ROUTE_PATHS.TEAM]: 'Team',
     [ROUTE_PATHS.ABOUT]: 'About',
     [ROUTE_PATHS.SEARCH]: 'Search',
+    [ROUTE_PATHS.API_GUIDE]: 'API Guide',
     [ROUTE_PATHS.DASHBOARD]: 'Dashboard',
     [ROUTE_PATHS.DASHBOARD_USERS]: 'Users',
     [ROUTE_PATHS.DASHBOARD_PROJECTS]: 'Projects',
@@ -108,6 +111,7 @@ export const ROUTE_CONFIG = {
     [ROUTE_PATHS.TEAM]: 'Meet our talented team members',
     [ROUTE_PATHS.ABOUT]: 'Learn more about TaskFlow platform',
     [ROUTE_PATHS.SEARCH]: 'Search for members, projects, and tasks',
+    [ROUTE_PATHS.API_GUIDE]: 'API testing guide for comment endpoints',
     [ROUTE_PATHS.DASHBOARD]: 'Your personal project dashboard',
     [ROUTE_PATHS.DASHBOARD_USERS]: 'Manage users and team members',
     [ROUTE_PATHS.DASHBOARD_PROJECTS]: 'Manage and track your projects',

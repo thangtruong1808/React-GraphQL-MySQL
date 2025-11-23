@@ -12,8 +12,9 @@ import { useNotificationMutations } from './useNotificationMutations';
 
 /**
  * Notification Drawer Component
- * Displays user's notifications in a right-side drawer
- * Allows users to manage notifications (mark as read/unread, delete)
+ * Description: Displays user's notifications in a right-side drawer and allows users to manage notifications
+ * Date: 2024-12-19
+ * Author: thangtruong
  */
 interface NotificationDrawerProps {
   isOpen: boolean;
@@ -152,31 +153,67 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose
   const unreadNotifications = allNotifications.filter(notification => !notification.isRead);
   const readNotifications = allNotifications.filter(notification => notification.isRead);
 
-  // Handle mark all as read
+  /**
+   * Handle mark all as read
+   * Description: Marks all unread notifications as read with proper async handling
+   * Date: 2024-12-19
+   * Author: thangtruong
+   */
   const handleMarkAllAsRead = async () => {
     if (!isProcessingBulk()) {
-      await markAllAsRead(unreadNotifications);
+      try {
+        await markAllAsRead(unreadNotifications);
+      } catch (error) {
+        // Error handled by mutation handler
+      }
     }
   };
 
-  // Handle mark all as unread
+  /**
+   * Handle mark all as unread
+   * Description: Marks all read notifications as unread with proper async handling
+   * Date: 2024-12-19
+   * Author: thangtruong
+   */
   const handleMarkAllAsUnread = async () => {
     if (!isProcessingBulk()) {
-      await markAllAsUnread(readNotifications);
+      try {
+        await markAllAsUnread(readNotifications);
+      } catch (error) {
+        // Error handled by mutation handler
+      }
     }
   };
 
-  // Handle delete all unread
+  /**
+   * Handle delete all unread
+   * Description: Deletes all unread notifications with proper async handling
+   * Date: 2024-12-19
+   * Author: thangtruong
+   */
   const handleDeleteAllUnread = async () => {
     if (!isProcessingBulk()) {
-      await deleteAllUnread(unreadNotifications);
+      try {
+        await deleteAllUnread(unreadNotifications);
+      } catch (error) {
+        // Error handled by mutation handler
+      }
     }
   };
 
-  // Handle delete all read
+  /**
+   * Handle delete all read
+   * Description: Deletes all read notifications with proper async handling
+   * Date: 2024-12-19
+   * Author: thangtruong
+   */
   const handleDeleteAllRead = async () => {
     if (!isProcessingBulk()) {
-      await deleteAllRead(readNotifications);
+      try {
+        await deleteAllRead(readNotifications);
+      } catch (error) {
+        // Error handled by mutation handler
+      }
     }
   };
 

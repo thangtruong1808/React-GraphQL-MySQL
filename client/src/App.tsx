@@ -98,6 +98,26 @@ const RouteAwareLoadingFallback = () => {
     );
   }
 
+  if (location.pathname === ROUTE_PATHS.API_GUIDE) {
+    return (
+      <div
+        className="min-h-screen flex flex-col theme-navbar-text"
+        style={{
+          backgroundColor: 'var(--bg-base)',
+          backgroundImage: 'var(--bg-gradient)',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          color: 'var(--text-primary)'
+        }}
+      >
+        <NavBarSkeleton />
+        <main className="flex-1">
+          <AboutPageSkeleton />
+        </main>
+      </div>
+    );
+  }
+
   if (location.pathname === ROUTE_PATHS.HOME) {
     return (
       <div
@@ -189,12 +209,12 @@ const AppContent: React.FC = () => {
 
   // Show NavBar for non-authenticated users, login page, homepage, search page, or public pages
   // But not during authentication initialization for dashboard routes
-  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname.startsWith('/projects/');
+  const shouldShowNavBar = !isAuthenticated || location.pathname === ROUTE_PATHS.LOGIN || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname === ROUTE_PATHS.API_GUIDE || location.pathname.startsWith('/projects/');
 
   // For authenticated users on dashboard routes (not homepage, search, or public pages), use edge-to-edge layout
   // Also handle dashboard routes during authentication initialization
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
-  if ((isAuthenticated || (isInitializing && isDashboardRoute)) && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT && !location.pathname.startsWith('/projects/')) {
+  if ((isAuthenticated || (isInitializing && isDashboardRoute)) && location.pathname !== ROUTE_PATHS.HOME && location.pathname !== ROUTE_PATHS.SEARCH && location.pathname !== ROUTE_PATHS.PROJECTS && location.pathname !== ROUTE_PATHS.TEAM && location.pathname !== ROUTE_PATHS.ABOUT && location.pathname !== ROUTE_PATHS.API_GUIDE && !location.pathname.startsWith('/projects/')) {
     return (
       <>
         {/* Activity tracker - handles user activity monitoring */}
@@ -230,7 +250,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Footer - show for non-authenticated users and authenticated users on homepage */}
-      <div className={location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.LOGIN ? '' : 'mt-4'}>
+      <div className={location.pathname === ROUTE_PATHS.SEARCH || location.pathname === ROUTE_PATHS.PROJECTS || location.pathname === ROUTE_PATHS.TEAM || location.pathname === ROUTE_PATHS.ABOUT || location.pathname === ROUTE_PATHS.API_GUIDE || location.pathname === ROUTE_PATHS.HOME || location.pathname === ROUTE_PATHS.LOGIN ? '' : 'mt-4'}>
         {shouldShowNavBar && <Footer />}
       </div>
 

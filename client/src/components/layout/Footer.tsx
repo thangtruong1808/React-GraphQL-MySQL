@@ -5,6 +5,7 @@ import { FOOTER_STYLES } from '../../constants/footer';
 import FooterCompanyInfo from './footer/FooterCompanyInfo';
 import FooterQuickLinks from './footer/FooterQuickLinks';
 import FooterAccountSection from './footer/FooterAccountSection';
+import FooterApiGuide from './footer/FooterApiGuide';
 import FooterBottomBar from './footer/FooterBottomBar';
 
 /**
@@ -26,7 +27,7 @@ const Footer: React.FC = () => {
     >
       {/* Main Footer Content */}
       <div className={`${FOOTER_STYLES.LAYOUT.CONTAINER} py-12 lg:py-16`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Company Information Section */}
           <div className="lg:col-span-1">
             <FooterCompanyInfo />
@@ -40,6 +41,11 @@ const Footer: React.FC = () => {
           {/* User Context Section */}
           <div className="lg:col-span-1">
             <FooterAccountSection isAuthenticated={isAuthenticated} user={user} />
+          </div>
+
+          {/* API Testing Guide Section */}
+          <div className="lg:col-span-1">
+            <FooterApiGuide />
           </div>
         </div>
       </div>

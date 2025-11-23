@@ -1,8 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { REFRESH_TOKEN } from '../../services/graphql/mutations';
-import { ensureAuthDataReady, collectAuthData, clearAuthDataPromise } from '../../services/graphql/apollo-client';
-import { refreshTokenAutomatically } from '../../services/graphql/apollo-client/tokens';
+import { verifyAuthenticationBeforeMutation } from '../../utils/authVerification';
 
 // Global token refresh promise to prevent race conditions
 let tokenRefreshPromise: Promise<any> | null = null;
@@ -22,45 +21,26 @@ export const useAuthenticatedMutation = (mutation: any, options: any = {}) => {
   const [mutationFn, mutationResult] = useMutation(mutation, options);
 
   const executeMutation = async (variables: any) => {
+    // Synchronous check: Verify AuthContext state first (source of truth)
     if (!isAuthenticated) {
       throw new Error('User not authenticated');
     }
 
+    // Verify authentication before mutation (checks tokens are ready)
+    // AuthContext already checked synchronously above
+    const authVerification = await verifyAuthenticationBeforeMutation(isAuthenticated);
+    
+    if (!authVerification.isValid) {
+      throw new Error(authVerification.error || 'Authentication verification failed');
+    }
+
+    // Longer delay to ensure tokens are fully available when authLink runs
+    // This prevents race conditions where tokens are verified but not yet available in authLink
+    // Increased delay especially important after bulk operations like "mark all as read"
+    await new Promise(resolve => setTimeout(resolve, 200));
+
     try {
-      // Ensure auth data is ready before mutation
-      // Check if auth data is ready
-      const authDataReady = await ensureAuthDataReady();
-      if (!authDataReady) {
-        throw new Error('Authentication data not ready');
-      }
-
-      // Collect fresh auth data to ensure tokens are available
-      let { accessToken } = await collectAuthData();
-      
-      // If token is not available (expired), try to refresh it
-      if (!accessToken) {
-        try {
-          const refreshedToken = await refreshTokenAutomatically();
-          if (refreshedToken) {
-            accessToken = refreshedToken;
-            // Clear auth data promise to force fresh collection
-            clearAuthDataPromise();
-          } else {
-            throw new Error('Authentication token not available and refresh failed');
-          }
-        } catch (refreshError) {
-          throw new Error('Authentication token not available and refresh failed');
-        }
-      }
-
-      if (!accessToken) {
-        throw new Error('Authentication token not available');
-      }
-
-      // Small delay to ensure auth headers are properly set in Apollo Client
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // First attempt with current token
+      // Execute mutation with verified authentication
       return await mutationFn({ variables });
     } catch (error: any) {
       // If authentication error, try to refresh token and retry

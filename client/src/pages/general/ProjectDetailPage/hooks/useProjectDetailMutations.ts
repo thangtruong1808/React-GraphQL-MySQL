@@ -18,12 +18,23 @@ export const useProjectDetailMutations = (
 ) => {
   const { showError } = useError();
 
-  // Create comment mutation - let real-time subscription handle UI updates
-  const [createComment, { data: createCommentDataInternal }] = useMutation(CREATE_COMMENT, {
-    onError: (error) => {
-      showError(error.message || 'Failed to post comment. Please try again.');
+  // Create comment mutation - uses authenticated mutation wrapper
+  // Real-time subscription handles UI updates
+  const [createCommentMutation, mutationResult] = useAuthenticatedMutation(CREATE_COMMENT, {
+    onError: (error: any) => {
+      showError(error?.message || 'Failed to post comment. Please try again.');
     },
   });
+
+  // Wrapper to match expected signature
+  // Extracts variables from options and passes them correctly to mutation
+  const createComment = async (options: { variables: { input: { content: string; projectId: string } } }) => {
+    // Pass variables directly - useAuthenticatedMutation expects { input: {...} }
+    return await createCommentMutation(options.variables);
+  };
+
+  // Get data from mutation result
+  const createCommentDataInternal = mutationResult.data;
 
   // Handle comment creation completion
   useEffect(() => {
